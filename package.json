@@ -1,0 +1,44 @@
+{
+  "name": "bpanel",
+  "version": "0.1.0-beta",
+  "description": "GUI application to interact with a Bcoin Bitcoin node",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.purse.io:bcoin/bpanel.git"
+  },
+  "keywords": [
+    "bcoin",
+    "bitcoin",
+    "GUI"
+  ],
+  "author": "bcoin",
+  "license": "MIT",
+  "dependencies": {
+    "bcoin": "1.0.0-beta.15",
+    "prop-types": "^15.6.0",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2016": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.7",
+    "node-sass": "^4.5.3",
+    "sass-loader": "^6.0.6",
+    "source-map-loader": "^0.2.2",
+    "style-loader": "^0.19.0",
+    "uglifyjs-webpack-plugin": "^1.0.0-beta.3",
+    "webpack": "^3.8.1"
+  }
+}
