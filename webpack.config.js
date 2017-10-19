@@ -2,6 +2,20 @@ const webpack = require('webpack');
 const path = require('path');
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const autoprefixer = require('autoprefixer')
+
+const loaders = {
+  css: {
+    loader: 'css-loader'
+  },
+  sass: {
+    loader: 'sass-loader',
+    options: {
+      includePaths: [path.resolve(__dirname, './webapp/styles')]
+    }
+  }
+}
 
 module.exports = {
 	entry: './webapp/index',
@@ -26,19 +40,15 @@ module.exports = {
 			},
 			{
 				test: /\.(scss|css)$/,
-				use: [
-					{
-						loader: 'style-loader'
-					},
-					{
-						loader: 'css-loader'
-					},
-					{
-						loader: 'sass-loader'
-					}
-				]
+				use: ExtractTextPlugin.extract({
+				  fallback: 'style-loader',
+				  use: [loaders.css, loaders.sass]
+				})
 			}
 		]
 	},
-	plugins: [new UglifyJSPlugin({sourceMap: true})]
+	plugins: [
+		new UglifyJSPlugin({sourceMap: true}),
+		new ExtractTextPlugin('[name].css')
+	]
 };
