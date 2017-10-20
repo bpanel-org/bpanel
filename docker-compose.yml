@@ -8,4 +8,7 @@ services:
     volumes:
       # Handy for dev
       - ./dist:/usr/src/app/dist
+      - ./node_modules:/usr/src/app/node_modules
+      - ./package.json:/usr/src/app/package.json
       - ./server:/usr/src/app/server
+    command: npm run start:dev
