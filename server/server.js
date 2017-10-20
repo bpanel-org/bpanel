@@ -12,6 +12,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../webapp/index.html'));
 });
 
-app.listen(app.get('port'), '127.0.0.1', () => {
+app.listen(app.get('port'), () => {
   console.log('Node app is running on port', app.get('port')); // eslint-disable-line no-console
 });
