@@ -3,7 +3,7 @@ const path = require('path');
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const autoprefixer = require('autoprefixer')
+const autoprefixer = require('autoprefixer');
 
 const loaders = {
   css: {
@@ -15,40 +15,40 @@ const loaders = {
       includePaths: [path.resolve(__dirname, './webapp/styles')]
     }
   }
-}
+};
 
 module.exports = {
-	entry: './webapp/index',
-	target: 'web',
-	devtool: 'eval-source-map',
-	output: {
-		filename: '[name].bundle.js',
-		path: path.resolve(__dirname, 'dist')
-	},
-	resolve: {
-	  extensions: ['-browser.js', '.js', '.json', '.jsx'],
-	  alias: {
-	    bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
-	  },
-	},
-	module: {
-		rules: [
-			{
-				test: /\.jsx?$/,
-				exclude: /node_modules/,
-				loader: 'babel-loader',
-			},
-			{
-				test: /\.(scss|css)$/,
-				use: ExtractTextPlugin.extract({
-				  fallback: 'style-loader',
-				  use: [loaders.css, loaders.sass]
-				})
-			}
-		]
-	},
-	plugins: [
-		new UglifyJSPlugin({sourceMap: true}),
-		new ExtractTextPlugin('[name].css')
-	]
+  entry: './webapp/index',
+  target: 'web',
+  devtool: 'eval-source-map',
+  output: {
+    filename: '[name].bundle.js',
+    path: path.resolve(__dirname, 'dist')
+  },
+  resolve: {
+    extensions: ['-browser.js', '.js', '.json', '.jsx'],
+    alias: {
+      bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser')
+    }
+  },
+  module: {
+    rules: [
+      {
+        test: /\.jsx?$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader'
+      },
+      {
+        test: /\.(scss|css)$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [loaders.css, loaders.sass]
+        })
+      }
+    ]
+  },
+  plugins: [
+    new UglifyJSPlugin({ sourceMap: true }),
+    new ExtractTextPlugin('[name].css')
+  ]
 };

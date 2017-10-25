@@ -1,14 +1,15 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Button } from 'bpanel-ux';
 
-import "../styles/app.scss";
+import '../styles/app.scss';
 
 const App = ({ children }) => (
-  <div
-    className="app-container"
-    role="main"
-  >
+  <div className="app-container" role="main">
     {children}
+    <Button type="default" onClick={() => console.log('Bar!')}>
+      Foo
+    </Button>
   </div>
 );
 
