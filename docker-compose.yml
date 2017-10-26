@@ -8,6 +8,7 @@ services:
     volumes:
       # Handy for dev
       - ./dist:/usr/src/app/dist
+      - ./bcoin.config.json:/usr/src/app/bcoin.config.json
       - ./node_modules:/usr/src/app/node_modules
       - ./package.json:/usr/src/app/package.json
       - ./server:/usr/src/app/server
