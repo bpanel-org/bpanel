@@ -6,10 +6,30 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      # Handy for dev
+      # mapping to local files- Handy for dev
       - ./dist:/usr/src/app/dist
       - ./bcoin.config.json:/usr/src/app/bcoin.config.json
       - ./node_modules:/usr/src/app/node_modules
       - ./package.json:/usr/src/app/package.json
       - ./server:/usr/src/app/server
     command: npm run start:dev
+  bcoin:
+    container_name: bcoin
+    build:
+      context: .
+      dockerfile: Dockerfile-bcoin
+    restart: unless-stopped
+    environment:
+      BCOIN_NETWORK: regtest
+      BCOIN_API_KEY: my-api-key
+    ports:
+      #-- Mainnet
+      # - "8333:8333"
+      # - "8332:8332" # RPC
+      #-- Testnet
+     # - "18333:18333"
+      # - "18332:18332" # RPC
+      #-- Regtest
+      - "48444:48444"
+      - "48332:48332" # RPC
+    command: /code/node_modules/bcoin/bin/bcoin --http-host=0.0.0.0

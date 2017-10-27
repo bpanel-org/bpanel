@@ -39,7 +39,7 @@ bcoinRouter.use(async (req, res) => {
     const bcoinResponse = await bcoinClient._request(method, path, body);
     return res.status(200).json(bcoinResponse);
   } catch (error) {
-    console.log('got an error querying bcoin node!');
+    console.log('got an error querying bcoin node!', error);
     return res.status(400).send({ error });
   }
 });
