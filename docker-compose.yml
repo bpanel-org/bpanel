@@ -1,10 +1,22 @@
 version: '3'
 services:
-  server:
+  app:
     build: .
     restart: unless-stopped
     ports:
       - "5000:5000"
+    environment:
+      BCOIN_NETWORK: regtest
+      BCOIN_API_KEY: my-api-key
+      BCOIN_INIT_SCRIPT: test-scripts/dummy-10-wallet-crap.js
+    ############
+    #   BCOIN_NETWORK: testnet
+    #   BCOIN_API_KEY: my-other-api-key
+    #   BCOIN_INIT_SCRIPT: test-scripts/dummy-10-wallet-crap.js
+    ############
+    #   BCOIN_NETWORK: mainnet
+    #   BCOIN_API_KEY: my-api-key
+    #   BCOIN_INIT_SCRIPT: test-scripts/dummy-10-wallet-crap.js
     volumes:
       # mapping to local files- Handy for dev
       - ./dist:/usr/src/app/dist
@@ -12,17 +24,16 @@ services:
       - ./node_modules:/usr/src/app/node_modules
       - ./package.json:/usr/src/app/package.json
       - ./server:/usr/src/app/server
-    command: npm run start:dev
+      - ./docker-config-init.js:/usr/src/app/docker-config-init.js
+    command: ["npm", "run", "start:docker"]
   bcoin:
     container_name: bcoin
     build:
       context: .
       dockerfile: Dockerfile-bcoin
     restart: unless-stopped
-    environment:
-      BCOIN_NETWORK: regtest
-      BCOIN_API_KEY: my-api-key
     ports:
+      # comment these if they conflict with something else youre running.
       #-- Mainnet
       # - "8333:8333"
       # - "8332:8332" # RPC
@@ -32,4 +43,14 @@ services:
       #-- Regtest
       - "48444:48444"
       - "48332:48332" # RPC
-    command: /code/node_modules/bcoin/bin/bcoin --http-host=0.0.0.0
+    volumes:
+      - ./bcoin.config.json:/usr/src/app/bcoin.config.json
+      # Comment one of these out to make them not-persistant
+      # - "chain:~/.bcoin/regtest/chain.db"
+      # - "wallet:~/.bcoin/regtest/wallet.db"
+    depends_on:
+      - app
+
+volumes:
+  chain:
+  wallet:

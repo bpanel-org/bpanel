@@ -8,6 +8,7 @@
     "watch": "webpack --config webpack.config.js --watch",
     "start": "nodemon ./server/server.js",
     "start:dev": "NODE_ENV=development nodemon ./server/server.js",
+    "start:docker": "node ./docker-config-init.js && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "precommit": "lint-staged"
   },
@@ -27,7 +28,9 @@
     "express": "^4.16.2",
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
-    "react-dom": "^16.0.0",
+    "react-dom": "^16.0.0"
+  },
+  "optionalDependencies": {
     "bpanel-ux": "git+ssh://git@git.purse.io:bcoin/bpanel-ux.git"
   },
   "devDependencies": {

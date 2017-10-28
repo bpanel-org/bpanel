@@ -5,7 +5,8 @@ WORKDIR /usr/src/app
 # Install dependencies
 RUN apk update && \
     apk upgrade
-# RUN apk add git python make g++
+
+RUN apk add git python make g++
 
 ARG NODE_ENV
 ENV NODE_ENV $NODE_ENV
@@ -17,7 +18,10 @@ COPY webapp /usr/src/app/webapp
 COPY .babelrc /usr/src/app/.babelrc
 COPY webpack.config.js /usr/src/app/webpack.config.js
 
-RUN npm run build
+# RUN npm run build
+
+#TODO: implement and ensure 200
+HEALTHCHECK CMD curl app:5000/ || exit 1
 
 CMD [ "npm", "start" ]
 

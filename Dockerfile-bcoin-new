@@ -1,0 +1,5 @@
+FROM purse/bcoin
+
+ADD ./docker-bcoin.js /code/
+
+CMD ["node", "docker-bcoin.js"]
