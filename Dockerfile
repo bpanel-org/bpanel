@@ -17,11 +17,7 @@ COPY server /usr/src/app/server
 COPY webapp /usr/src/app/webapp
 COPY .babelrc /usr/src/app/.babelrc
 COPY webpack.config.js /usr/src/app/webpack.config.js
-
-# RUN npm run build
-
-#TODO: implement and ensure 200
-HEALTHCHECK CMD curl app:5000/ || exit 1
+COPY scripts /usr/src/app/scripts
 
 CMD [ "npm", "start" ]
 

@@ -7,9 +7,10 @@ const request = require('request');
 // const auth = require('basic-auth');
 const Client = require('bcoin').http.Client;
 
-const config = require(path.resolve(__dirname, '../bcoin.config.json'));
+const config = require(path.resolve(__dirname, '../configs/bcoin.config.json'));
+const { network, uri, apiKey } = config;
 
-const bcoinClient = new Client(config);
+const bcoinClient = new Client({ network, uri, apiKey });
 const bcoinRouter = express.Router({ mergeParams: true });
 
 // Primary router for preparing the requests to send to bcoin node

@@ -18,4 +18,6 @@ RUN npm uninstall node-gyp
 RUN pacman -Rns --noconfirm unrar python2 && \
                 rm /var/cache/pacman/pkg/*
 
-CMD ["node", "/code/node_modules/bcoin/bin/node"]
+ADD ./scripts/ /code/scripts
+
+CMD ["node", "/code/scripts/docker-bcoin-init.js"]
