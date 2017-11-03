@@ -7,11 +7,11 @@ This is primarily a setup for development purposes (though it could be used in p
 
 To simply spin up your webapp, server, a bcoin node on regtest, and generate 50 regtest BTC for your primary wallet, simply run `docker-compose up` (add `--build` if you haven't built the images yet). Navigate to http://localhost:5000 to see your webapp. Requests to `\node` will get get forwarded to your bcoin node.
 
-## Customizing Docker Environment
+## Customizing Your Docker Environment
 There are two docker services in the compose file: `app` and `bcoin`. The app service runs the web server which serves the static files for the front end and relays messages to a bcoin node. You can use custom configs to connect to an existing node, or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
 
 ### Configuration
-The configs are managed through environment variables. You can set an API key by creating a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. *DO NOT CHECK THIS FILE IN TO VERSION CONTROL.*
+The configs are managed through environment variables. You can set an API key by creating a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. _DO NOT CHECK THIS FILE IN TO VERSION CONTROL._
 
 A config file is created and placed in a `configs` directory mounted as a shared volume (named `configs`) for the containers based on these environment variables. This is done by the `docker-config-init.js` file.
 
