@@ -11,7 +11,7 @@ To simply spin up your webapp, server, a bcoin node on regtest, and generate 50 
 There are two docker services in the compose file: `app` and `bcoin`. The app service runs the web server which serves the static files for the front end and relays messages to a bcoin node. You can use custom configs to connect to an existing node, or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
 
 ### Configuration
-The configs are managed through environment variables. You can set an API key by creating a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. _DO NOT CHECK THIS FILE IN TO VERSION CONTROL._
+The configs are managed through environment variables. You can set an API key by creating a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. __DO NOT CHECK THIS FILE IN TO VERSION CONTROL.__
 
 A config file is created and placed in a `configs` directory mounted as a shared volume (named `configs`) for the containers based on these environment variables. This is done by the `docker-config-init.js` file.
 
