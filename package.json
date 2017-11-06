@@ -8,6 +8,7 @@
     "watch": "webpack --config webpack.config.js --watch",
     "start": "nodemon ./server/server.js",
     "start:dev": "NODE_ENV=development nodemon ./server/server.js",
+    "start:docker": "node ./scripts/docker-config-init.js && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1",
     "precommit": "lint-staged"
   },
@@ -28,7 +29,7 @@
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "bpanel-ux": "git+ssh://git@git.purse.io:bcoin/bpanel-ux.git"
+    "bpanel-ux": "git+https://github.com/Bucko13/bpanel-ux.git"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.5",

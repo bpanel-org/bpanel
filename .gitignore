@@ -59,3 +59,9 @@ typings/
 
 # Build packages
 dist/*
+
+# bcoin config
+bcoin.config.json
+
+# Secrets
+secrets.env
