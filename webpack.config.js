@@ -12,7 +12,15 @@ const loaders = {
   sass: {
     loader: 'sass-loader',
     options: {
-      includePaths: [path.resolve(__dirname, './webapp/styles')]
+      includePaths: [path.resolve(__dirname, './webapp/styles/main')]
+    }
+  },
+  postcss: {
+    loader: 'postcss-loader',
+    options: {
+      plugins: function() {
+        return [autoprefixer];
+      }
     }
   }
 };
@@ -42,7 +50,7 @@ module.exports = {
         test: /\.(scss|css)$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
-          use: [loaders.css, loaders.sass]
+          use: [loaders.css, loaders.postcss, loaders.sass]
         })
       }
     ]

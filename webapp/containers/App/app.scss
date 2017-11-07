@@ -1,0 +1,14 @@
+@import '../../styles/main';
+
+html {
+  height: 100%;
+}
+
+body {
+  @include linear-gradient(
+    -35deg,
+    color('bg-gradient-purple') 0%,
+    color('bg-gradient-blue') 50%,
+    color('bg-gradient-teal') 100%);
+  color: $white;
+}
