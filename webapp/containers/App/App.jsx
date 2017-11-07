@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'bpanel-ux';
 
+import Header from '../../components/Header/Header';
 import './app.scss';
 
 class App extends Component {
@@ -23,6 +24,7 @@ class App extends Component {
   render() {
     return (
       <div className="app-container container-fluid" role="main">
+        <Header />
         <div className="row justify-content-center">
           <h1 className="col">Hello World!</h1>
           {this.props.children}

@@ -52,6 +52,17 @@ module.exports = {
           fallback: 'style-loader',
           use: [loaders.css, loaders.postcss, loaders.sass]
         })
+      },
+      {
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: 'assets/'
+            }
+          }
+        ]
       }
     ]
   },
