@@ -1,1 +1,1 @@
-export { default as nodeInfo } from './nodeInfo';
+export { default as node } from './node';

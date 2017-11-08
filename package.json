@@ -28,12 +28,15 @@
     "bcoin": "1.0.0-beta.15",
     "body-parser": "^1.18.2",
     "bpanel-ux": "git+https://github.com/Bucko13/bpanel-ux.git",
+    "es6-promise": "^4.1.1",
     "express": "^4.16.2",
+    "isomorphic-fetch": "^2.2.1",
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-redux": "^5.0.6",
-    "redux": "^3.7.2"
+    "redux": "^3.7.2",
+    "redux-thunk": "^2.2.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.5",
