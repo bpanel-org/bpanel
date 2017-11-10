@@ -25,8 +25,8 @@ const loaders = {
   }
 };
 
-module.exports = {
-  entry: './webapp/index',
+module.exports = env => ({
+  entry: ['whatwg-fetch', './webapp/index'],
   target: 'web',
   devtool: 'eval-source-map',
   output: {
@@ -43,7 +43,7 @@ module.exports = {
     rules: [
       {
         test: /\.jsx?$/,
-        exclude: /node_modules/,
+        exclude: /(node_modules|bower_components)/,
         loader: 'babel-loader'
       },
       {
@@ -68,6 +68,12 @@ module.exports = {
   },
   plugins: [
     new UglifyJSPlugin({ sourceMap: true }),
-    new ExtractTextPlugin('[name].css')
+    new ExtractTextPlugin('[name].css'),
+    new webpack.DefinePlugin({
+      'process.env': {
+        BCOIN_URI: JSON.stringify(env.BCOIN_URI),
+        NODE_ENV: JSON.stringify(env.NODE_ENV)
+      }
+    })
   ]
-};
+});

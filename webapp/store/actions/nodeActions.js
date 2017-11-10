@@ -1,5 +1,3 @@
-import fetch from 'isomorphic-fetch';
-
 import * as types from '../constants';
 
 export function setNodeInfo(info) {
@@ -16,14 +14,37 @@ export function requestingNode(loadingState) {
   };
 }
 
+export function setBcoinUri(uri) {
+  return {
+    type: types.SET_BCOIN_URI,
+    payload: uri
+  };
+}
+
 export function getNodeInfo() {
   return dispatch => {
     dispatch(requestingNode(true));
+    dispatch(getServerInfo());
     return fetch('/node')
-      .then(response => JSON.parse(response))
-      .then(nodeObject => {
+      .then(response => response.json())
+      .then(nodeInfo => {
         dispatch(requestingNode(false));
-        dispatch(setNodeInfo(nodeObject));
+        dispatch(setNodeInfo(nodeInfo));
       });
   };
 }
+
+export function getServerInfo() {
+  return dispatch => {
+    return fetch('/server')
+      .then(response => response.json())
+      .then(serverInfo => {
+        dispatch(setBcoinUri(serverInfo.bcoinUri));
+      });
+  };
+}
+export default {
+  setNodeInfo,
+  requestingNode,
+  getNodeInfo
+};

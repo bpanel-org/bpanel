@@ -6,8 +6,10 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --watch",
-    "build:dev": "webpack --config webpack.dev.config.js",
-    "watch:dev": "webpack --config webpack.dev.config.js --watch",
+    "build:dev":
+      "webpack --env.NODE_ENV=development --config webpack.config.js",
+    "watch:dev":
+      "webpack --env.NODE_ENV=development --config webpack.config.js --watch",
     "start": "nodemon ./server/server.js",
     "start:dev": "NODE_ENV=development nodemon ./server/server.js",
     "start:docker": "node ./scripts/docker-config-init.js && npm run start",
@@ -25,17 +27,18 @@
   "author": "bcoin",
   "license": "MIT",
   "dependencies": {
+    "babel-runtime": "^6.26.0",
     "bcoin": "1.0.0-beta.15",
     "body-parser": "^1.18.2",
     "bpanel-ux": "git+https://github.com/Bucko13/bpanel-ux.git",
-    "es6-promise": "^4.1.1",
+    "bsock": "git+https://github.com/bcoin-org/bsock",
     "express": "^4.16.2",
-    "isomorphic-fetch": "^2.2.1",
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-redux": "^5.0.6",
     "redux": "^3.7.2",
+    "redux-promise-middleware": "^4.4.2",
     "redux-thunk": "^2.2.0"
   },
   "devDependencies": {

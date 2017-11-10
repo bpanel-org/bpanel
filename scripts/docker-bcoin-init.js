@@ -8,7 +8,7 @@ const configs = require(path.resolve(
   '../configs/bcoin.config.json'
 ));
 const { initScript, network } = configs;
-
+console.log('configs: ', configs);
 let prefix = configs.prefix
   ? configs.prefix
   : `${os.homedir()}/.bcoin/${network}`;

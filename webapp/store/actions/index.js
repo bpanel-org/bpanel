@@ -1,1 +1,1 @@
-export * from './nodeActions';
+export { default as nodeActions } from './nodeActions';
