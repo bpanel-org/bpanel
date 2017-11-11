@@ -1,16 +1,14 @@
 /// BOOTSTRAP SASS FILES
+// @import "node_modules/bootstrap/scss/bootstrap";
 @import '~bootstrap/scss/functions';
 @import '~bootstrap/scss/variables';
 @import '~bootstrap/scss/mixins';
 @import '~bootstrap/scss/grid';
+@import '~bootstrap/scss/utilities/flex';
 @import '~bootstrap/scss/reboot';
-@import '~bootstrap/scss/type';
 @import '~bootstrap/scss/utilities/text';
-
-/// CUSTOM SASS FILES
-@import 'functions';
-@import 'mixins';
-@import 'variables';
+@import '~bootstrap/scss/type';
+@import '~bootstrap/scss/utilities/position';
 
 .blue {
   color: theme-color('blue');

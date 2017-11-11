@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 const bsock = require('bsock');
 
 import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Button } from 'bpanel-ux';
 
@@ -16,33 +17,28 @@ class App extends Component {
     super(props);
   }
 
-  getNodeInfo() {
-    const { dispatch } = this.props;
-    let action = nodeActions.getNodeInfo();
-    dispatch(action);
-  }
-
   async componentDidMount() {
     const socket = bsock.connect(8000);
     socket.on('connect', async () => {
-      console.log('connected');
       socket.bind('chain progress', progress => {
-        console.log('chain progress: ', progress);
+        this.props.updateChainInfo({ progress });
       });
-      // console.log('Calling foo...');
-      // // Call = emit event and wait for ack
-      // const data = await socket.call('foo');
-      // console.log('Response for foo: %s.', data.toString('ascii'));
-      // console.log('Sending bar...');
-      // // Fire = emit event
-      // socket.fire('bar', Buffer.from('baz'));
     });
 
-    this.getNodeInfo();
+    socket.on('error', err => err);
+
+    this.props.getNodeInfo();
   }
 
   render() {
-    const { nodeInfo, loading, bcoinUri, nodeProgress = 0 } = this.props;
+    const {
+      nodeInfo,
+      loading,
+      bcoinUri,
+      nodeProgress = 0,
+      getNodeInfo
+    } = this.props;
+
     return (
       <div className="app-container container-fluid" role="main">
         <Header
@@ -56,7 +52,7 @@ class App extends Component {
         </div>
         <div className="row justify-content-center">
           <div className="col-4">
-            <Button type="default" onClick={() => this.getNodeInfo()}>
+            <Button type="default" onClick={() => getNodeInfo()}>
               Click Me
             </Button>
           </div>
@@ -87,4 +83,16 @@ const mapStateToProps = state => ({
   loading: state.node.loading
 });
 
-export default connect(mapStateToProps)(App);
+const mapDispatchToProps = dispatch => {
+  const { setNodeInfo, getNodeInfo, updateChainInfo } = nodeActions;
+  return bindActionCreators(
+    {
+      setNodeInfo,
+      getNodeInfo,
+      updateChainInfo
+    },
+    dispatch
+  );
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

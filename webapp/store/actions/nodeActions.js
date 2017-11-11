@@ -1,9 +1,17 @@
+/*eslint-env browser*/
 import * as types from '../constants';
 
 export function setNodeInfo(info) {
   return {
     type: types.SET_NODE,
     payload: info
+  };
+}
+
+export function updateChainInfo(chain) {
+  return {
+    type: types.SET_CHAIN,
+    payload: chain
   };
 }
 
@@ -46,5 +54,6 @@ export function getServerInfo() {
 export default {
   setNodeInfo,
   requestingNode,
-  getNodeInfo
+  getNodeInfo,
+  updateChainInfo
 };

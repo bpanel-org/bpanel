@@ -9,13 +9,12 @@ const initialState = {
     bcoinUri: '0.0.0.0'
   }
 };
-import { SET_NODE, SET_LOADING, SET_BCOIN_URI } from '../constants';
+import { SET_NODE, SET_LOADING, SET_BCOIN_URI, SET_CHAIN } from '../constants';
 
 const nodeState = (state = initialState, action) => {
   let newState = { ...state };
-
   switch (action.type) {
-    case SET_NODE:
+    case SET_NODE: {
       const { version, network, chain, memory, mempool, time } = action.payload;
       newState.node = { version, network };
       newState.chain = chain;
@@ -23,6 +22,13 @@ const nodeState = (state = initialState, action) => {
       newState.mempool = mempool;
       newState.time = time;
       return newState;
+    }
+
+    case SET_CHAIN: {
+      let newChain = Object.assign(newState.chain, action.payload);
+      newState.chain = newChain;
+      return newState;
+    }
 
     case SET_LOADING:
       newState.loading = action.payload;

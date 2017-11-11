@@ -21,3 +21,8 @@
   );
   background: linear-gradient($direction, $color-stops);
 }
+
+@mixin background-opacity($color, $opacity: 0.3) {
+  background: $color;
+  background: rgba($color, $opacity);
+}

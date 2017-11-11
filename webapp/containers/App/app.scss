@@ -1,4 +1,5 @@
-@import '../../styles/main';
+@import 'mixins';
+@import 'variables';
 
 html {
   height: 100%;
@@ -10,5 +11,5 @@ body {
     color('bg-gradient-purple') 0%,
     color('bg-gradient-blue') 50%,
     color('bg-gradient-teal') 100%);
-  color: $white;
+  color: theme-color('white');
 }

@@ -7,17 +7,22 @@ const autoprefixer = require('autoprefixer');
 
 const loaders = {
   css: {
-    loader: 'css-loader'
+    loader: 'css-loader',
+    options: {
+      sourceMap: true
+    }
   },
   sass: {
     loader: 'sass-loader',
     options: {
-      includePaths: [path.resolve(__dirname, './webapp/styles/main')]
+      sourceMap: true,
+      includePaths: [path.resolve(__dirname, './webapp/styles/')]
     }
   },
   postcss: {
     loader: 'postcss-loader',
     options: {
+      sourceMap: true,
       plugins: function() {
         return [autoprefixer];
       }

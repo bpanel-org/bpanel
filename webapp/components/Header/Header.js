@@ -8,7 +8,7 @@ const Header = ({ loading, network, bcoinUri }) => {
   const statusIcon = loading ? 'ellipsis-h' : 'check-circle';
 
   return (
-    <div className="navbar header row justify-content-between">
+    <div className="navbar header row">
       <div className="col-1">
         <a href="/" className="navbar-brand">
           <img src={logo} className="logo" width="60" height="60" />
