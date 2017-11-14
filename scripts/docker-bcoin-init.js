@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 const bcoin = require('bcoin');
 const fs = require('fs');
 const path = require('path');
@@ -8,7 +10,6 @@ const configs = require(path.resolve(
   '../configs/bcoin.config.json'
 ));
 const { initScript, network } = configs;
-console.log('configs: ', configs);
 let prefix = configs.prefix
   ? configs.prefix
   : `${os.homedir()}/.bcoin/${network}`;

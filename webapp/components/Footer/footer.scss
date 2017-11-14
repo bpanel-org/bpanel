@@ -5,7 +5,7 @@ footer {
   @include background-opacity(theme-color('white'), 0.2);
   bottom: 0;
   font-size: $font-size-small;
-  height: $font-size-large * 1.5;
+  height: $footer-height;
   position: fixed;
   width: 100%;
 }

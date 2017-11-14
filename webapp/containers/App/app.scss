@@ -1,8 +1,11 @@
 @import 'mixins';
 @import 'variables';
 
-html {
+html,
+body {
   height: 100%;
+  min-height: 300px;
+  overflow-y: hidden;
 }
 
 body {
@@ -12,4 +15,9 @@ body {
     color('bg-gradient-blue') 50%,
     color('bg-gradient-teal') 100%);
   color: theme-color('white');
+}
+
+.app-container {
+  height: calc(100vh - #{$footer-height});
+  overflow-y: overlay;
 }

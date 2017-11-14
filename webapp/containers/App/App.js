@@ -41,26 +41,28 @@ class App extends Component {
 
     return (
       <div className="app-container container-fluid" role="main">
-        <Header
-          network={nodeInfo.network}
-          loading={loading}
-          bcoinUri={bcoinUri}
-        />
-        <div className="row justify-content-center">
-          <h1 className="col">Hello World!</h1>
-          {this.props.children}
-        </div>
-        <div className="row justify-content-center">
-          <div className="col-4">
-            <Button type="default" onClick={() => getNodeInfo()}>
-              Click Me
-            </Button>
+        <div className="content">
+          <Header
+            network={nodeInfo.network}
+            loading={loading}
+            bcoinUri={bcoinUri}
+          />
+          <div className="row justify-content-center">
+            <h1 className="col">Hello World!</h1>
+            {this.props.children}
           </div>
-        </div>
-        <div className="row justify-content-center">
-          <div className="col-6">
-            <h2>Node Info:</h2>
-            {JSON.stringify(nodeInfo)}
+          <div className="row justify-content-center">
+            <div className="col-4">
+              <Button type="default" onClick={() => getNodeInfo()}>
+                Click Me
+              </Button>
+            </div>
+          </div>
+          <div className="row justify-content-center">
+            <div className="col-6">
+              <h2>Node Info:</h2>
+              {JSON.stringify(nodeInfo)}
+            </div>
           </div>
         </div>
         <Footer version={nodeInfo.version} progress={nodeProgress} />
@@ -73,7 +75,9 @@ App.propTypes = {
   children: PropTypes.node,
   nodeInfo: PropTypes.object,
   loading: PropTypes.bool,
-  bcoinUri: PropTypes.string
+  nodeProgress: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  bcoinUri: PropTypes.string,
+  getNodeInfo: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
