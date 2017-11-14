@@ -10,12 +10,12 @@ services:
     environment:
       BCOIN_HTTP_HOST: 0.0.0.0
     ############ Regtest
-      BCOIN_URI: http://bcoin:48332
-      BCOIN_INIT_SCRIPT: funded-dummy-wallets.js
-      BCOIN_NETWORK: regtest
+      # BCOIN_URI: http://bcoin:48332
+      # BCOIN_INIT_SCRIPT: funded-dummy-wallets.js
+      # BCOIN_NETWORK: regtest
     ############ Testnet
-      # BCOIN_URI: http://bcoin:18332
-      # BCOIN_NETWORK: testnet
+      BCOIN_URI: http://bcoin:18332
+      BCOIN_NETWORK: testnet
     ############ Mainnet
     #   BCOIN_NETWORK: mainnet
     #   BCOIN_INIT_SCRIPT: test-scripts/dummy-10-wallet-crap.js
@@ -51,7 +51,7 @@ services:
       - configs:/code/configs
       - ./scripts:/code/scripts
       # Uncomment to make these persistant
-      # - "~/.bcoin/testnet/chaindb.ldb:~/.bcoin/testnet/chaindb.ldb"
+      - "~/.bcoin/testnet/chaindb.ldb:/code/.bcoin/testnet/chaindb.ldb"
       # - "~/.bcoin/testnet/walletdb.ldb:/code/.bcoin/testnet/walletdb.ldb"
     depends_on:
       - app

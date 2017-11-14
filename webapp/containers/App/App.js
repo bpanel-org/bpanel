@@ -18,16 +18,19 @@ class App extends Component {
   }
 
   async componentDidMount() {
+    // TODO: This should be put into a reducer
+    const { getNodeInfo, updateChainInfo } = this.props;
     const socket = bsock.connect(8000);
     socket.on('connect', async () => {
-      socket.bind('chain progress', progress => {
-        this.props.updateChainInfo({ progress });
+      socket.bind('chain progress', raw => {
+        const progress = parseFloat(raw.toString('ascii'));
+        updateChainInfo({ progress });
       });
     });
 
-    socket.on('error', err => err);
+    socket.on('error', err => console.log(err)); // eslint-disable-line no-console
 
-    this.props.getNodeInfo();
+    getNodeInfo();
   }
 
   render() {
