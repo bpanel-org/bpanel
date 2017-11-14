@@ -1,0 +1,23 @@
+@import 'mixins';
+@import 'variables';
+
+html,
+body {
+  height: 100%;
+  min-height: 300px;
+  overflow-y: hidden;
+}
+
+body {
+  @include linear-gradient(
+    -35deg,
+    color('bg-gradient-purple') 0%,
+    color('bg-gradient-blue') 50%,
+    color('bg-gradient-teal') 100%);
+  color: theme-color('white');
+}
+
+.app-container {
+  height: calc(100vh - #{$footer-height});
+  overflow-y: overlay;
+}

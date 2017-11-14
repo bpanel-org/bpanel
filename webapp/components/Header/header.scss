@@ -1,0 +1,21 @@
+@import 'variables';
+@import '~bootstrap/scss/navbar';
+
+.header {
+  height: $font-size-base * 7;
+
+  img {
+    opacity: 0.75;
+  }
+
+  i {
+    color: theme-color('teal');
+    font-size: $font-size-large;
+    margin-left: 1rem;
+  }
+
+  .network-status {
+    font-size: $font-size-small;
+    opacity: $font-opacity;
+  }
+}

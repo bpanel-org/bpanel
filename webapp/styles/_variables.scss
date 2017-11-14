@@ -1,0 +1,35 @@
+@import 'main';
+
+/// ******
+/// FONTS
+/// ******
+$light: 300;
+$regular: 400;
+$semi-bold: 600;
+$bold: 700;
+
+$font-size-small: $font-size-base * 0.8;
+$font-size-normal: $font-size-base;
+$font-size-large: $font-size-base * 1.2;
+$font-opacity: 0.75;
+
+/// ******
+/// COLORS
+/// ******
+
+/// Primary Palette
+$theme-colors: ('teal': #00ffe0, 'blue': #83d9ff, 'white': #fff, 'black': #000);
+
+$colors: (
+  'bg-gradient-purple': #835fac,
+  'bg-gradient-blue': #00558a,
+  'bg-gradient-teal': #009db6,
+  'btn-gradient-blue': #1b1464,
+  'btn-gradient-purple': #9e005d
+);
+
+/// ******
+/// ELEMENT DIMENSIONS
+/// ******
+
+$footer-height: 30px;
