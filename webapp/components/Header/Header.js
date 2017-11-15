@@ -14,10 +14,10 @@ const Header = ({ loading, network, bcoinUri }) => {
           <img src={logo} className="logo" width="60" height="60" />
         </a>
       </div>
-      <div className="network-status ml-md-auto text-right">
+      <div className="network-status ml-md-auto text-right col">
         <div className="network text-uppercase">
           Status: {network}{' '}
-          <i className={`fa fa-${statusIcon}`} areahidden="true" />
+          <i className={`fa fa-${statusIcon} teal`} areahidden="true" />
         </div>
         <div className="node">
           <span className="blue">Node:</span> {bcoinUri}

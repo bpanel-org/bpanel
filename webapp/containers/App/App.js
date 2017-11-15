@@ -4,11 +4,11 @@ const bsock = require('bsock');
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Button } from 'bpanel-ux';
 
 import { nodeActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
+import Sidebar from '../../components/Sidebar/Sidebar';
 
 import './app.scss';
 
@@ -18,7 +18,7 @@ class App extends Component {
   }
 
   async componentDidMount() {
-    // TODO: This should be put into a reducer
+    // TODO: Socket management should be put into a reducer
     const { getNodeInfo, updateChainInfo } = this.props;
     const socket = bsock.connect(8000);
     socket.on('connect', async () => {
@@ -34,38 +34,20 @@ class App extends Component {
   }
 
   render() {
-    const {
-      nodeInfo,
-      loading,
-      bcoinUri,
-      nodeProgress = 0,
-      getNodeInfo
-    } = this.props;
+    const { nodeInfo, loading, bcoinUri, nodeProgress = 0 } = this.props;
 
     return (
       <div className="app-container container-fluid" role="main">
-        <div className="content">
-          <Header
-            network={nodeInfo.network}
-            loading={loading}
-            bcoinUri={bcoinUri}
-          />
-          <div className="row justify-content-center">
-            <h1 className="col">Hello World!</h1>
-            {this.props.children}
-          </div>
-          <div className="row justify-content-center">
-            <div className="col-4">
-              <Button type="default" onClick={() => getNodeInfo()}>
-                Click Me
-              </Button>
-            </div>
-          </div>
-          <div className="row justify-content-center">
-            <div className="col-6">
-              <h2>Node Info:</h2>
-              {JSON.stringify(nodeInfo)}
-            </div>
+        <Header
+          network={nodeInfo.network}
+          loading={loading}
+          bcoinUri={bcoinUri}
+        />
+        <div className="row content-container">
+          <Sidebar />
+          <div className="col-8">
+            <h2>Node Info:</h2>
+            {JSON.stringify(nodeInfo)}
           </div>
         </div>
         <Footer version={nodeInfo.version} progress={nodeProgress} />

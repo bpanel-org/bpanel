@@ -1,4 +1,4 @@
-@import 'main';
+// @import 'main';
 
 /// ******
 /// FONTS
@@ -7,6 +7,8 @@ $light: 300;
 $regular: 400;
 $semi-bold: 600;
 $bold: 700;
+
+$font-size-base: 1rem;
 
 $font-size-small: $font-size-base * 0.8;
 $font-size-normal: $font-size-base;
@@ -32,4 +34,5 @@ $colors: (
 /// ELEMENT DIMENSIONS
 /// ******
 
-$footer-height: 30px;
+$footer-height: $font-size-base * 2;
+$header-height: $font-size-base * 7;

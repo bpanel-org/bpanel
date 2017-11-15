@@ -1,0 +1,15 @@
+@import 'variables';
+
+.blue {
+  color: theme-color('blue');
+}
+
+.teal {
+  color: theme-color('teal');
+}
+
+.subtext {
+  font-size: $font-size-small;
+  margin-bottom: 0;
+  opacity: 0.75;
+}
