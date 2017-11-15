@@ -1,4 +1,3 @@
-/*eslint-env browser*/
 import * as types from '../constants';
 
 export function setNodeInfo(info) {
@@ -38,7 +37,8 @@ export function getNodeInfo() {
       .then(nodeInfo => {
         dispatch(requestingNode(false));
         dispatch(setNodeInfo(nodeInfo));
-      });
+      })
+      .catch(e => e);
   };
 }
 
@@ -48,7 +48,8 @@ export function getServerInfo() {
       .then(response => response.json())
       .then(serverInfo => {
         dispatch(setBcoinUri(serverInfo.bcoinUri));
-      });
+      })
+      .catch(e => e);
   };
 }
 export default {
