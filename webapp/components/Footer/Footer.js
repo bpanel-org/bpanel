@@ -7,10 +7,14 @@ const Footer = ({ version, progress }) => {
   const progressPercentage = progress * 100;
 
   return (
-    <footer className="row align-items-center">
-      <div className="col-3 version">{version}</div>
-      <div className="col-3 progress ml-md-auto">
-        {progressPercentage.toFixed(2)}% synced
+    <footer className="row footer-container align-items-center">
+      <div className="container">
+        <div className="row align-items-center">
+          <div className="col-3 version text-truncate">{version}</div>
+          <div className="col-3 progress">
+            {progressPercentage.toFixed(2)}% synced
+          </div>
+        </div>
       </div>
     </footer>
   );

@@ -1,15 +1,13 @@
-@import 'variables';
-@import '~bootstrap/scss/navbar';
+@import 'main';
 
 .header {
-  height: $font-size-base * 7;
+  height: $header-height;
 
   img {
     opacity: 0.75;
   }
 
   i {
-    color: theme-color('teal');
     font-size: $font-size-large;
     margin-left: 1rem;
   }
