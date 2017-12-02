@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   // localPlugins are for either development of a plugin or
   // for default/built-in plugins
   localPlugins: ['dashboard'],

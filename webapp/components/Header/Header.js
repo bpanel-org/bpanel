@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import logo from '../../images/logo.png';
+import logo from '../../assets/logo.png';
 import './header.scss';
 
 const Header = ({ loading, network, bcoinUri }) => {

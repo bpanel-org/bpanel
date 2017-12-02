@@ -9,8 +9,12 @@ import { nodeActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Sidebar from '../../components/Sidebar/Sidebar';
+import Panel_ from '../../components/Panel/Panel';
+import { decorate } from '../../utils/plugins';
 
 import './app.scss';
+
+const Panel = decorate(Panel_, 'Panel');
 
 class App extends Component {
   constructor(props) {
@@ -45,10 +49,7 @@ class App extends Component {
         />
         <div className="row content-container">
           <Sidebar />
-          <div className="col-8">
-            <h2>Node Info:</h2>
-            {JSON.stringify(nodeInfo)}
-          </div>
+          <Panel />
         </div>
         <Footer version={nodeInfo.version} progress={nodeProgress} />
       </div>
