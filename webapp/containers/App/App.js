@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-const bsock = require('bsock');
-
+import bsock from 'bsock';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
