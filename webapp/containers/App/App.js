@@ -4,6 +4,7 @@ const bsock = require('bsock');
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 import { nodeActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
@@ -37,21 +38,38 @@ class App extends Component {
     const { nodeInfo, loading, bcoinUri, nodeProgress = 0 } = this.props;
 
     return (
-      <div className="app-container container-fluid" role="main">
-        <Header
-          network={nodeInfo.network}
-          loading={loading}
-          bcoinUri={bcoinUri}
-        />
-        <div className="row content-container">
-          <Sidebar />
-          <div className="col-8">
-            <h2>Node Info:</h2>
-            {JSON.stringify(nodeInfo)}
+      <Router>
+        <div className="app-container container-fluid" role="main">
+          <Header
+            network={nodeInfo.network}
+            loading={loading}
+            bcoinUri={bcoinUri}
+          />
+          <div className="row content-container">
+            <Sidebar />
+            <Route
+              path="/"
+              exact
+              component={() => (
+                <div className="col-8">
+                  <h2>Node Info:</h2>
+                  {JSON.stringify(nodeInfo)}
+                </div>
+              )}
+            />
+            <Route
+              path="/wallets"
+              exact
+              component={() => (
+                <div className="col-8">
+                  <h2>Wallets:</h2>
+                </div>
+              )}
+            />
           </div>
+          <Footer version={nodeInfo.version} progress={nodeProgress} />
         </div>
-        <Footer version={nodeInfo.version} progress={nodeProgress} />
-      </div>
+      </Router>
     );
   }
 }
