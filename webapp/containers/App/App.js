@@ -10,7 +10,8 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Panel_ from '../../components/Panel/Panel';
-import { decorate, getPluginMetadata } from '../../utils/plugins';
+import { decorate } from '../../utils/plugins';
+import { plugins } from '../../store/selectors';
 
 import './app.scss';
 
@@ -38,8 +39,13 @@ class App extends Component {
   }
 
   render() {
-    const { nodeInfo, loading, bcoinUri, nodeProgress = 0 } = this.props;
-    const pluginMeta = getPluginMetadata();
+    const {
+      nodeInfo,
+      loading,
+      bcoinUri,
+      nodeProgress = 0,
+      pluginMeta
+    } = this.props;
     return (
       <div className="app-container container-fluid" role="main">
         <Header
@@ -57,20 +63,32 @@ class App extends Component {
   }
 }
 
+export const pluginMetaProps = {
+  name: PropTypes.string.isRequired,
+  order: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  parent: PropTypes.string,
+  icon: PropTypes.string
+};
+
 App.propTypes = {
   children: PropTypes.node,
   nodeInfo: PropTypes.object,
   loading: PropTypes.bool,
   nodeProgress: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   bcoinUri: PropTypes.string,
-  getNodeInfo: PropTypes.func.isRequired
+  getNodeInfo: PropTypes.func.isRequired,
+  pluginMeta: PropTypes.shape({
+    parentItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps)),
+    subItems: PropTypes.object
+  })
 };
 
 const mapStateToProps = state => ({
   nodeInfo: state.node.node,
   nodeProgress: state.node.chain.progress,
   bcoinUri: state.node.serverInfo.bcoinUri,
-  loading: state.node.loading
+  loading: state.node.loading,
+  pluginMeta: plugins.getSortedPluginMetadata(state)
 });
 
 const mapDispatchToProps = dispatch => {

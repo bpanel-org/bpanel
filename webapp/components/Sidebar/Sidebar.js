@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import './sidebar.scss';
-import { sortPluginMeta } from '../../store/selectors';
+import { pluginMetaProps } from '../../containers/App/App';
 
 const sidebarItem = (
   //eslint-disable-next-line react/prop-types
@@ -18,7 +18,7 @@ const sidebarItem = (
 const Sidebar = ({ pluginMeta }) => {
   const commitHash = process.env.__COMMIT__.slice(0, 7);
   const version = process.env.__VERSION__;
-  const { parentItems, subItems } = sortPluginMeta(pluginMeta);
+  const { parentItems, subItems } = pluginMeta;
   return (
     <nav className="col-3 d-flex flex-column sidebar">
       {parentItems.map((plugin, index) => {
@@ -70,7 +70,10 @@ sidebarItem.propTypes = {
 };
 
 Sidebar.propTypes = {
-  pluginMeta: PropTypes.arrayOf(PropTypes.shape(sidebarItem.propTypes))
+  pluginMeta: PropTypes.shape({
+    parentItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps)),
+    subItems: PropTypes.object
+  })
 };
 
 export default Sidebar;

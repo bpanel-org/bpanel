@@ -6,7 +6,7 @@ import config from '../appConfig';
 
 // Instantiate caches
 let plugins;
-let metadata = [];
+let metadata = new Map();
 // reducers
 // middleware (action creators)
 // decorated components
@@ -21,10 +21,14 @@ export const loadPlugins = () => {
     // cache each extension:
     // reducers
     // middleware
-    if (plugin.metadata) {
-      metadata.push(plugin.metadata);
+    const { name } = plugin.metadata;
+    if (plugin.metadata && !metadata.has(name)) {
+      // metadata.push(plugin.metadata);
+      metadata.set(name, plugin.metadata);
     } else {
-      throw new Error(`${pluginName} didn't have any metadata`);
+      throw new Error(
+        `${pluginName} didn't have any metadata or plugin name is duplicate`
+      );
     }
 
     return plugin;
@@ -143,4 +147,4 @@ export function decorate(Component_, name) {
   };
 }
 
-export const getPluginMetadata = () => metadata;
+export const initialMetadata = () => metadata;
