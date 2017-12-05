@@ -4,7 +4,8 @@ export const metadata = {
   name: 'dashboard',
   author: 'bcoin-org',
   order: 0,
-  icon: 'home'
+  icon: 'home',
+  parent: ''
 };
 
 export const decoratePanel = (Panel, { React, PropTypes }) => {

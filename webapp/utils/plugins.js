@@ -6,7 +6,7 @@ import config from '../appConfig';
 
 // Instantiate caches
 let plugins;
-let metadata = {};
+let metadata = [];
 // reducers
 // middleware (action creators)
 // decorated components
@@ -22,7 +22,7 @@ export const loadPlugins = () => {
     // reducers
     // middleware
     if (plugin.metadata) {
-      metadata[pluginName] = plugin.metadata;
+      metadata.push(plugin.metadata);
     } else {
       throw new Error(`${pluginName} didn't have any metadata`);
     }
@@ -31,7 +31,7 @@ export const loadPlugins = () => {
   });
 };
 
-// loadPlugins();
+loadPlugins();
 
 // export middleware
 
@@ -143,4 +143,4 @@ export function decorate(Component_, name) {
   };
 }
 
-// export plugin metadata for the sidebar
+export const getPluginMetadata = () => metadata;

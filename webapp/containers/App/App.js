@@ -10,7 +10,7 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Panel_ from '../../components/Panel/Panel';
-import { decorate } from '../../utils/plugins';
+import { decorate, getPluginMetadata } from '../../utils/plugins';
 
 import './app.scss';
 
@@ -39,7 +39,7 @@ class App extends Component {
 
   render() {
     const { nodeInfo, loading, bcoinUri, nodeProgress = 0 } = this.props;
-
+    const pluginMeta = getPluginMetadata();
     return (
       <div className="app-container container-fluid" role="main">
         <Header
@@ -48,7 +48,7 @@ class App extends Component {
           bcoinUri={bcoinUri}
         />
         <div className="row content-container">
-          <Sidebar />
+          <Sidebar pluginMeta={pluginMeta} />
           <Panel />
         </div>
         <Footer version={nodeInfo.version} progress={nodeProgress} />
