@@ -58,6 +58,7 @@ class App extends Component {
             <Sidebar sidebarItems={sortedPluginMeta} />
             <Panel />
           </div>
+          <Footer version={nodeInfo.version} progress={nodeProgress} />
         </div>
       </Router>
     );
