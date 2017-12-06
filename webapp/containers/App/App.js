@@ -3,7 +3,7 @@ import bsock from 'bsock';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 import { nodeActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
