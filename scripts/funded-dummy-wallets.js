@@ -17,12 +17,12 @@ const makeWallets = async node => {
 
   const minerReceive = primary.getReceive();
   // eslint-disable-next-line no-console
-  console.log('minerReceive: ', minerReceive);
+  console.log('miner receive address: ', minerReceive);
 
   await miner.addAddress(minerReceive);
 
   const entry = await chain.getEntry(node.chain.tip.hash);
-  const block = await node.miner.mineBlock(entry, minerReceive);
+  const block = await miner.mineBlock(entry, minerReceive);
 
   await node.chain.add(block);
 };

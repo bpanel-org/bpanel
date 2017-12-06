@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-const bsock = require('bsock');
-
+import bsock from 'bsock';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -9,8 +8,13 @@ import { nodeActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Sidebar from '../../components/Sidebar/Sidebar';
+import Panel_ from '../../components/Panel/Panel';
+import { decorate } from '../../utils/plugins';
+import { plugins } from '../../store/selectors';
 
 import './app.scss';
+
+const Panel = decorate(Panel_, 'Panel');
 
 class App extends Component {
   constructor(props) {
@@ -34,8 +38,13 @@ class App extends Component {
   }
 
   render() {
-    const { nodeInfo, loading, bcoinUri, nodeProgress = 0 } = this.props;
-
+    const {
+      nodeInfo,
+      loading,
+      bcoinUri,
+      nodeProgress = 0,
+      sortedPluginMeta
+    } = this.props;
     return (
       <div className="app-container container-fluid" role="main">
         <Header
@@ -44,11 +53,8 @@ class App extends Component {
           bcoinUri={bcoinUri}
         />
         <div className="row content-container">
-          <Sidebar />
-          <div className="col-8">
-            <h2>Node Info:</h2>
-            {JSON.stringify(nodeInfo)}
-          </div>
+          <Sidebar sidebarItems={sortedPluginMeta} />
+          <Panel />
         </div>
         <Footer version={nodeInfo.version} progress={nodeProgress} />
       </div>
@@ -56,20 +62,34 @@ class App extends Component {
   }
 }
 
+export const pluginMetaProps = {
+  name: PropTypes.string.isRequired,
+  order: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  parent: PropTypes.string,
+  icon: PropTypes.string
+};
+
 App.propTypes = {
   children: PropTypes.node,
   nodeInfo: PropTypes.object,
   loading: PropTypes.bool,
   nodeProgress: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   bcoinUri: PropTypes.string,
-  getNodeInfo: PropTypes.func.isRequired
+  getNodeInfo: PropTypes.func.isRequired,
+  sortedPluginMeta: PropTypes.arrayOf(
+    PropTypes.shape({
+      ...pluginMetaProps,
+      subItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps))
+    })
+  )
 };
 
 const mapStateToProps = state => ({
   nodeInfo: state.node.node,
   nodeProgress: state.node.chain.progress,
   bcoinUri: state.node.serverInfo.bcoinUri,
-  loading: state.node.loading
+  loading: state.node.loading,
+  sortedPluginMeta: plugins.getSortedPluginMetadata(state)
 });
 
 const mapDispatchToProps = dispatch => {
