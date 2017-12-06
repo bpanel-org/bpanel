@@ -3,20 +3,37 @@ import PropTypes from 'prop-types';
 
 import './sidebar.scss';
 import { pluginMetaProps } from '../../containers/App/App';
+import logo from '../../assets/logo.png';
 
-const sidebarItem = ({ name, icon = 'cog', subItem = false, children }) => (
-  <div className={`nav-item ${subItem ? 'subItem' : ''}`}>
-    <i className={`fa fa-${icon}`} />
-    {name}
-    {children}
-  </div>
+const sidebarItem = ({
+  name,
+  path,
+  icon = 'cog',
+  subItem = false,
+  children
+}) => (
+  <Link
+    to={path}
+    className={`nav-item sidebar-link ${subItem ? 'subItem' : ''}`}
+  >
+    <div className="sidebar-item">
+      <i className={`fa fa-${icon} sidebar-item-icon`} />
+      {name}
+      {children}
+    </div>
+  </Link>
 );
 
 const Sidebar = ({ sidebarItems }) => {
   const commitHash = process.env.__COMMIT__.slice(0, 7);
   const version = process.env.__VERSION__;
   return (
-    <nav className="col-3 d-flex flex-column sidebar">
+    <nav className="d-flex flex-column sidebar col-sm-2">
+      <Link to="/">
+        <div className="sidebar-logo">
+          <img src={logo} className="logo" width="60" height="60" />
+        </div>
+      </Link>
       {sidebarItems.map((plugin, index) => {
         // mapping through each parent item to create the sidebar nav element
         const sidebarItemProps = { ...plugin };

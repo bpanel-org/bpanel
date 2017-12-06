@@ -1,7 +1,7 @@
 import Dashboard from './Dashboard';
 
 export const metadata = {
-  name: 'dashboard',
+  name: 'Dashboard',
   author: 'bcoin-org',
   order: 0,
   icon: 'home',
@@ -32,5 +32,3 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
     }
   };
 };
-
-module.exports = { metadata, decoratePanel };

@@ -2,3 +2,32 @@
 
 .sidebar {
 }
+
+.sidebar-logo {
+  width: 100%;
+  padding: 20px 0;
+  text-align: center;
+}
+
+.sidebar-item {
+  color: #fff;
+  font-weight: 300;
+  text-decoration: none;
+  padding: 10px 25px;
+}
+
+.sidebar-item:hover {
+  background: linear-gradient(to right, #1b1464, #9e005d);
+}
+
+.sidebar-link {
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  text-decoration: none;
+}
+
+.sidebar-item-icon {
+  padding-right: 10px;
+}
