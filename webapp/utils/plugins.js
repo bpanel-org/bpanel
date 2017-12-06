@@ -6,7 +6,7 @@ import config from '../appConfig';
 
 // Instantiate caches
 let plugins;
-let metadata = new Map();
+let metadata = {};
 // reducers
 // middleware (action creators)
 // decorated components
@@ -22,9 +22,10 @@ export const loadPlugins = () => {
     // reducers
     // middleware
     const { name } = plugin.metadata;
-    if (plugin.metadata && !metadata.has(name)) {
-      // metadata.push(plugin.metadata);
-      metadata.set(name, plugin.metadata);
+    if (plugin.metadata && !metadata[name]) {
+      // if there is metadata and the plugin doesn't already exist in the metadata object
+      // store new metadata
+      metadata[name] = plugin.metadata;
     } else {
       throw new Error(
         `${pluginName} didn't have any metadata or plugin name is duplicate`
@@ -101,16 +102,13 @@ function getDecorated(Component, name) {
             `Plugin error, ${pluginName} decorating component`,
             err.stack
           );
-
           return;
         }
-
         component_ = component__;
       }
     });
     decorated[name] = component_;
   }
-
   return decorated[name];
 }
 

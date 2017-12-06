@@ -43,7 +43,7 @@ class App extends Component {
       loading,
       bcoinUri,
       nodeProgress = 0,
-      pluginMeta
+      sortedPluginMeta
     } = this.props;
     return (
       <div className="app-container container-fluid" role="main">
@@ -53,7 +53,7 @@ class App extends Component {
           bcoinUri={bcoinUri}
         />
         <div className="row content-container">
-          <Sidebar pluginMeta={pluginMeta} />
+          <Sidebar sidebarItems={sortedPluginMeta} />
           <Panel />
         </div>
         <Footer version={nodeInfo.version} progress={nodeProgress} />
@@ -76,10 +76,12 @@ App.propTypes = {
   nodeProgress: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   bcoinUri: PropTypes.string,
   getNodeInfo: PropTypes.func.isRequired,
-  pluginMeta: PropTypes.shape({
-    parentItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps)),
-    subItems: PropTypes.object
-  })
+  sortedPluginMeta: PropTypes.arrayOf(
+    PropTypes.shape({
+      ...pluginMetaProps,
+      subItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps))
+    })
+  )
 };
 
 const mapStateToProps = state => ({
@@ -87,7 +89,7 @@ const mapStateToProps = state => ({
   nodeProgress: state.node.chain.progress,
   bcoinUri: state.node.serverInfo.bcoinUri,
   loading: state.node.loading,
-  pluginMeta: plugins.getSortedPluginMetadata(state)
+  sortedPluginMeta: plugins.getSortedPluginMetadata(state)
 });
 
 const mapDispatchToProps = dispatch => {

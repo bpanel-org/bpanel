@@ -4,10 +4,7 @@ import PropTypes from 'prop-types';
 import './sidebar.scss';
 import { pluginMetaProps } from '../../containers/App/App';
 
-const sidebarItem = (
-  //eslint-disable-next-line react/prop-types
-  { name, icon = 'cog', subItem = false, children }
-) => (
+const sidebarItem = ({ name, icon = 'cog', subItem = false, children }) => (
   <div className={`nav-item ${subItem ? 'subItem' : ''}`}>
     <i className={`fa fa-${icon}`} />
     {name}
@@ -15,30 +12,27 @@ const sidebarItem = (
   </div>
 );
 
-const Sidebar = ({ pluginMeta }) => {
+const Sidebar = ({ sidebarItems }) => {
   const commitHash = process.env.__COMMIT__.slice(0, 7);
   const version = process.env.__VERSION__;
-  const { parentItems, subItems } = pluginMeta;
   return (
     <nav className="col-3 d-flex flex-column sidebar">
-      {parentItems.map((plugin, index) => {
+      {sidebarItems.map((plugin, index) => {
         // mapping through each parent item to create the sidebar nav element
         const sidebarItemProps = { ...plugin };
-        if (subItems.has(plugin.name)) {
+        if (plugin.subItems) {
           // if this sidebar item has sub items
-          // then we need to create the children elements
-          sidebarItemProps.children = [];
-          const children = subItems.get(plugin.name);
-
-          children.forEach((subItem, subIndex) => {
-            const props = {
-              ...subItem,
-              subItem: true,
-              key: `${index}-${subIndex}`
-            };
-            const child = React.createElement(sidebarItem, props);
-            sidebarItemProps.children.push(child);
-          });
+          // then we need to create and append the children elements
+          sidebarItemProps.children = plugin.subItems.map(
+            (subItem, subIndex) => {
+              const props = {
+                ...subItem,
+                subItem: true,
+                key: `${index}-${subIndex}`
+              };
+              return React.createElement(sidebarItem, props);
+            }
+          );
         }
 
         return React.createElement(sidebarItem, {
@@ -70,10 +64,12 @@ sidebarItem.propTypes = {
 };
 
 Sidebar.propTypes = {
-  pluginMeta: PropTypes.shape({
-    parentItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps)),
-    subItems: PropTypes.object
-  })
+  sidebarItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      ...pluginMetaProps,
+      subItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps))
+    })
+  )
 };
 
 export default Sidebar;
