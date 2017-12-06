@@ -14,7 +14,6 @@ module.exports = config => {
     port: 9876,
     colors: true,
     autoWatch: true,
-    logLevel: config.LOG_INFO,
     browsers: ['PhantomJS'],
     concurrency: Infinity
   });

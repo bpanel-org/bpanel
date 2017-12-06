@@ -14,8 +14,8 @@
     "start:dev": "NODE_ENV=development nodemon ./server/server.js",
     "start:docker": "node ./scripts/docker-config-init.js && npm run start",
     "lint": "eslint .",
-    "test": "eslint . && karma start --single-run",
-    "karma": "karma start",
+    "test": "npm run lint && karma start --single-run",
+    "karma": "karma start --autoWatch",
     "precommit": "lint-staged"
   },
   "lint-staged": {
