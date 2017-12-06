@@ -7,7 +7,11 @@ const pluginMetadata = (state = initialMetadata(), action) => {
   switch (action.type) {
     case ADD_PLUGIN: {
       const newPlugin = action.payload;
-      newState.set(newPlugin.name, newPlugin);
+      if (!newState[newPlugin.name]) {
+        newState[newPlugin.name] = newPlugin;
+      } else {
+        throw new Error(`${newPlugin.name} already exists`);
+      }
       return newState;
     }
 
