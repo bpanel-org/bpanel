@@ -4,8 +4,9 @@
   "description": "GUI application to interact with a Bcoin Bitcoin node",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js",
-    "watch": "webpack --config webpack.config.js --watch",
+    "build": "webpack --env.NODE_ENV=production --config webpack.config.js",
+    "watch":
+      "webpack --env.NODE_ENV=production --config webpack.config.js --watch",
     "build:dev":
       "webpack --env.NODE_ENV=development --config webpack.config.js",
     "watch:dev":
@@ -70,6 +71,7 @@
     "postcss-loader": "^2.0.8",
     "prettier": "1.7.4",
     "redux-devtools-extension": "^2.13.2",
+    "reselect": "^3.0.1",
     "sass-lint": "^1.12.1",
     "sass-loader": "^6.0.6",
     "source-map-loader": "^0.2.2",
