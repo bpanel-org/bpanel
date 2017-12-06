@@ -12,7 +12,10 @@ const sidebarItem = ({
   subItem = false,
   children
 }) => (
-  <Link to={path} className={`nav-item ${subItem ? 'subItem' : ''}`}>
+  <Link
+    to={path}
+    className={`nav-item sidebar-item ${subItem ? 'subItem' : ''}`}
+  >
     <i className={`fa fa-${icon}`} />
     {name}
     {children}
