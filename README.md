@@ -5,15 +5,19 @@ This is the official repo for the bPanel project, a full featured, enterprise le
 ## Setup Your Environment With Docker
 This is primarily a setup for development purposes (though it could be used in production with some modification).
 
-To simply spin up your webapp, server, a bcoin node on regtest, and generate 50 regtest BTC for your primary wallet, simply run `docker-compose up` (add `--build` if you haven't built the images yet). Navigate to http://localhost:5000 to see your webapp. Requests to `\node` will get get forwarded to your bcoin node.
+You can set an API key by creating a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. This key can be any value you want. __DO NOT CHECK THIS FILE IN TO VERSION CONTROL.__
+
+To spin up your webapp, server, a bcoin node on regtest, and generate 50 regtest BTC for your primary wallet, navigate to your repo and run:
+1. `npm i`
+2. `docker-compose up` (add `--build` if you haven't built the images yet)
+3. In a separate terminal tab, run `npm run watch:dev`. This will run webpack for the front-end.
+4. Navigate to http://localhost:5000 to see your webapp. Requests to `\node` will get get forwarded to your bcoin node.
 
 ## Customizing Your Docker Environment
 There are two docker services in the compose file: `app` and `bcoin`. The app service runs the web server which serves the static files for the front end and relays messages to a bcoin node. You can use custom configs to connect to an existing node, or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
 
 ### Configuration
-The configs are managed through environment variables. You can set an API key by creating a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. __DO NOT CHECK THIS FILE IN TO VERSION CONTROL.__
-
-A config file is created and placed in a `configs` directory mounted as a shared volume (named `configs`) for the containers based on these environment variables. This is done by the `docker-config-init.js` file.
+The configs are managed through environment variables. A config file is created and placed in a `configs` directory mounted as a shared volume (named `configs`) for the containers based on these environment variables. This is done by the `docker-config-init.js` file.
 
 Make sure to comment out the environment variables according to the network you want your webapp to connect to and/or what kind of node you want to run if you're running the bcoin service.
 

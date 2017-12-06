@@ -38,6 +38,7 @@ const loaders = {
 
 module.exports = env => ({
   entry: ['whatwg-fetch', './webapp/index'],
+  node: { __dirname: true },
   target: 'web',
   devtool: 'eval-source-map',
   output: {
