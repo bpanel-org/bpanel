@@ -9,16 +9,17 @@ export default class Panel extends React.Component {
 
   static get propTypes() {
     return {
-      customChildren: PropTypes.node
+      customChildren: PropTypes.array
     };
   }
   render() {
     const { customChildren = [] } = this.props;
-    const plugins = customChildren.map(pluginData => (
+    const plugins = customChildren.map(({ name, Component }) => (
       <Route
         exact
-        path={'/' + pluginData.name}
-        component={pluginData.Component}
+        path={`/${name}`}
+        key={`nav-${name}`}
+        component={Component}
       />
     ));
 

@@ -16,7 +16,7 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        customChildren: PropTypes.oneOf([PropTypes.element, PropTypes.object])
+        customChildren: PropTypes.array
       };
     }
 
