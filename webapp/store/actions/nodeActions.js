@@ -1,4 +1,4 @@
-import * as types from '../constants';
+import * as types from '../constants/node';
 
 export function setNodeInfo(info) {
   return {

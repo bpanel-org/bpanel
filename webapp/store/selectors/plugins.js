@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import { comparePlugins } from '../../utils/utils';
 
-const getPluginMetadata = state => state.plugins;
+const getPluginMetadata = state => state.pluginMetadata;
 
 export const sortPluginMetadata = pluginMeta => {
   const subItems = new Map();
