@@ -9,6 +9,7 @@ const pluginMetadata = (state = initialMetadata(), action) => {
       const newPlugin = action.payload;
       if (!newState[newPlugin.name]) {
         newState[newPlugin.name] = newPlugin;
+        // TODO call a reload function to reload plugins
       } else {
         throw new Error(`${newPlugin.name} already exists`);
       }

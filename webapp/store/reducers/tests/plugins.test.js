@@ -1,31 +1,52 @@
 import { expect } from 'chai';
 import pluginMetadata from '../pluginMetadata';
-import { ADD_PLUGIN } from '../constants';
+import { ADD_PLUGIN } from '../../constants/plugins';
 
 describe('pluginMetadata reducer', () => {
   let state;
   beforeEach(() => {
     state = {
-      pluginMetadata: {
-        dashboard: {
-          name: 'dashboard',
-          order: 0
-        },
-        wallets: {
-          name: 'wallets',
-          order: 1
-        },
-        testWallet: {
-          name: 'testWallet',
-          order: 0
-        }
+      dashboard: {
+        name: 'dashboard',
+        order: 0
+      },
+      wallets: {
+        name: 'wallets',
+        order: 1
+      },
+      testWallet: {
+        name: 'testWallet',
+        order: 0
       }
     };
   });
 
   describe('ADD_PLUGIN', () => {
     it('should throw error if plugin name already exists', () => {
-      const action = pluginmetadata(state);
+      const action = {
+        type: ADD_PLUGIN,
+        payload: {
+          name: 'dashboard'
+        }
+      };
+      expect(() => {
+        pluginMetadata(state, action);
+      }).to.throw('already exists');
+    });
+
+    it('should add new plugin to store if not a duplicate', () => {
+      const action = {
+        type: ADD_PLUGIN,
+        payload: {
+          name: 'newPlugin'
+        }
+      };
+      const newState = pluginMetadata(state, action);
+
+      expect(Object.keys(newState)).to.have.length(
+        Object.keys(state).length + 1
+      );
+      expect(newState[action.payload.name]).to.exist;
     });
   });
 });
