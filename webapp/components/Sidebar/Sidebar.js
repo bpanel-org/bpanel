@@ -5,15 +5,9 @@ import PropTypes from 'prop-types';
 import './sidebar.scss';
 import { pluginMetaProps } from '../../containers/App/App';
 
-const sidebarItem = ({
-  name,
-  path,
-  icon = 'cog',
-  subItem = false,
-  children
-}) => (
+const sidebarItem = ({ name, icon = 'cog', subItem = false, children }) => (
   <Link
-    to={path}
+    to={name}
     className={`nav-item sidebar-item ${subItem ? 'subItem' : ''}`}
   >
     <i className={`fa fa-${icon}`} />

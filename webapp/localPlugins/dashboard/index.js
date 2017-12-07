@@ -2,7 +2,6 @@ import Dashboard from './Dashboard';
 
 export const metadata = {
   name: 'dashboard',
-  path: '',
   author: 'bcoin-org',
   order: 0,
   icon: 'home',
@@ -22,16 +21,17 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
     }
 
     render() {
-      const extendedChildren = (
-        <div>
-          {this.props.customChildren}
-          <Dashboard />
-        </div>
+      const { customChildren = [] } = this.props;
+      const pluginData = {
+        name: metadata.name,
+        Component: Dashboard
+      };
+      return (
+        <Panel
+          {...this.props}
+          customChildren={customChildren.concat(pluginData)}
+        />
       );
-
-      return <Panel {...this.props} customChildren={extendedChildren} />;
     }
   };
 };
-
-module.exports = { metadata, decoratePanel };

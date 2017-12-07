@@ -1,6 +1,7 @@
 // utilities for plugins to load, cache, and decorate
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Route } from 'react-router-dom';
 
 import config from '../appConfig';
 
