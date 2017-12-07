@@ -1,24 +1,19 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import './sidebar.scss';
 import { pluginMetaProps } from '../../containers/App/App';
 import logo from '../../assets/logo.png';
 
-const sidebarItem = ({
-  name,
-  path,
-  icon = 'cog',
-  subItem = false,
-  children
-}) => (
+const sidebarItem = ({ name, icon = 'cog', subItem = false, children }) => (
   <Link
-    to={path}
+    to={name}
     className={`nav-item sidebar-link ${subItem ? 'subItem' : ''}`}
   >
     <div className="sidebar-item">
       <i className={`fa fa-${icon} sidebar-item-icon`} />
-      {name}
+      <span>{name}</span>
       {children}
     </div>
   </Link>
@@ -28,7 +23,7 @@ const Sidebar = ({ sidebarItems }) => {
   const commitHash = process.env.__COMMIT__.slice(0, 7);
   const version = process.env.__VERSION__;
   return (
-    <nav className="d-flex flex-column sidebar col-sm-2">
+    <nav className="d-flex flex-column sidebar">
       <Link to="/">
         <div className="sidebar-logo">
           <img src={logo} className="logo" width="60" height="60" />
@@ -58,11 +53,9 @@ const Sidebar = ({ sidebarItems }) => {
         });
       })}
       <div className="sidebar-footer mt-auto text-center">
-        <h5>bPanel</h5>
-        <p className="version subtext text-truncate">version: {version}</p>
-        <p className="commit subtext text-truncate">
-          commit hash: {commitHash}
-        </p>
+        <h5>bpanel</h5>
+        <p className="version subtext text-truncate">bcoin: {version}</p>
+        <p className="commit subtext text-truncate">UI: {commitHash}</p>
       </div>
       <div className="col-sm-1" />
     </nav>
