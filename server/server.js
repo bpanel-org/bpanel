@@ -17,9 +17,10 @@ app.use(bodyParser.json());
   ROUTES
 **/
 app.use(express.static(path.join(__dirname, '../dist')));
-app.get('/', (req, res) => {
+const resolveIndex = (req, res) => {
   res.sendFile(path.resolve(__dirname, '../webapp/index.html'));
-});
+};
+app.get('/', resolveIndex);
 
 // route to get server info
 app.get('/server', (req, res) =>
@@ -29,6 +30,7 @@ app.get('/server', (req, res) =>
 // Path to route calls to bcoin node
 app.use('/node', bcoinRouter);
 
+app.get('/*', resolveIndex);
 /**
   START SERVERS
 **/

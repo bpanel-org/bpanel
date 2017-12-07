@@ -16,21 +16,22 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        customChildren: PropTypes.oneOf([PropTypes.element, PropTypes.object])
+        customChildren: PropTypes.array
       };
     }
 
     render() {
-      const extendedChildren = (
-        <div>
-          {this.props.customChildren}
-          <Dashboard />
-        </div>
+      const { customChildren = [] } = this.props;
+      const pluginData = {
+        name: metadata.name,
+        Component: Dashboard
+      };
+      return (
+        <Panel
+          {...this.props}
+          customChildren={customChildren.concat(pluginData)}
+        />
       );
-
-      return <Panel {...this.props} customChildren={extendedChildren} />;
     }
   };
 };
-
-module.exports = { metadata, decoratePanel };

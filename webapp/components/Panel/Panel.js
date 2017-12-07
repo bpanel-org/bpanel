@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 export default class Panel extends React.Component {
@@ -8,12 +9,20 @@ export default class Panel extends React.Component {
 
   static get propTypes() {
     return {
-      customChildren: PropTypes.node
+      customChildren: PropTypes.array
     };
   }
   render() {
-    const { customChildren } = this.props;
+    const { customChildren = [] } = this.props;
+    const plugins = customChildren.map(({ name, Component }) => (
+      <Route
+        exact
+        path={`/${name}`}
+        key={`nav-${name}`}
+        component={Component}
+      />
+    ));
 
-    return <div className="col-8">{customChildren}</div>;
+    return <div className="col-8">{plugins}</div>;
   }
 }

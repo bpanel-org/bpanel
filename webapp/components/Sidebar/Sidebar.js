@@ -1,15 +1,19 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import './sidebar.scss';
 import { pluginMetaProps } from '../../containers/App/App';
 
 const sidebarItem = ({ name, icon = 'cog', subItem = false, children }) => (
-  <div className={`nav-item ${subItem ? 'subItem' : ''}`}>
+  <Link
+    to={name}
+    className={`nav-item sidebar-item ${subItem ? 'subItem' : ''}`}
+  >
     <i className={`fa fa-${icon}`} />
     {name}
     {children}
-  </div>
+  </Link>
 );
 
 const Sidebar = ({ sidebarItems }) => {
