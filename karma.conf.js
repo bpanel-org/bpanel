@@ -5,11 +5,18 @@ module.exports = config => {
     basePath: '',
     frameworks: ['mocha', 'chai', 'sinon'],
     exclude: ['node_modules/**/test/*.js'],
-    files: ['webapp/**/tests/**/*test.js'],
+    files: [
+      'node_modules/babel-polyfill/dist/polyfill.js',
+      'webapp/**/tests/**/*.test.js'
+    ],
     preprocessors: {
-      'webapp/**/tests/**/*test.js': ['webpack']
+      'webapp/**/tests/**/*.test.js': ['webpack', 'sourcemap']
     },
-    webpack: webpackConfig,
+    webpack: webpackConfig({}),
+    webpackServer: {
+      noInfo: true,
+      quiet: true
+    },
     reporters: ['nyan'],
     port: 9876,
     colors: true,
