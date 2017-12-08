@@ -10,7 +10,7 @@ import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Panel_ from '../../components/Panel/Panel';
-import { decorate } from '../../utils/plugins';
+import { decorate } from '../../plugins/plugins';
 import { plugins } from '../../store/selectors';
 
 import './app.scss';
