@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { comparePlugins } from '../../utils/utils';
+import { comparePlugins } from '../../utils/plugins';
 
 const getPluginMetadata = state => state.pluginMetadata;
 

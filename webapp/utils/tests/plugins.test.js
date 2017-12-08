@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { comparePlugins } from '../utils';
+import { comparePlugins } from '../plugins';
 
 describe('comparePlugins', () => {
   let plugins, sortedPlugins;

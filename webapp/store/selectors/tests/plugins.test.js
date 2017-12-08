@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { sortPluginMetadata } from '../plugins';
-import * as utils from '../../../utils/utils';
+import * as utils from '../../../utils/plugins';
 
 describe('sortPluginMetadata', () => {
   let actual, subItems, parentItems;

@@ -1,5 +1,5 @@
 import { ADD_PLUGIN } from '../constants/plugins';
-import { initialMetadata } from '../../utils/plugins';
+import { initialMetadata } from '../../plugins/plugins';
 
 const pluginMetadata = (state = initialMetadata(), action) => {
   let newState = { ...state };
