@@ -52,11 +52,24 @@ module.exports = env => ({
     }
   },
   module: {
-    rules: [
+    loaders: [
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel-loader'
+        loader: 'babel-loader',
+        query: {
+          presets: ['es2017', 'es2016', 'es2015', 'react', 'stage-3'],
+          plugins: [
+            [
+              'transform-runtime',
+              {
+                helpers: true,
+                polyfill: true,
+                regenerator: true
+              }
+            ]
+          ]
+        }
       },
       {
         test: /\.(scss|css)$/,

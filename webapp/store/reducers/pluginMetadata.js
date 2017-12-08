@@ -1,5 +1,5 @@
-import { ADD_PLUGIN } from '../constants';
-import { initialMetadata } from '../../utils/plugins';
+import { ADD_PLUGIN } from '../constants/plugins';
+import { initialMetadata } from '../../plugins/plugins';
 
 const pluginMetadata = (state = initialMetadata(), action) => {
   let newState = { ...state };
@@ -9,6 +9,7 @@ const pluginMetadata = (state = initialMetadata(), action) => {
       const newPlugin = action.payload;
       if (!newState[newPlugin.name]) {
         newState[newPlugin.name] = newPlugin;
+        // TODO call a reload function to reload plugins
       } else {
         throw new Error(`${newPlugin.name} already exists`);
       }

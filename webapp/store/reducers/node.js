@@ -9,7 +9,12 @@ const initialState = {
     bcoinUri: '0.0.0.0'
   }
 };
-import { SET_NODE, SET_LOADING, SET_BCOIN_URI, SET_CHAIN } from '../constants';
+import {
+  SET_NODE,
+  SET_LOADING,
+  SET_BCOIN_URI,
+  SET_CHAIN
+} from '../constants/node';
 
 const nodeState = (state = initialState, action) => {
   let newState = { ...state };
