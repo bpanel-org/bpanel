@@ -54,7 +54,7 @@ describe('sortPluginMetadata', () => {
     }
   });
 
-  it('should sort call comparePlugins for sorting on parents and subItems', () => {
+  it('should call comparePlugins for sorting on parents and subItems', () => {
     const spy = sinon.spy(utils, 'comparePlugins');
     sortPluginMetadata({ ...parentItems, ...subItems });
     expect(spy.called).to.be.true;
