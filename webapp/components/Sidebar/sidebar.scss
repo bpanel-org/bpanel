@@ -1,7 +1,7 @@
 @import 'main';
 
 .sidebar {
-  height: 100vh;
+  height: calc(100vh - #{$footer-height});
   min-height: 50vh;
 
   .sidebar-logo {
