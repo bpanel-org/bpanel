@@ -1,7 +1,7 @@
 import Dashboard from './Dashboard';
 
 export const metadata = {
-  name: 'Dashboard',
+  name: 'dashboard',
   author: 'bcoin-org',
   order: 0,
   icon: 'home',

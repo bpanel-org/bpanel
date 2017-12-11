@@ -1,7 +1,7 @@
 import Wallet from './Wallet';
 
 export const metadata = {
-  name: 'Wallets',
+  name: 'wallets',
   author: 'bcoin-org',
   order: 1,
   icon: 'hdd-o',
