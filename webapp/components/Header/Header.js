@@ -7,7 +7,7 @@ const Header = ({ loading, network, bcoinUri }) => {
   const statusIcon = loading ? 'ellipsis-h' : 'check-circle';
 
   return (
-    <div className="navbar header row">
+    <div className="navbar header">
       <div className="network-status ml-md-auto text-right col">
         <div className="network text-uppercase">
           Status: {network}{' '}

@@ -21,11 +21,8 @@ body {
 .app-container {
   height: calc(100vh - #{$footer-height});
   overflow-y: overlay;
-  display: flex;
-  flex-wrap: wrap;
 
   .content-container {
     height: calc(100vh - #{$footer-height} - #{$header-height});
-    width: calc(100vw - #{$sidebar-width});
   }
 }

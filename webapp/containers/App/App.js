@@ -3,7 +3,6 @@ import bsock from 'bsock';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { BrowserRouter as Router } from 'react-router-dom';
 
 import { nodeActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
@@ -44,13 +43,14 @@ class App extends Component {
       loading,
       bcoinUri,
       nodeProgress = 0,
-      sortedPluginMeta
+      sortedPluginMeta,
+      location
     } = this.props;
     return (
-      <Router>
-        <div className="app-container" role="main">
-          <Sidebar sidebarItems={sortedPluginMeta} />
-          <div className="content-container">
+      <div className="app-container container-fluid" role="main">
+        <div className="row">
+          <Sidebar sidebarItems={sortedPluginMeta} location={location} />
+          <div className="content-container col-sm-8 col-lg-9">
             <Header
               network={nodeInfo.network}
               loading={loading}
@@ -60,7 +60,7 @@ class App extends Component {
           </div>
           <Footer version={nodeInfo.version} progress={nodeProgress} />
         </div>
-      </Router>
+      </div>
     );
   }
 }
