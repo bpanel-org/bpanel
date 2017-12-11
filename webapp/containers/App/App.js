@@ -28,7 +28,10 @@ class App extends Component {
     socket.on('connect', async () => {
       socket.bind('chain progress', raw => {
         const progress = parseFloat(raw.toString('ascii'));
-        updateChainInfo({ progress });
+        // only update state if the change is noticeable
+        if (progress.toFixed(4) > this.props.nodeProgress.toFixed(4)) {
+          updateChainInfo({ progress });
+        }
       });
     });
 

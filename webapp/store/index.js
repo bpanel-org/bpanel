@@ -11,7 +11,8 @@ const middleware = [thunkMiddleware, promiseMiddleware()];
 let compose;
 
 if (process.env.NODE_ENV === 'development') {
-  compose = composeWithDevTools(applyMiddleware(...middleware));
+  const composeEnhancers = composeWithDevTools({ autoPause: true });
+  compose = composeEnhancers(applyMiddleware(...middleware));
 } else {
   compose = applyMiddleware(...middleware);
 }
