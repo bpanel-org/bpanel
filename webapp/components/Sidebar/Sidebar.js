@@ -4,55 +4,78 @@ import PropTypes from 'prop-types';
 
 import './sidebar.scss';
 import { pluginMetaProps } from '../../containers/App/App';
+import logo from '../../assets/logo.png';
 
-const sidebarItem = ({ name, icon = 'cog', subItem = false, children }) => (
+const getActive = (name, pathname) =>
+  pathname.includes(name) ? 'sidebar-item-active' : '';
+
+const sidebarItem = ({
+  name,
+  icon = 'cog',
+  subItem = false,
+  children,
+  pathname
+}) => (
   <Link
     to={name}
-    className={`nav-item sidebar-item ${subItem ? 'subItem' : ''}`}
+    className={`nav-item sidebar-link ${subItem ? 'subItem' : ''}`}
   >
-    <i className={`fa fa-${icon}`} />
-    {name}
-    {children}
+    <div className={`sidebar-item  ${getActive(name, pathname)}`}>
+      <i className={`fa fa-${icon} sidebar-item-icon`} />
+      <span>{name}</span>
+      {children}
+    </div>
   </Link>
 );
 
-const Sidebar = ({ sidebarItems }) => {
+const Sidebar = ({ sidebarItems, location: { pathname = '' } }) => {
   const commitHash = process.env.__COMMIT__.slice(0, 7);
   const version = process.env.__VERSION__;
   return (
-    <nav className="col-3 d-flex flex-column sidebar">
-      {sidebarItems.map((plugin, index) => {
-        // mapping through each parent item to create the sidebar nav element
-        const sidebarItemProps = { ...plugin };
-        if (plugin.subItems) {
-          // if this sidebar item has sub items
-          // then we need to create and append the children elements
-          sidebarItemProps.children = plugin.subItems.map(
-            (subItem, subIndex) => {
-              const props = {
-                ...subItem,
-                subItem: true,
-                key: `${index}-${subIndex}`
-              };
-              return React.createElement(sidebarItem, props);
-            }
-          );
-        }
+    <div
+      className="col-sm-4 col-lg-3 sidebar-container"
+      style={{ paddingLeft: 0 }}
+    >
+      <nav
+        className="d-flex flex-column navbar navbar-default navbar-fixed-side sidebar"
+        style={{ paddingLeft: 0 }}
+      >
+        <Link to="/">
+          <div className="sidebar-logo">
+            <img src={logo} className="logo" width="60" height="60" />
+          </div>
+        </Link>
+        {sidebarItems.map((plugin, index) => {
+          // mapping through each parent item to create the sidebar nav element
+          const sidebarItemProps = { ...plugin, pathname };
+          if (plugin.subItems) {
+            // if this sidebar item has sub items
+            // then we need to create and append the children elements
+            sidebarItemProps.children = plugin.subItems.map(
+              (subItem, subIndex) => {
+                const props = {
+                  ...subItem,
+                  subItem: true,
+                  key: `${index}-${subIndex}`
+                };
+                return React.createElement(sidebarItem, props);
+              }
+            );
+          }
 
-        return React.createElement(sidebarItem, {
-          ...sidebarItemProps,
-          key: index
-        });
-      })}
-      <div className="sidebar-footer mt-auto text-center">
-        <h5>bPanel</h5>
-        <p className="version subtext text-truncate">version: {version}</p>
-        <p className="commit subtext text-truncate">
-          commit hash: {commitHash}
-        </p>
-      </div>
-      <div className="col-sm-1" />
-    </nav>
+          return React.createElement(sidebarItem, {
+            ...sidebarItemProps,
+            key: index
+          });
+        })}
+        <div className="sidebar-footer mt-auto text-center">
+          <h5>bpanel</h5>
+          <p className="version subtext text-truncate">bcoin: {version}</p>
+          <p className="commit subtext text-truncate">UI: {commitHash}</p>
+        </div>
+        <div className="col-sm-1" />
+      </nav>
+    </div>
   );
 };
 
