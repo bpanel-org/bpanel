@@ -2,7 +2,7 @@ import { ADD_BLOCK } from '../constants/blocks';
 
 const RECENT_BLOCKS = 10;
 
-export default (blocks = (state = {}, action) => {
+const blocks = (state = {}, action) => {
   let newState = { ...state };
 
   switch (action.type) {
@@ -23,4 +23,6 @@ export default (blocks = (state = {}, action) => {
     default:
       return state;
   }
-});
+};
+
+export default blocks;
