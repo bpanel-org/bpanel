@@ -7,13 +7,6 @@ export function setNodeInfo(info) {
   };
 }
 
-export function updateChainInfo(chain) {
-  return {
-    type: types.SET_CHAIN,
-    payload: chain
-  };
-}
-
 export function requestingNode(loadingState) {
   return {
     type: types.SET_LOADING,

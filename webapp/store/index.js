@@ -2,12 +2,23 @@ import { combineReducers, createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunkMiddleware from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
+import bsockMiddleware from 'bsock-middleware';
 
 import * as reducers from './reducers';
 
 const rootReducer = combineReducers(reducers);
+const socketListeners = [
+  {
+    event: 'chain progress',
+    actionType: 'CHAIN_PROGRESS'
+  }
+];
 
-const middleware = [thunkMiddleware, promiseMiddleware()];
+const middleware = [
+  thunkMiddleware,
+  promiseMiddleware(),
+  bsockMiddleware({ debug: true, listeners: socketListeners })
+];
 let compose;
 
 if (process.env.NODE_ENV === 'development') {

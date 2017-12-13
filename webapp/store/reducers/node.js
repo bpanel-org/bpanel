@@ -13,7 +13,7 @@ import {
   SET_NODE,
   SET_LOADING,
   SET_BCOIN_URI,
-  SET_CHAIN
+  CHAIN_PROGRESS
 } from '../constants/node';
 
 const nodeState = (state = initialState, action) => {
@@ -29,9 +29,13 @@ const nodeState = (state = initialState, action) => {
       return newState;
     }
 
-    case SET_CHAIN: {
-      let newChain = Object.assign(newState.chain, action.payload);
-      newState.chain = newChain;
+    case CHAIN_PROGRESS: {
+      const raw = action.payload;
+      const progress = parseFloat(raw.toString('ascii'));
+      // only update state if the change is noticeable
+      if (progress.toFixed(4) > state.chain.progress.toFixed(4)) {
+        newState.chain.progress = progress;
+      }
       return newState;
     }
 

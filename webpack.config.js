@@ -55,7 +55,7 @@ module.exports = env => ({
     loaders: [
       {
         test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/,
+        exclude: /(node_modules|bower_components|bsock-middleware)/,
         loader: 'babel-loader',
         query: {
           presets: ['es2017', 'es2016', 'es2015', 'react', 'stage-3'],

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import bsock from 'bsock';
+// import bsock from 'bsock';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
-import { nodeActions } from '../../store/actions/';
+import { nodeActions, socketActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Sidebar from '../../components/Sidebar/Sidebar';
@@ -23,20 +23,8 @@ class App extends Component {
 
   async componentDidMount() {
     // TODO: Socket management should be put into a reducer
-    const { getNodeInfo, updateChainInfo } = this.props;
-    const socket = bsock.connect(8000);
-    socket.on('connect', async () => {
-      socket.bind('chain progress', raw => {
-        const progress = parseFloat(raw.toString('ascii'));
-        // only update state if the change is noticeable
-        if (progress.toFixed(4) > this.props.nodeProgress.toFixed(4)) {
-          updateChainInfo({ progress });
-        }
-      });
-    });
-
-    socket.on('error', err => console.log(err)); // eslint-disable-line no-console
-
+    const { getNodeInfo, connectSocket } = this.props;
+    connectSocket();
     getNodeInfo();
   }
 
@@ -82,6 +70,7 @@ App.propTypes = {
   nodeProgress: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   bcoinUri: PropTypes.string,
   getNodeInfo: PropTypes.func.isRequired,
+  connectSocket: PropTypes.func.isRequired,
   sortedPluginMeta: PropTypes.arrayOf(
     PropTypes.shape({
       ...pluginMetaProps,
@@ -99,12 +88,13 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => {
-  const { setNodeInfo, getNodeInfo, updateChainInfo } = nodeActions;
+  const { setNodeInfo, getNodeInfo } = nodeActions;
+  const { connectSocket } = socketActions;
   return bindActionCreators(
     {
       setNodeInfo,
       getNodeInfo,
-      updateChainInfo
+      connectSocket
     },
     dispatch
   );
