@@ -69,7 +69,9 @@ App.propTypes = {
   bcoinUri: PropTypes.string,
   getNodeInfo: PropTypes.func.isRequired,
   connectSocket: PropTypes.func.isRequired,
-  location: PropTypes.string,
+  location: PropTypes.shape({
+    pathname: PropTypes.string
+  }),
   sortedPluginMeta: PropTypes.arrayOf(
     PropTypes.shape({
       ...pluginMetaProps,
