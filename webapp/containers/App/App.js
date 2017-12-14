@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-// import bsock from 'bsock';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -22,7 +21,6 @@ class App extends Component {
   }
 
   async componentDidMount() {
-    // TODO: Socket management should be put into a reducer
     const { getNodeInfo, connectSocket } = this.props;
     connectSocket();
     getNodeInfo();
@@ -71,6 +69,7 @@ App.propTypes = {
   bcoinUri: PropTypes.string,
   getNodeInfo: PropTypes.func.isRequired,
   connectSocket: PropTypes.func.isRequired,
+  location: PropTypes.string,
   sortedPluginMeta: PropTypes.arrayOf(
     PropTypes.shape({
       ...pluginMetaProps,

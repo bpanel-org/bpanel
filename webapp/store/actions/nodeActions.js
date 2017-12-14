@@ -48,6 +48,5 @@ export function getServerInfo() {
 export default {
   setNodeInfo,
   requestingNode,
-  getNodeInfo,
-  updateChainInfo
+  getNodeInfo
 };

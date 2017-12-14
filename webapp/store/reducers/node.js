@@ -33,7 +33,10 @@ const nodeState = (state = initialState, action) => {
       const raw = action.payload;
       const progress = parseFloat(raw.toString('ascii'));
       // only update state if the change is noticeable
-      if (progress.toFixed(4) > state.chain.progress.toFixed(4)) {
+      if (
+        state.chain.progress &&
+        progress.toFixed(4) > state.chain.progress.toFixed(4)
+      ) {
         newState.chain.progress = progress;
       }
       return newState;
