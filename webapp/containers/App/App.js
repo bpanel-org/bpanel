@@ -7,13 +7,10 @@ import { nodeActions, socketActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Sidebar from '../../components/Sidebar/Sidebar';
-import Panel_ from '../../components/Panel/Panel';
-import { decorate } from '../../plugins/plugins';
+import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
 
 import './app.scss';
-
-const Panel = decorate(Panel_, 'Panel');
 
 class App extends Component {
   constructor(props) {
@@ -82,18 +79,17 @@ App.propTypes = {
 
 const mapStateToProps = state => ({
   nodeInfo: state.node.node,
-  nodeProgress: state.node.chain.progress,
+  nodeProgress: state.chain.progress,
   bcoinUri: state.node.serverInfo.bcoinUri,
   loading: state.node.loading,
   sortedPluginMeta: plugins.getSortedPluginMetadata(state)
 });
 
 const mapDispatchToProps = dispatch => {
-  const { setNodeInfo, getNodeInfo } = nodeActions;
+  const { getNodeInfo } = nodeActions;
   const { connectSocket } = socketActions;
   return bindActionCreators(
     {
-      setNodeInfo,
       getNodeInfo,
       connectSocket
     },

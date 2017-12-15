@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import RecentBlocks from './RecentBlocks';
 
-const Dashboard = () => (
-  <div className="dashboard-container">
-    <h2>Recent Blocks</h2>
-  </div>
-);
+export default class Dashboard extends Component {
+  constructor(props) {
+    super(props);
+  }
 
-export default Dashboard;
+  static get propTypes() {
+    return {
+      blocks: PropTypes.array,
+      chainHeight: PropTypes.number
+    };
+  }
+
+  render() {
+    const { blocks, chainHeight } = this.props;
+    return (
+      <div className="dashboard-container">
+        First... the chain height: {chainHeight}
+        <RecentBlocks blocks={blocks} />
+      </div>
+    );
+  }
+}

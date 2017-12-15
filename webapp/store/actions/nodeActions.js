@@ -1,4 +1,5 @@
 import * as types from '../constants/node';
+import { setChainInfo } from './chainActions';
 
 export function setNodeInfo(info) {
   return {
@@ -30,6 +31,7 @@ export function getNodeInfo() {
       .then(nodeInfo => {
         dispatch(requestingNode(false));
         dispatch(setNodeInfo(nodeInfo));
+        dispatch(setChainInfo(nodeInfo.chain));
       })
       .catch(e => e);
   };
