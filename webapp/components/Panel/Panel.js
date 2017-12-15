@@ -15,8 +15,8 @@ class Panel extends React.Component {
     };
   }
 
-  // a method to create the route
-  // returns the view Component with props
+  // a method to create the routes
+  // it returns the view Component with props
   childRoute(Component, _routeProps = []) {
     // first decorate the container's props with those from plugins
     const props = getRouteProps(this.props);

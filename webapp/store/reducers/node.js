@@ -2,7 +2,6 @@ import { SET_NODE, SET_LOADING, SET_BCOIN_URI } from '../constants/node';
 
 const initialState = {
   node: {},
-  chain: {},
   memory: {},
   mempool: {},
   time: {},

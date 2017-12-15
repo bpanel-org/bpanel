@@ -40,6 +40,11 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
     }
 
     render() {
+      const { getBlocksInRange } = window.utils.chain;
+
+      getBlocksInRange(this.props.chainHeight - 9).then(blocks =>
+        console.log('blocks: ', blocks)
+      );
       const { customChildren = [] } = this.props;
       const pluginData = {
         name: metadata.name,
@@ -55,3 +60,21 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
     }
   };
 };
+
+// TODO:
+// - support for adding/mapping new dispatches ()
+// - Get most recent n number of blocks ()
+// - Update when a new block comes in (need to add to listeners?) ()
+
+// GET_BLOCKS
+// We have access to the chain height already
+// -- Plugin needs to tell bPanel to get a number of blocks - dispatch(getRecentBlocks(nBlocks))
+// -- Need to pass that dispatch down to plugin component via mapPanelDispatch (for connect)
+// -- Plugin needs to tell bPanel to pass those blocks down
+// -- Plugin should extend chain state to add recentBlocks
+
+// QUESTIONS
+// Where do we want to keep the block data? Should this be plugin specific?
+// i.e. does the plugin just retrieve recent blocks from state
+// or does it extend the reducers to add "recent blocks" to the state?
+// Probably the latter.
