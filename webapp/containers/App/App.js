@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import ThemeProvider from '../ThemeProvider/ThemeProvider';
 import { nodeActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
@@ -11,6 +12,7 @@ import Sidebar from '../../components/Sidebar/Sidebar';
 import Panel_ from '../../components/Panel/Panel';
 import { decorate } from '../../plugins/plugins';
 import { plugins } from '../../store/selectors';
+import theme from '../../config/themeConfig';
 
 import './app.scss';
 
@@ -47,20 +49,27 @@ class App extends Component {
       location
     } = this.props;
     return (
-      <div className="app-container container-fluid" role="main">
-        <div className="row">
-          <Sidebar sidebarItems={sortedPluginMeta} location={location} />
-          <div className="content-container col-sm-8 col-lg-9">
-            <Header
-              network={nodeInfo.network}
-              loading={loading}
-              bcoinUri={bcoinUri}
-            />
-            <Panel />
+      <ThemeProvider theme={theme}>
+        <div className="app-container container-fluid" role="main">
+          <div className="row">
+            <div
+              className="col-sm-4 col-lg-3 sidebar-container"
+              style={{ paddingLeft: 0 }}
+            >
+              <Sidebar sidebarItems={sortedPluginMeta} location={location} />
+            </div>
+            <div className="content-container col-sm-8 col-lg-9">
+              <Header
+                network={nodeInfo.network}
+                loading={loading}
+                bcoinUri={bcoinUri}
+              />
+              <Panel />
+            </div>
+            <Footer version={nodeInfo.version} progress={nodeProgress} />
           </div>
-          <Footer version={nodeInfo.version} progress={nodeProgress} />
         </div>
-      </div>
+      </ThemeProvider>
     );
   }
 }
