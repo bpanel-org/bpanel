@@ -1,6 +1,7 @@
 import themeConfig from './themeConfig';
 
 export default {
+  themeConfig,
   // localPlugins are for either development of a plugin or
   // for default/built-in plugins
   localPlugins: ['dashboard', 'wallets'],
