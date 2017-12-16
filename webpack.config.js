@@ -48,14 +48,15 @@ module.exports = env => ({
   resolve: {
     extensions: ['-browser.js', '.js', '.json', '.jsx'],
     alias: {
-      bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser')
+      bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
+      Utilities: path.resolve(__dirname, 'webapp/utils')
     }
   },
   module: {
     loaders: [
       {
         test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/,
+        exclude: /(node_modules)/,
         loader: 'babel-loader',
         query: {
           presets: ['es2017', 'es2016', 'es2015', 'react', 'stage-3'],

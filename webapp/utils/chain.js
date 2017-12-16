@@ -16,6 +16,8 @@ export function getBlocksInRange(start, n = 10, step = 1) {
     .fill(start)
     .map((height, index) => getBlock(height + index * step));
 
+  // Returns a promise that resolves when
+  // all n block heights have been retrieved
   return Promise.all(blockHeights);
 }
 

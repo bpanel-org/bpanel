@@ -1,0 +1,1 @@
+export const SET_RECENT_BLOCKS = 'SET_RECENT_BLOCKS';

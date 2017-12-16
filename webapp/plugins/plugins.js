@@ -13,8 +13,12 @@ let metadata = {};
 // middleware (action creators)
 // decorated components
 let decorated = {};
-let propsDecorators = {};
+
 let routePropsDecorators;
+let propsDecorators = {};
+
+let chainReducers;
+let reducersDecorators = {};
 
 // Module/plugin loader
 export const loadPlugins = () => {
@@ -24,51 +28,68 @@ export const loadPlugins = () => {
     Panel: { state: [], dispatch: [] }
   };
 
+  // setup props decorators
   routePropsDecorators = [];
-
   propsDecorators = {
     getRouteProps: routePropsDecorators
   };
 
+  // setup reducers decorators
+  chainReducers = [];
+  reducersDecorators = {
+    chainReducer: chainReducers
+  };
+
   // Loop/map through local (and later 'remote') plugins
   // load each plugin object into the the cache of modules
-  plugins = config.localPlugins.map(pluginName => {
-    const plugin = require('../localPlugins/' + pluginName);
-    const { name, pluginVersion } = plugin.metadata;
+  plugins = config.localPlugins
+    .map(pluginName => {
+      const plugin = require('../localPlugins/' + pluginName);
+      const { name, pluginVersion } = plugin.metadata;
 
-    for (const method in plugin) {
-      if ({}.hasOwnProperty.call(plugin, method)) {
-        plugin[method]._pluginName = pluginName;
-        plugin[method]._pluginVersion = pluginVersion;
+      for (const method in plugin) {
+        if ({}.hasOwnProperty.call(plugin, method)) {
+          plugin[method]._pluginName = pluginName;
+          plugin[method]._pluginVersion = pluginVersion;
+        }
       }
-    }
 
-    if (plugin.metadata && !metadata[name]) {
-      // if there is metadata and the plugin doesn't already exist in the metadata object
-      // store new metadata
-      metadata[name] = plugin.metadata;
-    } else {
-      throw new Error(
-        `${pluginName} didn't have any metadata or plugin name is duplicate`
-      );
-    }
+      if (plugin.metadata && !metadata[name]) {
+        // if there is metadata and the plugin doesn't already exist in the metadata object
+        // store new metadata
+        metadata[name] = plugin.metadata;
+      } else {
+        throw new Error(
+          `${pluginName} didn't have any metadata or plugin name is duplicate`
+        );
+      }
 
-    // state mappers
-    if (plugin.mapPanelState) {
-      connectors.Panel.state.push(plugin.mapPanelState);
-    }
+      // state mappers
+      if (plugin.mapPanelState) {
+        connectors.Panel.state.push(plugin.mapPanelState);
+      }
 
-    if (plugin.mapAppState) {
-      connectors.App.state.push(plugin.mapAppState);
-    }
+      if (plugin.mapAppState) {
+        connectors.App.state.push(plugin.mapAppState);
+      }
 
-    // propsDecorators
-    if (plugin.getRouteProps) {
-      routePropsDecorators.push(plugin.getRouteProps);
-    }
+      if (plugin.mapPanelDispatch) {
+        connectors.Panel.dispatch.push(plugin.mapPanelDispatch);
+      }
 
-    return plugin;
-  });
+      // propsDecorators
+      if (plugin.getRouteProps) {
+        routePropsDecorators.push(plugin.getRouteProps);
+      }
+
+      // reducersDecorators
+      if (plugin.reduceChain) {
+        reducersDecorators.chainReducer.push(plugin.reduceChain);
+      }
+
+      return plugin;
+    })
+    .filter(plugin => Boolean(plugin));
 };
 
 loadPlugins();
@@ -111,7 +132,12 @@ export function getRouteProps(parentProps, props) {
 
 // export middleware
 
-// export reducers
+// decorate and export reducers
+
+export const decorateReducer = (reducer, name) => (state, action) =>
+  reducersDecorators[name].reduce((state_, reducer_) => {
+    return reducer_(state_, action);
+  }, Object.assign({}, reducer(state, action)));
 
 // connects + decorates a class
 // plugins can override mapToState, dispatchToProps
@@ -257,7 +283,7 @@ function getDecorated(Component, name) {
 // https://github.com/zeit/hyper
 
 // This HOC handles error catching and returns fallback component if plugins error
-export function decorate(Component_, name) {
+function decorate(Component_, name) {
   return class DecoratedComponent extends React.Component {
     constructor(props) {
       super(props);
@@ -284,3 +310,10 @@ export function decorate(Component_, name) {
 }
 
 export const initialMetadata = () => metadata;
+
+export default {
+  initialMetadata,
+  decorate,
+  connect,
+  decorateReducer
+};

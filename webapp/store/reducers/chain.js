@@ -1,4 +1,5 @@
 import { CHAIN_PROGRESS, SET_CHAIN } from '../constants/chain';
+import { decorateReducer } from '../../plugins/plugins';
 
 const initialState = {
   height: 0
@@ -28,4 +29,4 @@ const chainState = (state = initialState, action) => {
   }
 };
 
-export default chainState;
+export default decorateReducer(chainState, 'chainReducer');

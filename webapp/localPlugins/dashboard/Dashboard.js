@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import RecentBlocks from './RecentBlocks';
 
 export default class Dashboard extends Component {
   constructor(props) {
@@ -9,17 +8,31 @@ export default class Dashboard extends Component {
 
   static get propTypes() {
     return {
-      blocks: PropTypes.array,
-      chainHeight: PropTypes.number
+      recentBlocks: PropTypes.array,
+      chainHeight: PropTypes.number,
+      getRecentBlocks: PropTypes.func
     };
   }
 
+  componentWillUpdate(nextProps) {
+    const { chainHeight, getRecentBlocks } = this.props;
+    console.log(nextProps);
+    console.log(chainHeight);
+    if (nextProps.chainHeight > chainHeight) getRecentBlocks(9);
+  }
+
   render() {
-    const { blocks, chainHeight } = this.props;
+    const { recentBlocks, chainHeight } = this.props;
     return (
       <div className="dashboard-container">
         First... the chain height: {chainHeight}
-        <RecentBlocks blocks={blocks} />
+        Then... some blocks:
+        {recentBlocks &&
+          recentBlocks.map(({ height, hash }) => (
+            <p key={height}>
+              Height of block: {height}, Hash: {hash}
+            </p>
+          ))}
       </div>
     );
   }

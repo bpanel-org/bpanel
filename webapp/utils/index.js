@@ -1,7 +1,2 @@
-import { default as chain } from './chain';
-import { default as plugins } from './plugins';
-
-export default {
-  chain,
-  plugins
-};
+export { default as chain } from './chain';
+export { default as plugins } from './plugins';

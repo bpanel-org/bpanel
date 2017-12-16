@@ -7,7 +7,6 @@ const blocks = (state = {}, action) => {
 
   switch (action.type) {
     case ADD_BLOCK: {
-      const blockCount = Object.keys(newState).length;
       const newBlock = action.payload;
 
       newState[newBlock.height] = newBlock;
