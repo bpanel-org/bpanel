@@ -7,7 +7,26 @@ export default {
     borderRadius: '5px',
     color: actionColor1
   },
-  header: {},
+  header: {
+    h1: {
+      fontSize: '48px'
+    },
+    h2: {
+      fontSize: '36px'
+    },
+    h3: {
+      fontSize: '24px'
+    },
+    h4: {
+      fontSize: '16px'
+    },
+    h5: {
+      fontSize: '12px'
+    },
+    h6: {
+      fontSize: '10px'
+    }
+  },
   link: {
     color: '#00ffe0',
     textDecoration: 'underline'
@@ -33,5 +52,9 @@ export default {
       return style;
     }
   },
-  text: {}
+  text: {
+    span: {},
+    p: {},
+    strong: {}
+  }
 };
