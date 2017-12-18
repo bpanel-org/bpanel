@@ -23,9 +23,15 @@ io.on('socket', async socket => {
     try {
       let blockMeta;
       blockMeta = parseEntry(entry);
+
+      const { time, hash, height } = blockMeta;
       const genesis = bcoinClient.network.genesis.time;
-      let progress = calcProgress(genesis, blockMeta.time);
+
+      let progress = calcProgress(genesis, time);
+      let chainTip = { tip: hash, progress, height };
+
       socket.fire('chain progress', Buffer.from(progress.toString()));
+      socket.fire('new block', chainTip);
     } catch (err) {
       logger.error('Socket error in client.getInfo', err);
     }

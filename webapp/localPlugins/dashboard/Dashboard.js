@@ -16,8 +16,9 @@ export default class Dashboard extends Component {
 
   componentWillUpdate(nextProps) {
     const { chainHeight, getRecentBlocks } = this.props;
-    console.log(nextProps);
-    console.log(chainHeight);
+    // if chainHeight has increased, get the most recent blocks
+    // getRecentBlocks is connected to the store and will update
+    // the state with an array of `recentBlocks`
     if (nextProps.chainHeight > chainHeight) getRecentBlocks(9);
   }
 
@@ -30,7 +31,7 @@ export default class Dashboard extends Component {
         {recentBlocks &&
           recentBlocks.map(({ height, hash }) => (
             <p key={height}>
-              Height of block: {height}, Hash: {hash}
+              Height of block: {height}, <br /> Hash: {hash}
             </p>
           ))}
       </div>

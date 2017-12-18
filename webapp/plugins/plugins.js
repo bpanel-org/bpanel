@@ -23,6 +23,8 @@ let reducersDecorators = {};
 // Module/plugin loader
 export const loadPlugins = () => {
   // initialize cache that we populate with extension methods
+  // connectors for plugins to connect to state and dispatch
+  // used in `connect` method
   connectors = {
     App: { state: [], dispatch: [] },
     Panel: { state: [], dispatch: [] }
@@ -75,6 +77,10 @@ export const loadPlugins = () => {
 
       if (plugin.mapPanelDispatch) {
         connectors.Panel.dispatch.push(plugin.mapPanelDispatch);
+      }
+
+      if (plugin.mapAppDispatch) {
+        connectors.App.dispatch.push(plugin.mapAppDispatch);
       }
 
       // propsDecorators
@@ -130,10 +136,9 @@ export function getRouteProps(parentProps, props) {
   return getProps('getRouteProps', parentProps, props);
 }
 
-// export middleware
+// TODO: export middleware
 
 // decorate and export reducers
-
 export const decorateReducer = (reducer, name) => (state, action) =>
   reducersDecorators[name].reduce((state_, reducer_) => {
     return reducer_(state_, action);
@@ -153,11 +158,12 @@ export function connect(
   return (Class, name) => {
     return reduxConnect(
       // reducing down to final state using the state mappers from plugins
-      // initial state ispassed to connector from container component
+      // initial state is passed to connector from container component
       state =>
         connectors[name].state.reduce((acc, mapper) => {
           let ret = acc;
           try {
+            // this is the decorator, everything after in this reduce is error checking
             ret = mapper(state, acc);
           } catch (err) {
             // eslint-disable-next-line no-console
@@ -175,11 +181,12 @@ export function connect(
             return;
           }
           return ret;
-        }, stateFn(state)),
+        }, stateFn(state)), // initial state is from `mapStateToProps` from parent container
       dispatch =>
         connectors[name].dispatch.reduce((acc, mapper) => {
           let ret = acc;
           try {
+            // this is the decorator, everything after in reduce is error checking
             ret = mapper(dispatch, acc);
           } catch (err) {
             // eslint-disable-next-line no-console
@@ -198,11 +205,10 @@ export function connect(
           }
 
           return ret;
-        }, dispatchFn(dispatch)),
+        }, dispatchFn(dispatch)), // initial state is from parent container
       mergeProps,
       options
     )(decorate(Class, name));
-    // )(Class);
   };
 }
 
@@ -281,7 +287,6 @@ function getDecorated(Component, name) {
 // exposed by plugins
 // Code based on hyper.is
 // https://github.com/zeit/hyper
-
 // This HOC handles error catching and returns fallback component if plugins error
 function decorate(Component_, name) {
   return class DecoratedComponent extends React.Component {

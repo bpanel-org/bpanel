@@ -22,6 +22,7 @@ class Panel extends React.Component {
     const props = getRouteProps(this.props);
 
     // next get props that only this route needs
+    // the _routeProps arg is passed by the plugin to say which props it needs
     const routeProps = {};
 
     if (_routeProps.length) {
@@ -37,7 +38,7 @@ class Panel extends React.Component {
 
   render() {
     const { customChildren = [] } = this.props;
-    const plugins = customChildren.map(({ name, Component, props }) => (
+    const routes = customChildren.map(({ name, Component, props }) => (
       <Route
         exact
         path={`/${name}`}
@@ -46,7 +47,7 @@ class Panel extends React.Component {
       />
     ));
 
-    return <div className="col-8">{plugins}</div>;
+    return <div className="col-8">{routes}</div>;
   }
 }
 

@@ -2,7 +2,7 @@ import Dashboard from './Dashboard';
 import { SET_RECENT_BLOCKS } from './constants';
 
 // eslint-disable-next-line import/no-unresolved
-import { chain } from 'Utilities';
+import { chain as chainUtils } from 'Utilities';
 
 export const metadata = {
   name: 'dashboard',
@@ -12,6 +12,7 @@ export const metadata = {
   parent: ''
 };
 
+// custom reducer used to decorate the main app's chain reducer
 export const reduceChain = (state, action) => {
   const { type, payload } = action;
   let newState = { ...state };
@@ -27,8 +28,10 @@ export const reduceChain = (state, action) => {
 };
 
 // action creator to set recent blocks on state
+// mapped to the state via `mapPanelDispatch` below
+// this allows plugins to call action creator to update the state
 const getRecentBlocks = (n = 9) => (dispatch, getState) => {
-  const { getBlocksInRange } = chain;
+  const { getBlocksInRange } = chainUtils;
   const { height } = getState().chain;
   getBlocksInRange(height - n).then(blocks =>
     dispatch({
@@ -58,6 +61,8 @@ export const mapPanelState = (state, map) =>
 // mapPanelState will use react-redux's connect to
 // retrieve chainHeight from the state, but we need a way
 // for the Panel Container to pass it down to the Dashboard Route view
+// props getters like this are used in the app to pass new props
+// added by plugins down to children components (such as the Dashboard)
 export const getRouteProps = (parentProps, props) =>
   Object.assign(props, {
     chainHeight: parentProps.chainHeight,
@@ -66,6 +71,8 @@ export const getRouteProps = (parentProps, props) =>
   });
 
 // a decorator for the Panel container component in our app
+// here we're extending the Panel's children by adding
+// our plugin's component, the Dasboard in this case
 export const decoratePanel = (Panel, { React, PropTypes }) => {
   return class DecoratedDashboard extends React.Component {
     static displayName() {
@@ -82,7 +89,7 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
 
     render() {
       const { customChildren = [] } = this.props;
-      const pluginData = {
+      const routeData = {
         name: metadata.name,
         Component: Dashboard,
         props: ['chainHeight', 'getRecentBlocks', 'recentBlocks']
@@ -90,7 +97,7 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
       return (
         <Panel
           {...this.props}
-          customChildren={customChildren.concat(pluginData)}
+          customChildren={customChildren.concat(routeData)}
         />
       );
     }
@@ -98,19 +105,6 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
 };
 
 // TODO:
-// - support for adding/mapping new dispatches ()
+// - support for adding/mapping new dispatches (x)
 // - Get most recent n number of blocks (x)
 // - Update when a new block comes in (need to add to listeners?) ()
-
-// GET_BLOCKS
-// We have access to the chain height already
-// -- Plugin needs to tell bPanel to get a number of blocks - dispatch(getRecentBlocks(nBlocks))
-// -- Need to pass that dispatch down to plugin component via mapPanelDispatch (for connect)
-// -- Plugin needs to tell bPanel to pass those blocks down
-// -- Plugin should extend chain state to add recentBlocks
-
-// QUESTIONS
-// Where do we want to keep the block data? Should this be plugin specific?
-// i.e. does the plugin just retrieve recent blocks from state
-// or does it extend the reducers to add "recent blocks" to the state?
-// Probably the latter.
