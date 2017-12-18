@@ -14,7 +14,7 @@ let compose,
   debug = false;
 
 if (process.env.NODE_ENV === 'development') {
-  const composeEnhancers = composeWithDevTools({ autoPause: true });
+  const composeEnhancers = composeWithDevTools({ autoPause: true, maxAge: 20 });
   debug = true;
   middleware.push(bsockMiddleware({ debug, listeners }));
   compose = composeEnhancers(applyMiddleware(...middleware));

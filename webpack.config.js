@@ -49,7 +49,7 @@ module.exports = env => ({
     extensions: ['-browser.js', '.js', '.json', '.jsx'],
     alias: {
       bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
-      Utilities: path.resolve(__dirname, 'webapp/utils')
+      bpanel: path.resolve(__dirname, 'webapp/')
     }
   },
   module: {

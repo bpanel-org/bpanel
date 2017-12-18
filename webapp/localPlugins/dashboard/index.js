@@ -2,7 +2,7 @@ import Dashboard from './Dashboard';
 import { SET_RECENT_BLOCKS } from './constants';
 
 // eslint-disable-next-line import/no-unresolved
-import { chain as chainUtils } from 'Utilities';
+import { chain as chainUtils } from 'bpanel/utils';
 
 export const metadata = {
   name: 'dashboard',
@@ -103,8 +103,3 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
     }
   };
 };
-
-// TODO:
-// - support for adding/mapping new dispatches (x)
-// - Get most recent n number of blocks (x)
-// - Update when a new block comes in (need to add to listeners?) ()
