@@ -1,7 +1,6 @@
 import Dashboard from './Dashboard';
 import { SET_RECENT_BLOCKS, ADD_RECENT_BLOCK } from './constants';
-
-const chainentry = require('../../../node_modules/bcoin/lib/blockchain/chainentry');
+import { chainentry } from 'bcoin';
 
 // eslint-disable-next-line import/no-unresolved
 import { chain as chainUtils } from 'bpanel/utils';

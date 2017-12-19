@@ -7,9 +7,17 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 
 const commitHash = execSync('git rev-parse HEAD').toString();
-const version = execSync(
-  'git describe --tags $(git rev-list --tags --max-count=1)'
-).toString();
+
+let version = 'bpanel';
+try {
+  version = execSync(
+    'git describe --tags $(git rev-list --tags --max-count=1)'
+  ).toString();
+} catch (e) {
+  // eslint-disable-next-line no-console
+  console.log(e);
+  return;
+}
 
 const loaders = {
   css: {
