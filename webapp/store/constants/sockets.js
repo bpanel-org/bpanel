@@ -1,10 +1,10 @@
-import { SET_CHAIN } from './chain';
+import { SET_CHAIN_TIP } from './chain';
 
 export const CONNECT_SOCKET = 'CONNECT_SOCKET';
 
-export const socketListeners = [
+export const listeners = [
   {
-    event: 'new block',
-    actionType: SET_CHAIN
+    event: 'chain progress',
+    actionType: SET_CHAIN_TIP
   }
 ];

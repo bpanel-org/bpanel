@@ -1,1 +1,2 @@
 export const SET_RECENT_BLOCKS = 'SET_RECENT_BLOCKS';
+export const ADD_RECENT_BLOCK = 'ADD_RECENT_BLOCK';

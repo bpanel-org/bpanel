@@ -9,16 +9,19 @@ export function getBlock(hashOrHeight) {
 }
 
 // utility to get a range of blocks
-export function getBlocksInRange(start, n = 10, step = 1) {
+export async function getBlocksInRange(start, end, step = 1) {
   // get all blocks from blockHeight `start` up to `start`+ n
-  // create an array of the block heights we will retrieve
-  const blockHeights = Array(n / step)
-    .fill(start)
-    .map((height, index) => getBlock(height + index * step));
+  // create an array of the blocks
+  const blocks = [];
 
-  // Returns a promise that resolves when
-  // all n block heights have been retrieved
-  return Promise.all(blockHeights);
+  let height = start;
+  while (height < end) {
+    const block = await getBlock(height);
+    blocks.push(block);
+    height += step;
+  }
+
+  return blocks;
 }
 
 export default {

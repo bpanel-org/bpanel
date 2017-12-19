@@ -1,17 +1,19 @@
 import { combineReducers, createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunkMiddleware from 'redux-thunk';
-import promiseMiddleware from 'redux-promise-middleware';
 import bsockMiddleware from 'bsock-middleware';
 
-import { socketListeners as listeners } from './constants/sockets';
+import { getConstants } from '../plugins/plugins';
 import * as reducers from './reducers';
 
 const rootReducer = combineReducers(reducers);
 
-const middleware = [thunkMiddleware, promiseMiddleware()];
+const middleware = [thunkMiddleware];
 let compose,
   debug = false;
+
+// get extended listeners
+const { listeners } = getConstants('sockets');
 
 if (process.env.NODE_ENV === 'development') {
   const composeEnhancers = composeWithDevTools({ autoPause: true, maxAge: 20 });

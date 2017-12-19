@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 
 import config from '../appConfig';
+import constants from '../store/constants';
 
 // Instantiate caches
 let plugins;
@@ -20,6 +21,9 @@ let propsDecorators = {};
 let chainReducers;
 let reducersDecorators = {};
 
+// miscellaneous decorators
+let extendConstants = {};
+
 // Module/plugin loader
 export const loadPlugins = () => {
   // initialize cache that we populate with extension methods
@@ -28,6 +32,10 @@ export const loadPlugins = () => {
   connectors = {
     App: { state: [], dispatch: [] },
     Panel: { state: [], dispatch: [] }
+  };
+
+  extendConstants = {
+    sockets: []
   };
 
   // setup props decorators
@@ -93,12 +101,24 @@ export const loadPlugins = () => {
         reducersDecorators.chainReducer.push(plugin.reduceChain);
       }
 
+      // other miscellaneous decorators
+      if (plugin.addSocketConstants) {
+        extendConstants.sockets.push(plugin.addSocketConstants);
+      }
+
       return plugin;
     })
     .filter(plugin => Boolean(plugin));
 };
 
 loadPlugins();
+
+export function getConstants(name) {
+  return extendConstants[name].reduce(
+    (acc, reducer) => reducer(acc),
+    constants[name]
+  );
+}
 
 // using the decorator of the name `name` from the plugins
 // this will reduce to a final state of props to pass down

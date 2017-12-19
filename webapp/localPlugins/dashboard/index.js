@@ -1,5 +1,7 @@
 import Dashboard from './Dashboard';
-import { SET_RECENT_BLOCKS } from './constants';
+import { SET_RECENT_BLOCKS, ADD_RECENT_BLOCK } from './constants';
+
+const chainentry = require('../../../node_modules/bcoin/lib/blockchain/chainentry');
 
 // eslint-disable-next-line import/no-unresolved
 import { chain as chainUtils } from 'bpanel/utils';
@@ -12,6 +14,14 @@ export const metadata = {
   parent: ''
 };
 
+export const addSocketConstants = (sockets = {}) =>
+  Object.assign(sockets, {
+    socketListeners: sockets.listeners.push({
+      event: 'new block',
+      actionType: ADD_RECENT_BLOCK
+    })
+  });
+
 // custom reducer used to decorate the main app's chain reducer
 export const reduceChain = (state, action) => {
   const { type, payload } = action;
@@ -22,6 +32,22 @@ export const reduceChain = (state, action) => {
       newState.recentBlocks = payload;
       return newState;
     }
+
+    case ADD_RECENT_BLOCK: {
+      if (newState.recentBlocks && newState.recentBlocks[9]) {
+        const block = chainentry.fromRaw(payload.entry);
+        newState.recentBlocks.push(block);
+        // check if action includes a length to limit recent blocks list to
+        if (
+          action.numBlocks &&
+          newState.recentBlocks.length > action.numBlocks
+        ) {
+          newState.recentBlocks.shift();
+        }
+      }
+      return newState;
+    }
+
     default:
       return newState;
   }
@@ -30,16 +56,18 @@ export const reduceChain = (state, action) => {
 // action creator to set recent blocks on state
 // mapped to the state via `mapPanelDispatch` below
 // this allows plugins to call action creator to update the state
-const getRecentBlocks = (n = 9) => (dispatch, getState) => {
-  const { getBlocksInRange } = chainUtils;
-  const { height } = getState().chain;
-  getBlocksInRange(height - n).then(blocks =>
+function getRecentBlocks(n = 9) {
+  return async (dispatch, getState) => {
+    const { getBlocksInRange } = chainUtils;
+    const { height } = getState().chain;
+
+    const blocks = await getBlocksInRange(height - n, height);
     dispatch({
       type: SET_RECENT_BLOCKS,
       payload: blocks
-    })
-  );
-};
+    });
+  };
+}
 
 // mapping dispatches to panel component props
 // used by the app's custom react-redux connect

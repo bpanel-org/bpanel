@@ -19,19 +19,18 @@ io.on('socket', async socket => {
   await bcoinClient.open();
   bcoinClient.socket.emit('auth');
   bcoinClient.socket.emit('watch chain');
-  bcoinClient.socket.on('block connect', async entry => {
+  bcoinClient.socket.on('block connect', async (entry, txs) => {
     try {
       let blockMeta;
       blockMeta = parseEntry(entry);
-
       const { time, hash, height } = blockMeta;
       const genesis = bcoinClient.network.genesis.time;
 
       let progress = calcProgress(genesis, time);
       let chainTip = { tip: hash, progress, height };
 
-      socket.fire('chain progress', Buffer.from(progress.toString()));
-      socket.fire('new block', chainTip);
+      socket.fire('chain progress', chainTip);
+      socket.fire('new block', { entry, txs });
     } catch (err) {
       logger.error('Socket error in client.getInfo', err);
     }
