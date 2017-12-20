@@ -62,14 +62,6 @@ export const loadPlugins = () => {
   plugins = config.localPlugins
     .map(pluginName => {
       const plugin = require('../localPlugins/' + pluginName);
-      const { name, pluginVersion } = plugin.metadata;
-
-      for (const method in plugin) {
-        if ({}.hasOwnProperty.call(plugin, method)) {
-          plugin[method]._pluginName = pluginName;
-          plugin[method]._pluginVersion = pluginVersion;
-        }
-      }
 
       if (plugin.metadata && !metadata[name]) {
         // if there is metadata and the plugin doesn't already exist in the metadata object
@@ -79,6 +71,15 @@ export const loadPlugins = () => {
         throw new Error(
           `${pluginName} didn't have any metadata or plugin name is duplicate`
         );
+      }
+
+      const { name, pluginVersion } = plugin.metadata;
+
+      for (const method in plugin) {
+        if (plugin.hasOwnProperty(method)) {
+          plugin[method]._pluginName = pluginName;
+          plugin[method]._pluginVersion = pluginVersion;
+        }
       }
 
       if (plugin.middleware) {

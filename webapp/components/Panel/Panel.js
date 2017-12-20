@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { getRouteProps } from '../../plugins/plugins';
 
-class Panel extends React.Component {
+export default class extends Component {
   constructor(props) {
     super(props);
+  }
+
+  static displayName() {
+    return 'Panel';
   }
 
   static get propTypes() {
@@ -50,5 +54,3 @@ class Panel extends React.Component {
     return <div className="col-8">{routes}</div>;
   }
 }
-
-export default Panel;
