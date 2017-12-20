@@ -10,14 +10,18 @@ import constants from '../store/constants';
 let plugins;
 let connectors;
 let metadata = {};
-// reducers
+
 // middleware (action creators)
+let middlewares;
+
 // decorated components
 let decorated = {};
 
+// props decorators (for passing props to children components)
 let routePropsDecorators;
 let propsDecorators = {};
 
+// reducers
 let chainReducers;
 let reducersDecorators = {};
 
@@ -34,6 +38,7 @@ export const loadPlugins = () => {
     Panel: { state: [], dispatch: [] }
   };
 
+  // setup constant decorators
   extendConstants = {
     sockets: []
   };
@@ -49,6 +54,8 @@ export const loadPlugins = () => {
   reducersDecorators = {
     chainReducer: chainReducers
   };
+
+  middlewares = [];
 
   // Loop/map through local (and later 'remote') plugins
   // load each plugin object into the the cache of modules
@@ -72,6 +79,10 @@ export const loadPlugins = () => {
         throw new Error(
           `${pluginName} didn't have any metadata or plugin name is duplicate`
         );
+      }
+
+      if (plugin.middleware) {
+        middlewares.push(plugin.middleware);
       }
 
       // state mappers
@@ -117,6 +128,16 @@ export function getConstants(name) {
     constants[name]
   );
 }
+
+// redux middleware generator
+// Originally from hyper.is
+export const pluginMiddleware = store => next => action => {
+  const nextMiddleware = remaining => action_ =>
+    remaining.length
+      ? remaining[0](store)(nextMiddleware(remaining.slice(1)))(action_)
+      : next(action_);
+  nextMiddleware(middlewares)(action);
+};
 
 // using the decorator of the name `name` from the plugins
 // this will reduce to a final state of props to pass down

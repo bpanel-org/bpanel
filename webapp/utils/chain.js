@@ -21,9 +21,15 @@ export async function getBlocksInRange(start, end, step = 1) {
     // counting up
     assert(step > 0, 'Step needs to be greater than zero to count up');
     while (height < end) {
-      const block = await getBlock(height);
-      blocks.push(block);
-      height += step;
+      try {
+        const block = await getBlock(height);
+        blocks.push(block);
+        height += step;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log('Error retrieving block: ', e);
+        return blocks;
+      }
     }
   } else if (start > end) {
     // counting down
@@ -34,9 +40,15 @@ export async function getBlocksInRange(start, end, step = 1) {
       assert(step < 1, 'Step must be negative to countdown');
     }
     while (height > end) {
-      const block = await getBlock(height);
-      blocks.push(block);
-      height += _step;
+      try {
+        const block = await getBlock(height);
+        blocks.push(block);
+        height += _step;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log('Error retrieving block: ', e);
+        return blocks;
+      }
     }
   }
 

@@ -1,9 +1,13 @@
-import Dashboard from './Dashboard';
-import { SET_RECENT_BLOCKS, ADD_RECENT_BLOCK } from './constants';
 import { chainentry } from 'bcoin';
-
 // eslint-disable-next-line import/no-unresolved
 import { chain as chainUtils } from 'bpanel/utils';
+
+import Dashboard from './Dashboard';
+import {
+  SET_RECENT_BLOCKS,
+  ADD_RECENT_BLOCK,
+  SET_CHAIN_TIP
+} from './constants';
 
 export const metadata = {
   name: 'dashboard',
@@ -16,6 +20,9 @@ export const metadata = {
 // this decorator lets us add to the app constants
 // in this case we want to add to the array of listeners
 // in the sockets constants
+// currently this doesn't do anything
+// as the server is no longer firing 'new block'
+// but leaving it here as an example
 export const addSocketsConstants = (sockets = {}) =>
   Object.assign(sockets, {
     socketListeners: sockets.listeners.push({
@@ -24,6 +31,27 @@ export const addSocketsConstants = (sockets = {}) =>
       numBlocks: 9
     })
   });
+
+// custom middleware for our plugin. This gets
+// added to the list of middlewares in the app's
+// store creator
+export const middleware = ({ dispatch, getState }) => next => action => {
+  const { type, payload } = action;
+  const currentProgress = getState().chain.progress;
+  const recentBlocks = getState().chain.recentBlocks;
+  // if dispatched action is SET_CHAIN_TIP,
+  // chain is fully synced (progress=1),
+  // and recent blocks are already loaded
+  // this middleware will intercept and run ADD_RECENT_BLOCK instead
+  if (type === SET_CHAIN_TIP && currentProgress === 1 && recentBlocks.length) {
+    dispatch({
+      type: ADD_RECENT_BLOCK,
+      payload: { ...payload, numBlocks: 9 }
+    });
+  } else {
+    next(action);
+  }
+};
 
 // custom reducer used to decorate the main app's chain reducer
 export const reduceChain = (state, action) => {
@@ -37,17 +65,27 @@ export const reduceChain = (state, action) => {
     }
 
     case ADD_RECENT_BLOCK: {
-      const { numBlocks, entry } = payload;
+      const { numBlocks, block, progress, tip, height } = payload;
 
-      const block = chainentry.fromRaw(entry);
-      if (newState.recentBlocks) {
-        if (block.height === newState.recentBlocks[0].height) {
-          return newState;
-        }
-        newState.recentBlocks.unshift(block);
+      const entry = chainentry.fromRaw(block.entry);
+      // skip if the height of new block is same as top block
+      // or recentBlocks haven't been hydrated yet
+      // reason is new block can be received multiple times
+      if (
+        newState.recentBlocks &&
+        newState.recentBlocks.length &&
+        entry.height !== newState.recentBlocks[0].height
+      ) {
+        // update chain tip info
+        newState.progress = progress;
+        newState.height = height;
+        newState.tip = tip;
+
+        // add new block
+        newState.recentBlocks.unshift(entry);
 
         // check if action includes a length to limit recent blocks list to
-        if (numBlocks && newState.recentBlocks.length > numBlocks) {
+        if (numBlocks && newState.recentBlocks.length >= numBlocks) {
           newState.recentBlocks.pop();
         }
       }
@@ -115,9 +153,10 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        customChildren: PropTypes.array,
         chainHeight: PropTypes.number,
-        getRecentBlocks: PropTypes.func
+        customChildren: PropTypes.array,
+        getRecentBlocks: PropTypes.func,
+        recentBlocks: PropTypes.array
       };
     }
 

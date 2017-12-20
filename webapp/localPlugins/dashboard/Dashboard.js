@@ -30,7 +30,7 @@ export default class Dashboard extends Component {
     const { chainHeight, getRecentBlocks } = this.props;
     if (chainHeight > 0) {
       this.callingRecentBlocks = true;
-      getRecentBlocks(9);
+      getRecentBlocks(10);
     }
   }
 
@@ -51,7 +51,7 @@ export default class Dashboard extends Component {
       !recentBlocks.length &&
       !this.callingRecentBlocks
     ) {
-      getRecentBlocks(9);
+      getRecentBlocks(10);
     }
   }
 

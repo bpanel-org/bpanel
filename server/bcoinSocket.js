@@ -30,8 +30,7 @@ io.attach(socketServer);
 
         let progress = calcProgress(genesis, time);
         const chainTip = { tip: hash, progress, height };
-        socket.fire('chain progress', chainTip);
-        socket.fire('new block', { entry, txs });
+        socket.fire('chain progress', { ...chainTip, block: { entry, txs } });
       } catch (err) {
         logger.error('Socket error in client.getInfo', err);
       }

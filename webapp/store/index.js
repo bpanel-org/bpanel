@@ -5,13 +5,13 @@ import bsockMiddleware from 'bsock-middleware';
 
 import { getConstants } from '../plugins/plugins';
 import * as reducers from './reducers';
-import { loadPlugins } from '../plugins/plugins';
+import { loadPlugins, pluginMiddleware } from '../plugins/plugins';
 
 // load plugin information before setting up app and store
 loadPlugins();
 
 const rootReducer = combineReducers(reducers);
-const middleware = [thunkMiddleware];
+const middleware = [thunkMiddleware, pluginMiddleware];
 let compose,
   debug = false;
 
