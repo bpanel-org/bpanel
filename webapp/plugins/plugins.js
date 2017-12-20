@@ -62,22 +62,22 @@ export const loadPlugins = () => {
   plugins = config.localPlugins
     .map(pluginName => {
       const plugin = require('../localPlugins/' + pluginName);
+      let name, pluginVersion;
 
-      if (plugin.metadata && !metadata[name]) {
-        // if there is metadata and the plugin doesn't already exist in the metadata object
-        // store new metadata
-        metadata[name] = plugin.metadata;
-      } else {
-        throw new Error(
-          `${pluginName} didn't have any metadata or plugin name is duplicate`
+      try {
+        name = plugin.metadata;
+        pluginVersion = plugin.metadata.pluginVersion;
+        metadata[pluginName] = plugin.metadata;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `There was a problem loading the metadata for ${pluginName}`
         );
       }
 
-      const { name, pluginVersion } = plugin.metadata;
-
       for (const method in plugin) {
         if (plugin.hasOwnProperty(method)) {
-          plugin[method]._pluginName = pluginName;
+          plugin[method]._pluginName = name;
           plugin[method]._pluginVersion = pluginVersion;
         }
       }
