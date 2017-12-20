@@ -102,16 +102,14 @@ export const loadPlugins = () => {
       }
 
       // other miscellaneous decorators
-      if (plugin.addSocketConstants) {
-        extendConstants.sockets.push(plugin.addSocketConstants);
+      if (plugin.addSocketsConstants) {
+        extendConstants.sockets.push(plugin.addSocketsConstants);
       }
 
       return plugin;
     })
     .filter(plugin => Boolean(plugin));
 };
-
-loadPlugins();
 
 export function getConstants(name) {
   return extendConstants[name].reduce(
@@ -335,10 +333,3 @@ function decorate(Component_, name) {
 }
 
 export const initialMetadata = () => metadata;
-
-export default {
-  initialMetadata,
-  decorate,
-  connect,
-  decorateReducer
-};

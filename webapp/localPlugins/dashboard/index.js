@@ -13,11 +13,15 @@ export const metadata = {
   parent: ''
 };
 
-export const addSocketConstants = (sockets = {}) =>
+// this decorator lets us add to the app constants
+// in this case we want to add to the array of listeners
+// in the sockets constants
+export const addSocketsConstants = (sockets = {}) =>
   Object.assign(sockets, {
     socketListeners: sockets.listeners.push({
       event: 'new block',
-      actionType: ADD_RECENT_BLOCK
+      actionType: ADD_RECENT_BLOCK,
+      numBlocks: 9
     })
   });
 
@@ -33,15 +37,18 @@ export const reduceChain = (state, action) => {
     }
 
     case ADD_RECENT_BLOCK: {
-      if (newState.recentBlocks && newState.recentBlocks[9]) {
-        const block = chainentry.fromRaw(payload.entry);
-        newState.recentBlocks.push(block);
+      const { numBlocks, entry } = payload;
+
+      const block = chainentry.fromRaw(entry);
+      if (newState.recentBlocks) {
+        if (block.height === newState.recentBlocks[0].height) {
+          return newState;
+        }
+        newState.recentBlocks.unshift(block);
+
         // check if action includes a length to limit recent blocks list to
-        if (
-          action.numBlocks &&
-          newState.recentBlocks.length > action.numBlocks
-        ) {
-          newState.recentBlocks.shift();
+        if (numBlocks && newState.recentBlocks.length > numBlocks) {
+          newState.recentBlocks.pop();
         }
       }
       return newState;
@@ -60,7 +67,7 @@ function getRecentBlocks(n = 9) {
     const { getBlocksInRange } = chainUtils;
     const { height } = getState().chain;
 
-    const blocks = await getBlocksInRange(height - n, height);
+    const blocks = await getBlocksInRange(height, height - n, -1);
     dispatch({
       type: SET_RECENT_BLOCKS,
       payload: blocks

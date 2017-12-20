@@ -11,6 +11,10 @@ const recentBlocksTable = recentBlocks =>
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
+    // only want to do the recent block call once on mount
+    // or on update when route changes
+    // for other new blocks, we use the socket
+    this.callingRecentBlocks = false;
   }
 
   static get propTypes() {
@@ -25,20 +29,27 @@ export default class Dashboard extends Component {
   componentDidMount() {
     const { chainHeight, getRecentBlocks } = this.props;
     if (chainHeight > 0) {
+      this.callingRecentBlocks = true;
       getRecentBlocks(9);
     }
+  }
+
+  componentWillUnmount() {
+    this.callingRecentBlocks = false;
   }
 
   componentWillUpdate(nextProps) {
     const { chainHeight, recentBlocks = [], getRecentBlocks } = this.props;
 
-    // if chainHeight has increased, get the most recent blocks
+    // if chainHeight has increased and recentBlocks is not set,
+    // get the most recent blocks
     // both `addBlock` and `getRecentBlocks` are attached to the store
     // and will dispatch action creators to udpate the state
     if (
       nextProps.chainHeight &&
       nextProps.chainHeight >= chainHeight &&
-      !recentBlocks.length
+      !recentBlocks.length &&
+      !this.callingRecentBlocks
     ) {
       getRecentBlocks(9);
     }

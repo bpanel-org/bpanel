@@ -12,7 +12,7 @@ const chainState = (state = initialState, action) => {
       const { progress, height, time, tip } = action.payload;
       if (!state.progress) {
         newState = action.payload;
-      } else if (progress.toFixed(4) > state.progress.toFixed(4)) {
+      } else {
         newState.progress = progress;
         newState.time = time;
         newState.height = height;

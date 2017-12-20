@@ -5,9 +5,12 @@ import bsockMiddleware from 'bsock-middleware';
 
 import { getConstants } from '../plugins/plugins';
 import * as reducers from './reducers';
+import { loadPlugins } from '../plugins/plugins';
+
+// load plugin information before setting up app and store
+loadPlugins();
 
 const rootReducer = combineReducers(reducers);
-
 const middleware = [thunkMiddleware];
 let compose,
   debug = false;
@@ -16,7 +19,7 @@ let compose,
 const { listeners } = getConstants('sockets');
 
 if (process.env.NODE_ENV === 'development') {
-  const composeEnhancers = composeWithDevTools({ autoPause: true, maxAge: 20 });
+  const composeEnhancers = composeWithDevTools({ autoPause: true, maxAge: 10 });
   debug = true;
   middleware.push(bsockMiddleware({ debug, listeners }));
   compose = composeEnhancers(applyMiddleware(...middleware));
