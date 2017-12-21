@@ -1,4 +1,4 @@
-import { CONNECT_SOCKET } from '../constants/sockets';
+import { CONNECT_SOCKET, DISCONNECT_SOCKET } from '../constants/sockets';
 
 export function connectSocket() {
   return {
@@ -10,6 +10,12 @@ export function connectSocket() {
   };
 }
 
+export const disconnectSocket = () => ({
+  type: DISCONNECT_SOCKET,
+  bsock: {}
+});
+
 export default {
-  connectSocket
+  connectSocket,
+  disconnectSocket
 };

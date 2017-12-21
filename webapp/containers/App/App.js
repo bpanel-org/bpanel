@@ -23,6 +23,10 @@ class App extends Component {
     getNodeInfo();
   }
 
+  componentWillUnmount() {
+    this.props.disconnectSocket();
+  }
+
   render() {
     const {
       nodeInfo,
@@ -66,6 +70,7 @@ App.propTypes = {
   bcoinUri: PropTypes.string,
   getNodeInfo: PropTypes.func.isRequired,
   connectSocket: PropTypes.func.isRequired,
+  disconnectSocket: PropTypes.func.isRequired,
   location: PropTypes.shape({
     pathname: PropTypes.string
   }),
@@ -87,11 +92,12 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => {
   const { getNodeInfo } = nodeActions;
-  const { connectSocket } = socketActions;
+  const { connectSocket, disconnectSocket } = socketActions;
   return bindActionCreators(
     {
       getNodeInfo,
-      connectSocket
+      connectSocket,
+      disconnectSocket
     },
     dispatch
   );
