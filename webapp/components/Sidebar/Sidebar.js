@@ -96,7 +96,10 @@ Sidebar.propTypes = {
       ...pluginMetaProps,
       subItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps))
     })
-  )
+  ),
+  location: PropTypes.shape({
+    pathname: PropTypes.string
+  })
 };
 
 export default Sidebar;

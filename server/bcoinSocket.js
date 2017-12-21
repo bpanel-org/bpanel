@@ -15,24 +15,31 @@ const bcoinClient = new Client({ network, uri, apiKey });
 
 io.attach(socketServer);
 
-io.on('socket', async socket => {
+(async function() {
   await bcoinClient.open();
   bcoinClient.socket.emit('auth');
   bcoinClient.socket.emit('watch chain');
-  bcoinClient.socket.on('block connect', async entry => {
-    try {
-      let blockMeta;
-      blockMeta = parseEntry(entry);
-      const genesis = bcoinClient.network.genesis.time;
-      let progress = calcProgress(genesis, blockMeta.time);
-      socket.fire('chain progress', Buffer.from(progress.toString()));
-    } catch (err) {
-      logger.error('Socket error in client.getInfo', err);
-    }
+
+  io.on('socket', async socket => {
+    bcoinClient.socket.on('block connect', (entry, txs) => {
+      try {
+        let blockMeta;
+        blockMeta = parseEntry(entry);
+        const { time, hash, height } = blockMeta;
+        const genesis = bcoinClient.network.genesis.time;
+
+        let progress = calcProgress(genesis, time);
+        const chainTip = { tip: hash, progress, height };
+        socket.fire('chain progress', { ...chainTip, block: { entry, txs } });
+      } catch (err) {
+        logger.error('Socket error in client.getInfo', err);
+      }
+    });
+
+    bcoinClient.socket.on('error', err => {
+      logger.error('Socket error: ', err);
+    });
   });
-  bcoinClient.socket.on('error', err => {
-    logger.error('Socket error: ', err);
-  });
-});
+})();
 
 module.exports = socketServer;
