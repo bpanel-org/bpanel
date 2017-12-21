@@ -65,7 +65,7 @@ export const loadPlugins = () => {
       let name, pluginVersion;
 
       try {
-        name = plugin.metadata;
+        name = plugin.metadata.name;
         pluginVersion = plugin.metadata.pluginVersion;
         metadata[pluginName] = plugin.metadata;
       } catch (e) {
