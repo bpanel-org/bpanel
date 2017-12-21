@@ -28,7 +28,7 @@ export const addSocketsConstants = (sockets = {}) =>
     socketListeners: sockets.listeners.push({
       event: 'new block',
       actionType: ADD_RECENT_BLOCK,
-      numBlocks: 9
+      numBlocks: 10
     })
   });
 
@@ -46,7 +46,7 @@ export const middleware = ({ dispatch, getState }) => next => action => {
   if (type === SET_CHAIN_TIP && currentProgress === 1 && recentBlocks.length) {
     dispatch({
       type: ADD_RECENT_BLOCK,
-      payload: { ...payload, numBlocks: 9 }
+      payload: { ...payload, numBlocks: 10 }
     });
   } else {
     next(action);
@@ -85,7 +85,7 @@ export const reduceChain = (state, action) => {
         newState.recentBlocks.unshift(entry);
 
         // check if action includes a length to limit recent blocks list to
-        if (numBlocks && newState.recentBlocks.length >= numBlocks) {
+        if (numBlocks && newState.recentBlocks.length > numBlocks) {
           newState.recentBlocks.pop();
         }
       }
@@ -100,7 +100,7 @@ export const reduceChain = (state, action) => {
 // action creator to set recent blocks on state
 // mapped to the state via `mapPanelDispatch` below
 // this allows plugins to call action creator to update the state
-function getRecentBlocks(n = 9) {
+function getRecentBlocks(n = 10) {
   return async (dispatch, getState) => {
     const { getBlocksInRange } = chainUtils;
     const { height } = getState().chain;
@@ -122,7 +122,7 @@ function getRecentBlocks(n = 9) {
 // used by the app's custom react-redux connect
 export const mapPanelDispatch = (dispatch, map) =>
   Object.assign(map, {
-    getRecentBlocks: (n = 9) => dispatch(getRecentBlocks(n))
+    getRecentBlocks: (n = 10) => dispatch(getRecentBlocks(n))
   });
 
 // Tells decorator what our plugin needs from the state
