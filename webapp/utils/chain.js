@@ -1,9 +1,11 @@
 import assert from 'assert';
+import * as api from './api';
 
 // Simple API call to retrieve a block at specified height or hash
 // returns a promise
 export function getBlock(hashOrHeight) {
-  return fetch(`/node/block/${hashOrHeight}`)
+  const endpoint = api.get.block(hashOrHeight);
+  return fetch(endpoint)
     .then(response => response.json())
     .catch(
       err => console.error('Error retrieving block: ', err) // eslint-disable-line no-console

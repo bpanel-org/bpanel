@@ -60,7 +60,7 @@ export const reduceChain = (state, action) => {
 
   switch (type) {
     case SET_RECENT_BLOCKS: {
-      newState.recentBlocks = payload;
+      if (payload.length) newState.recentBlocks = payload;
       return newState;
     }
 
@@ -104,8 +104,13 @@ function getRecentBlocks(n = 9) {
   return async (dispatch, getState) => {
     const { getBlocksInRange } = chainUtils;
     const { height } = getState().chain;
-
-    const blocks = await getBlocksInRange(height, height - n, -1);
+    let count = n;
+    // if we have fewer blocks then the range we want to retrieve
+    // then only retrieve up to height
+    if (height < n) {
+      count = height;
+    }
+    const blocks = await getBlocksInRange(height, height - count, -1);
     dispatch({
       type: SET_RECENT_BLOCKS,
       payload: blocks
