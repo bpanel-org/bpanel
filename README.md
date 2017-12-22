@@ -32,3 +32,8 @@ These checks are done in the `docker-bcoin-init.js` which sets up a node based o
 
 ### Persistent DBs
 To persist your bcoin node information (and skip the setup if the walletdb is persisted, uncomment and edit the volumes in the bcoin service. This could be useful if you're working on testnet or mainnet and don't want to wait for a full sync to happen every time you create a new container.
+
+
+## License
+
+- Copyright (c) 2017, The Bcoin Devs (MIT License).

@@ -14,3 +14,5 @@ export const comparePlugins = (pluginA, pluginB) => {
     return 0;
   }
 };
+
+export default { comparePlugins };

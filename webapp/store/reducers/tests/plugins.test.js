@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+
 import pluginMetadata from '../pluginMetadata';
 import { ADD_PLUGIN } from '../../constants/plugins';
 

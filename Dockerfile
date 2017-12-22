@@ -15,7 +15,6 @@ RUN npm install && npm cache verify
 RUN mkdir /usr/src/app/dist
 COPY server /usr/src/app/server
 COPY webapp /usr/src/app/webapp
-COPY .babelrc /usr/src/app/.babelrc
 COPY webpack.config.js /usr/src/app/webpack.config.js
 COPY scripts /usr/src/app/scripts
 

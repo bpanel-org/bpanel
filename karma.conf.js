@@ -7,6 +7,7 @@ module.exports = config => {
     exclude: ['node_modules/**/test/*.js'],
     files: [
       'node_modules/babel-polyfill/dist/polyfill.js',
+      'node_modules/whatwg-fetch/fetch.js',
       'webapp/**/tests/**/*.test.js'
     ],
     preprocessors: {

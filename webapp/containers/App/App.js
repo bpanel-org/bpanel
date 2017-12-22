@@ -1,22 +1,18 @@
 import React, { Component } from 'react';
-import bsock from 'bsock';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import ThemeProvider from '../ThemeProvider/ThemeProvider';
-import { nodeActions } from '../../store/actions/';
+import { nodeActions, socketActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Sidebar from '../../components/Sidebar/Sidebar';
-import Panel_ from '../../components/Panel/Panel';
-import { decorate } from '../../plugins/plugins';
+import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
 import theme from '../../config/themeConfig';
 
 import './app.scss';
-
-const Panel = decorate(Panel_, 'Panel');
 
 class App extends Component {
   constructor(props) {
@@ -24,19 +20,13 @@ class App extends Component {
   }
 
   async componentDidMount() {
-    // TODO: Socket management should be put into a reducer
-    const { getNodeInfo, updateChainInfo } = this.props;
-    const socket = bsock.connect(8000);
-    socket.on('connect', async () => {
-      socket.bind('chain progress', raw => {
-        const progress = parseFloat(raw.toString('ascii'));
-        updateChainInfo({ progress });
-      });
-    });
-
-    socket.on('error', err => console.log(err)); // eslint-disable-line no-console
-
+    const { getNodeInfo, connectSocket } = this.props;
+    connectSocket();
     getNodeInfo();
+  }
+
+  componentWillUnmount() {
+    this.props.disconnectSocket();
   }
 
   render() {
@@ -88,6 +78,11 @@ App.propTypes = {
   nodeProgress: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   bcoinUri: PropTypes.string,
   getNodeInfo: PropTypes.func.isRequired,
+  connectSocket: PropTypes.func.isRequired,
+  disconnectSocket: PropTypes.func.isRequired,
+  location: PropTypes.shape({
+    pathname: PropTypes.string
+  }),
   sortedPluginMeta: PropTypes.arrayOf(
     PropTypes.shape({
       ...pluginMetaProps,
@@ -98,19 +93,20 @@ App.propTypes = {
 
 const mapStateToProps = state => ({
   nodeInfo: state.node.node,
-  nodeProgress: state.node.chain.progress,
+  nodeProgress: state.chain.progress,
   bcoinUri: state.node.serverInfo.bcoinUri,
   loading: state.node.loading,
   sortedPluginMeta: plugins.getSortedPluginMetadata(state)
 });
 
 const mapDispatchToProps = dispatch => {
-  const { setNodeInfo, getNodeInfo, updateChainInfo } = nodeActions;
+  const { getNodeInfo } = nodeActions;
+  const { connectSocket, disconnectSocket } = socketActions;
   return bindActionCreators(
     {
-      setNodeInfo,
       getNodeInfo,
-      updateChainInfo
+      connectSocket,
+      disconnectSocket
     },
     dispatch
   );
