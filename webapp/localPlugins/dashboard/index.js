@@ -102,7 +102,14 @@ export const reduceChain = (state, action) => {
 function getRecentBlocks(n = 10) {
   return async (dispatch, getState) => {
     const { getBlocksInRange } = chainUtils;
-    const { height } = getState().chain;
+    const { height, progress, tip } = getState().chain;
+    // only get recent blocks if node is almost fully synced
+    // UI gets clogged otherwise
+    if (progress < 0.9)
+      dispatch({
+        type: SET_RECENT_BLOCKS,
+        payload: [{ height, hash: tip }]
+      });
     let count = n;
     // if we have fewer blocks then the range we want to retrieve
     // then only retrieve up to height
