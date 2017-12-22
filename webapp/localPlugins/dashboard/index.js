@@ -1,4 +1,6 @@
 import { chainentry } from 'bcoin';
+import Immutable from 'seamless-immutable';
+
 // eslint-disable-next-line import/no-unresolved
 import { chain as chainUtils } from 'bpanel/utils';
 
@@ -40,10 +42,9 @@ export const middleware = ({ dispatch, getState }) => next => action => {
   const currentProgress = getState().chain.progress;
   const recentBlocks = getState().chain.recentBlocks;
   // if dispatched action is SET_CHAIN_TIP,
-  // chain is fully synced (progress=1),
   // and recent blocks are already loaded
   // this middleware will intercept and run ADD_RECENT_BLOCK instead
-  if (type === SET_CHAIN_TIP && currentProgress === 1 && recentBlocks.length) {
+  if (type === SET_CHAIN_TIP && recentBlocks && recentBlocks.length) {
     dispatch({
       type: ADD_RECENT_BLOCK,
       payload: { ...payload, numBlocks: 10 }
@@ -56,44 +57,42 @@ export const middleware = ({ dispatch, getState }) => next => action => {
 // custom reducer used to decorate the main app's chain reducer
 export const reduceChain = (state, action) => {
   const { type, payload } = action;
-  let newState = { ...state };
 
   switch (type) {
     case SET_RECENT_BLOCKS: {
-      if (payload.length) newState.recentBlocks = payload;
-      return newState;
+      if (payload.length)
+        return state.set('recentBlocks', Immutable(payload), { deep: true });
     }
 
     case ADD_RECENT_BLOCK: {
       const { numBlocks, block, progress, tip, height } = payload;
 
       const entry = chainentry.fromRaw(block.entry);
+      const blocks = state.getIn(['recentBlocks']);
+      const newBlocks = [...blocks]; // get mutable version of blocks
+
       // skip if the height of new block is same as top block
       // or recentBlocks haven't been hydrated yet
       // reason is new block can be received multiple times
-      if (
-        newState.recentBlocks &&
-        newState.recentBlocks.length &&
-        entry.height !== newState.recentBlocks[0].height
-      ) {
-        // update chain tip info
-        newState.progress = progress;
-        newState.height = height;
-        newState.tip = tip;
-
-        // add new block
-        newState.recentBlocks.unshift(entry);
+      if (blocks && blocks.length && entry.height !== blocks[0].height) {
+        newBlocks.unshift(entry);
 
         // check if action includes a length to limit recent blocks list to
-        if (numBlocks && newState.recentBlocks.length > numBlocks) {
-          newState.recentBlocks.pop();
+        if (numBlocks && state.recentBlocks.length >= numBlocks) {
+          newBlocks.pop();
         }
       }
-      return newState;
+
+      return state.merge({
+        progress,
+        tip,
+        height,
+        recentBlocks: Immutable(newBlocks)
+      });
     }
 
     default:
-      return newState;
+      return state;
   }
 };
 
