@@ -1,60 +1,89 @@
-const actionColor1 = 'rgb(0, 255, 224)';
+import themeVariables from './themeVariables';
+
+const {
+  fontSizeBase,
+  fontSizeH1,
+  fontSizeH2,
+  fontSizeH3,
+  fontSizeH4,
+  fontSizeH5,
+  fontSizeH6,
+  fontWeights: { light, semiBold },
+  themeColors,
+  border1,
+  borderRadius
+} = themeVariables;
+
+/// ******
+/// THEME CONFIG
+/// ******
 
 export default {
   button: {
-    backgroundColor: 'transparent',
-    border: `1px solid ${actionColor1}`,
-    borderRadius: '5px',
-    color: actionColor1
+    backgroundColor: themeColors.transparent,
+    border: `1px solid ${themeColors.action}`,
+    borderRadius,
+    color: themeColors.action
   },
   header: {
     h1: {
-      fontSize: '48px'
+      fontSize: fontSizeH1
     },
     h2: {
-      fontSize: '36px'
+      fontSize: fontSizeH2
     },
     h3: {
-      fontSize: '24px'
+      fontSize: fontSizeH3
     },
     h4: {
-      fontSize: '16px'
+      fontSize: fontSizeH4
     },
     h5: {
-      fontSize: '12px'
+      fontSize: fontSizeH5
     },
     h6: {
-      fontSize: '10px'
+      fontSize: fontSizeH6
     }
   },
   link: {
-    color: '#00ffe0',
+    color: themeColors.action,
     textDecoration: 'underline'
   },
   table: {
     container: {
-      border: '1px solid rgba(255, 255, 255, 0.15)'
+      border: border1
     },
     header: {
       textTransform: 'capitalize',
-      fontWeight: 500
+      fontWeight: semiBold
     },
-    body: { fontWeight: 100 },
+    body: {
+      fontWeight: light
+    },
     row: ({ index }) => {
-      const style = { fontWeight: 100 };
+      const style = {
+        fontWeight: light
+      };
       if (index === -1) {
-        style.backgroundColor = 'rgba(0, 255, 224, .2)';
+        style.backgroundColor = themeColors.neutralBg;
       } else if (index % 2 === 0 || index === 0) {
-        style.backgroundColor = 'rgba(0, 0, 0, 0)';
+        style.backgroundColor = themeColors.transparent;
       } else {
-        style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+        style.backgroundColor = themeColors.lightBg;
       }
       return style;
     }
   },
   text: {
-    span: {},
-    p: {},
-    strong: {}
+    span: {
+      fontSize: fontSizeBase
+    },
+    p: {
+      fontSize: fontSizeBase
+    },
+    strong: {
+      fontSize: fontSizeBase,
+      fontWeight: semiBold
+    }
   }
 };

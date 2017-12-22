@@ -94,7 +94,7 @@ const tableProps = {
 
 const Dashboard = () => (
   <div>
-    <Header type="h1">Recent Blocks</Header>
+    <Header type="h1">H1 tag</Header>
     <Header type="h2">H2 tag</Header>
     <Header type="h3">H3 tag</Header>
     <Header type="h4">H4 tag</Header>
