@@ -1,6 +1,8 @@
+import Immutable from 'seamless-immutable';
+
 import { SET_NODE, SET_LOADING, SET_BCOIN_URI } from '../constants/node';
 
-const initialState = {
+const initialState = Immutable({
   node: {},
   memory: {},
   mempool: {},
@@ -9,27 +11,20 @@ const initialState = {
   serverInfo: {
     bcoinUri: '0.0.0.0'
   }
-};
+});
 
 const nodeState = (state = initialState, action) => {
-  let newState = { ...state };
   switch (action.type) {
     case SET_NODE: {
       const { version, network, memory, mempool, time } = action.payload;
-      newState.node = { version, network };
-      newState.memory = memory;
-      newState.mempool = mempool;
-      newState.time = time;
-      return newState;
+      return state.merge({ node, memory, mempool, time });
     }
 
     case SET_LOADING:
-      newState.loading = action.payload;
-      return newState;
+      return state.set('loading', true);
 
     case SET_BCOIN_URI:
-      newState.serverInfo.bcoinUri = action.payload;
-      return newState;
+      return state.setIn(['serverInfo', 'bcoinUri'], payload);
 
     default:
       return state;

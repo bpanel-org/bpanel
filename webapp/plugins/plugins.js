@@ -177,8 +177,6 @@ export function getRouteProps(parentProps, props) {
   return getProps('getRouteProps', parentProps, props);
 }
 
-// TODO: export middleware
-
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>
   reducersDecorators[name].reduce((state_, reducer_) => {
