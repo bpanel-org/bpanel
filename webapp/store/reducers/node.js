@@ -17,6 +17,7 @@ const nodeState = (state = initialState, action) => {
   switch (action.type) {
     case SET_NODE: {
       const { version, network, memory, mempool, time } = action.payload;
+      const node = { version, network };
       return state.merge({ node, memory, mempool, time });
     }
 
@@ -24,7 +25,7 @@ const nodeState = (state = initialState, action) => {
       return state.set('loading', true);
 
     case SET_BCOIN_URI:
-      return state.setIn(['serverInfo', 'bcoinUri'], payload);
+      return state.setIn(['serverInfo', 'bcoinUri'], action.payload);
 
     default:
       return state;

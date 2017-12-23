@@ -1,21 +1,21 @@
+import Immutable from 'seamless-immutable';
+
 import { ADD_PLUGIN } from '../constants/plugins';
 import { initialMetadata } from '../../plugins/plugins';
 
 const initialPlugins = initialMetadata();
 
-var pluginMetadata = (state = initialPlugins, action) => {
-  let newState = { ...state };
-
+const pluginMetadata = (state = Immutable(initialPlugins), action) => {
   switch (action.type) {
     case ADD_PLUGIN: {
-      var newPlugin = action.payload;
-      if (!newState[newPlugin.name]) {
-        newState[newPlugin.name] = newPlugin;
+      const newPlugin = action.payload;
+      if (!state.getIn([newPlugin, newPlugin.name])) {
+        return state.setIn([newPlugin.name], newPlugin);
         // TODO call a reload function to reload plugins
       } else {
         throw new Error(`${newPlugin.name} already exists`);
       }
-      return newState;
+      break;
     }
 
     default:

@@ -4,8 +4,8 @@ import thunkMiddleware from 'redux-thunk';
 import bsockMiddleware from 'bsock-middleware';
 
 import { getConstants } from '../plugins/plugins';
-import * as reducers from './reducers';
 import { loadPlugins, pluginMiddleware } from '../plugins/plugins';
+import * as reducers from './reducers';
 
 // load plugin information before setting up app and store
 loadPlugins();
