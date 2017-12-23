@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 
-import config from '../appConfig';
+import config from '../config/appConfig';
 import constants from '../store/constants';
 
 // Instantiate caches
