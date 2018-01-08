@@ -1,9 +1,12 @@
-import React, { PureComponent, Children } from 'react';
+import { PureComponent, Children } from 'react';
 import PropTypes from 'prop-types';
 
 class ThemeProvider extends PureComponent {
   static get propTypes() {
-    return { theme: PropTypes.object.isRequired };
+    return {
+      children: PropTypes.node,
+      theme: PropTypes.object.isRequired
+    };
   }
 
   static get childContextTypes() {

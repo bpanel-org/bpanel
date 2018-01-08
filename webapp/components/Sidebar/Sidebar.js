@@ -53,12 +53,6 @@ const Sidebar = ({ sidebarItems, location: { pathname = '' } }) => {
   );
 };
 
-const sidebarItemPropTypes = {
-  name: PropTypes.string.isRequired,
-  icon: PropTypes.string,
-  subItem: PropTypes.bool
-};
-
 Sidebar.propTypes = {
   sidebarItems: PropTypes.arrayOf(
     PropTypes.shape({
