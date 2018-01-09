@@ -176,6 +176,10 @@ export const decorator = (pluginDecorator, { React, PropTypes }) => {
   });
 };
 
+export const decorator = (decorator, { React, PropTypes }) => {
+  _DecoratedDashboard = decorator(_DecoratedDashboard, { React, PropTypes });
+};
+
 // a decorator for the Panel container component in our app
 // here we're extending the Panel's children by adding
 // our plugin's component, the Dasboard in this case
@@ -198,7 +202,12 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
       const { customChildren = [] } = this.props;
       const routeData = {
         name: metadata.name,
+<<<<<<< HEAD
         Component: _DecoratedDashboard
+=======
+        Component: _DecoratedDashboard,
+        props: ['chainHeight', 'getRecentBlocks', 'recentBlocks']
+>>>>>>> support for decorating dashboard plugin with a child plugin component
       };
       return (
         <Panel

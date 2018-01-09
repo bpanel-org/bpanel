@@ -142,8 +142,11 @@ export const loadPlugins = () => {
       if (plugin.decoratePlugin) {
         // check for each plugin decorator
         for (let key in plugin.decoratePlugin) {
+<<<<<<< HEAD
           if (key[0] === '_') continue; // skip if is an internal property
           // initialize of plugin decorators if none
+=======
+>>>>>>> support for decorating dashboard plugin with a child plugin component
           if (!pluginDecorators[key]) pluginDecorators[key] = [];
           pluginDecorators[key].push(plugin.decoratePlugin[key]);
         }
