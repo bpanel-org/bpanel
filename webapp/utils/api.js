@@ -1,5 +1,5 @@
 // utils to keep api calls consistent
-// by exporting current apis
+// by exporting current api
 
 export const get = {
   block: heightOrHash => `/node/block/${heightOrHash}`

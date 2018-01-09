@@ -17,6 +17,7 @@ let middlewares;
 
 // decorated components
 let decorated = {};
+let pluginDecorators = {};
 
 // props decorators (for passing props to children components)
 let routePropsDecorators;
@@ -117,6 +118,15 @@ export const loadPlugins = () => {
       // other miscellaneous decorators
       if (plugin.addSocketsConstants) {
         extendConstants.sockets.push(plugin.addSocketsConstants);
+      }
+
+      // for plugins that can be decorated by other plugins
+      if (plugin.decoratePlugin) {
+        // check for each plugin decorator
+        for (let key in plugin.decoratePlugin) {
+          if (!pluginDecorators[key]) pluginDecorators[key] = [];
+          pluginDecorators[key].push(plugin.decoratePlugin[key]);
+        }
       }
 
       return plugin;
@@ -299,17 +309,28 @@ function getDecorated(Component, name) {
       const methodName = `decorate${name}`;
       const decorator = plugin[methodName];
       const pluginName = plugin.metadata.name;
+      // child plugin decorators
+      const childDecorators = `decorate${pluginName[0].toUpperCase() +
+        pluginName.substr(1)}`;
 
       if (decorator) {
         let component__;
         try {
+          // if has pluginDecorators
+          if (pluginDecorators[childDecorators]) {
+            if (!plugin.decorator) throw "Parent plugin doesn't have decorator";
+            // need to pass each to parent plugin's own decorator function
+            pluginDecorators[childDecorators].forEach(childDecorator =>
+              plugin.decorator(childDecorator, { React, PropTypes })
+            );
+          }
           component__ = decorator(component_, { React, PropTypes });
           component__.displayName = `${pluginName}(${name})`;
         } catch (err) {
           //eslint-disable-next-line no-console
           console.error(
-            `Plugin error, ${pluginName} decorating component`,
-            err.stack
+            `Plugin error when decorating component with ${pluginName}:`,
+            typeof err === 'string' ? err : err.stack
           );
           return;
         }
@@ -354,3 +375,8 @@ function decorate(Component_, name) {
 }
 
 export const initialMetadata = () => metadata;
+
+// TODO:
+// Make sure to do plugin dependency check
+// i.e. display error if parent plugin not installed
+// when trying to decorate with a child plugin

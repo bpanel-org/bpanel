@@ -9,7 +9,7 @@ export default class extends Component {
     super(props);
   }
 
-  static displayName() {
+  static get displayName() {
     return 'Panel';
   }
 
