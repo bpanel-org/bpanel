@@ -11,6 +11,8 @@ import {
   SET_CHAIN_TIP
 } from './constants';
 
+let _DecoratedDashboard = Dashboard;
+
 export const metadata = {
   name: 'dashboard',
   author: 'bcoin-org',
@@ -153,19 +155,23 @@ export const getRouteProps = (parentProps, props) =>
     getRecentBlocks: parentProps.getRecentBlocks
   });
 
+export const decorator = (decorator, { React, PropTypes }) => {
+  _DecoratedDashboard = decorator(_DecoratedDashboard, { React, PropTypes });
+};
+
 // a decorator for the Panel container component in our app
 // here we're extending the Panel's children by adding
 // our plugin's component, the Dasboard in this case
 export const decoratePanel = (Panel, { React, PropTypes }) => {
-  return class DecoratedDashboard extends React.Component {
+  return class extends React.Component {
     static displayName() {
-      return 'bPanel Dashboard';
+      return 'bPanelDashboard';
     }
 
     static get propTypes() {
       return {
-        chainHeight: PropTypes.number,
         customChildren: PropTypes.array,
+        chainHeight: PropTypes.number,
         getRecentBlocks: PropTypes.func,
         recentBlocks: PropTypes.array
       };
@@ -175,7 +181,7 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
       const { customChildren = [] } = this.props;
       const routeData = {
         name: metadata.name,
-        Component: Dashboard,
+        Component: _DecoratedDashboard,
         props: ['chainHeight', 'getRecentBlocks', 'recentBlocks']
       };
       return (
@@ -187,3 +193,12 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
     }
   };
 };
+
+/*
+DECORATE PLUGIN NOTES
+- The component that gets passed to route data should be a decorated component
+- maybe when app does decorate it should check if the plugin as its own decorate method
+- So, plugins will check if it has `decorate${pluginName}`
+- Need some way to cache the decorated plugin (Dashboard in this case)
+  we don't want to decorate every time we render
+*/
