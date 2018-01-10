@@ -2,6 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
+import Immutable from 'seamless-immutable';
 
 import config from '../config/appConfig';
 import constants from '../store/constants';
@@ -176,13 +177,11 @@ export function getRouteProps(parentProps, props) {
   return getProps('getRouteProps', parentProps, props);
 }
 
-// TODO: export middleware
-
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>
   reducersDecorators[name].reduce((state_, reducer_) => {
     return reducer_(state_, action);
-  }, Object.assign({}, reducer(state, action)));
+  }, Immutable(reducer(state, action)));
 
 // connects + decorates a class
 // plugins can override mapToState, dispatchToProps
