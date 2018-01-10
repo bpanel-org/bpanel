@@ -19,6 +19,7 @@ let decorated = {};
 let pluginDecorators = {};
 
 // props decorators (for passing props to children components)
+let panelPropsDecorators;
 let routePropsDecorators;
 let propsDecorators = {};
 
@@ -45,10 +46,11 @@ export const loadPlugins = () => {
   };
 
   // setup props decorators
-  routePropsDecorators = [];
+  panelPropsDecorators = [];
   propsDecorators = {
-    getRouteProps: routePropsDecorators
+    getPanelProps: panelPropsDecorators
   };
+  routePropsDecorators = {};
 
   // setup reducers decorators
   chainReducers = [];
@@ -105,8 +107,24 @@ export const loadPlugins = () => {
       }
 
       // propsDecorators
+      // routePropsDecorators is an object with keys corresponding to route
       if (plugin.getRouteProps) {
-        routePropsDecorators.push(plugin.getRouteProps);
+        for (let key in plugin.getRouteProps) {
+          // skip if is an internal property
+          if (key[0] === '_') continue;
+          // initialize array of decorators for route if none
+          if (!routePropsDecorators[key]) routePropsDecorators[key] = [];
+
+          routePropsDecorators[key].push(plugin.getRouteProps[key]);
+        }
+      }
+
+      // TODO: will prob. want to clean this up w/ plugin system refactor
+      // all prop-getting now happening in getRouteProps
+      // which also looks closer to what
+      // the generalized system may end up being
+      if (plugin.getPanelProps) {
+        panelPropsDecorators.push(plugin.getPanelProps);
       }
 
       // reducersDecorators
@@ -123,6 +141,8 @@ export const loadPlugins = () => {
       if (plugin.decoratePlugin) {
         // check for each plugin decorator
         for (let key in plugin.decoratePlugin) {
+          if (key[0] === '_') continue; // skip if is an internal property
+          // initialize of plugin decorators if none
           if (!pluginDecorators[key]) pluginDecorators[key] = [];
           pluginDecorators[key].push(plugin.decoratePlugin[key]);
         }
@@ -156,7 +176,7 @@ export const pluginMiddleware = store => next => action => {
 // `parentProps` is used by the plugin to pull out what props it needs
 // then through the decorator adds those props to the final props object
 // that will get passed to the child component
-const getProps = (name, parentProps, props = {}, ...fnArgs) =>
+export const getProps = (name, parentProps, props = {}, ...fnArgs) =>
   propsDecorators[name].reduce((acc, decorator) => {
     let props_;
     try {
@@ -182,9 +202,35 @@ const getProps = (name, parentProps, props = {}, ...fnArgs) =>
     return props_;
   }, Object.assign({}, props));
 
-export function getRouteProps(parentProps, props) {
-  return getProps('getRouteProps', parentProps, props);
+export function getPanelProps(parentProps, props) {
+  return getProps('getPanelProps', parentProps, props);
 }
+
+export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
+  routePropsDecorators[name].reduce((acc, decorator) => {
+    let props_;
+    try {
+      props_ = decorator(parentProps, acc, ...fnArgs);
+    } catch (err) {
+      //eslint-disable-next-line no-console
+      console.log(
+        'Plugin error',
+        `${decorator._pluginName}: Error occurred in \`${name}\``,
+        err.stack
+      );
+      return;
+    }
+
+    if (!props_ || typeof props_ !== 'object') {
+      // eslint-disable-next-line no-console
+      console.log(
+        'Plugin error',
+        `${decorator._pluginName}: Invalid return value of \`${name}\` (object expected).`
+      );
+      return;
+    }
+    return props_;
+  }, Object.assign({}, props));
 
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>
