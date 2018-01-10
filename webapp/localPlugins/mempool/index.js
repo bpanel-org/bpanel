@@ -1,11 +1,27 @@
+// Dashboard widget for showing mempool information
+
 export const metadata = {
   name: 'mempool',
   author: 'bcoin-org'
 };
 
+export const mapPanelState = (state, map) =>
+  Object.assign(map, {
+    mempoolTx: state.node.mempool.tx,
+    mempoolSize: state.node.mempool.size
+  });
+
+export const getRouteProps = {
+  dashboard: (parentProps, props) =>
+    Object.assign(props, {
+      mempoolTx: parentProps.mempoolTx,
+      mempoolSize: parentProps.mempoolSize
+    })
+};
+
 // very/exactly similar to normal decorators
 // name should map exactly to the name of the target plugin to decorate
-const decorateDashboard = (Plugin, { React, PropTypes }) => {
+const decorateDashboard = (Dashboard, { React, PropTypes }) => {
   return class extends React.Component {
     constructor(props) {
       super(props);
@@ -17,7 +33,9 @@ const decorateDashboard = (Plugin, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        customChildren: PropTypes.array
+        customChildren: PropTypes.array,
+        mempoolSize: PropTypes.number,
+        mempoolTx: PropTypes.number
       };
     }
 
@@ -25,11 +43,13 @@ const decorateDashboard = (Plugin, { React, PropTypes }) => {
       const customChildren = (
         <div>
           <h5>Hello Mempool World</h5>
+          <p>Mempool TX: {this.props.mempoolTx}</p>
+          <p>Mempool Size: {this.props.mempoolSize}</p>
           {this.props.customChildren}
         </div>
       );
 
-      return <Plugin {...this.props} customChildren={customChildren} />;
+      return <Dashboard {...this.props} customChildren={customChildren} />;
     }
   };
 };
