@@ -1,5 +1,6 @@
 import Immutable from 'seamless-immutable';
 
+import { decorateReducer } from '../../plugins/plugins';
 import { SET_NODE, SET_LOADING, SET_BCOIN_URI } from '../constants/node';
 
 const initialState = Immutable({
@@ -22,7 +23,7 @@ const nodeState = (state = initialState, action) => {
     }
 
     case SET_LOADING:
-      return state.set('loading', true);
+      return state.set('loading', action.payload);
 
     case SET_BCOIN_URI:
       return state.setIn(['serverInfo', 'bcoinUri'], action.payload);
@@ -32,4 +33,5 @@ const nodeState = (state = initialState, action) => {
   }
 };
 
-export default nodeState;
+export default decorateReducer(nodeState, 'nodeReducer');
+// export default nodeState;
