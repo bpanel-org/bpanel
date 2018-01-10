@@ -11,7 +11,7 @@ const {
   fontSizeH5,
   fontSizeH6,
   fontOpacity,
-  fontWeights: { light, semiBold },
+  fontWeights,
   themeColors,
   border1,
   border2,
@@ -65,7 +65,7 @@ const sidebar = {
   item: {
     border: '1px solid transparent',
     color: themeColors.primary,
-    fontWeight: light,
+    fontWeight: fontWeights.light,
     textDecoration: 'none',
     padding: '10px 35px',
     WebkitTransition: '0.3s ease',
@@ -100,7 +100,7 @@ const sidebar = {
   },
   footerText: {
     fontSize: fontSizeSmall,
-    fontWeight: light,
+    fontWeight: fontWeights.light,
     marginBottom: '0',
     opacity: '0.75'
   }
@@ -180,7 +180,7 @@ const link = {
 // Table
 const rowRenderer = ({ index }) => {
   const style = {
-    fontWeight: light
+    fontWeight: fontWeights.light
   };
   if (index === -1) {
     style.backgroundColor = themeColors.mediumBg;
@@ -198,10 +198,10 @@ const table = {
   },
   header: {
     textTransform: 'capitalize',
-    fontWeight: semiBold
+    fontWeight: fontWeights.semiBold
   },
   body: {
-    fontWeight: light
+    fontWeight: fontWeights.light
   },
   // This row renderer alternates background colors between
   // transparent and a slightly transparent white
@@ -218,7 +218,7 @@ const text = {
   },
   strong: {
     fontSize: fontSizeBase,
-    fontWeight: semiBold
+    fontWeight: fontWeights.semiBold
   }
 };
 
