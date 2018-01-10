@@ -12,8 +12,6 @@ import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
 import theme from '../../config/themeConfig';
 
-import './app.scss';
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -25,7 +23,20 @@ class App extends Component {
     getNodeInfo();
   }
 
+  componentWillMount() {
+    // Load theming for the <body> and <html> tags
+    for (const k in theme.app.body) {
+      document.body.style[k] = theme.app.body[k];
+      document.documentElement.style[k] = theme.app.body[k];
+    }
+  }
+
   componentWillUnmount() {
+    // Unload theming for the <body> and <html> tags
+    for (const k in theme.app.body) {
+      document.body.style[k] = null;
+      document.document.documentElement.style[k] = null;
+    }
     this.props.disconnectSocket();
   }
 
@@ -40,15 +51,16 @@ class App extends Component {
     } = this.props;
     return (
       <ThemeProvider theme={theme}>
-        <div className="app-container container-fluid" role="main">
+        <div
+          className="container-fluid"
+          role="main"
+          style={theme.app.container}
+        >
           <div className="row">
-            <div
-              className="col-sm-4 col-lg-3 sidebar-container"
-              style={{ paddingLeft: 0 }}
-            >
+            <div className="col-sm-4 col-lg-3" style={{ paddingLeft: 0 }}>
               <Sidebar sidebarItems={sortedPluginMeta} location={location} />
             </div>
-            <div className="content-container col-sm-8 col-lg-9">
+            <div className="col-sm-8 col-lg-9" style={theme.app.content}>
               <Header
                 network={nodeInfo.network}
                 loading={loading}

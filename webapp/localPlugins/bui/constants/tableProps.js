@@ -67,7 +67,7 @@ const exampleTableData = [
 const colProps = Object.entries(exampleTableData[0]).map(keyValuePair => ({
   label: keyValuePair[0],
   dataKey: keyValuePair[0],
-  width: 200,
+  width: 400,
   flexGrow: 1
 }));
 

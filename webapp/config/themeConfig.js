@@ -2,88 +2,236 @@ import themeVariables from './themeVariables';
 
 const {
   fontSizeBase,
+  fontSizeSmall,
+  fontSizeLarge,
   fontSizeH1,
   fontSizeH2,
   fontSizeH3,
   fontSizeH4,
   fontSizeH5,
   fontSizeH6,
+  fontOpacity,
   fontWeights: { light, semiBold },
   themeColors,
   border1,
-  borderRadius
+  border2,
+  borderRadius,
+  footerHeight,
+  headerHeight,
+  appHeight,
+  appContentHeight,
+  sidebarHeight
 } = themeVariables;
 
 /// ******
 /// THEME CONFIG
 /// ******
 
-export default {
-  button: {
-    backgroundColor: themeColors.transparent,
-    border: `1px solid ${themeColors.action}`,
-    borderRadius,
-    color: themeColors.action
+// MAIN APP COMPONENTS
+const app = {
+  container: {
+    height: appHeight,
+    overflowY: 'overlay'
   },
-  header: {
-    h1: {
-      fontSize: fontSizeH1
-    },
-    h2: {
-      fontSize: fontSizeH2
-    },
-    h3: {
-      fontSize: fontSizeH3
-    },
-    h4: {
-      fontSize: fontSizeH4
-    },
-    h5: {
-      fontSize: fontSizeH5
-    },
-    h6: {
-      fontSize: fontSizeH6
-    }
+  content: {
+    height: appContentHeight,
+    paddingLeft: '20px',
+    paddingRight: '40px'
+  },
+  body: {
+    height: '100%',
+    minHeight: '300px',
+    overflowY: 'hidden',
+    fontFamily: 'Open Sans, sans-serif',
+    background: themeColors.appBg,
+    color: themeColors.primary
+  }
+};
+
+const sidebar = {
+  container: {
+    height: sidebarHeight,
+    minHeight: '50vh'
   },
   link: {
-    color: themeColors.action,
-    textDecoration: 'underline'
+    width: '100%',
+    minWidth: '150px',
+    textTransform: 'capitalize',
+    textDecoration: 'none',
+    hover: {
+      textDecoration: 'none'
+    }
   },
-  table: {
-    container: {
+  item: {
+    border: '1px solid transparent',
+    color: themeColors.primary,
+    fontWeight: light,
+    textDecoration: 'none',
+    padding: '10px 35px',
+    WebkitTransition: '0.3s ease',
+    MozTransition: '0.3s ease',
+    OTransition: '0.3s ease',
+    msTransition: '0.3s ease',
+    transition: '0.3s ease',
+    hover: {
       border: border1
     },
-    header: {
-      textTransform: 'capitalize',
-      fontWeight: semiBold
-    },
-    body: {
-      fontWeight: light
-    },
-    row: ({ index }) => {
-      const style = {
-        fontWeight: light
-      };
-      if (index === -1) {
-        style.backgroundColor = themeColors.neutralBg;
-      } else if (index % 2 === 0 || index === 0) {
-        style.backgroundColor = themeColors.transparent;
-      } else {
-        style.backgroundColor = themeColors.lightBg;
-      }
-      return style;
+    active: {
+      background: themeColors.lowlightGradient
     }
   },
-  text: {
-    span: {
-      fontSize: fontSizeBase
+  itemIcon: {
+    paddingRight: '12px'
+  },
+  logo: {
+    container: {
+      width: '100%',
+      padding: '30px 0',
+      textAlign: 'center',
+      opacity: '0.75'
     },
-    p: {
-      fontSize: fontSizeBase
-    },
-    strong: {
-      fontSize: fontSizeBase,
-      fontWeight: semiBold
+    img: {
+      width: '60px',
+      height: '60px'
     }
+  },
+  footer: {
+    paddingBottom: '50px'
+  },
+  footerText: {
+    fontSize: fontSizeSmall,
+    fontWeight: light,
+    marginBottom: '0',
+    opacity: '0.75'
   }
+};
+
+const headerbar = {
+  container: {
+    height: headerHeight
+  },
+  icon: {
+    fontSize: fontSizeLarge,
+    marginLeft: fontSizeBase,
+    color: themeColors.highlight1
+  },
+  networkStatus: {
+    fontSize: fontSizeSmall,
+    opacity: fontOpacity
+  },
+  nodeText: {
+    color: themeColors.highlight2
+  }
+};
+
+const footer = {
+  container: {
+    color: themeColors.primary,
+    backgroundColor: themeColors.footerBg,
+    bottom: 0,
+    fontSize: fontSizeSmall,
+    height: footerHeight,
+    position: 'fixed',
+    width: '100%'
+  },
+  progress: {
+    backgroundColor: themeColors.transparent
+  }
+};
+
+// BPANEL UI COMPONENTS
+
+// Button
+const button = {
+  backgroundColor: themeColors.transparent,
+  border: `1px solid ${themeColors.highlight1}`,
+  borderRadius: borderRadius,
+  color: themeColors.highlight1
+};
+
+// Header
+const header = {
+  h1: {
+    fontSize: fontSizeH1
+  },
+  h2: {
+    fontSize: fontSizeH2
+  },
+  h3: {
+    fontSize: fontSizeH3
+  },
+  h4: {
+    fontSize: fontSizeH4
+  },
+  h5: {
+    fontSize: fontSizeH5
+  },
+  h6: {
+    fontSize: fontSizeH6
+  }
+};
+
+// Link
+const link = {
+  color: themeColors.highlight1,
+  textDecoration: 'underline'
+};
+
+// Table
+const rowRenderer = ({ index }) => {
+  const style = {
+    fontWeight: light
+  };
+  if (index === -1) {
+    style.backgroundColor = themeColors.mediumBg;
+  } else if (index % 2 === 0 || index === 0) {
+    style.backgroundColor = themeColors.transparent;
+  } else {
+    style.backgroundColor = themeColors.lightBg;
+  }
+  return style;
+};
+
+const table = {
+  container: {
+    border: border2
+  },
+  header: {
+    textTransform: 'capitalize',
+    fontWeight: semiBold
+  },
+  body: {
+    fontWeight: light
+  },
+  // This row renderer alternates background colors between
+  // transparent and a slightly transparent white
+  row: rowRenderer
+};
+
+// Text
+const text = {
+  span: {
+    fontSize: fontSizeBase
+  },
+  p: {
+    fontSize: fontSizeBase
+  },
+  strong: {
+    fontSize: fontSizeBase,
+    fontWeight: semiBold
+  }
+};
+
+export default {
+  // App components
+  app,
+  sidebar,
+  headerbar,
+  footer,
+  // bPanel UI components
+  button,
+  header,
+  link,
+  table,
+  text
 };
