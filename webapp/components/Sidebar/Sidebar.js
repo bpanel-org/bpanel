@@ -12,6 +12,7 @@ const { components: { Text, Header }, utils: { connectTheme } } = UI;
 class Sidebar extends PureComponent {
   static get propTypes() {
     return {
+      theme: PropTypes.object,
       sidebarItems: PropTypes.arrayOf(
         PropTypes.shape({
           ...pluginMetaProps,
@@ -36,7 +37,7 @@ class Sidebar extends PureComponent {
   }
 
   renderSidebarItems() {
-    const { sidebarItems, location: { pathname = '' }, theme } = this.props;
+    const { sidebarItems, location: { pathname = '' } } = this.props;
     return sidebarItems.map((plugin, index) => {
       // mapping through each parent item to create the sidebar nav element
       const sidebarItemProps = { ...plugin, pathname };

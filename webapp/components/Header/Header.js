@@ -7,6 +7,7 @@ const { components: { Text }, utils: { connectTheme } } = UI;
 class Header extends PureComponent {
   static get propTypes() {
     return {
+      theme: PropTypes.object,
       network: PropTypes.string,
       loading: PropTypes.bool,
       bcoinUri: PropTypes.string

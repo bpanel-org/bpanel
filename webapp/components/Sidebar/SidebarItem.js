@@ -16,6 +16,7 @@ class SidebarItem extends PureComponent {
 
   static get propTypes() {
     return {
+      theme: PropTypes.object,
       name: PropTypes.string.isRequired,
       icon: PropTypes.string,
       subItem: PropTypes.bool,

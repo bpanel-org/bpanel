@@ -7,6 +7,7 @@ const { components: { Text }, utils: { connectTheme } } = UI;
 class Footer extends PureComponent {
   static get propTypes() {
     return {
+      theme: PropTypes.object,
       version: PropTypes.string,
       progress: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
     };
