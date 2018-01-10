@@ -1,19 +1,44 @@
-<<<<<<< HEAD
 // Dashboard widget for showing mempool information
+import { UPDATE_MEMPOOL } from './constants';
 
-=======
->>>>>>> support for decorating dashboard plugin with a child plugin component
 export const metadata = {
   name: 'mempool',
   author: 'bcoin-org'
 };
 
-<<<<<<< HEAD
 export const mapPanelState = (state, map) =>
   Object.assign(map, {
     mempoolTx: state.node.mempool.tx,
     mempoolSize: state.node.mempool.size
   });
+
+export const addSocketsConstants = (sockets = {}) =>
+  Object.assign(sockets, {
+    socketListeners: sockets.listeners.push({
+      event: 'update mempool',
+      actionType: UPDATE_MEMPOOL
+    })
+  });
+
+export const reduceNode = (state, action) => {
+  const { type, payload } = action;
+
+  switch (type) {
+    case UPDATE_MEMPOOL: {
+      const { tx, size } = payload;
+      const currentTx = state.getIn('tx');
+      const currentSize = state.getIn('size');
+
+      if (tx !== currentTx && size !== currentSize) {
+        return state.set('mempool', payload);
+      }
+      break;
+    }
+
+    default:
+      return state;
+  }
+};
 
 export const getRouteProps = {
   dashboard: (parentProps, props) =>
@@ -26,54 +51,38 @@ export const getRouteProps = {
 // very/exactly similar to normal decorators
 // name should map exactly to the name of the target plugin to decorate
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
-=======
-// very/exactly similar to normal decorators
-// name should map exactly to the name of the target plugin to decorate
-const decorateDashboard = (Plugin, { React, PropTypes }) => {
->>>>>>> support for decorating dashboard plugin with a child plugin component
   return class extends React.Component {
     constructor(props) {
       super(props);
     }
 
-    static get displayName() {
+    static displayName() {
       return 'mempoolWidget';
     }
 
     static get propTypes() {
       return {
-<<<<<<< HEAD
         customChildren: PropTypes.array,
         mempoolSize: PropTypes.number,
         mempoolTx: PropTypes.number
-=======
-        customChildren: PropTypes.array
->>>>>>> support for decorating dashboard plugin with a child plugin component
       };
     }
 
     render() {
       const customChildren = (
         <div>
-          <h5>Hello Mempool World</h5>
-<<<<<<< HEAD
+          <h5>Current Mempool</h5>
           <p>Mempool TX: {this.props.mempoolTx}</p>
           <p>Mempool Size: {this.props.mempoolSize}</p>
-=======
->>>>>>> support for decorating dashboard plugin with a child plugin component
           {this.props.customChildren}
         </div>
       );
 
-<<<<<<< HEAD
       return <Dashboard {...this.props} customChildren={customChildren} />;
-=======
-      return <Plugin {...this.props} customChildren={customChildren} />;
->>>>>>> support for decorating dashboard plugin with a child plugin component
     }
   };
 };
 
 // `decoratePlugin` passes an object with properties to map to the
 // plugins they will decorate
-export const decoratePlugin = { decorateDashboard };
+export const decoratePlugin = { dashboard: decorateDashboard };
