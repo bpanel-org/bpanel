@@ -1,0 +1,1 @@
+export const UPDATE_MEMPOOL = 'UPDATE_MEMPOOL';

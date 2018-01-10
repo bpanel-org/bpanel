@@ -1,4 +1,5 @@
 // Dashboard widget for showing mempool information
+import { UPDATE_MEMPOOL } from './constants';
 
 export const metadata = {
   name: 'mempool',
@@ -10,6 +11,34 @@ export const mapPanelState = (state, map) =>
     mempoolTx: state.node.mempool.tx,
     mempoolSize: state.node.mempool.size
   });
+
+export const addSocketsConstants = (sockets = {}) =>
+  Object.assign(sockets, {
+    socketListeners: sockets.listeners.push({
+      event: 'update mempool',
+      actionType: UPDATE_MEMPOOL
+    })
+  });
+
+export const reduceNode = (state, action) => {
+  const { type, payload } = action;
+
+  switch (type) {
+    case UPDATE_MEMPOOL: {
+      const { tx, size } = payload;
+      const currentTx = state.getIn('tx');
+      const currentSize = state.getIn('size');
+
+      if (tx !== currentTx && size !== currentSize) {
+        return state.set('mempool', payload);
+      }
+      break;
+    }
+
+    default:
+      return state;
+  }
+};
 
 export const getRouteProps = {
   dashboard: (parentProps, props) =>
@@ -42,7 +71,7 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
     render() {
       const customChildren = (
         <div>
-          <h5>Hello Mempool World</h5>
+          <h5>Current Mempool</h5>
           <p>Mempool TX: {this.props.mempoolTx}</p>
           <p>Mempool Size: {this.props.mempoolSize}</p>
           {this.props.customChildren}

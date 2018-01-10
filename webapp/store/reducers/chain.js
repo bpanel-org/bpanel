@@ -9,10 +9,8 @@ const initialState = Immutable({
 });
 
 const chainState = (state = initialState, action) => {
-  let newState = { ...state };
   switch (action.type) {
     case SET_CHAIN_TIP: {
-      const { progress, height, time, tip } = action.payload;
       return state.merge(action.payload);
     }
 

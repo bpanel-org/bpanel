@@ -11,6 +11,10 @@ import {
   SET_CHAIN_TIP
 } from './constants';
 
+// this component needs to be available to be decorated
+// by children components. We're initializing it here
+// then in the decorate method below we decorate it with the
+// plugin decorators
 let _DecoratedDashboard = Dashboard;
 
 export const metadata = {
@@ -41,8 +45,8 @@ export const addSocketsConstants = (sockets = {}) =>
 // store creator
 export const middleware = ({ dispatch, getState }) => next => action => {
   const { type, payload } = action;
-  const currentProgress = getState().chain.progress;
   const recentBlocks = getState().chain.recentBlocks;
+
   // if dispatched action is SET_CHAIN_TIP,
   // and recent blocks are already loaded
   // this middleware will intercept and run ADD_RECENT_BLOCK instead
@@ -64,6 +68,7 @@ export const reduceChain = (state, action) => {
     case SET_RECENT_BLOCKS: {
       if (payload.length)
         return state.set('recentBlocks', Immutable(payload), { deep: true });
+      break;
     }
 
     case ADD_RECENT_BLOCK: {
@@ -209,12 +214,3 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
     }
   };
 };
-
-/*
-DECORATE PLUGIN NOTES
-- The component that gets passed to route data should be a decorated component
-- maybe when app does decorate it should check if the plugin as its own decorate method
-- So, plugins will check if it has `decorate${pluginName}`
-- Need some way to cache the decorated plugin (Dashboard in this case)
-  we don't want to decorate every time we render
-*/

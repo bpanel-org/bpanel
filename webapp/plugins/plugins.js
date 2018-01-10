@@ -26,6 +26,7 @@ let propsDecorators = {};
 
 // reducers
 let chainReducers;
+let nodeReducers;
 let reducersDecorators = {};
 
 // miscellaneous decorators
@@ -55,8 +56,10 @@ export const loadPlugins = () => {
 
   // setup reducers decorators
   chainReducers = [];
+  nodeReducers = [];
   reducersDecorators = {
-    chainReducer: chainReducers
+    chainReducer: chainReducers,
+    nodeReducer: nodeReducers
   };
 
   middlewares = [];
@@ -131,6 +134,10 @@ export const loadPlugins = () => {
       // reducersDecorators
       if (plugin.reduceChain) {
         reducersDecorators.chainReducer.push(plugin.reduceChain);
+      }
+
+      if (plugin.reduceNode) {
+        reducersDecorators.nodeReducer.push(plugin.reduceNode);
       }
 
       // other miscellaneous decorators
