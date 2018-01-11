@@ -193,7 +193,7 @@ export const pluginMiddleware = store => next => action => {
 // `parentProps` is used by the plugin to pull out what props it needs
 // then through the decorator adds those props to the final props object
 // that will get passed to the child component
-export const getProps = (name, parentProps, props = {}, ...fnArgs) =>
+const getProps = (name, parentProps, props = {}, ...fnArgs) =>
   propsDecorators[name].reduce((acc, decorator) => {
     let props_;
     try {
