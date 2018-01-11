@@ -30,7 +30,10 @@ class Sidebar extends PureComponent {
     return (
       <Link to="/">
         <div style={theme.sidebar.logo.container}>
-          <img src={logo} style={theme.sidebar.logo.img} />
+          <img
+            src={theme.sidebar.logo.img.url}
+            style={theme.sidebar.logo.img}
+          />
         </div>
       </Link>
     );

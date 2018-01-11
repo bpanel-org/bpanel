@@ -1,5 +1,6 @@
 import tinygradient from 'tinygradient';
 import border from 'css-border-property';
+import logo from '../assets/logo.png';
 
 /// *****
 /// FONTS
@@ -45,8 +46,11 @@ const fontWeights = {
 // More documentation on this here: https://github.com/mistic100/tinygradient
 // If you want a solid color or image, you can simply assign `appBg` to a
 // hex, rgb, rgba string, or image url
-// If using an image url, write your url like this: 'url(http://saxony-blue.com/data/out/103/6072158-moon-image.jpg)'
-// replacing the example url with your own
+// If using an image url, write your url like this:
+// 'url(http://saxony-blue.com/data/out/103/6072158-moon-image.jpg)'
+// replacing the example url with your own. `appBg` is a css `background` property
+// so `no-repeat center center fixed` all apply, for example:
+// 'url(http://saxony-blue.com/data/out/103/6072158-moon-image.jpg) no-repeat center center fixed'
 const appBgColors = [
   '#835fac', // purple
   '#00558a', // blue
@@ -58,6 +62,9 @@ const appBg = tinygradient(appBgColors).css(
   appBgGradientType,
   appBgGradientAngle
 );
+// appBgSize is mainly for background images
+// for full sized background images, use 'cover'
+const appBgSize = 'auto';
 
 // Primary Palette
 const themeColors = {
@@ -99,15 +106,16 @@ const border1 = border.stringify([borderWidth, borderStyle, border1Color]);
 const border2 = border.stringify([borderWidth, borderStyle, border2Color]);
 const borderRadius = '5px';
 
-/// ******
-/// ELEMENT DIMENSIONS
-/// ******
+/// *******************
+/// COMPONENT VARIABLES
+/// *******************
 
 const footerHeight = makeRem(fontSizeBase * 2);
 const headerHeight = makeRem(fontSizeBase * 7);
 const appHeight = `calc(100vh - ${footerHeight})`;
 const appContentHeight = `calc(100vh - ${footerHeight} - ${headerHeight})`;
 const sidebarHeight = appHeight;
+const logoUrl = logo;
 
 const themeVariables = {
   fontFamily,
@@ -124,6 +132,7 @@ const themeVariables = {
   fontOpacity,
   fontWeights,
   themeColors,
+  appBgSize,
   border1,
   border2,
   borderRadius,
@@ -131,7 +140,8 @@ const themeVariables = {
   appContentHeight,
   footerHeight,
   headerHeight,
-  sidebarHeight
+  sidebarHeight,
+  logoUrl
 };
 
 export default themeVariables;

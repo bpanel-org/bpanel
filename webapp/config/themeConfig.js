@@ -21,7 +21,9 @@ const {
   headerHeight,
   appHeight,
   appContentHeight,
-  sidebarHeight
+  appBgSize,
+  sidebarHeight,
+  logoUrl
 } = themeVariables;
 
 /// ******
@@ -45,6 +47,7 @@ const app = {
     minHeight: '300px',
     overflowY: 'hidden',
     background: themeColors.appBg,
+    backgroundSize: appBgSize,
     color: themeColors.primary
   }
 };
@@ -93,7 +96,8 @@ const sidebar = {
     },
     img: {
       width: '60px',
-      height: '60px'
+      height: '60px',
+      url: logoUrl
     }
   },
   footer: {
