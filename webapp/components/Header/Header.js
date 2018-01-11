@@ -25,7 +25,7 @@ class Header extends PureComponent {
           style={theme.headerbar.networkStatus}
         >
           <div className="network text-uppercase">
-            <Text>Status: {network} </Text>
+            <Text style={theme.headerbar.text}>Status: {network} </Text>
             <i
               className={`fa fa-${statusIcon}`}
               areahidden="true"
@@ -33,8 +33,12 @@ class Header extends PureComponent {
             />
           </div>
           <div className="node">
-            <Text style={theme.headerbar.nodeText}>Node: </Text>
-            <Text>{bcoinUri}</Text>
+            <Text
+              style={{ ...theme.headerbar.nodeText, ...theme.headerbar.text }}
+            >
+              Node:{' '}
+            </Text>
+            <Text style={theme.headerbar.text}>{bcoinUri}</Text>
           </div>
         </div>
       </div>

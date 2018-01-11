@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import * as UI from 'bpanel-ui';
 
-const { utils: { connectTheme } } = UI;
+const { components: { Text }, utils: { connectTheme } } = UI;
 
 class SidebarItem extends PureComponent {
   constructor() {
@@ -61,7 +61,7 @@ class SidebarItem extends PureComponent {
           }}
         >
           <i className={`fa fa-${icon}`} style={theme.sidebar.itemIcon} />
-          <span>{name}</span>
+          <Text>{name}</Text>
           {children}
         </div>
       </Link>

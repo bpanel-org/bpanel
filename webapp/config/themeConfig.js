@@ -121,6 +121,9 @@ const headerbar = {
   },
   nodeText: {
     color: themeColors.highlight2
+  },
+  text: {
+    fontSize: fontSizeSmall
   }
 };
 
@@ -129,13 +132,15 @@ const footer = {
     color: themeColors.primary,
     backgroundColor: themeColors.footerBg,
     bottom: 0,
-    fontSize: fontSizeSmall,
     height: footerHeight,
     position: 'fixed',
     width: '100%'
   },
   progress: {
     backgroundColor: themeColors.transparent
+  },
+  text: {
+    fontSize: fontSizeSmall
   }
 };
 

@@ -26,10 +26,12 @@ class Footer extends PureComponent {
           <div className="container">
             <div className="row align-items-center">
               <div className="col-3 version text-truncate">
-                <Text>{version}</Text>
+                <Text style={theme.footer.text}>{version}</Text>
               </div>
               <div className="col-3" style={theme.footer.progress}>
-                <Text>{progressPercentage.toFixed(2)}% synced</Text>
+                <Text style={theme.footer.text}>
+                  {progressPercentage.toFixed(2)}% synced
+                </Text>
               </div>
             </div>
           </div>
