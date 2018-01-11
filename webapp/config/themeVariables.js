@@ -5,6 +5,9 @@ import border from 'css-border-property';
 /// FONTS
 /// *****
 
+// Font Family
+const fontFamily = 'Open Sans, sans-serif';
+
 // Font Size
 const makeRem = size => size.toString().concat('rem');
 
@@ -103,6 +106,7 @@ const appContentHeight = `calc(100vh - ${footerHeight} - ${headerHeight})`;
 const sidebarHeight = appHeight;
 
 const themeVariables = {
+  fontFamily,
   fontSizeBase: makeRem(fontSizeBase),
   fontSizeSmall,
   fontSizeNormal,

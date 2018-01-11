@@ -1,6 +1,7 @@
 import themeVariables from './themeVariables';
 
 const {
+  fontFamily,
   fontSizeBase,
   fontSizeSmall,
   fontSizeLarge,
@@ -39,10 +40,10 @@ const app = {
     paddingRight: '40px'
   },
   body: {
+    fontFamily,
     height: '100%',
     minHeight: '300px',
     overflowY: 'hidden',
-    fontFamily: 'Open Sans, sans-serif',
     background: themeColors.appBg,
     color: themeColors.primary
   }
