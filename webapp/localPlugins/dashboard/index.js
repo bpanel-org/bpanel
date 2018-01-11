@@ -14,7 +14,7 @@ import {
 // this component needs to be available to be decorated
 // by children components. We're initializing it here
 // then in the decorate method below we decorate it with the
-// plugin decorators
+// plugin decorators which are passed through on app load
 let _DecoratedDashboard = Dashboard;
 
 export const metadata = {
@@ -149,6 +149,14 @@ export const mapPanelState = (state, map) =>
     recentBlocks: state.chain.recentBlocks ? state.chain.recentBlocks : []
   });
 
+// mapPanelState will use react-redux's connect to
+// retrieve chainHeight from the state, but we need a way
+// for the Panel Container to pass it down to the Dashboard Route view
+// props getters like this are used in the app to pass new props
+// added by plugins down to children components (such as the Dashboard)
+// The route Props getter is special since different routes will want diff props
+// so we pass the getter as the value of an object prop, w/ the key
+// corresponding to the route that needs the props
 const dashboardProps = ['chainHeight', 'recentBlocks', 'getRecentBlocks'];
 const passProps = (parentProps, props) => {
   // construct the propsObject from the list of dashboardProps
@@ -162,14 +170,6 @@ const passProps = (parentProps, props) => {
   return Object.assign(props, propsObject);
 };
 
-// mapPanelState will use react-redux's connect to
-// retrieve chainHeight from the state, but we need a way
-// for the Panel Container to pass it down to the Dashboard Route view
-// props getters like this are used in the app to pass new props
-// added by plugins down to children components (such as the Dashboard)
-// The route Props getter is special since different routes will want diff props
-// so we pass the getter as the value of an object prop, w/ the key
-// corresponding to the route that needs the props
 export const getRouteProps = { dashboard: passProps };
 
 // special plugin decorator to allow other plugins to decorate this plugin
@@ -193,10 +193,7 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        customChildren: PropTypes.array,
-        chainHeight: PropTypes.number,
-        getRecentBlocks: PropTypes.func,
-        recentBlocks: PropTypes.array
+        customChildren: PropTypes.array
       };
     }
 
