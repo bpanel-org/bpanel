@@ -215,30 +215,32 @@ export function getPanelProps(parentProps, props) {
 }
 
 export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
-  routePropsDecorators[name].reduce((acc, decorator) => {
-    let props_;
-    try {
-      props_ = decorator(parentProps, acc, ...fnArgs);
-    } catch (err) {
-      //eslint-disable-next-line no-console
-      console.log(
-        'Plugin error',
-        `${decorator._pluginName}: Error occurred in \`${name}\``,
-        err.stack
-      );
-      return;
-    }
+  !routePropsDecorators[name]
+    ? parentProps // if no prop getter for route then return parent props
+    : routePropsDecorators[name].reduce((acc, decorator) => {
+        let props_;
+        try {
+          props_ = decorator(parentProps, acc, ...fnArgs);
+        } catch (err) {
+          //eslint-disable-next-line no-console
+          console.log(
+            'Plugin error',
+            `${decorator._pluginName}: Error occurred in \`${name}\``,
+            err.stack
+          );
+          return;
+        }
 
-    if (!props_ || typeof props_ !== 'object') {
-      // eslint-disable-next-line no-console
-      console.log(
-        'Plugin error',
-        `${decorator._pluginName}: Invalid return value of \`${name}\` (object expected).`
-      );
-      return;
-    }
-    return props_;
-  }, Object.assign({}, props));
+        if (!props_ || typeof props_ !== 'object') {
+          // eslint-disable-next-line no-console
+          console.log(
+            'Plugin error',
+            `${decorator._pluginName}: Invalid return value of \`${name}\` (object expected).`
+          );
+          return;
+        }
+        return props_;
+      }, Object.assign({}, props));
 
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>

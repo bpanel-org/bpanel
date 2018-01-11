@@ -45,7 +45,8 @@ const Sidebar = ({ sidebarItems, location: { pathname = '' } }) => {
             <img src={logo} className="logo" width="60" height="60" />
           </div>
         </Link>
-        {sidebarItems.map((plugin, index) => {
+        {sidebarItems.filter(plugin => plugin.sidebar).map((plugin, index) => {
+          // filter will first remove any plugins w/o sidebar property set to true
           // mapping through each parent item to create the sidebar nav element
           const sidebarItemProps = { ...plugin, pathname };
           if (plugin.subItems) {
