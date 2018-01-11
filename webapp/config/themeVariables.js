@@ -41,10 +41,12 @@ const fontWeights = {
 // Background color for App
 // ------------------------
 // Here we are using a gradient for the background color.
-// This color can be a string, array, and array of objects.
+// These colors can be a string, array, or array of objects.
 // More documentation on this here: https://github.com/mistic100/tinygradient
-// If you want a solid color or image, you can simply assign `appBg` to a hex,
-// rgb, rgba string, or an image url
+// If you want a solid color or image, you can simply assign `appBg` to a
+// hex, rgb, rgba string, or image url
+// If using an image url, write your url like this: 'url(http://saxony-blue.com/data/out/103/6072158-moon-image.jpg)'
+// replacing the example url with your own
 const appBgColors = [
   '#835fac', // purple
   '#00558a', // blue
@@ -59,14 +61,12 @@ const appBg = tinygradient(appBgColors).css(
 
 // Primary Palette
 const themeColors = {
+  // Themeable colors
   primary: '#fff', // white
   highlight1: '#00ffe0', // teal
   highlight2: '#83d9ff', // light blue
   lowlight1: '#1b1464', // dark purple
   lowlight2: '#9e005d', // medium purple
-  white: '#fff',
-  black: '#000',
-  transparent: 'transparent',
   lightBg: 'rgba(255, 255, 255, 0.1)', // transparent white
   mediumBg: 'rgba(0, 255, 224, .2)', // transparent teal
   darkBg: 'rgba(0, 0, 0, .4)', // transparent black
@@ -77,7 +77,11 @@ const themeColors = {
   },
   get lowlightGradient() {
     return tinygradient([this.lowlight1, this.lowlight2]).css();
-  }
+  },
+  // Constants
+  white: '#fff',
+  black: '#000',
+  transparent: 'transparent'
 };
 
 /// *******
