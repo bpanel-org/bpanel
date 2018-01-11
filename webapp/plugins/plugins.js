@@ -77,9 +77,8 @@ export const loadPlugins = () => {
         metadata[pluginName] = plugin.metadata;
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.log(
-          `There was a problem loading the metadata for ${pluginName}`
-        );
+        console.error /
+          `There was a problem loading the metadata for ${pluginName}`;
       }
 
       for (const method in plugin) {
@@ -150,6 +149,16 @@ export const loadPlugins = () => {
         // check for each plugin decorator
         for (let key in plugin.decoratePlugin) {
           if (key[0] === '_') continue; // skip if is an internal property
+          // check if dependency plugin has been loaded
+          if (!metadata[key]) {
+            // eslint-disable-next-line no-console
+            console.error(
+              `Plugin dependency "${key}" does not exist for ${name}.`,
+              `Please make sure plugin "${key}" has been added to configs`,
+              `and is loaded before child plugin "${name}"`
+            );
+            return;
+          }
           // initialize of plugin decorators if none
           if (!pluginDecorators[key]) pluginDecorators[key] = [];
           pluginDecorators[key].push(plugin.decoratePlugin[key]);
@@ -191,7 +200,7 @@ export const getProps = (name, parentProps, props = {}, ...fnArgs) =>
       props_ = decorator(parentProps, acc, ...fnArgs);
     } catch (err) {
       //eslint-disable-next-line no-console
-      console.log(
+      console.error(
         'Plugin error',
         `${decorator._pluginName}: Error occurred in \`${name}\``,
         err.stack
@@ -201,7 +210,7 @@ export const getProps = (name, parentProps, props = {}, ...fnArgs) =>
 
     if (!props_ || typeof props_ !== 'object') {
       // eslint-disable-next-line no-console
-      console.log(
+      console.error(
         'Plugin error',
         `${decorator._pluginName}: Invalid return value of \`${name}\` (object expected).`
       );
@@ -223,7 +232,7 @@ export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
           props_ = decorator(parentProps, acc, ...fnArgs);
         } catch (err) {
           //eslint-disable-next-line no-console
-          console.log(
+          console.error(
             'Plugin error',
             `${decorator._pluginName}: Error occurred in \`${name}\``,
             err.stack
@@ -233,7 +242,7 @@ export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
 
         if (!props_ || typeof props_ !== 'object') {
           // eslint-disable-next-line no-console
-          console.log(
+          console.error(
             'Plugin error',
             `${decorator._pluginName}: Invalid return value of \`${name}\` (object expected).`
           );
@@ -271,14 +280,14 @@ export function connect(
             ret = mapper(state, acc);
           } catch (err) {
             // eslint-disable-next-line no-console
-            console.log(
+            console.error(
               `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
               err.stack
             );
           }
           if (!ret || typeof ret !== 'object') {
             // eslint-disable-next-line no-console
-            console.log(
+            console.error(
               'Plugin error ',
               `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
             );
@@ -294,14 +303,14 @@ export function connect(
             ret = mapper(dispatch, acc);
           } catch (err) {
             // eslint-disable-next-line no-console
-            console.log(
+            console.error(
               `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
               err.stack
             );
           }
           if (!ret || typeof ret !== 'object') {
             // eslint-disable-next-line no-console
-            console.log(
+            console.error(
               'Plugin error ',
               `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
             );
@@ -331,7 +340,7 @@ function exposeDecorated(Component_) {
           this.props.onDecorated(decorated_);
         } catch (e) {
           // eslint-disable-next-line no-console
-          console.log('Plugin error:', e);
+          console.error('Plugin error:', e);
         }
       }
     }
@@ -363,19 +372,18 @@ function getDecorated(Component, name) {
     plugins.forEach(plugin => {
       const methodName = `decorate${name}`;
       const decorator = plugin[methodName];
-      const pluginName = plugin.metadata.name;
-      // child plugin decorators
-      const childDecorators = `decorate${pluginName[0].toUpperCase() +
-        pluginName.substr(1)}`;
 
       if (decorator) {
+        const pluginName = decorator._pluginName;
         let component__;
         try {
           // if has pluginDecorators
-          if (pluginDecorators[childDecorators]) {
-            if (!plugin.decorator) throw "Parent plugin doesn't have decorator";
+          if (pluginDecorators[pluginName]) {
+            if (!plugin.decorator)
+              throw "Parent plugin can't be decorated \
+                    because it doesn't have decorator";
             // need to pass each to parent plugin's own decorator function
-            pluginDecorators[childDecorators].forEach(childDecorator =>
+            pluginDecorators[pluginName].forEach(childDecorator =>
               plugin.decorator(childDecorator, { React, PropTypes })
             );
           }
@@ -413,7 +421,7 @@ function decorate(Component_, name) {
     componentDidCatch(error, errorInfo) {
       this.setState({ hasError: true });
       // eslint-disable-next-line no-console
-      console.log(
+      console.error(
         `Plugins decorating ${name} has been disabled because of a plugin crash.`,
         error,
         errorInfo
@@ -430,8 +438,3 @@ function decorate(Component_, name) {
 }
 
 export const initialMetadata = () => metadata;
-
-// TODO:
-// Make sure to do plugin dependency check
-// i.e. display error if parent plugin not installed
-// when trying to decorate with a child plugin
