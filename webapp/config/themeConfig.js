@@ -148,6 +148,7 @@ const footer = {
 
 // Button
 const button = {
+  fontSize: fontSizeBase,
   backgroundColor: themeColors.transparent,
   border: `1px solid ${themeColors.highlight1}`,
   borderRadius: borderRadius,
@@ -178,6 +179,7 @@ const header = {
 
 // Link
 const link = {
+  fontSize: fontSizeBase,
   color: themeColors.highlight1,
   textDecoration: 'underline'
 };

@@ -1,5 +1,8 @@
 import React from 'react';
 import HeaderRow from '../HeaderRow';
+import * as UI from 'bpanel-ui';
+
+const { components: { Text } } = UI;
 
 const exampleTableData = [
   {
@@ -68,7 +71,9 @@ const colProps = Object.entries(exampleTableData[0]).map(keyValuePair => ({
   label: keyValuePair[0],
   dataKey: keyValuePair[0],
   width: 400,
-  flexGrow: 1
+  flexGrow: 1,
+  cellRenderer: ({ cellData }) => <Text>{cellData}</Text>,
+  headerRenderer: ({ label }) => <Text>{label}</Text>
 }));
 
 const HeaderRowRenderer = props => <HeaderRow {...props} />;
