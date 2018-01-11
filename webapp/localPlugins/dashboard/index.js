@@ -22,6 +22,7 @@ export const metadata = {
   author: 'bcoin-org',
   order: 0,
   icon: 'home',
+  sidebar: true, // set to true to show nav item in sidebar
   parent: ''
 };
 
