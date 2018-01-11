@@ -85,4 +85,4 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
 
 // `decoratePlugin` passes an object with properties to map to the
 // plugins they will decorate
-export const decoratePlugin = { decorateDashboard };
+export const decoratePlugin = { dashboard: decorateDashboard };
