@@ -1,7 +1,12 @@
 import themeVariables from './themeVariables';
 
 const {
+  /// *****
+  /// FONTS
+  /// *****
+  // Font Family
   fontFamily,
+  // Font Size
   fontSizeBase,
   fontSizeSmall,
   fontSizeLarge,
@@ -12,18 +17,43 @@ const {
   fontSizeH5,
   fontSizeH6,
   fontOpacity,
+  // Font Weights
   fontWeights,
+  /// ***********
+  /// BACKGROUNDS
+  /// ***********
+  appBgSize,
+  /// ******
+  /// COLORS
+  /// ******
   themeColors,
+  /// *******
+  /// BORDERS
+  /// *******
   border1,
   border2,
+  border3,
   borderRadius,
-  footerHeight,
-  headerHeight,
+  /// *******************
+  /// COMPONENT VARIABLES
+  /// *******************
   appHeight,
+  appBodyMinHeight,
   appContentHeight,
-  appBgSize,
+  appContentPaddingLeft,
+  appContentPaddingRight,
+  headerHeight,
+  footerHeight,
   sidebarHeight,
-  logoUrl
+  sidebarItemTransition,
+  sidebarItemPadding,
+  sidebarLinkMinWidth,
+  sidebarItemIconPaddingRight,
+  sidebarFooterPaddingBottom,
+  logoUrl,
+  logoSize,
+  logoContainerPadding,
+  buttonActionPadding
 } = themeVariables;
 
 /// ******
@@ -38,13 +68,13 @@ const app = {
   },
   content: {
     height: appContentHeight,
-    paddingLeft: '20px',
-    paddingRight: '40px'
+    paddingLeft: appContentPaddingLeft,
+    paddingRight: appContentPaddingRight
   },
   body: {
     fontFamily,
     height: '100%',
-    minHeight: '300px',
+    minHeight: appBodyMinHeight,
     overflowY: 'hidden',
     background: themeColors.appBg,
     backgroundSize: appBgSize,
@@ -59,7 +89,7 @@ const sidebar = {
   },
   link: {
     width: '100%',
-    minWidth: '150px',
+    minWidth: sidebarLinkMinWidth,
     textTransform: 'capitalize',
     textDecoration: 'none',
     hover: {
@@ -71,12 +101,12 @@ const sidebar = {
     color: themeColors.primary,
     fontWeight: fontWeights.light,
     textDecoration: 'none',
-    padding: '10px 35px',
-    WebkitTransition: '0.3s ease',
-    MozTransition: '0.3s ease',
-    OTransition: '0.3s ease',
-    msTransition: '0.3s ease',
-    transition: '0.3s ease',
+    padding: sidebarItemPadding,
+    WebkitTransition: sidebarItemTransition,
+    MozTransition: sidebarItemTransition,
+    OTransition: sidebarItemTransition,
+    msTransition: sidebarItemTransition,
+    transition: sidebarItemTransition,
     hover: {
       border: border1
     },
@@ -85,29 +115,29 @@ const sidebar = {
     }
   },
   itemIcon: {
-    paddingRight: '12px'
+    paddingRight: sidebarItemIconPaddingRight
   },
   logo: {
     container: {
       width: '100%',
-      padding: '30px 0',
+      padding: logoContainerPadding,
       textAlign: 'center',
-      opacity: '0.75'
+      opacity: fontOpacity
     },
     img: {
-      width: '60px',
-      height: '60px',
+      width: logoSize,
+      height: logoSize,
       url: logoUrl
     }
   },
   footer: {
-    paddingBottom: '50px'
+    paddingBottom: sidebarFooterPaddingBottom
   },
   footerText: {
     fontSize: fontSizeSmall,
     fontWeight: fontWeights.light,
     marginBottom: '0',
-    opacity: '0.75'
+    opacity: fontOpacity
   }
 };
 
@@ -153,11 +183,20 @@ const footer = {
 
 // Button
 const button = {
-  fontSize: fontSizeBase,
-  backgroundColor: themeColors.transparent,
-  border: `1px solid ${themeColors.highlight1}`,
-  borderRadius: borderRadius,
-  color: themeColors.highlight1
+  primary: {
+    fontSize: fontSizeBase,
+    backgroundColor: themeColors.transparent,
+    border: border3,
+    borderRadius: borderRadius,
+    color: themeColors.highlight1
+  },
+  action: {
+    backgroundColor: themeColors.primary,
+    padding: buttonActionPadding,
+    hover: {
+      background: themeColors.lowlightGradient
+    }
+  }
 };
 
 // Header

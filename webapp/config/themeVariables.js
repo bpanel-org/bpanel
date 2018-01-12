@@ -10,20 +10,20 @@ import logo from '../assets/logo.png';
 const fontFamily = 'Open Sans, sans-serif';
 
 // Font Size
-const makeRem = size => size.toString().concat('rem');
+const makeRem = size => (size * fontSizeBase).toString().concat('rem');
 
 const fontSizeBase = 1; // This gets transformed to rem
 
-const fontSizeSmall = makeRem(fontSizeBase * 0.8);
-const fontSizeNormal = makeRem(fontSizeBase);
-const fontSizeLarge = makeRem(fontSizeBase * 1.2);
+const fontSizeSmall = makeRem(0.8);
+const fontSizeNormal = makeRem(1);
+const fontSizeLarge = makeRem(1.2);
 
-const fontSizeH1 = makeRem(fontSizeBase * 3.2);
-const fontSizeH2 = makeRem(fontSizeBase * 2.6);
-const fontSizeH3 = makeRem(fontSizeBase * 2.1);
-const fontSizeH4 = makeRem(fontSizeBase * 1.7);
-const fontSizeH5 = makeRem(fontSizeBase * 1.3);
-const fontSizeH6 = makeRem(fontSizeBase * 1.1);
+const fontSizeH1 = makeRem(3.2);
+const fontSizeH2 = makeRem(2.6);
+const fontSizeH3 = makeRem(2.1);
+const fontSizeH4 = makeRem(1.7);
+const fontSizeH5 = makeRem(1.3);
+const fontSizeH6 = makeRem(1.1);
 
 const fontOpacity = 0.75;
 
@@ -35,9 +35,9 @@ const fontWeights = {
   bold: 700
 };
 
-/// ******
-/// COLORS
-/// ******
+/// ***********
+/// BACKGROUNDS
+/// ***********
 
 // Background color for App
 // ------------------------
@@ -65,6 +65,10 @@ const appBg = tinygradient(appBgColors).css(
 // appBgSize is mainly for background images
 // for full sized background images, use 'cover'
 const appBgSize = 'auto';
+
+/// ******
+/// COLORS
+/// ******
 
 // Primary Palette
 const themeColors = {
@@ -102,24 +106,56 @@ const border2Color = {
   property: 'border-color',
   value: 'rgba(255, 255, 255, 0.2)'
 };
+const border3Color = {
+  property: 'border-color',
+  value: themeColors.highlight1
+};
 const border1 = border.stringify([borderWidth, borderStyle, border1Color]);
 const border2 = border.stringify([borderWidth, borderStyle, border2Color]);
+const border3 = border.stringify([borderWidth, borderStyle, border3Color]);
 const borderRadius = '5px';
 
 /// *******************
 /// COMPONENT VARIABLES
 /// *******************
 
-const footerHeight = makeRem(fontSizeBase * 2);
-const headerHeight = makeRem(fontSizeBase * 7);
+// App
 const appHeight = `calc(100vh - ${footerHeight})`;
+const appBodyMinHeight = makeRem(18.75);
 const appContentHeight = `calc(100vh - ${footerHeight} - ${headerHeight})`;
+const appContentPaddingLeft = makeRem(1.25);
+const appContentPaddingRight = makeRem(2.5);
+
+// Header
+const headerHeight = makeRem(7);
+
+// Footer
+const footerHeight = makeRem(2);
+
+// Sidebar
 const sidebarHeight = appHeight;
+const sidebarItemTransition = '0.3s ease';
+const sidebarItemPadding = `${makeRem(0.625)} ${makeRem(2.1875)}`;
+const sidebarLinkMinWidth = makeRem(9.375);
+const sidebarItemIconPaddingRight = makeRem(0.75);
+const sidebarFooterPaddingBottom = makeRem(3.125);
+
+// Logo
 const logoUrl = logo;
+const logoSize = makeRem(3.75);
+const logoContainerPadding = `${makeRem(1.875)} 0`;
+
+// Button
+const buttonActionPadding = makeRem(0.3125);
 
 const themeVariables = {
+  /// *****
+  /// FONTS
+  /// *****
+  // Font Family
   fontFamily,
-  fontSizeBase: makeRem(fontSizeBase),
+  // Font Size
+  fontSizeBase: `${fontSizeBase}rem`,
   fontSizeSmall,
   fontSizeNormal,
   fontSizeLarge,
@@ -130,18 +166,43 @@ const themeVariables = {
   fontSizeH5,
   fontSizeH6,
   fontOpacity,
+  // Font Weights
   fontWeights,
-  themeColors,
+  /// ***********
+  /// BACKGROUNDS
+  /// ***********
   appBgSize,
+  /// ******
+  /// COLORS
+  /// ******
+  themeColors,
+  /// *******
+  /// BORDERS
+  /// *******
   border1,
   border2,
+  border3,
   borderRadius,
+  /// *******************
+  /// COMPONENT VARIABLES
+  /// *******************
   appHeight,
+  appBodyMinHeight,
   appContentHeight,
-  footerHeight,
+  appContentPaddingLeft,
+  appContentPaddingRight,
   headerHeight,
+  footerHeight,
   sidebarHeight,
-  logoUrl
+  sidebarItemTransition,
+  sidebarItemPadding,
+  sidebarLinkMinWidth,
+  sidebarItemIconPaddingRight,
+  sidebarFooterPaddingBottom,
+  logoUrl,
+  logoSize,
+  logoContainerPadding,
+  buttonActionPadding
 };
 
 export default themeVariables;
