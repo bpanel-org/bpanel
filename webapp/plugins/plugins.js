@@ -77,8 +77,9 @@ export const loadPlugins = () => {
         metadata[pluginName] = plugin.metadata;
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.error /
-          `There was a problem loading the metadata for ${pluginName}`;
+        console.error(
+          `There was a problem loading the metadata for ${pluginName}`
+        );
       }
 
       for (const method in plugin) {
