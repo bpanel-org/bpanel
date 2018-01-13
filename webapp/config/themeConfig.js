@@ -37,22 +37,30 @@ const {
   /// *******************
   /// COMPONENT VARIABLES
   /// *******************
-  appHeight,
+  // App
+  appBodyHeight,
   appBodyMinHeight,
   appContentHeight,
-  appContentPaddingLeft,
-  appContentPaddingRight,
+  appContentPadding,
+  appHeight,
+  // Header
   headerHeight,
+  // Footer
   footerHeight,
-  sidebarHeight,
-  sidebarItemTransition,
+  footerTextMargin,
+  // Sidebar
+  sidebarContainerHeight,
+  sidebarContainerPadding,
+  sidebarFooterPadding,
+  sidebarItemIconPadding,
   sidebarItemPadding,
+  sidebarItemTransition,
   sidebarLinkMinWidth,
-  sidebarItemIconPaddingRight,
-  sidebarFooterPaddingBottom,
-  logoUrl,
-  logoSize,
+  // Logo
   logoContainerPadding,
+  logoSize,
+  logoUrl,
+  // Button
   buttonActionPadding
 } = themeVariables;
 
@@ -68,30 +76,30 @@ const app = {
   },
   content: {
     height: appContentHeight,
-    paddingLeft: appContentPaddingLeft,
-    paddingRight: appContentPaddingRight
+    ...appContentPadding
   },
   body: {
-    fontFamily,
-    height: '100%',
-    minHeight: appBodyMinHeight,
-    overflowY: 'hidden',
+    color: themeColors.primary,
     background: themeColors.appBg,
     backgroundSize: appBgSize,
-    color: themeColors.primary
+    height: appBodyHeight,
+    minHeight: appBodyMinHeight,
+    overflowY: 'hidden',
+    fontFamily
   }
 };
 
 const sidebar = {
   container: {
-    height: sidebarHeight,
-    minHeight: '50vh'
+    height: sidebarContainerHeight,
+    minHeight: '50vh',
+    ...sidebarContainerPadding
   },
   link: {
-    width: '100%',
     minWidth: sidebarLinkMinWidth,
-    textTransform: 'capitalize',
     textDecoration: 'none',
+    textTransform: 'capitalize',
+    width: '100%',
     hover: {
       textDecoration: 'none'
     }
@@ -101,12 +109,12 @@ const sidebar = {
     color: themeColors.primary,
     fontWeight: fontWeights.light,
     textDecoration: 'none',
-    padding: sidebarItemPadding,
     WebkitTransition: sidebarItemTransition,
     MozTransition: sidebarItemTransition,
     OTransition: sidebarItemTransition,
     msTransition: sidebarItemTransition,
     transition: sidebarItemTransition,
+    ...sidebarItemPadding,
     hover: {
       border: border1
     },
@@ -115,29 +123,29 @@ const sidebar = {
     }
   },
   itemIcon: {
-    paddingRight: sidebarItemIconPaddingRight
+    ...sidebarItemIconPadding
   },
   logo: {
     container: {
-      width: '100%',
-      padding: logoContainerPadding,
+      opacity: fontOpacity,
       textAlign: 'center',
-      opacity: fontOpacity
+      width: '100%',
+      ...logoContainerPadding
     },
     img: {
-      width: logoSize,
       height: logoSize,
+      width: logoSize,
       url: logoUrl
     }
   },
   footer: {
-    paddingBottom: sidebarFooterPaddingBottom
+    ...sidebarFooterPadding
   },
   footerText: {
     fontSize: fontSizeSmall,
     fontWeight: fontWeights.light,
-    marginBottom: '0',
-    opacity: fontOpacity
+    opacity: fontOpacity,
+    ...footerTextMargin
   }
 };
 
@@ -146,9 +154,9 @@ const headerbar = {
     height: headerHeight
   },
   icon: {
+    color: themeColors.highlight1,
     fontSize: fontSizeLarge,
-    marginLeft: fontSizeBase,
-    color: themeColors.highlight1
+    marginLeft: fontSizeBase
   },
   networkStatus: {
     fontSize: fontSizeSmall,
@@ -164,9 +172,9 @@ const headerbar = {
 
 const footer = {
   container: {
-    color: themeColors.primary,
     backgroundColor: themeColors.footerBg,
     bottom: 0,
+    color: themeColors.primary,
     height: footerHeight,
     position: 'fixed',
     width: '100%'
@@ -184,11 +192,11 @@ const footer = {
 // Button
 const button = {
   primary: {
-    fontSize: fontSizeBase,
     backgroundColor: themeColors.transparent,
     border: border3,
     borderRadius: borderRadius,
-    color: themeColors.highlight1
+    color: themeColors.highlight1,
+    fontSize: fontSizeBase
   },
   action: {
     backgroundColor: themeColors.primary,
@@ -223,8 +231,8 @@ const header = {
 
 // Link
 const link = {
-  fontSize: fontSizeBase,
   color: themeColors.highlight1,
+  fontSize: fontSizeBase,
   textDecoration: 'underline'
 };
 
@@ -248,8 +256,8 @@ const table = {
     border: border2
   },
   header: {
-    textTransform: 'capitalize',
-    fontWeight: fontWeights.semiBold
+    fontWeight: fontWeights.semiBold,
+    textTransform: 'capitalize'
   },
   body: {
     fontWeight: fontWeights.light

@@ -2,6 +2,42 @@ import tinygradient from 'tinygradient';
 import border from 'css-border-property';
 import logo from '../assets/logo.png';
 
+/// *********
+/// FUNCTIONS
+/// *********
+
+const makeRem = size => (size * fontSizeBase).toString().concat('rem');
+
+const makeGutter = (
+  type = 'padding',
+  { top, bottom, left, right, horizontal, vertical }
+) => {
+  let gutterTop, gutterRight, gutterBottom, gutterLeft;
+
+  // Horizontal gutter calculation
+  if (horizontal || horizontal === 0) {
+    gutterRight = gutterLeft = makeRem(horizontal);
+  } else {
+    gutterRight = (right || right === 0) && makeRem(right);
+    gutterLeft = (left || left === 0) && makeRem(left);
+  }
+
+  // Vertical gutter calculation
+  if (vertical || vertical === 0) {
+    gutterTop = gutterBottom = makeRem(vertical);
+  } else {
+    gutterTop = (top || top === 0) && makeRem(top);
+    gutterBottom = (bottom || bottom === 0) && makeRem(bottom);
+  }
+
+  return {
+    [`${type}Top`]: gutterTop,
+    [`${type}Right`]: gutterRight,
+    [`${type}Bottom`]: gutterBottom,
+    [`${type}Left`]: gutterLeft
+  };
+};
+
 /// *****
 /// FONTS
 /// *****
@@ -10,8 +46,6 @@ import logo from '../assets/logo.png';
 const fontFamily = 'Open Sans, sans-serif';
 
 // Font Size
-const makeRem = size => (size * fontSizeBase).toString().concat('rem');
-
 const fontSizeBase = 1; // This gets transformed to rem
 
 const fontSizeSmall = makeRem(0.8);
@@ -56,8 +90,8 @@ const appBgColors = [
   '#00558a', // blue
   '#009db6' // teal
 ];
-const appBgGradientType = 'linear';
 const appBgGradientAngle = '-35deg';
+const appBgGradientType = 'linear';
 const appBg = tinygradient(appBgColors).css(
   appBgGradientType,
   appBgGradientAngle
@@ -119,31 +153,39 @@ const borderRadius = '5px';
 /// COMPONENT VARIABLES
 /// *******************
 
+// Footer
+const footerHeight = makeRem(2);
+const footerTextMargin = makeGutter('margin', { bottom: 0 });
+
 // App
-const appHeight = `calc(100vh - ${footerHeight})`;
+const appBodyHeight = '100%';
 const appBodyMinHeight = makeRem(18.75);
 const appContentHeight = `calc(100vh - ${footerHeight} - ${headerHeight})`;
-const appContentPaddingLeft = makeRem(1.25);
-const appContentPaddingRight = makeRem(2.5);
+const appContentPadding = makeGutter('padding', { left: 1.25, right: 2.5 });
+const appHeight = `calc(100vh - ${footerHeight})`;
 
 // Header
 const headerHeight = makeRem(7);
 
-// Footer
-const footerHeight = makeRem(2);
-
 // Sidebar
-const sidebarHeight = appHeight;
+const sidebarContainerHeight = appHeight;
+const sidebarContainerPadding = makeGutter('padding', { left: 0 });
+const sidebarFooterPadding = makeGutter('padding', { bottom: 3.125 });
+const sidebarItemIconPadding = makeGutter('padding', { right: 0.75 });
+const sidebarItemPadding = makeGutter('padding', {
+  horizontal: 2.1875,
+  vertical: 0.625
+});
 const sidebarItemTransition = '0.3s ease';
-const sidebarItemPadding = `${makeRem(0.625)} ${makeRem(2.1875)}`;
 const sidebarLinkMinWidth = makeRem(9.375);
-const sidebarItemIconPaddingRight = makeRem(0.75);
-const sidebarFooterPaddingBottom = makeRem(3.125);
 
 // Logo
-const logoUrl = logo;
+const logoContainerPadding = makeGutter('padding', {
+  horizontal: 0,
+  vertical: 1.875
+});
 const logoSize = makeRem(3.75);
-const logoContainerPadding = `${makeRem(1.875)} 0`;
+const logoUrl = logo;
 
 // Button
 const buttonActionPadding = makeRem(0.3125);
@@ -186,22 +228,30 @@ const themeVariables = {
   /// *******************
   /// COMPONENT VARIABLES
   /// *******************
-  appHeight,
+  // App
+  appBodyHeight,
   appBodyMinHeight,
   appContentHeight,
-  appContentPaddingLeft,
-  appContentPaddingRight,
+  appContentPadding,
+  appHeight,
+  // Header
   headerHeight,
+  // Footer
   footerHeight,
-  sidebarHeight,
-  sidebarItemTransition,
+  footerTextMargin,
+  // Sidebar
+  sidebarContainerHeight,
+  sidebarContainerPadding,
+  sidebarFooterPadding,
+  sidebarItemIconPadding,
   sidebarItemPadding,
+  sidebarItemTransition,
   sidebarLinkMinWidth,
-  sidebarItemIconPaddingRight,
-  sidebarFooterPaddingBottom,
-  logoUrl,
-  logoSize,
+  // Logo
   logoContainerPadding,
+  logoSize,
+  logoUrl,
+  // Button
   buttonActionPadding
 };
 
