@@ -5,7 +5,6 @@ import * as UI from 'bpanel-ui';
 
 import { pluginMetaProps } from '../../containers/App/App';
 import SidebarItem from './SidebarItem';
-import logo from '../../assets/logo.png';
 
 const { components: { Text, Header }, utils: { connectTheme } } = UI;
 
@@ -94,7 +93,7 @@ class Sidebar extends PureComponent {
     return (
       <nav
         className="d-flex flex-column navbar navbar-default navbar-fixed-side"
-        style={{ paddingLeft: 0, ...theme.sidebar.container }}
+        style={theme.sidebar.container}
       >
         {this.renderLogo()}
         {this.renderSidebarItems()}

@@ -23,7 +23,8 @@ export default class Bui extends PureComponent {
         <br />
         <Link to="http://bcoin.io/">External Link to Bcoin.</Link>
         <br />
-        <Button>Button Component</Button>
+        <Button type="primary">Primary Button Component</Button>
+        <Button type="action">Action Button Component</Button>
         <br />
         <Table {...tableProps} />
       </div>

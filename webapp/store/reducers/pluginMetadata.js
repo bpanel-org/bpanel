@@ -15,7 +15,6 @@ const pluginMetadata = (state = Immutable(initialPlugins), action) => {
       } else {
         throw new Error(`${newPlugin.name} already exists`);
       }
-      break;
     }
 
     default:
