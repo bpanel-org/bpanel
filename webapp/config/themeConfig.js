@@ -200,6 +200,7 @@ const button = {
     fontSize: fontSizeBase
   },
   action: {
+    border: 'none',
     backgroundColor: themeColors.primary,
     cursor: 'pointer',
     padding: buttonActionPadding,
