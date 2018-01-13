@@ -196,10 +196,12 @@ const button = {
     border: border3,
     borderRadius: borderRadius,
     color: themeColors.highlight1,
+    cursor: 'pointer',
     fontSize: fontSizeBase
   },
   action: {
     backgroundColor: themeColors.primary,
+    cursor: 'pointer',
     padding: buttonActionPadding,
     hover: {
       background: themeColors.lowlightGradient
