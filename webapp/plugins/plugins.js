@@ -412,7 +412,7 @@ function getDecorated(Component, name) {
 // Code based on hyper.is
 // https://github.com/zeit/hyper
 // This HOC handles error catching and returns fallback component if plugins error
-function decorate(Component_, name) {
+export function decorate(Component_, name) {
   return class DecoratedComponent extends React.Component {
     constructor(props) {
       super(props);

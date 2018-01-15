@@ -3,14 +3,17 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { decorate } from '../../plugins/plugins';
 import { nodeActions, socketActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
-import Sidebar from '../../components/Sidebar/Sidebar';
+import Sidebar_ from '../../components/Sidebar/Sidebar';
 import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
 
 import './app.scss';
+
+const Sidebar = decorate(Sidebar_, 'Sidebar');
 
 class App extends Component {
   constructor(props) {
@@ -103,4 +106,4 @@ const mapDispatchToProps = dispatch => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App, 'App');
