@@ -39,7 +39,6 @@ export const addSocketsConstants = (sockets = {}) =>
 // store creator
 export const middleware = ({ dispatch, getState }) => next => action => {
   const { type, payload } = action;
-  const currentProgress = getState().chain.progress;
   const recentBlocks = getState().chain.recentBlocks;
   // if dispatched action is SET_CHAIN_TIP,
   // and recent blocks are already loaded
@@ -62,6 +61,7 @@ export const reduceChain = (state, action) => {
     case SET_RECENT_BLOCKS: {
       if (payload.length)
         return state.set('recentBlocks', Immutable(payload), { deep: true });
+      break;
     }
 
     case ADD_RECENT_BLOCK: {

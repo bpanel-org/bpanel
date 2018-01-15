@@ -57,7 +57,8 @@ module.exports = env => ({
     extensions: ['-browser.js', '.js', '.json', '.jsx'],
     alias: {
       bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
-      bpanel: path.resolve(__dirname, 'webapp/')
+      bpanel: path.resolve(__dirname, 'webapp/'),
+      tinycolor: 'tinycolor2'
     }
   },
   module: {

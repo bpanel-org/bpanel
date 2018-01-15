@@ -51,6 +51,6 @@ export default class extends Component {
       />
     ));
 
-    return <div className="col-8">{routes}</div>;
+    return <div>{routes}</div>;
   }
 }
