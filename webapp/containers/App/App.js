@@ -4,14 +4,14 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { decorate } from '../../plugins/plugins';
+import ThemeProvider from '../ThemeProvider/ThemeProvider';
 import { nodeActions, socketActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
 import Sidebar_ from '../../components/Sidebar/Sidebar';
 import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
-
-import './app.scss';
+import theme from '../../config/themeConfig';
 
 const Sidebar = decorate(Sidebar_, 'Sidebar');
 
@@ -26,7 +26,20 @@ class App extends Component {
     getNodeInfo();
   }
 
+  componentWillMount() {
+    // Load theming for the <body> and <html> tags
+    for (const k in theme.app.body) {
+      document.body.style[k] = theme.app.body[k];
+      document.documentElement.style[k] = theme.app.body[k];
+    }
+  }
+
   componentWillUnmount() {
+    // Unload theming for the <body> and <html> tags
+    for (const k in theme.app.body) {
+      document.body.style[k] = null;
+      document.document.documentElement.style[k] = null;
+    }
     this.props.disconnectSocket();
   }
 
@@ -40,20 +53,28 @@ class App extends Component {
       location
     } = this.props;
     return (
-      <div className="app-container container-fluid" role="main">
-        <div className="row">
-          <Sidebar sidebarItems={sortedPluginMeta} location={location} />
-          <div className="content-container col-sm-8 col-lg-9">
-            <Header
-              network={nodeInfo.network}
-              loading={loading}
-              bcoinUri={bcoinUri}
-            />
-            <Panel />
+      <ThemeProvider theme={theme}>
+        <div
+          className="container-fluid"
+          role="main"
+          style={theme.app.container}
+        >
+          <div className="row">
+            <div className="col-sm-4 col-lg-3" style={{ paddingLeft: 0 }}>
+              <Sidebar sidebarItems={sortedPluginMeta} location={location} />
+            </div>
+            <div className="col-sm-8 col-lg-9" style={theme.app.content}>
+              <Header
+                network={nodeInfo.network}
+                loading={loading}
+                bcoinUri={bcoinUri}
+              />
+              <Panel />
+            </div>
+            <Footer version={nodeInfo.version} progress={nodeProgress} />
           </div>
-          <Footer version={nodeInfo.version} progress={nodeProgress} />
         </div>
-      </div>
+      </ThemeProvider>
     );
   }
 }

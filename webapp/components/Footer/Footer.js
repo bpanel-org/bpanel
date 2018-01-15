@@ -1,30 +1,44 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import * as UI from 'bpanel-ui';
 
-import './footer.scss';
+const { components: { Text }, utils: { connectTheme } } = UI;
 
-const Footer = ({ version, progress }) => {
-  const progressPercentage = progress * 100;
+class Footer extends PureComponent {
+  static get propTypes() {
+    return {
+      theme: PropTypes.object,
+      version: PropTypes.string,
+      progress: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    };
+  }
 
-  return (
-    <div className="container-fluid">
-      <footer className="row footer-container align-items-center">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-3 version text-truncate">{version}</div>
-            <div className="col-3 progress">
-              {progressPercentage.toFixed(2)}% synced
+  render() {
+    const { version, progress, theme } = this.props;
+    const progressPercentage = progress * 100;
+
+    return (
+      <div className="container-fluid">
+        <footer
+          className="row align-items-center"
+          style={theme.footer.container}
+        >
+          <div className="container">
+            <div className="row align-items-center">
+              <div className="col-3 version text-truncate">
+                <Text style={theme.footer.text}>{version}</Text>
+              </div>
+              <div className="col-3" style={theme.footer.progress}>
+                <Text style={theme.footer.text}>
+                  {progressPercentage.toFixed(2)}% synced
+                </Text>
+              </div>
             </div>
           </div>
-        </div>
-      </footer>
-    </div>
-  );
-};
+        </footer>
+      </div>
+    );
+  }
+}
 
-Footer.propTypes = {
-  version: PropTypes.string,
-  progress: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-};
-
-export default Footer;
+export default connectTheme(Footer);

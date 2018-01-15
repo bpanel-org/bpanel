@@ -1,30 +1,49 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import * as UI from 'bpanel-ui';
 
-import './header.scss';
+const { components: { Text }, utils: { connectTheme } } = UI;
 
-const Header = ({ loading, network, bcoinUri }) => {
-  const statusIcon = loading ? 'ellipsis-h' : 'check-circle';
+class Header extends PureComponent {
+  static get propTypes() {
+    return {
+      theme: PropTypes.object,
+      network: PropTypes.string,
+      loading: PropTypes.bool,
+      bcoinUri: PropTypes.string
+    };
+  }
 
-  return (
-    <div className="navbar header">
-      <div className="network-status ml-md-auto text-right col">
-        <div className="network text-uppercase">
-          Status: {network}{' '}
-          <i className={`fa fa-${statusIcon} teal`} areahidden="true" />
-        </div>
-        <div className="node">
-          <span className="blue">Node:</span> {bcoinUri}
+  render() {
+    const { loading, network, bcoinUri, theme } = this.props;
+    const statusIcon = loading ? 'ellipsis-h' : 'check-circle';
+
+    return (
+      <div className="navbar" style={theme.headerbar.container}>
+        <div
+          className="ml-md-auto text-right col"
+          style={theme.headerbar.networkStatus}
+        >
+          <div className="network text-uppercase">
+            <Text style={theme.headerbar.text}>Status: {network} </Text>
+            <i
+              className={`fa fa-${statusIcon}`}
+              areahidden="true"
+              style={theme.headerbar.icon}
+            />
+          </div>
+          <div className="node">
+            <Text
+              style={{ ...theme.headerbar.nodeText, ...theme.headerbar.text }}
+            >
+              Node:{' '}
+            </Text>
+            <Text style={theme.headerbar.text}>{bcoinUri}</Text>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
-Header.propTypes = {
-  network: PropTypes.string,
-  loading: PropTypes.bool,
-  bcoinUri: PropTypes.string
-};
-
-export default Header;
+export default connectTheme(Header);

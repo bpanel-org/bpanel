@@ -68,3 +68,6 @@ bcoin.config.json
 
 # Secrets
 secrets.env
+
+# Mac OS X
+.DS_Store

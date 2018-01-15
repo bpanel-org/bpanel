@@ -56,7 +56,7 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
       super(props);
     }
 
-    static get displayName() {
+    static displayName() {
       return 'mempoolWidget';
     }
 

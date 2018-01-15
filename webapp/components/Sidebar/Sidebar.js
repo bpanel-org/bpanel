@@ -1,126 +1,115 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import * as UI from 'bpanel-ui';
 
-import './sidebar.scss';
 import { pluginMetaProps } from '../../containers/App/App';
-import logo from '../../assets/logo.png';
+import SidebarItem from './SidebarItem';
 
-const getActive = (name, pathname) =>
-  pathname.includes(name) ? 'sidebar-item-active' : '';
+const { components: { Text, Header }, utils: { connectTheme } } = UI;
 
-const sidebarItem = ({
-  name,
-  icon = 'cog',
-  subItem = false,
-  children,
-  pathname
-}) => (
-  <Link
-    to={name}
-    className={`nav-item sidebar-link ${subItem ? 'subItem' : ''}`}
-  >
-    <div className={`sidebar-item  ${getActive(name, pathname)}`}>
-      <i className={`fa fa-${icon} sidebar-item-icon`} />
-      <span>{name}</span>
-      {children}
-    </div>
-  </Link>
-);
+class Sidebar extends PureComponent {
+  static get propTypes() {
+    return {
+      theme: PropTypes.object,
+      customChildren: PropTypes.array,
+      sidebarNavItems: PropTypes.array,
+      sidebarItems: PropTypes.arrayOf(
+        PropTypes.shape({
+          ...pluginMetaProps,
+          subItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps))
+        })
+      ),
+      location: PropTypes.shape({
+        pathname: PropTypes.string
+      })
+    };
+  }
 
-export default class Sidebar extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.commitHash = process.env.__COMMIT__.slice(0, 7);
-    this.version = process.env.__VERSION__;
+  renderLogo() {
+    const { theme } = this.props;
+    return (
+      <Link to="/">
+        <div style={theme.sidebar.logo.container}>
+          <img
+            src={theme.sidebar.logo.img.url}
+            style={theme.sidebar.logo.img}
+          />
+        </div>
+      </Link>
+    );
+  }
+
+  renderSidebarItems() {
+    const { sidebarItems, location: { pathname = '' } } = this.props;
+    return sidebarItems
+      .filter(plugin => plugin.sidebar)
+      .map((plugin, index) => {
+        // filter will first remove any plugins w/o sidebar property set to true
+        // mapping through each parent item to create the sidebar nav element
+        const sidebarItemProps = { ...plugin, pathname };
+        if (plugin.subItems) {
+          // if this sidebar item has sub items
+          // then we need to create and append the children elements
+          sidebarItemProps.children = plugin.subItems.map(
+            (subItem, subIndex) => {
+              const props = {
+                ...subItem,
+                subItem: true,
+                key: `${index}-${subIndex}`
+              };
+              return React.createElement(SidebarItem, props);
+            }
+          );
+        }
+
+        return React.createElement(SidebarItem, {
+          ...sidebarItemProps,
+          key: index
+        });
+      });
+  }
+
+  renderFooter() {
+    const { theme } = this.props;
+    const commitHash = process.env.__COMMIT__.slice(0, 7);
+    const version = process.env.__VERSION__;
+    return (
+      <div className="mt-auto text-center" style={theme.sidebar.footer}>
+        <Header type="h5">bpanel</Header>
+        <Text
+          type="p"
+          className="version text-truncate"
+          style={theme.sidebar.footerText}
+        >
+          bcoin: {version}
+        </Text>
+        <Text
+          type="p"
+          className="commit text-truncate"
+          style={theme.sidebar.footerText}
+        >
+          UI: {commitHash}
+        </Text>
+      </div>
+    );
   }
 
   render() {
-    const {
-      sidebarItems,
-      location,
-      customChildren,
-      sidebarNavItems
-    } = this.props;
-    const { pathname } = location;
-
+    const { theme, customChildren, sidebarNavItems } = this.props;
     return (
-      <div
-        className="col-sm-4 col-lg-3 sidebar-container"
-        style={{ paddingLeft: 0 }}
+      <nav
+        className="d-flex flex-column navbar navbar-default navbar-fixed-side"
+        style={theme.sidebar.container}
       >
-        <nav
-          className="d-flex flex-column navbar navbar-default navbar-fixed-side sidebar"
-          style={{ paddingLeft: 0 }}
-        >
-          <Link to="/">
-            <div className="sidebar-logo">
-              <img src={logo} className="logo" width="60" height="60" />
-            </div>
-          </Link>
-          {sidebarItems
-            .filter(plugin => plugin.sidebar)
-            .map((plugin, index) => {
-              // filter will first remove any plugins w/o sidebar property set to true
-              // mapping through each parent item to create the sidebar nav element
-              const sidebarItemProps = { ...plugin, pathname };
-              if (plugin.subItems) {
-                // if this sidebar item has sub items
-                // then we need to create and append the children elements
-                sidebarItemProps.children = plugin.subItems.map(
-                  (subItem, subIndex) => {
-                    const props = {
-                      ...subItem,
-                      subItem: true,
-                      key: `${index}-${subIndex}`
-                    };
-                    return React.createElement(sidebarItem, props);
-                  }
-                );
-              }
-
-              return React.createElement(sidebarItem, {
-                ...sidebarItemProps,
-                key: index
-              });
-            })}
-          {sidebarNavItems}
-          {customChildren}
-          <div className="sidebar-footer mt-auto text-center">
-            <h5>bpanel</h5>
-            <p className="version subtext text-truncate">
-              bcoin: {this.version}
-            </p>
-            <p className="commit subtext text-truncate">
-              UI: {this.commitHash}
-            </p>
-          </div>
-          <div className="col-sm-1" />
-        </nav>
-      </div>
+        {this.renderLogo()}
+        {this.renderSidebarItems()}
+        {sidebarNavItems}
+        {customChildren}
+        {this.renderFooter()}
+      </nav>
     );
   }
 }
 
-const sidebarItemPropTypes = {
-  name: PropTypes.string.isRequired,
-  icon: PropTypes.string,
-  subItem: PropTypes.bool
-};
-
-sidebarItem.propTypes = {
-  ...sidebarItemPropTypes,
-  children: PropTypes.arrayOf(PropTypes.element)
-};
-
-Sidebar.propTypes = {
-  sidebarItems: PropTypes.arrayOf(
-    PropTypes.shape({
-      ...pluginMetaProps,
-      subItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps))
-    })
-  ),
-  location: PropTypes.shape({
-    pathname: PropTypes.string
-  })
-};
+export default connectTheme(Sidebar);
