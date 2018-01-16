@@ -3,14 +3,17 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
+import { decorate } from '../../plugins/plugins';
 import ThemeProvider from '../ThemeProvider/ThemeProvider';
 import { nodeActions, socketActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
 import Footer from '../../components/Footer/Footer';
-import Sidebar from '../../components/Sidebar/Sidebar';
+import Sidebar_ from '../../components/Sidebar/Sidebar';
 import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
 import theme from '../../config/themeConfig';
+
+const Sidebar = decorate(Sidebar_, 'Sidebar');
 
 class App extends Component {
   constructor(props) {
@@ -58,7 +61,7 @@ class App extends Component {
         >
           <div className="row">
             <div className="col-sm-4 col-lg-3" style={{ paddingLeft: 0 }}>
-              <Sidebar sidebarItems={sortedPluginMeta} location={location} />
+              <Sidebar sidebarNavItems={sortedPluginMeta} location={location} />
             </div>
             <div className="col-sm-8 col-lg-9" style={theme.app.content}>
               <Header
