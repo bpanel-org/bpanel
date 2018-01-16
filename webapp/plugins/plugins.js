@@ -5,6 +5,7 @@ import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
 
 import config from '../config/appConfig';
+import { propsReducerCallback } from './utils';
 import constants from '../store/constants';
 
 // Instantiate caches
@@ -195,30 +196,10 @@ export const pluginMiddleware = store => next => action => {
 // then through the decorator adds those props to the final props object
 // that will get passed to the child component
 const getProps = (name, parentProps, props = {}, ...fnArgs) =>
-  propsDecorators[name].reduce((acc, decorator) => {
-    let props_;
-    try {
-      props_ = decorator(parentProps, acc, ...fnArgs);
-    } catch (err) {
-      //eslint-disable-next-line no-console
-      console.error(
-        'Plugin error',
-        `${decorator._pluginName}: Error occurred in \`${name}\``,
-        err.stack
-      );
-      return;
-    }
-
-    if (!props_ || typeof props_ !== 'object') {
-      // eslint-disable-next-line no-console
-      console.error(
-        'Plugin error',
-        `${decorator._pluginName}: Invalid return value of \`${name}\` (object expected).`
-      );
-      return;
-    }
-    return props_;
-  }, Object.assign({}, props));
+  propsDecorators[name].reduce(
+    propsReducerCallback(name, parentProps, ...fnArgs),
+    Object.assign({}, props)
+  );
 
 export function getPanelProps(parentProps, props) {
   return getProps('getPanelProps', parentProps, props);
@@ -227,30 +208,10 @@ export function getPanelProps(parentProps, props) {
 export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
   !routePropsDecorators[name]
     ? parentProps // if no prop getter for route then return parent props
-    : routePropsDecorators[name].reduce((acc, decorator) => {
-        let props_;
-        try {
-          props_ = decorator(parentProps, acc, ...fnArgs);
-        } catch (err) {
-          //eslint-disable-next-line no-console
-          console.error(
-            'Plugin error',
-            `${decorator._pluginName}: Error occurred in \`${name}\``,
-            err.stack
-          );
-          return;
-        }
-
-        if (!props_ || typeof props_ !== 'object') {
-          // eslint-disable-next-line no-console
-          console.error(
-            'Plugin error',
-            `${decorator._pluginName}: Invalid return value of \`${name}\` (object expected).`
-          );
-          return;
-        }
-        return props_;
-      }, Object.assign({}, props));
+    : routePropsDecorators[name].reduce(
+        propsReducerCallback(name, parentProps, ...fnArgs),
+        Object.assign({}, props)
+      );
 
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>

@@ -5,6 +5,7 @@ export const metadata = {
   author: 'bcoin-org',
   order: 0,
   icon: 'cubes',
+  sidebar: true,
   parent: ''
 };
 
