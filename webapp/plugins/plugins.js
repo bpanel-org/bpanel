@@ -5,6 +5,7 @@ import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
 
 import config from '../config/appConfig';
+import { propsReducerCallback } from './utils';
 import constants from '../store/constants';
 
 // Instantiate caches
@@ -17,13 +18,16 @@ let middlewares;
 
 // decorated components
 let decorated = {};
+let pluginDecorators = {};
 
 // props decorators (for passing props to children components)
+let panelPropsDecorators;
 let routePropsDecorators;
 let propsDecorators = {};
 
 // reducers
 let chainReducers;
+let nodeReducers;
 let reducersDecorators = {};
 
 // miscellaneous decorators
@@ -45,15 +49,18 @@ export const loadPlugins = () => {
   };
 
   // setup props decorators
-  routePropsDecorators = [];
+  panelPropsDecorators = [];
   propsDecorators = {
-    getRouteProps: routePropsDecorators
+    getPanelProps: panelPropsDecorators
   };
+  routePropsDecorators = {};
 
   // setup reducers decorators
   chainReducers = [];
+  nodeReducers = [];
   reducersDecorators = {
-    chainReducer: chainReducers
+    chainReducer: chainReducers,
+    nodeReducer: nodeReducers
   };
 
   middlewares = [];
@@ -71,7 +78,7 @@ export const loadPlugins = () => {
         metadata[pluginName] = plugin.metadata;
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.log(
+        console.error(
           `There was a problem loading the metadata for ${pluginName}`
         );
       }
@@ -105,8 +112,24 @@ export const loadPlugins = () => {
       }
 
       // propsDecorators
+      // routePropsDecorators is an object with keys corresponding to route
       if (plugin.getRouteProps) {
-        routePropsDecorators.push(plugin.getRouteProps);
+        for (let key in plugin.getRouteProps) {
+          // skip if is an internal property
+          if (key[0] === '_') continue;
+          // initialize array of decorators for route if none
+          if (!routePropsDecorators[key]) routePropsDecorators[key] = [];
+
+          routePropsDecorators[key].push(plugin.getRouteProps[key]);
+        }
+      }
+
+      // TODO: will prob. want to clean this up w/ plugin system refactor
+      // all prop-getting now happening in getRouteProps
+      // which also looks closer to what
+      // the generalized system may end up being
+      if (plugin.getPanelProps) {
+        panelPropsDecorators.push(plugin.getPanelProps);
       }
 
       // reducersDecorators
@@ -114,9 +137,34 @@ export const loadPlugins = () => {
         reducersDecorators.chainReducer.push(plugin.reduceChain);
       }
 
+      if (plugin.reduceNode) {
+        reducersDecorators.nodeReducer.push(plugin.reduceNode);
+      }
+
       // other miscellaneous decorators
       if (plugin.addSocketsConstants) {
         extendConstants.sockets.push(plugin.addSocketsConstants);
+      }
+
+      // for plugins that can be decorated by other plugins
+      if (plugin.decoratePlugin) {
+        // check for each plugin decorator
+        for (let key in plugin.decoratePlugin) {
+          if (key[0] === '_') continue; // skip if is an internal property
+          // check if dependency plugin has been loaded
+          if (!metadata[key]) {
+            // eslint-disable-next-line no-console
+            console.error(
+              `Plugin dependency "${key}" does not exist for ${name}.`,
+              `Please make sure plugin "${key}" has been added to configs`,
+              `and is loaded before child plugin "${name}"`
+            );
+            return;
+          }
+          // initialize of plugin decorators if none
+          if (!pluginDecorators[key]) pluginDecorators[key] = [];
+          pluginDecorators[key].push(plugin.decoratePlugin[key]);
+        }
       }
 
       return plugin;
@@ -148,34 +196,22 @@ export const pluginMiddleware = store => next => action => {
 // then through the decorator adds those props to the final props object
 // that will get passed to the child component
 const getProps = (name, parentProps, props = {}, ...fnArgs) =>
-  propsDecorators[name].reduce((acc, decorator) => {
-    let props_;
-    try {
-      props_ = decorator(parentProps, acc, ...fnArgs);
-    } catch (err) {
-      //eslint-disable-next-line no-console
-      console.log(
-        'Plugin error',
-        `${decorator._pluginName}: Error occurred in \`${name}\``,
-        err.stack
-      );
-      return;
-    }
+  propsDecorators[name].reduce(
+    propsReducerCallback(name, parentProps, ...fnArgs),
+    Object.assign({}, props)
+  );
 
-    if (!props_ || typeof props_ !== 'object') {
-      // eslint-disable-next-line no-console
-      console.log(
-        'Plugin error',
-        `${decorator._pluginName}: Invalid return value of \`${name}\` (object expected).`
-      );
-      return;
-    }
-    return props_;
-  }, Object.assign({}, props));
-
-export function getRouteProps(parentProps, props) {
-  return getProps('getRouteProps', parentProps, props);
+export function getPanelProps(parentProps, props) {
+  return getProps('getPanelProps', parentProps, props);
 }
+
+export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
+  !routePropsDecorators[name]
+    ? parentProps // if no prop getter for route then return parent props
+    : routePropsDecorators[name].reduce(
+        propsReducerCallback(name, parentProps, ...fnArgs),
+        Object.assign({}, props)
+      );
 
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>
@@ -206,14 +242,14 @@ export function connect(
             ret = mapper(state, acc);
           } catch (err) {
             // eslint-disable-next-line no-console
-            console.log(
+            console.error(
               `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
               err.stack
             );
           }
           if (!ret || typeof ret !== 'object') {
             // eslint-disable-next-line no-console
-            console.log(
+            console.error(
               'Plugin error ',
               `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
             );
@@ -229,14 +265,14 @@ export function connect(
             ret = mapper(dispatch, acc);
           } catch (err) {
             // eslint-disable-next-line no-console
-            console.log(
+            console.error(
               `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
               err.stack
             );
           }
           if (!ret || typeof ret !== 'object') {
             // eslint-disable-next-line no-console
-            console.log(
+            console.error(
               'Plugin error ',
               `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
             );
@@ -266,7 +302,7 @@ function exposeDecorated(Component_) {
           this.props.onDecorated(decorated_);
         } catch (e) {
           // eslint-disable-next-line no-console
-          console.log('Plugin error:', e);
+          console.error('Plugin error:', e);
         }
       }
     }
@@ -298,18 +334,28 @@ function getDecorated(Component, name) {
     plugins.forEach(plugin => {
       const methodName = `decorate${name}`;
       const decorator = plugin[methodName];
-      const pluginName = plugin.metadata.name;
 
       if (decorator) {
+        const pluginName = decorator._pluginName;
         let component__;
         try {
+          // if has pluginDecorators
+          if (pluginDecorators[pluginName]) {
+            if (!plugin.decorator)
+              throw "Parent plugin can't be decorated \
+                    because it doesn't have decorator";
+            // need to pass each to parent plugin's own decorator function
+            pluginDecorators[pluginName].forEach(childDecorator =>
+              plugin.decorator(childDecorator, { React, PropTypes })
+            );
+          }
           component__ = decorator(component_, { React, PropTypes });
           component__.displayName = `${pluginName}(${name})`;
         } catch (err) {
           //eslint-disable-next-line no-console
           console.error(
-            `Plugin error, ${pluginName} decorating component`,
-            err.stack
+            `Plugin error when decorating component with ${pluginName}:`,
+            typeof err === 'string' ? err : err.stack
           );
           return;
         }
@@ -337,7 +383,7 @@ function decorate(Component_, name) {
     componentDidCatch(error, errorInfo) {
       this.setState({ hasError: true });
       // eslint-disable-next-line no-console
-      console.log(
+      console.error(
         `Plugins decorating ${name} has been disabled because of a plugin crash.`,
         error,
         errorInfo

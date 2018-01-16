@@ -19,6 +19,10 @@ io.attach(socketServer);
   await bcoinClient.open();
   bcoinClient.socket.emit('auth');
   bcoinClient.socket.emit('watch chain');
+  bcoinClient.socket.emit('watch mempool');
+  // need to set a filter for the socket to get mempool updates
+  // all zeros means an open filter
+  bcoinClient.socket.emit('set filter', '00000000000000000000');
 
   io.on('socket', async socket => {
     bcoinClient.socket.on('block connect', (entry, txs) => {
@@ -34,6 +38,12 @@ io.attach(socketServer);
       } catch (err) {
         logger.error('Socket error in client.getInfo', err);
       }
+    });
+
+    bcoinClient.socket.on('tx', async raw => {
+      socket.fire('mempool tx', raw);
+      const { mempool } = await bcoinClient.getInfo();
+      socket.fire('update mempool', mempool);
     });
 
     bcoinClient.socket.on('error', err => {

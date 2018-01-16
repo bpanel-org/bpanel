@@ -40,7 +40,8 @@ class Sidebar extends PureComponent {
 
   renderSidebarItems() {
     const { sidebarItems, location: { pathname = '' } } = this.props;
-    return sidebarItems.map((plugin, index) => {
+    return sidebarItems.filter(plugin => plugin.sidebar).map((plugin, index) => {
+      // filter will first remove any plugins w/o sidebar property set to true
       // mapping through each parent item to create the sidebar nav element
       const sidebarItemProps = { ...plugin, pathname };
       if (plugin.subItems) {

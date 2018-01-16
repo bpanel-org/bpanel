@@ -19,8 +19,10 @@ export default class Dashboard extends Component {
 
   static get propTypes() {
     return {
-      recentBlocks: PropTypes.array,
       chainHeight: PropTypes.number,
+      customChildrenBefore: PropTypes.node,
+      customChildren: PropTypes.node,
+      recentBlocks: PropTypes.array,
       getRecentBlocks: PropTypes.func,
       addBlock: PropTypes.func
     };
@@ -56,18 +58,27 @@ export default class Dashboard extends Component {
   }
 
   render() {
-    const { recentBlocks, chainHeight } = this.props;
+    const {
+      recentBlocks,
+      chainHeight,
+      customChildrenBefore,
+      customChildren
+    } = this.props;
+
     let table;
     if (Array.isArray(recentBlocks) && recentBlocks.length) {
       table = recentBlocksTable(recentBlocks);
     } else {
       table = <p>Loading...</p>;
     }
+
     return (
       <div className="dashboard-container">
+        {customChildrenBefore}
         First... the chain height: {chainHeight}
         Then... some blocks:
         {table}
+        {customChildren}
       </div>
     );
   }

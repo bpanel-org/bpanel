@@ -11,11 +11,18 @@ import {
   SET_CHAIN_TIP
 } from './constants';
 
+// this component needs to be available to be decorated
+// by children components. We're initializing it here
+// then in the decorate method below we decorate it with the
+// plugin decorators which are passed through on app load
+let _DecoratedDashboard = Dashboard;
+
 export const metadata = {
   name: 'dashboard',
   author: 'bcoin-org',
   order: 0,
   icon: 'home',
+  sidebar: true, // set to true to show nav item in sidebar
   parent: ''
 };
 
@@ -40,6 +47,7 @@ export const addSocketsConstants = (sockets = {}) =>
 export const middleware = ({ dispatch, getState }) => next => action => {
   const { type, payload } = action;
   const recentBlocks = getState().chain.recentBlocks;
+
   // if dispatched action is SET_CHAIN_TIP,
   // and recent blocks are already loaded
   // this middleware will intercept and run ADD_RECENT_BLOCK instead
@@ -131,7 +139,7 @@ export const mapPanelDispatch = (dispatch, map) =>
     getRecentBlocks: (n = 10) => dispatch(getRecentBlocks(n))
   });
 
-// Tells decorator what our plugin needs from the state
+// Tells the decorator what our plugin needs from the state
 // This is available for container components that use an
 // extended version of react-redux's connect to connect
 // a container to the state and retrieve props
@@ -146,28 +154,46 @@ export const mapPanelState = (state, map) =>
 // for the Panel Container to pass it down to the Dashboard Route view
 // props getters like this are used in the app to pass new props
 // added by plugins down to children components (such as the Dashboard)
-export const getRouteProps = (parentProps, props) =>
-  Object.assign(props, {
-    chainHeight: parentProps.chainHeight,
-    recentBlocks: parentProps.recentBlocks,
-    getRecentBlocks: parentProps.getRecentBlocks
+// The route Props getter is special since different routes will want diff props
+// so we pass the getter as the value of an object prop, w/ the key
+// corresponding to the route that needs the props
+const dashboardProps = ['chainHeight', 'recentBlocks', 'getRecentBlocks'];
+const passProps = (parentProps, props) => {
+  // construct the propsObject from the list of dashboardProps
+  const propsObject = dashboardProps.reduce(
+    (acc, prop) =>
+      Object.assign(acc, {
+        [prop]: parentProps[prop]
+      }),
+    {}
+  );
+  return Object.assign(props, propsObject);
+};
+
+export const getRouteProps = { dashboard: passProps };
+
+// special plugin decorator to allow other plugins to decorate this plugin
+// the component is cached so that it is available for the main decorator below
+// (`decoratePanel`) and cached component passed to pluginDecorator
+export const decorator = (pluginDecorator, { React, PropTypes }) => {
+  _DecoratedDashboard = pluginDecorator(_DecoratedDashboard, {
+    React,
+    PropTypes
   });
+};
 
 // a decorator for the Panel container component in our app
 // here we're extending the Panel's children by adding
 // our plugin's component, the Dasboard in this case
 export const decoratePanel = (Panel, { React, PropTypes }) => {
-  return class DecoratedDashboard extends React.Component {
+  return class extends React.Component {
     static displayName() {
-      return 'bPanel Dashboard';
+      return 'bPanelDashboard';
     }
 
     static get propTypes() {
       return {
-        chainHeight: PropTypes.number,
-        customChildren: PropTypes.array,
-        getRecentBlocks: PropTypes.func,
-        recentBlocks: PropTypes.array
+        customChildren: PropTypes.array
       };
     }
 
@@ -175,8 +201,7 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
       const { customChildren = [] } = this.props;
       const routeData = {
         name: metadata.name,
-        Component: Dashboard,
-        props: ['chainHeight', 'getRecentBlocks', 'recentBlocks']
+        Component: _DecoratedDashboard
       };
       return (
         <Panel

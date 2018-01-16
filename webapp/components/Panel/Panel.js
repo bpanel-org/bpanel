@@ -9,7 +9,7 @@ export default class extends Component {
     super(props);
   }
 
-  static displayName() {
+  static get displayName() {
     return 'Panel';
   }
 
@@ -20,34 +20,23 @@ export default class extends Component {
   }
 
   // a method to create the routes
-  // it returns the view Component with props
-  childRoute(Component, _routeProps = []) {
-    // first decorate the container's props with those from plugins
-    const props = getRouteProps(this.props);
-
-    // next get props that only this route needs
-    // the _routeProps arg is passed by the plugin to say which props it needs
-    const routeProps = {};
-
-    if (_routeProps.length) {
-      for (const prop in props) {
-        if (_routeProps.indexOf(prop) > -1) {
-          routeProps[prop] = props[prop];
-        }
-      }
-    }
+  // returns the view Component with props
+  childRoute(Component, name = '') {
+    // get props needed for each route
+    // 'name' should correspond with the plugin name for each route
+    const routeProps = getRouteProps(name, this.props);
 
     return <Component {...routeProps} />;
   }
 
   render() {
     const { customChildren = [] } = this.props;
-    const routes = customChildren.map(({ name, Component, props }) => (
+    const routes = customChildren.map(({ Component, name }) => (
       <Route
         exact
         path={`/${name}`}
         key={`nav-${name}`}
-        render={() => this.childRoute(Component, props)} // using render so we can pass props
+        render={() => this.childRoute(Component, name)} // using render so we can pass props
       />
     ));
 
