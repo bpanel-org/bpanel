@@ -21,7 +21,7 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
     static get propTypes() {
       return {
         afterNav: PropTypes.array,
-        sidebarItems: PropTypes.array,
+        sidebarNavItems: PropTypes.array,
         location: PropTypes.shape({
           pathname: PropTypes.string
         })
@@ -30,7 +30,7 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
 
     render() {
       const {
-        sidebarItems: existingNavItems,
+        sidebarNavItems: existingNavItems,
         location: { pathname = '' }
       } = this.props;
 
@@ -52,11 +52,11 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
         pathname
       });
 
-      const sidebarItems = existingNavItems
+      const _sidebarNavItems = existingNavItems
         .slice(0, pluginIndex)
         .concat(newNavItem, existingNavItems.slice(pluginIndex + 1));
 
-      return <Sidebar {...this.props} sidebarItems={sidebarItems} />;
+      return <Sidebar {...this.props} sidebarNavItems={_sidebarNavItems} />;
     }
   };
 };

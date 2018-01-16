@@ -61,7 +61,7 @@ class App extends Component {
         >
           <div className="row">
             <div className="col-sm-4 col-lg-3" style={{ paddingLeft: 0 }}>
-              <Sidebar sidebarItems={sortedPluginMeta} location={location} />
+              <Sidebar sidebarNavItems={sortedPluginMeta} location={location} />
             </div>
             <div className="col-sm-8 col-lg-9" style={theme.app.content}>
               <Header

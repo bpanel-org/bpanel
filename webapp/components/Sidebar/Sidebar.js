@@ -16,8 +16,7 @@ class Sidebar extends PureComponent {
       theme: PropTypes.object,
       beforeNav: PropTypes.array,
       afterNav: PropTypes.array,
-      sidebarNavItems: PropTypes.array,
-      sidebarItems: PropTypes.arrayOf(
+      sidebarNavItems: PropTypes.arrayOf(
         PropTypes.oneOfType([
           PropTypes.node,
           PropTypes.shape({
@@ -62,8 +61,8 @@ class Sidebar extends PureComponent {
   }
 
   renderSidebarItems() {
-    const { sidebarItems, location: { pathname = '' } } = this.props;
-    return sidebarItems
+    const { sidebarNavItems, location: { pathname = '' } } = this.props;
+    return sidebarNavItems
       .filter(plugin => plugin.sidebar || React.isValidElement(plugin))
       .map((plugin, index) => {
         // filter will first remove any plugins w/o sidebar property set to true
@@ -114,7 +113,7 @@ class Sidebar extends PureComponent {
   }
 
   render() {
-    const { theme, beforeNav, afterNav, sidebarNavItems } = this.props;
+    const { theme, beforeNav, afterNav } = this.props;
     return (
       <nav
         className="d-flex flex-column navbar navbar-default navbar-fixed-side"
@@ -123,7 +122,6 @@ class Sidebar extends PureComponent {
         {this.renderLogo()}
         {beforeNav}
         {this.renderSidebarItems()}
-        {sidebarNavItems}
         {afterNav}
         {this.renderFooter()}
       </nav>
