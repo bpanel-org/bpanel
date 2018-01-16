@@ -5,7 +5,8 @@ const { Button, Header, SidebarNavItem } = components;
 
 export const metadata = {
   name: 'test',
-  author: 'bcoin-org'
+  author: 'bcoin-org',
+  order: 1
 };
 
 const Test = () => (
@@ -24,8 +25,8 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        customChildren: PropTypes.array,
-        sidebarNavItems: PropTypes.array,
+        afterNav: PropTypes.array,
+        sidebarItems: PropTypes.array,
         location: PropTypes.shape({
           pathname: PropTypes.string
         })
@@ -34,41 +35,56 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
 
     render() {
       const {
-        customChildren: existingInnerChildren,
-        sidebarNavItems: existingNavItems,
+        afterNav: existingAfterNav,
+        sidebarItems: existingNavItems,
         location: { pathname = '' }
       } = this.props;
 
-      let _customChildren = existingInnerChildren
-        ? existingInnerChildren instanceof Array
-          ? existingInnerChildren
-          : [existingInnerChildren]
+      let _customChildren = existingAfterNav
+        ? existingAfterNav instanceof Array
+          ? existingAfterNav
+          : [existingAfterNav]
         : [];
 
-      let navItems = existingNavItems
-        ? existingNavItems instanceof Array
-          ? existingNavItems
-          : [existingNavItems]
-        : [];
+      let pluginIndex = existingNavItems.length;
 
-      navItems = [].concat(
-        navItems,
-        React.createElement(SidebarNavItem, {
-          name: metadata.name,
-          icon: 'pied-piper-alt',
-          pathname
-        })
-      );
+      // app will order the nav items for us
+      // want to find out what index it is at
+      // so it can be replaced with our custom nav component
+      // can also just append to end
+      for (let i = 0; i < existingNavItems.length; i++) {
+        if (existingNavItems[i].name === metadata.name) {
+          pluginIndex = i;
+        }
+      }
+
+      const newNavItem = React.createElement(SidebarNavItem, {
+        name: metadata.name,
+        icon: 'pied-piper-alt',
+        subItem: true,
+        pathname
+      });
+
+      const sidebarItems = existingNavItems
+        .slice(0, pluginIndex)
+        .concat(newNavItem, existingNavItems.slice(pluginIndex + 1));
 
       _customChildren = [].concat(
         _customChildren,
-        React.createElement(Button, null, 'Fun Test Button')
+        React.createElement(
+          Button,
+          {
+            key: _customChildren.length
+          },
+          'Fun Test Button'
+        )
       );
+
       return (
         <Sidebar
           {...this.props}
-          customChildren={_customChildren}
-          sidebarNavItems={navItems}
+          afterNav={_customChildren}
+          sidebarItems={sidebarItems}
         />
       );
     }

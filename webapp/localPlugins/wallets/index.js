@@ -3,7 +3,7 @@ import Wallet from './Wallet';
 export const metadata = {
   name: 'wallets',
   author: 'bcoin-org',
-  order: 1,
+  order: 3,
   icon: 'hdd-o',
   sidebar: true,
   parent: ''

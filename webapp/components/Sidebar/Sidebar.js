@@ -4,21 +4,32 @@ import PropTypes from 'prop-types';
 import * as UI from 'bpanel-ui';
 
 import { pluginMetaProps } from '../../containers/App/App';
-import SidebarItem from './SidebarItem';
 
-const { components: { Text, Header }, utils: { connectTheme } } = UI;
+const {
+  components: { Text, Header, SidebarNavItem },
+  utils: { connectTheme }
+} = UI;
 
 class Sidebar extends PureComponent {
   static get propTypes() {
     return {
       theme: PropTypes.object,
-      customChildren: PropTypes.array,
+      beforeNav: PropTypes.array,
+      afterNav: PropTypes.array,
       sidebarNavItems: PropTypes.array,
       sidebarItems: PropTypes.arrayOf(
-        PropTypes.shape({
-          ...pluginMetaProps,
-          subItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps))
-        })
+        PropTypes.oneOfType([
+          PropTypes.node,
+          PropTypes.shape({
+            ...pluginMetaProps,
+            subItems: PropTypes.arrayOf(
+              PropTypes.oneOfType([
+                PropTypes.node,
+                PropTypes.shape(pluginMetaProps)
+              ])
+            )
+          })
+        ])
       ),
       location: PropTypes.shape({
         pathname: PropTypes.string
@@ -40,10 +51,20 @@ class Sidebar extends PureComponent {
     );
   }
 
+  renderNavItem(plugin, props) {
+    if (React.isValidElement(plugin)) {
+      // If it is already a react element created by decorator
+      // in the plugin, then extend with updated props and key
+      return React.cloneElement(plugin, props);
+    }
+
+    return React.createElement(SidebarNavItem, props);
+  }
+
   renderSidebarItems() {
     const { sidebarItems, location: { pathname = '' } } = this.props;
     return sidebarItems
-      .filter(plugin => plugin.sidebar)
+      .filter(plugin => plugin.sidebar || React.isValidElement(plugin))
       .map((plugin, index) => {
         // filter will first remove any plugins w/o sidebar property set to true
         // mapping through each parent item to create the sidebar nav element
@@ -56,17 +77,15 @@ class Sidebar extends PureComponent {
               const props = {
                 ...subItem,
                 subItem: true,
+                pathname,
                 key: `${index}-${subIndex}`
               };
-              return React.createElement(SidebarItem, props);
+              return this.renderNavItem(plugin, props);
             }
           );
         }
 
-        return React.createElement(SidebarItem, {
-          ...sidebarItemProps,
-          key: index
-        });
+        return this.renderNavItem(plugin, { ...sidebarItemProps, key: index });
       });
   }
 
@@ -96,16 +115,17 @@ class Sidebar extends PureComponent {
   }
 
   render() {
-    const { theme, customChildren, sidebarNavItems } = this.props;
+    const { theme, beforeNav, afterNav, sidebarNavItems } = this.props;
     return (
       <nav
         className="d-flex flex-column navbar navbar-default navbar-fixed-side"
         style={theme.sidebar.container}
       >
         {this.renderLogo()}
+        {beforeNav}
         {this.renderSidebarItems()}
         {sidebarNavItems}
-        {customChildren}
+        {afterNav}
         {this.renderFooter()}
       </nav>
     );
