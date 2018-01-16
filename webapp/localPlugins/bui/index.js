@@ -20,7 +20,6 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        afterNav: PropTypes.array,
         sidebarNavItems: PropTypes.array,
         location: PropTypes.shape({
           pathname: PropTypes.string
