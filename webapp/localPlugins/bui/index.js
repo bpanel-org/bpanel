@@ -40,11 +40,9 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
       // want to find out what index it is at
       // so it can be replaced with our custom nav component
       // can also just append to end
-      for (let i = 0; i < existingNavItems.length; i++) {
-        if (existingNavItems[i].name === metadata.name) {
-          pluginIndex = i;
-        }
-      }
+      existingNavItems.forEach((item, index) => {
+        if (item.name === metadata.name) pluginIndex = index;
+      });
 
       const newNavItem = React.createElement(SidebarNavItem, {
         name: metadata.name.toUpperCase(),
