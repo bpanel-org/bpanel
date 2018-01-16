@@ -84,7 +84,6 @@ class Sidebar extends PureComponent {
             }
           );
         }
-
         return this.renderNavItem(plugin, { ...sidebarItemProps, key: index });
       });
   }
