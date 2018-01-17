@@ -41,17 +41,31 @@ export const addSocketsConstants = (sockets = {}) =>
     })
   });
 
+function watchChain() {
+  // broadcast to server that we want to watch the chain
+  return {
+    type: 'EMIT_SOCKET',
+    bsock: {
+      type: 'broadcast',
+      message: 'watch chain'
+    }
+  };
+}
+
 // custom middleware for our plugin. This gets
-// added to the list of middlewares in the app's
-// store creator
+// added to the list of middlewares in the app's store creator
 export const middleware = ({ dispatch, getState }) => next => action => {
   const { type, payload } = action;
   const recentBlocks = getState().chain.recentBlocks;
-
-  // if dispatched action is SET_CHAIN_TIP,
-  // and recent blocks are already loaded
-  // this middleware will intercept and run ADD_RECENT_BLOCK instead
-  if (type === SET_CHAIN_TIP && recentBlocks && recentBlocks.length) {
+  if (type === 'SOCKET_CONNECTED') {
+    // if socket has connected,
+    // then dispatch watch chain broadcast
+    dispatch(watchChain());
+    next(action);
+  } else if (type === SET_CHAIN_TIP && recentBlocks && recentBlocks.length) {
+    // if dispatched action is SET_CHAIN_TIP,
+    // and recent blocks are already loaded
+    // this middleware will intercept and run ADD_RECENT_BLOCK instead
     dispatch({
       type: ADD_RECENT_BLOCK,
       payload: { ...payload, numBlocks: 10 }

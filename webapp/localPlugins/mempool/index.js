@@ -48,6 +48,39 @@ export const getRouteProps = {
     })
 };
 
+function watchMempool() {
+  return {
+    type: 'EMIT_SOCKET',
+    bsock: {
+      type: 'broadcast',
+      message: 'watch mempool'
+    }
+  };
+}
+
+function broadcastSetFilter() {
+  // need to set a filter for the socket to get mempool updates
+  // all zeros means an open filter
+  return {
+    type: 'EMIT_SOCKET',
+    bsock: {
+      type: 'broadcast',
+      message: 'set filter',
+      filter: '00000000000000000000'
+    }
+  };
+}
+
+export const middleware = ({ dispatch }) => next => action => {
+  const { type } = action;
+
+  if (type === 'SOCKET_CONNECTED') {
+    dispatch(watchMempool());
+    dispatch(broadcastSetFilter());
+  }
+  next(action);
+};
+
 // very/exactly similar to normal decorators
 // name should map exactly to the name of the target plugin to decorate
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
