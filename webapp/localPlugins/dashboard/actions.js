@@ -1,7 +1,10 @@
-import { EMIT_SOCKET, ADD_RECENT_BLOCK } from './constants';
-import { bcoinUtils, api } from 'bpanel/utils';
+import { chainentry } from 'bcoin';
 
-const { parseEntry, calcProgress } = bcoinUtils;
+// eslint-disable-next-line import/no-unresolved
+import { chain as chainUtils } from 'bpanel/utils';
+import { EMIT_SOCKET, ADD_RECENT_BLOCK, SET_RECENT_BLOCKS } from './constants';
+
+const { calcProgress } = chainUtils;
 
 export function watchChain() {
   return {
@@ -24,33 +27,60 @@ export function subscribeBlockConnect() {
   };
 }
 
+// can also accept txs array as it is returned in payload
 export async function addRecentBlock(entry) {
-  const arrBuff = Object.keys(entry).map(key => entry[key]);
-  let blockMeta = new Buffer(arrBuff);
-  blockMeta = parseEntry(blockMeta);
-  const { time, hash, height } = blockMeta;
-  // TODO: Should probably store this in state
-  let genesis = await fetch(api.get.block(0));
-  genesis = await genesis.json();
-  const genesisTime = genesis.time;
-  // const genesis = bcoinClient.network.genesis.time;
-  let progress = calcProgress(genesisTime, time);
-  const chainTip = { tip: hash, progress, height };
+  return (dispatch, getState) => {
+    let blockMeta = chainentry.fromRaw(entry);
+    const { time, hash, height } = blockMeta;
+    // TODO: Should probably store this in state
+    const genesis = getState().chain.genesis.time;
+    let progress = calcProgress(genesis, time);
+    const chainTip = { tip: hash, progress, height };
 
-  return {
-    type: ADD_RECENT_BLOCK,
-    payload: {
-      ...chainTip,
-      block: {
-        ...blockMeta
-      },
-      numBlocks: 10
+    dispatch({
+      type: ADD_RECENT_BLOCK,
+      payload: {
+        ...chainTip,
+        block: {
+          ...blockMeta
+        },
+        numBlocks: 10
+      }
+    });
+  };
+}
+
+// action creator to set recent blocks on state
+// mapped to the state via `mapPanelDispatch` below
+// this allows plugins to call action creator to update the state
+export function getRecentBlocks(n = 10) {
+  return async (dispatch, getState) => {
+    const { getBlocksInRange } = chainUtils;
+    const { height, progress, tip } = getState().chain;
+    // only get recent blocks if node is almost fully synced
+    // UI gets clogged otherwise
+    if (progress < 0.9)
+      dispatch({
+        type: SET_RECENT_BLOCKS,
+        payload: [{ height, hash: tip }]
+      });
+    let count = n;
+    // if we have fewer blocks then the range we want to retrieve
+    // then only retrieve up to height
+    if (height < n) {
+      count = height;
     }
+    const blocks = await getBlocksInRange(height, height - count, -1);
+    dispatch({
+      type: SET_RECENT_BLOCKS,
+      payload: blocks
+    });
   };
 }
 
 export default {
   addRecentBlock,
+  getRecentBlocks,
   subscribeBlockConnect,
   watchChain
 };

@@ -7,7 +7,6 @@ const bcoin = require('bcoin');
 const Client = bcoin.http.Client;
 
 const logger = require('./logger');
-const { parseEntry, calcProgress } = require('./helpers/bcoinUtils');
 
 const config = require(path.resolve(__dirname, '../configs/bcoin.config.json'));
 const { network, uri, apiKey } = config;

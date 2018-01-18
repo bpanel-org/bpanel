@@ -1,4 +1,6 @@
 import assert from 'assert';
+import { util } from 'bcoin';
+
 import * as api from './api';
 
 // Simple API call to retrieve a block at specified height or hash
@@ -10,6 +12,12 @@ export function getBlock(hashOrHeight) {
     .catch(
       err => console.error('Error retrieving block: ', err) // eslint-disable-line no-console
     );
+}
+
+export function calcProgress(start, tip) {
+  const current = tip - start;
+  const end = util.now() - start - 40 * 60;
+  return Math.min(1, current / end);
 }
 
 // utility to get a range of blocks
@@ -58,6 +66,7 @@ export async function getBlocksInRange(start, end, step = 1) {
 }
 
 export default {
+  calcProgress,
   getBlock,
   getBlocksInRange
 };

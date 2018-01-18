@@ -1,13 +1,13 @@
-import { chainentry } from 'bcoin';
 import Immutable from 'seamless-immutable';
 
-// eslint-disable-next-line import/no-unresolved
-import { chain as chainUtils } from 'bpanel/utils';
-
 import Dashboard from './Dashboard';
-import { watchChain, subscribeBlockConnect, addRecentBlock } from './actions';
 import {
-  BLOCK_CONNECT,
+  watchChain,
+  subscribeBlockConnect,
+  addRecentBlock,
+  getRecentBlocks
+} from './actions';
+import {
   ADD_RECENT_BLOCK,
   SET_CHAIN_TIP,
   SET_RECENT_BLOCKS
@@ -51,17 +51,19 @@ export const middleware = ({ dispatch, getState }) => next => async action => {
   if (type === 'SOCKET_CONNECTED') {
     // if socket has connected,
     // then dispatch watch chain broadcast
+    // make sure to pass the action to `next`
+    // so that other plugins can be informed
+    // that the socket has connected
     dispatch(watchChain());
     dispatch(subscribeBlockConnect());
-    return next(action);
   } else if (type === SET_CHAIN_TIP && recentBlocks && recentBlocks.length) {
     // if dispatched action is SET_CHAIN_TIP,
     // and recent blocks are already loaded
     // this middleware will intercept and disptch addRecentBlock
     // instead of default behavior
 
-    const blockAction = await addRecentBlock(payload);
-    return next(blockAction);
+    const newBlockAction = await addRecentBlock(...payload);
+    return next(newBlockAction);
   }
   return next(action);
 };
@@ -106,34 +108,6 @@ export const reduceChain = (state, action) => {
       return state;
   }
 };
-
-// action creator to set recent blocks on state
-// mapped to the state via `mapPanelDispatch` below
-// this allows plugins to call action creator to update the state
-function getRecentBlocks(n = 10) {
-  return async (dispatch, getState) => {
-    const { getBlocksInRange } = chainUtils;
-    const { height, progress, tip } = getState().chain;
-    // only get recent blocks if node is almost fully synced
-    // UI gets clogged otherwise
-    if (progress < 0.9)
-      dispatch({
-        type: SET_RECENT_BLOCKS,
-        payload: [{ height, hash: tip }]
-      });
-    let count = n;
-    // if we have fewer blocks then the range we want to retrieve
-    // then only retrieve up to height
-    if (height < n) {
-      count = height;
-    }
-    const blocks = await getBlocksInRange(height, height - count, -1);
-    dispatch({
-      type: SET_RECENT_BLOCKS,
-      payload: blocks
-    });
-  };
-}
 
 // mapping dispatches to panel component props
 // used by the app's custom react-redux connect

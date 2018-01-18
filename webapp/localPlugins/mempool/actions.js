@@ -1,4 +1,7 @@
-import { EMIT_SOCKET } from './constants';
+// eslint-disable-next-line import/no-unresolved
+import { api } from 'bpanel/utils';
+
+import { EMIT_SOCKET, UPDATE_MEMPOOL } from './constants';
 
 export function broadcastSetFilter() {
   // need to set a filter for the socket to get mempool updates
@@ -34,8 +37,20 @@ export function watchMempool() {
   };
 }
 
+export function updateMempool() {
+  return async dispatch => {
+    const response = await fetch(api.get.info(), { mode: 'cors' });
+    const { mempool } = await response.json();
+    dispatch({
+      type: UPDATE_MEMPOOL,
+      payload: mempool
+    });
+  };
+}
+
 export default {
   broadcastSetFilter,
   subscribeTX,
+  updateMempool,
   watchMempool
 };

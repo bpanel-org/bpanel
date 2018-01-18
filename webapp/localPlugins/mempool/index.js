@@ -1,11 +1,14 @@
 // Dashboard widget for showing mempool information
 
 import { components } from 'bpanel-ui';
-// eslint-disable-next-line import/no-unresolved
-import { api } from 'bpanel/utils';
 
 import { UPDATE_MEMPOOL, MEMPOOL_TX, SOCKET_CONNECTED } from './constants';
-import { broadcastSetFilter, subscribeTX, watchMempool } from './actions';
+import {
+  broadcastSetFilter,
+  subscribeTX,
+  updateMempool,
+  watchMempool
+} from './actions';
 
 const { Header, Button } = components;
 
@@ -71,14 +74,9 @@ export const middleware = ({ dispatch }) => next => async action => {
     dispatch(watchMempool());
     dispatch(broadcastSetFilter());
     dispatch(subscribeTX());
-    return next(action);
-  } else if (type === MEMPOOL_TX) {
-    const response = await fetch(api.get.info());
-    const { mempool } = await response.json();
-    return dispatch({
-      type: UPDATE_MEMPOOL,
-      payload: mempool
-    });
+  } else if (type === MEMPOOL_TX || type === 'ADD_RECENT_BLOCK') {
+    // update mempool state if new tx in pool or we got a new block
+    dispatch(updateMempool());
   }
   return next(action);
 };
