@@ -3,12 +3,13 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import thunkMiddleware from 'redux-thunk';
 import bsockMiddleware from 'bsock-middleware';
 
+import config from '../config/appConfig';
 import { getConstants } from '../plugins/plugins';
 import { loadPlugins, pluginMiddleware } from '../plugins/plugins';
 import * as reducers from './reducers';
 
 // load plugin information before setting up app and store
-loadPlugins();
+loadPlugins(config);
 
 const rootReducer = combineReducers(reducers);
 const middleware = [thunkMiddleware, pluginMiddleware];

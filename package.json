@@ -46,8 +46,8 @@
     "react-router-dom": "^4.2.2",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
-    "tinygradient": "^0.3.1",
     "seamless-immutable": "^7.1.2",
+    "tinygradient": "^0.3.1",
     "winston": "^2.4.0"
   },
   "devDependencies": {

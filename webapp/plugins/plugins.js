@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
 
-import config from '../config/appConfig';
 import { propsReducerCallback } from './utils';
 import constants from '../store/constants';
 
@@ -23,6 +22,7 @@ let pluginDecorators = {};
 // props decorators (for passing props to children components)
 let panelPropsDecorators;
 let routePropsDecorators;
+let themeDecorators = [];
 let propsDecorators = {};
 
 // reducers
@@ -34,7 +34,7 @@ let reducersDecorators = {};
 let extendConstants = {};
 
 // Module/plugin loader
-export const loadPlugins = () => {
+export const loadPlugins = config => {
   // initialize cache that we populate with extension methods
   // connectors for plugins to connect to state and dispatch
   // used in `connect` method
@@ -50,10 +50,11 @@ export const loadPlugins = () => {
 
   // setup props decorators
   panelPropsDecorators = [];
+  routePropsDecorators = {};
+  themeDecorators = [];
   propsDecorators = {
     getPanelProps: panelPropsDecorators
   };
-  routePropsDecorators = {};
 
   // setup reducers decorators
   chainReducers = [];
@@ -146,6 +147,11 @@ export const loadPlugins = () => {
         extendConstants.sockets.push(plugin.addSocketsConstants);
       }
 
+      // themeDecorators
+      if (plugin.decorateTheme) {
+        themeDecorators.push(plugin.decorateTheme);
+      }
+
       // for plugins that can be decorated by other plugins
       if (plugin.decoratePlugin) {
         // check for each plugin decorator
@@ -212,6 +218,13 @@ export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
         propsReducerCallback(name, parentProps, ...fnArgs),
         Object.assign({}, props)
       );
+
+export const decorateTheme = ({ themeVariables, themeConfig }) => {
+  return themeDecorators.reduce((accumulator, currentValue) => {
+    const decorated_ = currentValue({ themeVariables, themeConfig });
+    return decorated_;
+  }, {});
+};
 
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>
@@ -306,6 +319,7 @@ function exposeDecorated(Component_) {
         }
       }
     }
+
     render() {
       return React.createElement(
         Component_,

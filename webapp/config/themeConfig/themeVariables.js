@@ -1,6 +1,6 @@
 import tinygradient from 'tinygradient';
 import border from 'css-border-property';
-import logo from '../assets/logo.png';
+import logo from '../../assets/logo.png';
 
 /// *********
 /// FUNCTIONS
@@ -115,7 +115,6 @@ const themeColors = {
   lightBg: 'rgba(255, 255, 255, 0.1)', // transparent white
   mediumBg: 'rgba(0, 255, 224, .2)', // transparent teal
   darkBg: 'rgba(0, 0, 0, .4)', // transparent black
-  appBg,
   footerBg: 'rgba(255, 255, 255, 0.2)',
   get highlightGradient() {
     return tinygradient([this.highlight1, this.highlight2]).css();
@@ -213,6 +212,7 @@ const themeVariables = {
   /// ***********
   /// BACKGROUNDS
   /// ***********
+  appBg,
   appBgSize,
   /// ******
   /// COLORS
