@@ -5,10 +5,12 @@ import Immutable from 'seamless-immutable';
 import { chain as chainUtils } from 'bpanel/utils';
 
 import Dashboard from './Dashboard';
+import { watchChain, subscribeBlockConnect, addRecentBlock } from './actions';
 import {
-  SET_RECENT_BLOCKS,
+  BLOCK_CONNECT,
   ADD_RECENT_BLOCK,
-  SET_CHAIN_TIP
+  SET_CHAIN_TIP,
+  SET_RECENT_BLOCKS
 } from './constants';
 
 // this component needs to be available to be decorated
@@ -29,50 +31,39 @@ export const metadata = {
 // this decorator lets us add to the app constants
 // in this case we want to add to the array of listeners
 // in the sockets constants
-// currently this doesn't do anything
-// as the server is no longer firing 'new block'
-// but leaving it here as an example
+// the `new block` listener below is set on the server
+// by the subscribe action. When there is a new block,
+// we want to dispatch SET_CHAIN_TIP. Payload will be raw
+// block information
 export const addSocketsConstants = (sockets = {}) =>
   Object.assign(sockets, {
     socketListeners: sockets.listeners.push({
       event: 'new block',
-      actionType: ADD_RECENT_BLOCK,
-      numBlocks: 10
+      actionType: SET_CHAIN_TIP
     })
   });
 
-function watchChain() {
-  // broadcast to server that we want to watch the chain
-  return {
-    type: 'EMIT_SOCKET',
-    bsock: {
-      type: 'broadcast',
-      message: 'watch chain'
-    }
-  };
-}
-
 // custom middleware for our plugin. This gets
 // added to the list of middlewares in the app's store creator
-export const middleware = ({ dispatch, getState }) => next => action => {
+export const middleware = ({ dispatch, getState }) => next => async action => {
   const { type, payload } = action;
   const recentBlocks = getState().chain.recentBlocks;
   if (type === 'SOCKET_CONNECTED') {
     // if socket has connected,
     // then dispatch watch chain broadcast
     dispatch(watchChain());
-    next(action);
+    dispatch(subscribeBlockConnect());
+    return next(action);
   } else if (type === SET_CHAIN_TIP && recentBlocks && recentBlocks.length) {
     // if dispatched action is SET_CHAIN_TIP,
     // and recent blocks are already loaded
-    // this middleware will intercept and run ADD_RECENT_BLOCK instead
-    dispatch({
-      type: ADD_RECENT_BLOCK,
-      payload: { ...payload, numBlocks: 10 }
-    });
-  } else {
-    next(action);
+    // this middleware will intercept and disptch addRecentBlock
+    // instead of default behavior
+
+    const blockAction = await addRecentBlock(payload);
+    return next(blockAction);
   }
+  return next(action);
 };
 
 // custom reducer used to decorate the main app's chain reducer
@@ -88,16 +79,14 @@ export const reduceChain = (state, action) => {
 
     case ADD_RECENT_BLOCK: {
       const { numBlocks, block, progress, tip, height } = payload;
-
-      const entry = chainentry.fromRaw(block.entry);
       const blocks = state.getIn(['recentBlocks']);
       const newBlocks = [...blocks]; // get mutable version of blocks
 
       // skip if the height of new block is same as top block
       // or recentBlocks haven't been hydrated yet
       // reason is new block can be received multiple times
-      if (blocks && blocks.length && entry.height !== blocks[0].height) {
-        newBlocks.unshift(entry);
+      if (blocks && blocks.length && block.height !== blocks[0].height) {
+        newBlocks.unshift(block);
 
         // check if action includes a length to limit recent blocks list to
         if (numBlocks && state.recentBlocks.length >= numBlocks) {

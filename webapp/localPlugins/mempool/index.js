@@ -1,5 +1,13 @@
 // Dashboard widget for showing mempool information
-import { UPDATE_MEMPOOL } from './constants';
+
+import { components } from 'bpanel-ui';
+// eslint-disable-next-line import/no-unresolved
+import { api } from 'bpanel/utils';
+
+import { UPDATE_MEMPOOL, MEMPOOL_TX, SOCKET_CONNECTED } from './constants';
+import { broadcastSetFilter, subscribeTX, watchMempool } from './actions';
+
+const { Header, Button } = components;
 
 export const metadata = {
   name: 'mempool',
@@ -14,10 +22,16 @@ export const mapPanelState = (state, map) =>
 
 export const addSocketsConstants = (sockets = {}) =>
   Object.assign(sockets, {
-    socketListeners: sockets.listeners.push({
-      event: 'update mempool',
-      actionType: UPDATE_MEMPOOL
-    })
+    socketListeners: sockets.listeners.push(
+      {
+        event: 'update mempool',
+        actionType: UPDATE_MEMPOOL
+      },
+      {
+        event: 'mempool tx',
+        actionType: MEMPOOL_TX
+      }
+    )
   });
 
 export const reduceNode = (state, action) => {
@@ -48,37 +62,25 @@ export const getRouteProps = {
     })
 };
 
-function watchMempool() {
-  return {
-    type: 'EMIT_SOCKET',
-    bsock: {
-      type: 'broadcast',
-      message: 'watch mempool'
-    }
-  };
-}
-
-function broadcastSetFilter() {
-  // need to set a filter for the socket to get mempool updates
-  // all zeros means an open filter
-  return {
-    type: 'EMIT_SOCKET',
-    bsock: {
-      type: 'broadcast',
-      message: 'set filter',
-      filter: '00000000000000000000'
-    }
-  };
-}
-
-export const middleware = ({ dispatch }) => next => action => {
+export const middleware = ({ dispatch }) => next => async action => {
   const { type } = action;
-
-  if (type === 'SOCKET_CONNECTED') {
+  if (type === SOCKET_CONNECTED) {
+    // actions to dispatch when the socket has connected
+    // these are broadcasts and subscriptions we want to make
+    // to the bcoin node
     dispatch(watchMempool());
     dispatch(broadcastSetFilter());
+    dispatch(subscribeTX());
+    return next(action);
+  } else if (type === MEMPOOL_TX) {
+    const response = await fetch(api.get.info());
+    const { mempool } = await response.json();
+    return dispatch({
+      type: UPDATE_MEMPOOL,
+      payload: mempool
+    });
   }
-  next(action);
+  return next(action);
 };
 
 // very/exactly similar to normal decorators
@@ -101,12 +103,19 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
       };
     }
 
+    justKidding() {
+      alert('Just Kidding!');
+    }
+
     render() {
       const customChildren = (
         <div>
-          <h5>Current Mempool</h5>
+          <Header type="h5"> Current Mempool</Header>
           <p>Mempool TX: {this.props.mempoolTx}</p>
           <p>Mempool Size: {this.props.mempoolSize}</p>
+          <Button onClick={() => this.justKidding()}>
+            Make Transactions Cheaper
+          </Button>
           {this.props.customChildren}
         </div>
       );

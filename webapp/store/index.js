@@ -11,7 +11,7 @@ import * as reducers from './reducers';
 loadPlugins();
 
 const rootReducer = combineReducers(reducers);
-const middleware = [thunkMiddleware, pluginMiddleware];
+const middleware = [pluginMiddleware, thunkMiddleware];
 let compose,
   debug = false;
 
