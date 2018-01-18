@@ -220,10 +220,10 @@ export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
       );
 
 export const decorateTheme = ({ themeVariables, themeConfig }) => {
-  return themeDecorators.reduce((accumulator, currentValue) => {
-    const decorated_ = currentValue({ themeVariables, themeConfig });
-    return decorated_;
-  }, {});
+  // Grab the latest theme decorator added to the theme decorator plugins list
+  const latestThemeDecorator = themeDecorators[themeDecorators.length - 1];
+  // Decorate default theme with the latest theme plugin
+  return latestThemeDecorator({ themeVariables, themeConfig });
 };
 
 // decorate and export reducers
