@@ -1,5 +1,4 @@
 import assert from 'assert';
-import { util } from 'bcoin';
 
 import * as api from './api';
 
@@ -16,7 +15,7 @@ export function getBlock(hashOrHeight) {
 
 export function calcProgress(start, tip) {
   const current = tip - start;
-  const end = util.now() - start - 40 * 60;
+  const end = Date.now() - start - 40 * 60;
   return Math.min(1, current / end);
 }
 

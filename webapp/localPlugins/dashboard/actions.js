@@ -1,7 +1,7 @@
 import { chainentry } from 'bcoin';
-
 // eslint-disable-next-line import/no-unresolved
 import { chain as chainUtils } from 'bpanel/utils';
+
 import { EMIT_SOCKET, ADD_RECENT_BLOCK, SET_RECENT_BLOCKS } from './constants';
 
 const { calcProgress } = chainUtils;
@@ -32,9 +32,10 @@ export async function addRecentBlock(entry) {
   return (dispatch, getState) => {
     let blockMeta = chainentry.fromRaw(entry);
     const { time, hash, height } = blockMeta;
-    // TODO: Should probably store this in state
+
     const genesis = getState().chain.genesis.time;
     let progress = calcProgress(genesis, time);
+
     const chainTip = { tip: hash, progress, height };
 
     dispatch({
@@ -51,8 +52,8 @@ export async function addRecentBlock(entry) {
 }
 
 // action creator to set recent blocks on state
-// mapped to the state via `mapPanelDispatch` below
-// this allows plugins to call action creator to update the state
+// mapped to the state via `mapPanelDispatch`
+// which allows plugins to call action creator to update the state
 export function getRecentBlocks(n = 10) {
   return async (dispatch, getState) => {
     const { getBlocksInRange } = chainUtils;

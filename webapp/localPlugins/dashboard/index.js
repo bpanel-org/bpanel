@@ -50,8 +50,8 @@ export const middleware = ({ dispatch, getState }) => next => async action => {
   const recentBlocks = getState().chain.recentBlocks;
   if (type === 'SOCKET_CONNECTED') {
     // if socket has connected,
-    // then dispatch watch chain broadcast
-    // make sure to pass the action to `next`
+    // then dispatch `watch chain` broadcast
+    // also make sure to pass the action to `next`
     // so that other plugins can be informed
     // that the socket has connected
     dispatch(watchChain());
@@ -61,7 +61,6 @@ export const middleware = ({ dispatch, getState }) => next => async action => {
     // and recent blocks are already loaded
     // this middleware will intercept and disptch addRecentBlock
     // instead of default behavior
-
     const newBlockAction = await addRecentBlock(...payload);
     return next(newBlockAction);
   }
@@ -79,6 +78,8 @@ export const reduceChain = (state, action) => {
       break;
     }
 
+    // this is dispatched after socket receives new block
+    // by `addRecetBlock` action creator
     case ADD_RECENT_BLOCK: {
       const { numBlocks, block, progress, tip, height } = payload;
       const blocks = state.getIn(['recentBlocks']);
