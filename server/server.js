@@ -9,7 +9,7 @@ const app = express();
 
 const logger = require('./logger');
 const bcoinRouter = require('./bcoinRouter');
-const bcoinSocket = require('./bcoinSocket');
+const bcoinSocket = require('./bcoinSocket').socketServer;
 
 app.set('port', process.env.PORT || 5000);
 app.use(bodyParser.json());

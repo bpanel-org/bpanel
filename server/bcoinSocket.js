@@ -3,59 +3,65 @@ const path = require('path');
 const bsock = require('bsock');
 const io = bsock.createServer();
 const socketServer = http.createServer();
-const bcoin = require('bcoin');
-const Client = bcoin.http.Client;
+const { NodeClient } = require('bclient');
 
 const logger = require('./logger');
 
 const config = require(path.resolve(__dirname, '../configs/bcoin.config.json'));
-const { network, uri, apiKey } = config;
-const bcoinClient = new Client({ network, uri, apiKey });
+const { network, port, apiKey, host } = config;
+
+const nodeClient = new NodeClient({
+  apiKey,
+  network,
+  host,
+  port: typeof port === 'number' ? port : parseInt(port)
+});
 
 io.attach(socketServer);
+const subscriptions = {}; // cache to manage subscriptions made by clients
 
-(async function() {
-  await bcoinClient.open();
-  bcoinClient.socket.emit('auth');
+const socketHandler = async socket => {
+  console.log('got a socket!', socket);
+  // requests from client for messages to be broadcast to node
+  socket.bind('broadcast', (event, ...args) => {
+    /**
+      // Example broadcast from client:
+      socket.fire('broadcast', 'set filter', '00000000000000000000');
+      // which will result in the following fire to bcoin server
+      nodeClient.socket.fire('set filter', '00000000000000000000');
+    **/
+    logger.info(`Firing "${event}" to bcoin node`);
+    nodeClient.fire(event, ...args);
+  });
 
-  const subscriptions = {}; // cache to manage subscriptions made by clients
+  // requests from client to subscribe to events from node
+  socket.bind('subscribe', (event, responseEvent) => {
+    // doing some caching of listeners
+    if (!subscriptions[event]) {
+      subscriptions[event] = [responseEvent]; // cache listener
+    } else if (subscriptions[event].indexOf(responseEvent) === -1) {
+      subscriptions[event].push(responseEvent);
+    }
 
-  io.on('socket', async socket => {
-    // requests from client for messages to be broadcast to node
-    socket.bind('broadcast', (event, ...args) => {
-      /**
-        // Example broadcast from client:
-        socket.fire('broadcast', 'set filter', '00000000000000000000');
-        // which will result in the following emit to bcoin server
-        bcoinClient.socket.emit('set filter', '00000000000000000000');
-      **/
-      logger.info(`Emitting "${event}" to bcoin node`);
-      bcoinClient.socket.emit(event, ...args);
-    });
-
-    // requests from client to subscribe to events from node
-    socket.bind('subscribe', (event, responseEvent) => {
-      // doing some caching of listeners
-      if (!subscriptions[event]) {
-        subscriptions[event] = [responseEvent]; // cache listener
-      } else if (subscriptions[event].indexOf(responseEvent) === -1) {
-        subscriptions[event].push(responseEvent);
-      }
-
-      logger.debug(`Subscribing to "${event}" event on bcoin node`);
-      bcoinClient.socket.on(event, (...data) => {
-        logger.debug(
-          `Event "${event}" received from node.`,
-          `Firing "${responseEvent}" event`
-        );
-        socket.fire(responseEvent, ...data);
-      });
-    });
-
-    bcoinClient.socket.on('error', err => {
-      logger.error('Socket error: ', err);
+    logger.debug(`Subscribing to "${event}" event on bcoin node`);
+    nodeClient.bind(event, (...data) => {
+      logger.debug(
+        `Event "${event}" received from node.`,
+        `Firing "${responseEvent}" event`
+      );
+      socket.fire(responseEvent, ...data);
     });
   });
+
+  nodeClient.socket.on('error', err => {
+    logger.error('Socket error: ', err);
+  });
+};
+
+(async function() {
+  await nodeClient.open();
+  nodeClient.fire('auth');
+  io.on('socket', socketHandler);
 })();
 
-module.exports = socketServer;
+module.exports = { socketServer, socketHandler };
