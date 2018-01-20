@@ -6,8 +6,7 @@ const makeWallets = async node => {
 
   consensus.COINBASE_MATURITY = 0;
 
-  const wdb = node.require('walletdb');
-  await wdb.open();
+  const wdb = node.require('walletdb').wdb;
   const primary = wdb.primary;
 
   primary.once('balance', async balance => {
@@ -15,7 +14,7 @@ const makeWallets = async node => {
     console.log('Primary gots some monies!', balance);
   });
 
-  const minerReceive = primary.getReceive();
+  const minerReceive = await primary.receiveAddress();
   // eslint-disable-next-line no-console
   console.log('miner receive address: ', minerReceive);
 

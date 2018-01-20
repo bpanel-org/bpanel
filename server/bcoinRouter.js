@@ -3,21 +3,25 @@
 const path = require('path');
 const express = require('express');
 
-const Client = require('bcoin').http.Client;
+const { NodeClient } = require('bclient');
 const logger = require('./logger');
 
 const config = require(path.resolve(__dirname, '../configs/bcoin.config.json'));
-const { network, uri, apiKey } = config;
+const { network, port, apiKey, host } = config;
 
-const bcoinClient = new Client({ network, uri, apiKey });
+const nodeClient = new NodeClient({
+  apiKey,
+  network,
+  host,
+  port: typeof port === 'number' ? port : parseInt(port)
+});
 const bcoinRouter = express.Router({ mergeParams: true });
 
 // Primary router for preparing the requests to send to bcoin node
 bcoinRouter.use(async (req, res, next) => {
   const { method, path, body } = req;
-
   try {
-    const bcoinResponse = await bcoinClient._request(method, path, body);
+    const bcoinResponse = await nodeClient.request(method, path, body);
     return res.status(200).json(bcoinResponse);
   } catch (error) {
     logger.error('Error querying bcoin node:', error);

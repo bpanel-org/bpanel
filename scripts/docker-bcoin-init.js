@@ -9,20 +9,35 @@ const configs = require(path.resolve(
   __dirname,
   '../configs/bcoin.config.json'
 ));
-const { initScript, network } = configs;
+const {
+  initScript,
+  apiKey,
+  httpHost,
+  logLevel,
+  workers,
+  network,
+  uri
+} = configs;
 let prefix = configs.prefix
   ? configs.prefix
   : `${os.homedir()}/.bcoin/${network}`;
 prefix = prefix.replace('~', os.homedir());
 
 // create the node with our custom configs
-const node = new bcoin.fullnode(configs);
+const node = new bcoin.FullNode({
+  apiKey,
+  httpHost,
+  logLevel,
+  workers,
+  network,
+  uri
+});
 
 // checking if walletdb dir already exists (i.e. was mounted as volume)
 // need to do before using plugin because that will create the dir
 // if not already there
 const fileList = fs.existsSync(prefix) ? fs.readdirSync(prefix) : [];
-const hadWalletDB = fileList.indexOf('walletdb.ldb') > -1;
+const hadWalletDB = fileList.indexOf('wallet') > -1;
 
 if (!node.config.bool('no-wallet') && !node.has('walletdb')) {
   const walletPlugin = bcoin.wallet.plugin;
