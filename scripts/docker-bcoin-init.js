@@ -18,9 +18,8 @@ const {
   network,
   uri
 } = configs;
-let prefix = configs.prefix
-  ? configs.prefix
-  : `${os.homedir()}/.bcoin/${network}`;
+
+let prefix = configs.prefix ? configs.prefix : `${os.homedir()}/.bcoin/`;
 prefix = prefix.replace('~', os.homedir());
 
 // create the node with our custom configs

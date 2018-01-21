@@ -8,6 +8,7 @@ services:
       - "8000:8000"
     env_file: ./secrets.env
     environment:
+      ########### Default/Shared configs
       BCOIN_HTTP_HOST: 0.0.0.0
       BCOIN_HOST: bcoin
       BCOIN_LOG_LEVEL: 'debug'
@@ -22,7 +23,6 @@ services:
       BCOIN_PORT: 18332
       BCOIN_NETWORK: testnet
       BCOIN_PRUNE: 'true'
-      BCOIN_PREFIX: '/code/.bcoin/testnet/'
       BCOIN_DB: 'leveldb'
     ############ Mainnet
     #   BCOIN_NETWORK: mainnet
@@ -60,8 +60,7 @@ services:
       - configs:/code/configs
       - ./scripts:/code/scripts
       # Uncomment to make these persistant
-      - "~/.bcoin/testnet/chain.ldb:/code/.bcoin/testnet/chain"
-      # - "~/.bcoin/testnet/walletdb.ldb:/code/.bcoin/testnet/wallet"
+      - ~/.bcoin_bpanel/testnet:/code/.bcoin/testnet
     depends_on:
       - app
 volumes:
