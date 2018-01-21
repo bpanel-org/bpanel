@@ -1,6 +1,6 @@
 import Immutable from 'seamless-immutable';
 
-import { SET_CHAIN_TIP, SET_GENESIS } from '../constants/chain';
+import { SET_CHAIN_INFO, SET_GENESIS } from '../constants/chain';
 import { decorateReducer } from '../../plugins/plugins';
 
 const initialState = Immutable({
@@ -10,7 +10,7 @@ const initialState = Immutable({
 
 const chainState = (state = initialState, action) => {
   switch (action.type) {
-    case SET_CHAIN_TIP: {
+    case SET_CHAIN_INFO: {
       return state.merge(action.payload);
     }
 

@@ -1,11 +1,10 @@
 // eslint-disable-next-line import/no-unresolved
 import { api } from 'bpanel/utils';
-
-import { SET_CHAIN_TIP, SET_GENESIS } from '../constants/chain';
+import { SET_CHAIN_INFO, SET_GENESIS } from '../constants/chain';
 
 export function setChainInfo(chain) {
   return {
-    type: SET_CHAIN_TIP,
+    type: SET_CHAIN_INFO,
     payload: chain
   };
 }
@@ -30,5 +29,7 @@ export function getGenesisBlock() {
 }
 
 export default {
-  setChainInfo
+  getGenesisBlock,
+  setChainInfo,
+  setGenesisBlock
 };

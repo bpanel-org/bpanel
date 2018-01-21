@@ -1,15 +1,10 @@
 import Immutable from 'seamless-immutable';
 
 import Dashboard from './Dashboard';
+import { addNewBlock, getRecentBlocks } from './actions';
 import {
-  watchChain,
-  subscribeBlockConnect,
-  addRecentBlock,
-  getRecentBlocks
-} from './actions';
-import {
+  ADD_NEW_BLOCK,
   ADD_RECENT_BLOCK,
-  SET_CHAIN_TIP,
   SET_RECENT_BLOCKS
 } from './constants';
 
@@ -28,41 +23,21 @@ export const metadata = {
   parent: ''
 };
 
-// this decorator lets us add to the app constants
-// in this case we want to add to the array of listeners
-// in the sockets constants
-// the `new block` listener below is set on the server
-// by the subscribe action. When there is a new block,
-// we want to dispatch SET_CHAIN_TIP. Payload will be raw
-// block information
-export const addSocketsConstants = (sockets = {}) =>
-  Object.assign(sockets, {
-    socketListeners: sockets.listeners.push({
-      event: 'new block',
-      actionType: SET_CHAIN_TIP
-    })
-  });
-
 // custom middleware for our plugin. This gets
 // added to the list of middlewares in the app's store creator
-export const middleware = ({ dispatch, getState }) => next => async action => {
+export const middleware = ({ dispatch, getState }) => next => action => {
   const { type, payload } = action;
-  const recentBlocks = getState().chain.recentBlocks;
-  if (type === 'SOCKET_CONNECTED') {
-    // if socket has connected,
-    // then dispatch `watch chain` broadcast
-    // also make sure to pass the action to `next`
-    // so that other plugins can be informed
-    // that the socket has connected
-    dispatch(watchChain());
-    dispatch(subscribeBlockConnect());
-  } else if (type === SET_CHAIN_TIP && recentBlocks && recentBlocks.length) {
-    // if dispatched action is SET_CHAIN_TIP,
+  const { recentBlocks, progress } = getState().chain;
+  if (
+    type === ADD_NEW_BLOCK &&
+    recentBlocks &&
+    recentBlocks.length &&
+    progress > 0.9
+  ) {
+    // if dispatched action is ADD_NEW_BLOCK,
     // and recent blocks are already loaded
-    // this middleware will intercept and disptch addRecentBlock
-    // instead of default behavior
-    const newBlockAction = await addRecentBlock(...payload);
-    dispatch(newBlockAction);
+    // this middleware will intercept and dispatch addNewBlock
+    dispatch(addNewBlock(...payload));
   }
   return next(action);
 };
@@ -78,10 +53,9 @@ export const reduceChain = (state, action) => {
       break;
     }
 
-    // this is dispatched after socket receives new block
-    // by `addRecetBlock` action creator
     case ADD_RECENT_BLOCK: {
-      const { numBlocks, block, progress, tip, height } = payload;
+      const block = payload;
+      const numBlocks = 10;
       const blocks = state.getIn(['recentBlocks']);
       const newBlocks = [...blocks]; // get mutable version of blocks
 
@@ -98,9 +72,6 @@ export const reduceChain = (state, action) => {
       }
 
       return state.merge({
-        progress,
-        tip,
-        height,
         recentBlocks: Immutable(newBlocks)
       });
     }
