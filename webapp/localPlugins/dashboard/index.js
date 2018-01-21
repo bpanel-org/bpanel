@@ -62,7 +62,7 @@ export const middleware = ({ dispatch, getState }) => next => async action => {
     // this middleware will intercept and disptch addRecentBlock
     // instead of default behavior
     const newBlockAction = await addRecentBlock(...payload);
-    return next(newBlockAction);
+    dispatch(newBlockAction);
   }
   return next(action);
 };
