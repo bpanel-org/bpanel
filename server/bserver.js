@@ -9,8 +9,8 @@ const server = bweb.server({
 });
 
 const logger = require('./logger');
-// const bcoinRouter = require('./bcoinRouter');
-// const bcoinSocket = require('./bcoinSocket');
+const bcoinRouter = require('./bcoinRouter');
+const socketHandler = require('./bcoinSocket').socketHandler;
 
 server.use(server.bodyParser());
 server.use(server.cookieParser());
@@ -26,6 +26,7 @@ const resolveIndex = async (req, res) => {
   res.html(path.resolve(__dirname, '../webapp/index.html'));
 };
 server.get('/', resolveIndex);
+server.use('/node', bcoinRouter);
 
 // route to get server info
 server.get('/server', (req, res) =>
@@ -33,14 +34,10 @@ server.get('/server', (req, res) =>
 );
 
 // Path to route calls to bcoin node
-// server.use('/node', bcoinRouter);
-
 server.get('/*', resolveIndex);
 
 // Sockets
-server.on('socket', async socket => {
-  logger.info('Socket connected');
-});
+server.on('socket', socketHandler);
 
 /**
   START SERVERS

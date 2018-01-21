@@ -13,9 +13,12 @@ export function getBlock(hashOrHeight) {
     );
 }
 
+export function now() {
+  return Math.floor(Date.now() / 1000);
+}
 export function calcProgress(start, tip) {
   const current = tip - start;
-  const end = Date.now() - start - 40 * 60;
+  const end = now() - start - 40 * 60;
   return Math.min(1, current / end);
 }
 

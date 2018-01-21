@@ -21,7 +21,6 @@ io.attach(socketServer);
 const subscriptions = {}; // cache to manage subscriptions made by clients
 
 const socketHandler = async socket => {
-  console.log('got a socket!', socket);
   // requests from client for messages to be broadcast to node
   socket.bind('broadcast', (event, ...args) => {
     /**
