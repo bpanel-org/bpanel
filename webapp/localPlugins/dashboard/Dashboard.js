@@ -40,22 +40,22 @@ export default class Dashboard extends Component {
     this.callingRecentBlocks = false;
   }
 
-  componentWillUpdate(nextProps) {
-    const { chainHeight, recentBlocks = [], getRecentBlocks } = this.props;
+  // componentWillUpdate(nextProps) {
+  //   const { chainHeight, recentBlocks = [], getRecentBlocks } = this.props;
 
-    // if chainHeight has increased and recentBlocks is not set,
-    // get the most recent blocks
-    // both `addBlock` and `getRecentBlocks` are attached to the store
-    // and will dispatch action creators to udpate the state
-    if (
-      nextProps.chainHeight &&
-      nextProps.chainHeight >= chainHeight &&
-      !recentBlocks.length &&
-      !this.callingRecentBlocks
-    ) {
-      getRecentBlocks(10);
-    }
-  }
+  //   // if chainHeight has increased and recentBlocks is not set,
+  //   // get the most recent blocks
+  //   // both `addBlock` and `getRecentBlocks` are attached to the store
+  //   // and will dispatch action creators to udpate the state
+  //   if (
+  //     nextProps.chainHeight &&
+  //     nextProps.chainHeight >= chainHeight &&
+  //     !recentBlocks.length &&
+  //     !this.callingRecentBlocks
+  //   ) {
+  //     getRecentBlocks(10);
+  //   }
+  // }
 
   render() {
     const {

@@ -60,7 +60,7 @@ export function getRecentBlocks(n = 10) {
     // only get recent blocks if node is almost fully synced
     // UI gets clogged otherwise
     if (progress < 0.9)
-      dispatch({
+      return dispatch({
         type: SET_RECENT_BLOCKS,
         payload: [{ height, hash: tip }]
       });
