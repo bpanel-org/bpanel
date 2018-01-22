@@ -75,7 +75,7 @@ class App extends Component {
     const { theme } = this.props;
     const themeConfig = this.handleThemeConfig(theme);
     // Unload theming for the <body> and <html> tags
-    for (const k in theme.app.body) {
+    for (const k in themeConfig.app.body) {
       document.body.style[k] = null;
       document.document.documentElement.style[k] = null;
     }
