@@ -1,7 +1,8 @@
 import Immutable from 'seamless-immutable';
 
 import Dashboard from './Dashboard';
-import { addNewBlock, getRecentBlocks } from './actions';
+
+import { addRecentBlock, getRecentBlocks } from './actions';
 import {
   ADD_NEW_BLOCK,
   ADD_RECENT_BLOCK,
@@ -36,8 +37,8 @@ export const middleware = ({ dispatch, getState }) => next => action => {
   ) {
     // if dispatched action is ADD_NEW_BLOCK,
     // and recent blocks are already loaded
-    // this middleware will intercept and dispatch addNewBlock
-    dispatch(addNewBlock(...payload));
+    // this middleware will intercept and dispatch addRecentBlock
+    dispatch(addRecentBlock(...payload));
   }
   return next(action);
 };

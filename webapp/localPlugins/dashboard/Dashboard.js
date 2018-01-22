@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { components } from 'bpanel-ui';
+
+const { Button, Header } = components;
 
 const recentBlocksTable = recentBlocks =>
   recentBlocks.map(({ height, hash }, index) => (
@@ -75,8 +78,11 @@ export default class Dashboard extends Component {
     return (
       <div className="dashboard-container">
         {customChildrenBefore}
-        First... the chain height: {chainHeight}
-        Then... some blocks:
+        <Button onClick={() => this.props.getRecentBlocks(10)}>
+          Get Blocks
+        </Button>
+        <Header type="h4">First... the chain height: {chainHeight}</Header>
+        <Header type="h4">Then... some blocks:</Header>
         {table}
         {customChildren}
       </div>

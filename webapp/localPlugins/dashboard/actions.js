@@ -6,7 +6,7 @@ import { ADD_RECENT_BLOCK, SET_RECENT_BLOCKS } from './constants';
 
 // can also accept raw txs array
 // as it is returned in payload
-export function addNewBlock(entry) {
+export function addRecentBlock(entry) {
   let blockMeta = ChainEntry.fromRaw(entry);
   return {
     type: ADD_RECENT_BLOCK,
@@ -36,6 +36,6 @@ export function getRecentBlocks(n = 10) {
 }
 
 export default {
-  addNewBlock,
+  addRecentBlock,
   getRecentBlocks
 };
