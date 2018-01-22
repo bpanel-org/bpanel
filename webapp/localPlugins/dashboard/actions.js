@@ -34,7 +34,7 @@ export async function addRecentBlock(entry) {
     const { time, hash, height } = blockMeta;
 
     const genesis = getState().chain.genesis.time;
-    let progress = calcProgress(genesis, time);
+    const progress = calcProgress(genesis, time);
 
     const chainTip = { tip: hash, progress, height };
 

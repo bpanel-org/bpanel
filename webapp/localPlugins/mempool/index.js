@@ -2,7 +2,12 @@
 
 import { components } from 'bpanel-ui';
 
-import { UPDATE_MEMPOOL, MEMPOOL_TX, SOCKET_CONNECTED } from './constants';
+import {
+  ADD_RECENT_BLOCK,
+  UPDATE_MEMPOOL,
+  MEMPOOL_TX,
+  SOCKET_CONNECTED
+} from './constants';
 import {
   broadcastSetFilter,
   subscribeTX,
@@ -74,7 +79,7 @@ export const middleware = ({ dispatch }) => next => async action => {
     dispatch(watchMempool());
     dispatch(broadcastSetFilter());
     dispatch(subscribeTX());
-  } else if (type === MEMPOOL_TX || type === 'ADD_RECENT_BLOCK') {
+  } else if (type === MEMPOOL_TX || type === ADD_RECENT_BLOCK) {
     // update mempool state if new tx in pool or we got a new block
     dispatch(updateMempool());
   }
