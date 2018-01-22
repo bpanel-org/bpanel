@@ -42,10 +42,7 @@ class App extends Component {
       location: PropTypes.shape({
         pathname: PropTypes.string
       }),
-      theme: PropTypes.shape({
-        themeVariables: PropTypes.object,
-        themeConfig: PropTypes.object
-      }),
+      theme: PropTypes.func,
       connectSocket: PropTypes.func.isRequired,
       disconnectSocket: PropTypes.func.isRequired,
       getNodeInfo: PropTypes.func.isRequired,
@@ -60,27 +57,33 @@ class App extends Component {
   }
 
   componentWillMount() {
-    const { theme, updateTheme } = this.props;
-    // Grab the original theme from the props, then decorate the theme with
-    // themes from the user's plugins, then update Redux store with latest theme
-    const decoratedTheme = decorateTheme(theme);
-    updateTheme(decoratedTheme);
+    const { theme: themeCreator, updateTheme } = this.props;
+    // Grab the original theme from props, then decorate the theme with
+    // styling from the user's theme plugins. This returns a callback function that when invoked,
+    // returns the proper styling. Update the Redux store with latest theme callback function
+    const decoratedThemeFunc = decorateTheme(themeCreator);
+    const themeConfig = this.handleThemeConfig(decoratedThemeFunc);
+    updateTheme(decoratedThemeFunc);
     // Load theming for the <body> and <html> tags
-    for (const k in decoratedTheme.themeConfig.app.body) {
-      document.body.style[k] = decoratedTheme.themeConfig.app.body[k];
-      document.documentElement.style[k] =
-        decoratedTheme.themeConfig.app.body[k];
+    for (const k in themeConfig.app.body) {
+      document.body.style[k] = themeConfig.app.body[k];
+      document.documentElement.style[k] = themeConfig.app.body[k];
     }
   }
 
   componentWillUnmount() {
-    const { theme: { themeConfig } } = this.props;
+    const { theme } = this.props;
+    const themeConfig = this.handleThemeConfig(theme);
     // Unload theming for the <body> and <html> tags
-    for (const k in themeConfig.app.body) {
+    for (const k in theme.app.body) {
       document.body.style[k] = null;
       document.document.documentElement.style[k] = null;
     }
     this.props.disconnectSocket();
+  }
+
+  handleThemeConfig(theme) {
+    return typeof theme === 'function' ? theme() : theme;
   }
 
   render() {
@@ -91,8 +94,9 @@ class App extends Component {
       nodeProgress = 0,
       sortedPluginMeta,
       location,
-      theme: { themeConfig }
+      theme
     } = this.props;
+    const themeConfig = this.handleThemeConfig(theme);
 
     return (
       <ThemeProvider theme={themeConfig}>

@@ -189,6 +189,21 @@ const logoUrl = logo;
 // Button
 const buttonActionPadding = makeRem(0.3125);
 
+// Table
+const rowRenderer = ({ index }) => {
+  const style = {
+    fontWeight: fontWeights.light
+  };
+  if (index === -1) {
+    style.backgroundColor = themeColors.mediumBg;
+  } else if (index % 2 === 0 || index === 0) {
+    style.backgroundColor = themeColors.transparent;
+  } else {
+    style.backgroundColor = themeColors.lightBg;
+  }
+  return style;
+};
+
 const themeVariables = {
   /// *****
   /// FONTS
@@ -252,7 +267,9 @@ const themeVariables = {
   logoSize,
   logoUrl,
   // Button
-  buttonActionPadding
+  buttonActionPadding,
+  // Table
+  rowRenderer
 };
 
 export default themeVariables;

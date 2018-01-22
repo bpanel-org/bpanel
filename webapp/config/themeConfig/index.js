@@ -1,7 +1,7 @@
 import themeVariables from './themeVariables';
-import themeConfig from './themeConfig';
+import themeCreator from './themeCreator';
 
 export default {
   themeVariables,
-  themeConfig
+  themeCreator
 };

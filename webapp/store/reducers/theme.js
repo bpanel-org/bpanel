@@ -1,9 +1,8 @@
-import Immutable from 'seamless-immutable';
+import { UPDATE_THEME } from '../constants/theme';
+import themeConfig from '../../config/themeConfig/';
+const { themeCreator } = themeConfig;
 
-import { UPDATE_THEME } from '../constants/themes';
-import theme from '../../config/themeConfig/';
-
-const themeReducer = (state = Immutable(theme), action) => {
+const themeReducer = (state = themeCreator, action) => {
   switch (action.type) {
     case UPDATE_THEME: {
       return action.payload;

@@ -219,11 +219,11 @@ export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
         Object.assign({}, props)
       );
 
-export const decorateTheme = ({ themeVariables, themeConfig }) => {
+export const decorateTheme = themeCreator => {
   // Grab the latest theme decorator added to the theme decorator plugins list
   const latestThemeDecorator = themeDecorators[themeDecorators.length - 1];
   // Decorate default theme with the latest theme plugin
-  return latestThemeDecorator({ themeVariables, themeConfig });
+  return latestThemeDecorator(themeCreator);
 };
 
 // decorate and export reducers

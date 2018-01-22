@@ -1,6 +1,6 @@
 import theme from './themeConfig/index.js';
 
-const { themeVariables, themeConfig } = theme;
+const { themeVariables, themeCreator } = theme;
 
 export default {
   // localPlugins are for either development of a plugin or
@@ -11,6 +11,6 @@ export default {
   plugins: [],
   theme: {
     themeVariables,
-    themeConfig
+    themeCreator
   }
 };
