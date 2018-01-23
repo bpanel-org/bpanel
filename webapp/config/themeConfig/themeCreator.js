@@ -36,6 +36,8 @@ const themeCreator = (
     /// *******
     /// BORDERS
     /// *******
+    borderWidth,
+    borderStyle,
     border1,
     border2,
     border3,
@@ -207,7 +209,7 @@ const themeCreator = (
     button: {
       primary: {
         backgroundColor: themeColors.transparent,
-        border: border3,
+        border: `${borderWidth.value} ${borderStyle.value} ${themeColors.highlight1}`,
         borderRadius: borderRadius,
         color: themeColors.highlight1,
         cursor: 'pointer',
@@ -254,8 +256,6 @@ const themeCreator = (
     },
 
     // Table
-    rowRenderer,
-
     table: {
       container: {
         border: border2
@@ -269,7 +269,19 @@ const themeCreator = (
       },
       // This row renderer alternates background colors between
       // transparent and a slightly transparent white
-      row: rowRenderer
+      row: ({ index }) => {
+        const style = {
+          fontWeight: fontWeights.light
+        };
+        if (index === -1) {
+          style.backgroundColor = themeColors.mediumBg;
+        } else if (index % 2 === 0 || index === 0) {
+          style.backgroundColor = themeColors.transparent;
+        } else {
+          style.backgroundColor = themeColors.lightBg;
+        }
+        return style;
+      }
     },
 
     // Text

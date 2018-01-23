@@ -236,6 +236,8 @@ const themeVariables = {
   /// *******
   /// BORDERS
   /// *******
+  borderWidth,
+  borderStyle,
   border1,
   border2,
   border3,
