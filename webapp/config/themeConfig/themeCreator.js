@@ -40,7 +40,6 @@ const themeCreator = (
     borderStyle,
     border1,
     border2,
-    border3,
     borderRadius,
     /// *******************
     /// COMPONENT VARIABLES
@@ -69,9 +68,7 @@ const themeCreator = (
     logoSize,
     logoUrl,
     // Button
-    buttonActionPadding,
-    // Table
-    rowRenderer
+    buttonActionPadding
   } = Immutable(themeVariables).merge(_themeVariables, { deep: true });
 
   /// ******
