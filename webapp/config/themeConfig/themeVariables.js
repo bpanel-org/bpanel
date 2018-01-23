@@ -1,42 +1,9 @@
 import tinygradient from 'tinygradient';
 import border from 'css-border-property';
 import logo from '../../assets/logo.png';
+import * as bpanelUI from 'bpanel-ui';
 
-/// *********
-/// FUNCTIONS
-/// *********
-
-const makeRem = size => (size * fontSizeBase).toString().concat('rem');
-
-const makeGutter = (
-  type = 'padding',
-  { top, bottom, left, right, horizontal, vertical }
-) => {
-  let gutterTop, gutterRight, gutterBottom, gutterLeft;
-
-  // Horizontal gutter calculation
-  if (horizontal || horizontal === 0) {
-    gutterRight = gutterLeft = makeRem(horizontal);
-  } else {
-    gutterRight = (right || right === 0) && makeRem(right);
-    gutterLeft = (left || left === 0) && makeRem(left);
-  }
-
-  // Vertical gutter calculation
-  if (vertical || vertical === 0) {
-    gutterTop = gutterBottom = makeRem(vertical);
-  } else {
-    gutterTop = (top || top === 0) && makeRem(top);
-    gutterBottom = (bottom || bottom === 0) && makeRem(bottom);
-  }
-
-  return {
-    [`${type}Top`]: gutterTop,
-    [`${type}Right`]: gutterRight,
-    [`${type}Bottom`]: gutterBottom,
-    [`${type}Left`]: gutterLeft
-  };
-};
+const { utils: { makeRem, makeGutter } } = bpanelUI;
 
 /// *****
 /// FONTS
@@ -48,16 +15,16 @@ const fontFamily = 'Open Sans, sans-serif';
 // Font Size
 const fontSizeBase = 1; // This gets transformed to rem
 
-const fontSizeSmall = makeRem(0.8);
-const fontSizeNormal = makeRem(1);
-const fontSizeLarge = makeRem(1.2);
+const fontSizeSmall = makeRem(0.8, fontSizeBase);
+const fontSizeNormal = makeRem(1, fontSizeBase);
+const fontSizeLarge = makeRem(1.2, fontSizeBase);
 
-const fontSizeH1 = makeRem(3.2);
-const fontSizeH2 = makeRem(2.6);
-const fontSizeH3 = makeRem(2.1);
-const fontSizeH4 = makeRem(1.7);
-const fontSizeH5 = makeRem(1.3);
-const fontSizeH6 = makeRem(1.1);
+const fontSizeH1 = makeRem(3.2, fontSizeBase);
+const fontSizeH2 = makeRem(2.6, fontSizeBase);
+const fontSizeH3 = makeRem(2.1, fontSizeBase);
+const fontSizeH4 = makeRem(1.7, fontSizeBase);
+const fontSizeH5 = makeRem(1.3, fontSizeBase);
+const fontSizeH6 = makeRem(1.1, fontSizeBase);
 
 const fontOpacity = 0.75;
 
@@ -153,18 +120,18 @@ const borderRadius = '5px';
 /// *******************
 
 // Footer
-const footerHeight = makeRem(2);
+const footerHeight = makeRem(2, fontSizeBase);
 const footerTextMargin = makeGutter('margin', { bottom: 0 });
 
 // App
 const appBodyHeight = '100%';
-const appBodyMinHeight = makeRem(18.75);
+const appBodyMinHeight = makeRem(18.75, fontSizeBase);
 const appContentHeight = `calc(100vh - ${footerHeight} - ${headerHeight})`;
 const appContentPadding = makeGutter('padding', { left: 1.25, right: 2.5 });
 const appHeight = `calc(100vh - ${footerHeight})`;
 
 // Header
-const headerHeight = makeRem(7);
+const headerHeight = makeRem(7, fontSizeBase);
 
 // Sidebar
 const sidebarContainerHeight = appHeight;
@@ -176,18 +143,18 @@ const sidebarItemPadding = makeGutter('padding', {
   vertical: 0.625
 });
 const sidebarItemTransition = '0.3s ease';
-const sidebarLinkMinWidth = makeRem(9.375);
+const sidebarLinkMinWidth = makeRem(9.375, fontSizeBase);
 
 // Logo
 const logoContainerPadding = makeGutter('padding', {
   horizontal: 0,
   vertical: 1.875
 });
-const logoSize = makeRem(3.75);
+const logoSize = makeRem(3.75, fontSizeBase);
 const logoUrl = logo;
 
 // Button
-const buttonActionPadding = makeRem(0.3125);
+const buttonActionPadding = makeRem(0.3125, fontSizeBase);
 
 // Table
 const rowRenderer = ({ index }) => {
