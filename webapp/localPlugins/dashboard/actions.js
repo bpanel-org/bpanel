@@ -8,6 +8,7 @@ import { ADD_RECENT_BLOCK, SET_RECENT_BLOCKS } from './constants';
 // as it is returned in payload
 export function addRecentBlock(entry) {
   let blockMeta = ChainEntry.fromRaw(entry);
+  blockMeta.hash = blockMeta.rhash();
   return {
     type: ADD_RECENT_BLOCK,
     payload: blockMeta
