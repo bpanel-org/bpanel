@@ -2,6 +2,48 @@ import tinygradient from 'tinygradient';
 const logo =
   'https://e2-cdns2-fp.akamaized.net/media/img/subscription_modal/rocket.svg';
 
+/// *********
+/// FUNCTIONS
+/// *********
+
+const makeRem = size => (size * fontSizeBase).toString().concat('rem');
+
+const makeGutter = (
+  type = 'padding',
+  { top, bottom, left, right, horizontal, vertical, all }
+) => {
+  let gutterTop, gutterRight, gutterBottom, gutterLeft;
+
+  // All gutter calculations
+  if (all) gutterRight = gutterLeft = gutterTop = gutterBottom = makeRem(all);
+
+  // Horizontal gutter calculation
+  if (horizontal || horizontal === 0) {
+    gutterRight = gutterLeft = makeRem(horizontal);
+  } else {
+    gutterRight = gutterRight || ((right || right === 0) && makeRem(right));
+    gutterLeft = gutterLeft || ((left || left === 0) && makeRem(left));
+  }
+
+  // Vertical gutter calculation
+  if (vertical || vertical === 0) {
+    gutterTop = gutterBottom = makeRem(vertical);
+  } else {
+    gutterTop = gutterTop || ((top || top === 0) && makeRem(top));
+    gutterBottom =
+      gutterBottom || ((bottom || bottom === 0) && makeRem(bottom));
+  }
+
+  return {
+    [`${type}Top`]: gutterTop,
+    [`${type}Right`]: gutterRight,
+    [`${type}Bottom`]: gutterBottom,
+    [`${type}Left`]: gutterLeft
+  };
+};
+
+const fontSizeBase = 1; // This gets transformed to rem
+
 /// ***********
 /// BACKGROUNDS
 /// ***********
@@ -39,6 +81,13 @@ const themeColors = {
 };
 
 // Logo
+const logoContainerBg = 'rgba(255, 255, 255, 0.2)';
+const logoContainerBorderRadius = '50%';
+const logoContainerMargin = makeGutter('margin', { vertical: 1.875 });
+const logoContainerPadding = makeGutter('padding', { all: 1.25 });
+
+const logoOpacity = 1;
+const logoSize = '2.25rem';
 const logoUrl = logo;
 
 const themeVariables = {
@@ -52,6 +101,12 @@ const themeVariables = {
   /// ******
   themeColors,
   // Logo
+  logoContainerBg,
+  logoContainerBorderRadius,
+  logoContainerMargin,
+  logoContainerPadding,
+  logoOpacity,
+  logoSize,
   logoUrl
 };
 
