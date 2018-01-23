@@ -12,7 +12,7 @@ const socketHandler = nodeClient => {
         nodeClient.socket.fire('set filter', '00000000000000000000');
       **/
       logger.info(`Firing "${event}" to bcoin node`);
-      nodeClient.fire(event, ...args);
+      nodeClient.call(event, ...args);
     });
 
     // requests from client to subscribe to events from node

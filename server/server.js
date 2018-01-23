@@ -16,8 +16,8 @@ const { nodeClient } = require('./bcoinClients');
 
 // Preparing bsock socket server and express server
 const app = express();
-const socketServer = http.createServer();
-bsock.attach(socketServer);
+const socketHttpServer = http.createServer();
+bsock.attach(socketHttpServer);
 app.set('port', process.env.PORT || 5000);
 app.use(bodyParser.json());
 app.use(cors());
@@ -55,7 +55,7 @@ app.use(cors());
   });
 
   // start up the socket server
-  socketServer.listen(8000, () => {
+  socketHttpServer.listen(8000, () => {
     logger.info('Socket server connected');
   });
 })();

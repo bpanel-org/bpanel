@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { comparePlugins } from '../plugins';
 
-describe.only('comparePlugins', () => {
+describe('comparePlugins', () => {
   let plugins, sortedPlugins;
   beforeEach(() => {
     plugins = [

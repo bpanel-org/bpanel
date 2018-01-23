@@ -1,3 +1,4 @@
+export const ADD_RECENT_BLOCK = 'ADD_RECENT_BLOCK';
 export const EMIT_SOCKET = 'EMIT_SOCKET';
 export const MEMPOOL_TX = 'MEMPOOL_TX';
 export const SOCKET_CONNECTED = 'SOCKET_CONNECTED';
