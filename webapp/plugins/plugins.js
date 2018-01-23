@@ -223,7 +223,8 @@ export const decorateTheme = themeCreator => {
   // Grab the latest theme decorator added to the theme decorator plugins list
   const latestThemeDecorator = themeDecorators[themeDecorators.length - 1];
   // Decorate default theme with the latest theme plugin
-  return latestThemeDecorator(themeCreator);
+  if (latestThemeDecorator) return latestThemeDecorator(themeCreator);
+  return themeCreator;
 };
 
 // decorate and export reducers
