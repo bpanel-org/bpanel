@@ -10,7 +10,8 @@ import {
 import {
   ADD_RECENT_BLOCK,
   SET_CHAIN_TIP,
-  SET_RECENT_BLOCKS
+  SET_RECENT_BLOCKS,
+  SOCKET_CONNECTED
 } from './constants';
 
 // this component needs to be available to be decorated
@@ -48,7 +49,7 @@ export const addSocketsConstants = (sockets = {}) =>
 export const middleware = ({ dispatch, getState }) => next => async action => {
   const { type, payload } = action;
   const recentBlocks = getState().chain.recentBlocks;
-  if (type === 'SOCKET_CONNECTED') {
+  if (type === SOCKET_CONNECTED) {
     // if socket has connected,
     // then dispatch `watch chain` broadcast
     // also make sure to pass the action to `next`
@@ -62,7 +63,7 @@ export const middleware = ({ dispatch, getState }) => next => async action => {
     // this middleware will intercept and disptch addRecentBlock
     // instead of default behavior
     const newBlockAction = await addRecentBlock(...payload);
-    return next(newBlockAction);
+    dispatch(newBlockAction);
   }
   return next(action);
 };

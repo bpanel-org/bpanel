@@ -1,4 +1,4 @@
-import { chainentry } from 'bcoin';
+import { ChainEntry } from 'bcoin';
 // eslint-disable-next-line import/no-unresolved
 import { chain as chainUtils } from 'bpanel/utils';
 
@@ -27,15 +27,14 @@ export function subscribeBlockConnect() {
   };
 }
 
-// can also accept txs array as it is returned in payload
+// can also accept raw txs array
+// as it is returned in payload
 export async function addRecentBlock(entry) {
   return (dispatch, getState) => {
-    let blockMeta = chainentry.fromRaw(entry);
+    let blockMeta = ChainEntry.fromRaw(entry);
     const { time, hash, height } = blockMeta;
-
     const genesis = getState().chain.genesis.time;
-    let progress = calcProgress(genesis, time);
-
+    const progress = calcProgress(genesis, time);
     const chainTip = { tip: hash, progress, height };
 
     dispatch({
