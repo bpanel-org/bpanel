@@ -1,5 +1,5 @@
 import * as types from '../constants/node';
-import { setChainInfo } from './chainActions';
+import { setChainInfo, getGenesisBlock } from './chainActions';
 
 export function setNodeInfo(info) {
   return {
@@ -26,6 +26,7 @@ export function getNodeInfo() {
   return dispatch => {
     dispatch(requestingNode(true));
     dispatch(getServerInfo());
+    dispatch(getGenesisBlock());
     return fetch('/node')
       .then(response => response.json())
       .then(nodeInfo => {

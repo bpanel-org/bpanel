@@ -1,5 +1,16 @@
 // Dashboard widget for showing mempool information
-import { UPDATE_MEMPOOL } from './constants';
+
+import { components } from 'bpanel-ui';
+
+import { UPDATE_MEMPOOL, MEMPOOL_TX, SOCKET_CONNECTED } from './constants';
+import {
+  broadcastSetFilter,
+  subscribeTX,
+  updateMempool,
+  watchMempool
+} from './actions';
+
+const { Header, Button } = components;
 
 export const metadata = {
   name: 'mempool',
@@ -14,10 +25,16 @@ export const mapPanelState = (state, map) =>
 
 export const addSocketsConstants = (sockets = {}) =>
   Object.assign(sockets, {
-    socketListeners: sockets.listeners.push({
-      event: 'update mempool',
-      actionType: UPDATE_MEMPOOL
-    })
+    socketListeners: sockets.listeners.push(
+      {
+        event: 'update mempool',
+        actionType: UPDATE_MEMPOOL
+      },
+      {
+        event: 'mempool tx',
+        actionType: MEMPOOL_TX
+      }
+    )
   });
 
 export const reduceNode = (state, action) => {
@@ -48,6 +65,22 @@ export const getRouteProps = {
     })
 };
 
+export const middleware = ({ dispatch }) => next => async action => {
+  const { type } = action;
+  if (type === SOCKET_CONNECTED) {
+    // actions to dispatch when the socket has connected
+    // these are broadcasts and subscriptions we want to make
+    // to the bcoin node
+    dispatch(watchMempool());
+    dispatch(broadcastSetFilter());
+    dispatch(subscribeTX());
+  } else if (type === MEMPOOL_TX || type === 'ADD_RECENT_BLOCK') {
+    // update mempool state if new tx in pool or we got a new block
+    dispatch(updateMempool());
+  }
+  return next(action);
+};
+
 // very/exactly similar to normal decorators
 // name should map exactly to the name of the target plugin to decorate
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
@@ -68,12 +101,19 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
       };
     }
 
+    justKidding() {
+      alert('Just Kidding!');
+    }
+
     render() {
       const customChildren = (
         <div>
-          <h5>Current Mempool</h5>
+          <Header type="h5"> Current Mempool</Header>
           <p>Mempool TX: {this.props.mempoolTx}</p>
           <p>Mempool Size: {this.props.mempoolSize}</p>
+          <Button onClick={() => this.justKidding()}>
+            Make Transactions Cheaper
+          </Button>
           {this.props.customChildren}
         </div>
       );

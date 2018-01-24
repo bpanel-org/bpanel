@@ -2,5 +2,8 @@
 // by exporting current api
 
 export const get = {
-  block: heightOrHash => `/node/block/${heightOrHash}`
+  block: heightOrHash => `/node/block/${heightOrHash}`,
+  info: () => '/node'
 };
+
+export default { get };
