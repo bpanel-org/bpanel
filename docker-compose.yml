@@ -13,6 +13,8 @@ services:
       BCOIN_HOST: bcoin
       BCOIN_LOG_LEVEL: 'debug'
       BCOIN_WORKERS: 'true'
+      BCOIN_PREFIX: '/code/.bcoin'
+      BCOIN_MEMORY: 'false'
     ############ Regtest
       # BCOIN_URI: http://bcoin:48332
       # BCOIN_PORT: 48332
@@ -44,14 +46,18 @@ services:
       context: .
       dockerfile: Dockerfile-bcoin
     restart: unless-stopped
+    environment:
+      BCOIN_WALLET_HTTP_HOST: 0.0.0.0
     ports:
       # comment these if they conflict with something else you're running.
       #-- Mainnet
       - "8333:8333"
       - "8332:8332" # RPC
+      - "8334:8334" # Wallet
       #-- Testnet
       - "18333:18333"
       - "18332:18332" # RPC
+      - "18334:18334" # Wallet
       #-- Regtest
       - "48444:48444"
       - "48332:48332" # RPC
@@ -60,7 +66,7 @@ services:
       - configs:/code/configs
       - ./scripts:/code/scripts
       # Uncomment to make these persistant
-      - ~/.bcoin_bpanel/testnet:/code/.bcoin/testnet
+      - ~/.bcoin_bpanel:/code/.bcoin
     depends_on:
       - app
 volumes:
