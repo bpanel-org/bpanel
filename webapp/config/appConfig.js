@@ -1,8 +1,23 @@
+import theme from './themeConfig/index.js';
+
+const { themeVariables, themeCreator } = theme;
+
 export default {
   // localPlugins are for either development of a plugin or
   // for default/built-in plugins
-  localPlugins: ['chainSockets', 'dashboard', 'mempool', 'wallets', 'bui'],
+  localPlugins: [
+    'chainSockets',
+    'dashboard',
+    'mempool',
+    'wallets',
+    'bui',
+    'bMoonTheme'
+  ],
   // This will be the list of plugins to install from npm
   // This system still needs to be built
-  plugins: []
+  plugins: [],
+  theme: {
+    themeVariables,
+    themeCreator
+  }
 };
