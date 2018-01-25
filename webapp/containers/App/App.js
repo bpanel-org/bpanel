@@ -64,17 +64,12 @@ class App extends Component {
 
   componentWillUnmount() {
     const { theme } = this.props;
-    const themeConfig = this.handleThemeConfig(theme);
     // Unload theming for the <body> and <html> tags
-    for (const k in themeConfig.app.body) {
+    for (const k in theme.app.body) {
       document.body.style[k] = null;
       document.document.documentElement.style[k] = null;
     }
     this.props.disconnectSocket();
-  }
-
-  handleThemeConfig(theme) {
-    return typeof theme === 'function' ? theme() : theme;
   }
 
   render() {
@@ -87,24 +82,23 @@ class App extends Component {
       location,
       theme
     } = this.props;
-    const themeConfig = this.handleThemeConfig(theme);
 
     return (
-      <ThemeProvider theme={themeConfig}>
+      <ThemeProvider theme={theme}>
         <div
           className="container-fluid"
           role="main"
-          style={themeConfig.app.container}
+          style={theme.app.container}
         >
           <div className="row">
             <div className="col-sm-4 col-lg-3" style={{ paddingLeft: 0 }}>
               <Sidebar
                 sidebarNavItems={sortedPluginMeta}
                 location={location}
-                theme={themeConfig}
+                theme={theme}
               />
             </div>
-            <div className="col-sm-8 col-lg-9" style={themeConfig.app.content}>
+            <div className="col-sm-8 col-lg-9" style={theme.app.content}>
               <Header
                 network={nodeInfo.network}
                 loading={loading}
