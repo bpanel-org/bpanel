@@ -219,15 +219,9 @@ export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
         Object.assign({}, props)
       );
 
-export const decorateTheme = (themeCreator, config) => {
+export const decorateTheme = themeCreator => {
   // Grab the latest theme decorator added to the theme decorator plugins list
-  let latestThemeDecorator = themeDecorators[themeDecorators.length - 1];
-  if (!latestThemeDecorator) {
-    config.localPlugins.forEach(pluginName => {
-      const plugin = require('../localPlugins/' + pluginName);
-      if (plugin.decorateTheme) latestThemeDecorator = plugin.decorateTheme;
-    });
-  }
+  const latestThemeDecorator = themeDecorators[themeDecorators.length - 1];
   // Decorate default theme with the latest theme plugin
   if (latestThemeDecorator) return latestThemeDecorator(themeCreator);
   return themeCreator;

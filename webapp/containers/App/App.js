@@ -10,7 +10,7 @@ import Footer from '../../components/Footer/Footer';
 import Sidebar_ from '../../components/Sidebar/Sidebar';
 import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
-import { connect } from '../../plugins/plugins';
+import { connect, decorateTheme } from '../../plugins/plugins';
 
 export const pluginMetaProps = {
   name: PropTypes.string.isRequired,
@@ -58,7 +58,12 @@ class App extends Component {
 
   componentWillMount() {
     const { theme: themeCreator, updateTheme } = this.props;
-    const themeConfig = this.handleThemeConfig(themeCreator);
+    // Grab the original theme from props, then decorate the theme with
+    // styling from the user's theme plugins. This returns a callback function that when invoked,
+    // returns the proper styling. Update the Redux store with latest theme callback function
+    const decoratedThemeFunc = decorateTheme(themeCreator);
+    const themeConfig = this.handleThemeConfig(decoratedThemeFunc);
+    updateTheme(decoratedThemeFunc);
     // Load theming for the <body> and <html> tags
     for (const k in themeConfig.app.body) {
       document.body.style[k] = themeConfig.app.body[k];
