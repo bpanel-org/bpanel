@@ -4,10 +4,7 @@ import themeConfig from './themeConfig';
 export const metadata = {
   name: 'bMoonTheme',
   author: 'bcoin-org',
-  order: 0,
-  sidebar: false,
-  theme: true,
-  parent: ''
+  theme: true
 };
 
 export const decorateTheme = themeCreator => () =>

@@ -5,8 +5,7 @@ const {
   logoContainerMargin,
   logoContainerPadding,
   logoOpacity,
-  logoSize,
-  themeColors
+  logoSize
 } = themeVariables;
 
 /// ******

@@ -84,22 +84,26 @@ export const reduceChain = (state, action) => {
 
 // mapping dispatches to panel component props
 // used by the app's custom react-redux connect
-export const mapPanelDispatch = (dispatch, map) =>
-  Object.assign(map, {
-    getRecentBlocks: (n = 10) => dispatch(getRecentBlocks(n))
-  });
+export const mapComponentDispatch = {
+  Panel: (dispatch, map) =>
+    Object.assign(map, {
+      getRecentBlocks: (n = 10) => dispatch(getRecentBlocks(n))
+    })
+};
 
 // Tells the decorator what our plugin needs from the state
 // This is available for container components that use an
 // extended version of react-redux's connect to connect
 // a container to the state and retrieve props
-export const mapPanelState = (state, map) =>
-  Object.assign(map, {
-    chainHeight: state.chain.height,
-    recentBlocks: state.chain.recentBlocks ? state.chain.recentBlocks : []
-  });
+export const mapComponentState = {
+  Panel: (state, map) =>
+    Object.assign(map, {
+      chainHeight: state.chain.height,
+      recentBlocks: state.chain.recentBlocks ? state.chain.recentBlocks : []
+    })
+};
 
-// mapPanelState will use react-redux's connect to
+// mapComponentDispatch will use react-redux's connect to
 // retrieve chainHeight from the state, but we need a way
 // for the Panel Container to pass it down to the Dashboard Route view
 // props getters like this are used in the app to pass new props

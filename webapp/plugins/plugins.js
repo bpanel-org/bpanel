@@ -38,9 +38,10 @@ export const loadPlugins = config => {
   // initialize cache that we populate with extension methods
   // connectors for plugins to connect to state and dispatch
   // used in `connect` method
+  // TODO: Need to generalize this so we don't have to add
+  // a new key every time we're connecting a new component
   connectors = {
-    App: { state: [], dispatch: [] },
-    Panel: { state: [], dispatch: [] }
+    App: { state: [], dispatch: [] }
   };
 
   // setup constant decorators
@@ -96,20 +97,41 @@ export const loadPlugins = config => {
       }
 
       // state mappers
-      if (plugin.mapPanelState) {
-        connectors.Panel.state.push(plugin.mapPanelState);
-      }
-
       if (plugin.mapAppState) {
         connectors.App.state.push(plugin.mapAppState);
       }
 
-      if (plugin.mapPanelDispatch) {
-        connectors.Panel.dispatch.push(plugin.mapPanelDispatch);
-      }
-
       if (plugin.mapAppDispatch) {
         connectors.App.dispatch.push(plugin.mapAppDispatch);
+      }
+
+      // catch all state and dispatch mappers
+      if (plugin.mapComponentState) {
+        for (let key in plugin.mapComponentState) {
+          // skip if is an internal property
+          if (key[0] === '_') continue;
+          if (!connectors[key]) {
+            connectors[key] = {
+              state: [],
+              dispatch: []
+            };
+          }
+          connectors[key].state.push(plugin.mapComponentState[key]);
+        }
+      }
+
+      if (plugin.mapComponentDispatch) {
+        for (let key in plugin.mapComponentDispatch) {
+          // skip if is an internal property
+          if (key[0] === '_') continue;
+          if (!connectors[key]) {
+            connectors[key] = {
+              state: [],
+              dispatch: []
+            };
+          }
+          connectors[key].dispatch.push(plugin.mapComponentDispatch[key]);
+        }
       }
 
       // propsDecorators
@@ -131,6 +153,18 @@ export const loadPlugins = config => {
       // the generalized system may end up being
       if (plugin.getPanelProps) {
         panelPropsDecorators.push(plugin.getPanelProps);
+      }
+
+      // catchall props getter
+      // key should match the component that will be getting props
+      // and value (in the plugin) is a function that extends the props
+      // these are collected in an array of functions mapped to component name
+      if (plugin.getProps) {
+        for (let key in plugin.getProps) {
+          if (key[0] === '_') continue; // skip if is an internal property
+          if (!propsDecorators[key]) propsDecorators[key] = [];
+          propsDecorators[key] = plugin.getProps;
+        }
       }
 
       // reducersDecorators
@@ -201,11 +235,13 @@ export const pluginMiddleware = store => next => action => {
 // `parentProps` is used by the plugin to pull out what props it needs
 // then through the decorator adds those props to the final props object
 // that will get passed to the child component
-const getProps = (name, parentProps, props = {}, ...fnArgs) =>
-  propsDecorators[name].reduce(
-    propsReducerCallback(name, parentProps, ...fnArgs),
-    Object.assign({}, props)
-  );
+export const getProps = (name, parentProps, props = {}, ...fnArgs) =>
+  !propsDecorators[name]
+    ? parentProps // if no prop getter for component then return parent props
+    : propsDecorators[name].reduce(
+        propsReducerCallback(name, parentProps, ...fnArgs),
+        Object.assign({}, props)
+      );
 
 export function getPanelProps(parentProps, props) {
   return getProps('getPanelProps', parentProps, props);
