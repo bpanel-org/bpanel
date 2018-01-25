@@ -43,7 +43,7 @@ class App extends Component {
       location: PropTypes.shape({
         pathname: PropTypes.string
       }),
-      theme: PropTypes.func,
+      theme: PropTypes.object,
       connectSocket: PropTypes.func.isRequired,
       disconnectSocket: PropTypes.func.isRequired,
       getNodeInfo: PropTypes.func.isRequired,
@@ -58,33 +58,18 @@ class App extends Component {
   }
 
   componentWillMount() {
-    const { theme: themeCreator, updateTheme } = this.props;
-    // Grab the original theme from props, then decorate the theme with
-    // styling from the user's theme plugins. This returns a callback function that when invoked,
-    // returns the proper styling. Update the Redux store with latest theme callback function
-    const decoratedThemeFunc = decorateTheme(themeCreator);
-    const themeConfig = this.handleThemeConfig(decoratedThemeFunc);
-    updateTheme(decoratedThemeFunc);
-    // Load theming for the <body> and <html> tags
-    for (const k in themeConfig.app.body) {
-      document.body.style[k] = themeConfig.app.body[k];
-      document.documentElement.style[k] = themeConfig.app.body[k];
-    }
+    const { updateTheme } = this.props;
+    updateTheme();
   }
 
   componentWillUnmount() {
     const { theme } = this.props;
-    const themeConfig = this.handleThemeConfig(theme);
     // Unload theming for the <body> and <html> tags
-    for (const k in themeConfig.app.body) {
+    for (const k in theme.app.body) {
       document.body.style[k] = null;
       document.document.documentElement.style[k] = null;
     }
     this.props.disconnectSocket();
-  }
-
-  handleThemeConfig(theme) {
-    return typeof theme === 'function' ? theme() : theme;
   }
 
   render() {
@@ -97,24 +82,23 @@ class App extends Component {
       location,
       theme
     } = this.props;
-    const themeConfig = this.handleThemeConfig(theme);
 
     return (
-      <ThemeProvider theme={themeConfig}>
+      <ThemeProvider theme={theme}>
         <div
           className="container-fluid"
           role="main"
-          style={themeConfig.app.container}
+          style={theme.app.container}
         >
           <div className="row">
             <div className="col-sm-4 col-lg-3" style={{ paddingLeft: 0 }}>
               <Sidebar
                 sidebarNavItems={sortedPluginMeta}
                 location={location}
-                theme={themeConfig}
+                theme={theme}
               />
             </div>
-            <div className="col-sm-8 col-lg-9" style={themeConfig.app.content}>
+            <div className="col-sm-8 col-lg-9" style={theme.app.content}>
               <Header
                 network={nodeInfo.network}
                 loading={loading}
