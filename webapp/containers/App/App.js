@@ -11,6 +11,7 @@ import Sidebar_ from '../../components/Sidebar/Sidebar';
 import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
 import { connect, decorateTheme } from '../../plugins/plugins';
+import './app.scss';
 
 export const pluginMetaProps = {
   name: PropTypes.string.isRequired,
