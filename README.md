@@ -1,6 +1,6 @@
 # Welcome to bPanel!
 
-This is the official repo for the bPanel project, a full featured, enterprise level GUI for your Bcoin Bitcoin node
+This is the official repo for the bPanel project, a full featured, enterprise level GUI for your Bcoin Bitcoin node.
 
 ## Setup Your Environment With Docker
 This is primarily a setup for development purposes (though it could be used in production with some modification).
@@ -33,6 +33,10 @@ These checks are done in the `docker-bcoin-init.js` which sets up a node based o
 ### Persistent DBs
 To persist your bcoin node information (and skip the setup if the walletdb is persisted, uncomment and edit the volumes in the bcoin service. This could be useful if you're working on testnet or mainnet and don't want to wait for a full sync to happen every time you create a new container.
 
+## Setup without Docker
+If you'd rather not use docker to run your environment, you need to add a `configs/bcoin.config.json` file with the configuration setup for the bcoin node you'd like to connect to (you can use the docker-compose.yml environment variables that are prefaced with `BCOIN_` for a template. 
+
+Then, run `npm run start` to start the server.
 
 ## License
 

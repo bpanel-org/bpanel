@@ -12,7 +12,7 @@ import * as reducers from './reducers';
 loadPlugins(config);
 
 const rootReducer = combineReducers(reducers);
-const middleware = [thunkMiddleware, pluginMiddleware];
+const middleware = [pluginMiddleware, thunkMiddleware];
 let compose,
   debug = false;
 

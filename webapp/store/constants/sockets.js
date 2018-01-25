@@ -5,7 +5,7 @@ export const DISCONNECT_SOCKET = 'DISCONNECT_SOCKET';
 
 export const listeners = [
   {
-    event: 'chain progress',
+    event: 'new block',
     actionType: SET_CHAIN_TIP
   }
 ];

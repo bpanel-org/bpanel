@@ -1,14 +1,17 @@
-import { chainentry } from 'bcoin';
 import Immutable from 'seamless-immutable';
-
-// eslint-disable-next-line import/no-unresolved
-import { chain as chainUtils } from 'bpanel/utils';
 
 import Dashboard from './Dashboard';
 import {
-  SET_RECENT_BLOCKS,
+  watchChain,
+  subscribeBlockConnect,
+  addRecentBlock,
+  getRecentBlocks
+} from './actions';
+import {
   ADD_RECENT_BLOCK,
-  SET_CHAIN_TIP
+  SET_CHAIN_TIP,
+  SET_RECENT_BLOCKS,
+  SOCKET_CONNECTED
 } from './constants';
 
 // this component needs to be available to be decorated
@@ -29,36 +32,40 @@ export const metadata = {
 // this decorator lets us add to the app constants
 // in this case we want to add to the array of listeners
 // in the sockets constants
-// currently this doesn't do anything
-// as the server is no longer firing 'new block'
-// but leaving it here as an example
+// the `new block` listener below is set on the server
+// by the subscribe action. When there is a new block,
+// we want to dispatch SET_CHAIN_TIP. Payload will be raw
+// block information
 export const addSocketsConstants = (sockets = {}) =>
   Object.assign(sockets, {
     socketListeners: sockets.listeners.push({
       event: 'new block',
-      actionType: ADD_RECENT_BLOCK,
-      numBlocks: 10
+      actionType: SET_CHAIN_TIP
     })
   });
 
 // custom middleware for our plugin. This gets
-// added to the list of middlewares in the app's
-// store creator
-export const middleware = ({ dispatch, getState }) => next => action => {
+// added to the list of middlewares in the app's store creator
+export const middleware = ({ dispatch, getState }) => next => async action => {
   const { type, payload } = action;
   const recentBlocks = getState().chain.recentBlocks;
-
-  // if dispatched action is SET_CHAIN_TIP,
-  // and recent blocks are already loaded
-  // this middleware will intercept and run ADD_RECENT_BLOCK instead
-  if (type === SET_CHAIN_TIP && recentBlocks && recentBlocks.length) {
-    dispatch({
-      type: ADD_RECENT_BLOCK,
-      payload: { ...payload, numBlocks: 10 }
-    });
-  } else {
-    next(action);
+  if (type === SOCKET_CONNECTED) {
+    // if socket has connected,
+    // then dispatch `watch chain` broadcast
+    // also make sure to pass the action to `next`
+    // so that other plugins can be informed
+    // that the socket has connected
+    dispatch(watchChain());
+    dispatch(subscribeBlockConnect());
+  } else if (type === SET_CHAIN_TIP && recentBlocks && recentBlocks.length) {
+    // if dispatched action is SET_CHAIN_TIP,
+    // and recent blocks are already loaded
+    // this middleware will intercept and disptch addRecentBlock
+    // instead of default behavior
+    const newBlockAction = await addRecentBlock(...payload);
+    dispatch(newBlockAction);
   }
+  return next(action);
 };
 
 // custom reducer used to decorate the main app's chain reducer
@@ -72,18 +79,18 @@ export const reduceChain = (state, action) => {
       break;
     }
 
+    // this is dispatched after socket receives new block
+    // by `addRecetBlock` action creator
     case ADD_RECENT_BLOCK: {
       const { numBlocks, block, progress, tip, height } = payload;
-
-      const entry = chainentry.fromRaw(block.entry);
       const blocks = state.getIn(['recentBlocks']);
       const newBlocks = [...blocks]; // get mutable version of blocks
 
       // skip if the height of new block is same as top block
       // or recentBlocks haven't been hydrated yet
       // reason is new block can be received multiple times
-      if (blocks && blocks.length && entry.height !== blocks[0].height) {
-        newBlocks.unshift(entry);
+      if (blocks && blocks.length && block.height !== blocks[0].height) {
+        newBlocks.unshift(block);
 
         // check if action includes a length to limit recent blocks list to
         if (numBlocks && state.recentBlocks.length >= numBlocks) {
@@ -103,34 +110,6 @@ export const reduceChain = (state, action) => {
       return state;
   }
 };
-
-// action creator to set recent blocks on state
-// mapped to the state via `mapPanelDispatch` below
-// this allows plugins to call action creator to update the state
-function getRecentBlocks(n = 10) {
-  return async (dispatch, getState) => {
-    const { getBlocksInRange } = chainUtils;
-    const { height, progress, tip } = getState().chain;
-    // only get recent blocks if node is almost fully synced
-    // UI gets clogged otherwise
-    if (progress < 0.9)
-      dispatch({
-        type: SET_RECENT_BLOCKS,
-        payload: [{ height, hash: tip }]
-      });
-    let count = n;
-    // if we have fewer blocks then the range we want to retrieve
-    // then only retrieve up to height
-    if (height < n) {
-      count = height;
-    }
-    const blocks = await getBlocksInRange(height, height - count, -1);
-    dispatch({
-      type: SET_RECENT_BLOCKS,
-      payload: blocks
-    });
-  };
-}
 
 // mapping dispatches to panel component props
 // used by the app's custom react-redux connect

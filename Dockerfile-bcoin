@@ -3,7 +3,7 @@ FROM nfnty/arch-mini:latest
 # Build deps
 RUN pacman -Syu --noconfirm nodejs npm unrar git python2 base-devel
 
-ENV BCOIN_BRANCH master
+ENV BCOIN_BRANCH wallet-rewrite
 ENV BCOIN_REPO https://github.com/bcoin-org/bcoin.git
 
 RUN mkdir -p /code/node_modules/bcoin /data
