@@ -43,7 +43,7 @@ class App extends Component {
       location: PropTypes.shape({
         pathname: PropTypes.string
       }),
-      theme: PropTypes.func,
+      theme: PropTypes.object,
       connectSocket: PropTypes.func.isRequired,
       disconnectSocket: PropTypes.func.isRequired,
       getNodeInfo: PropTypes.func.isRequired,
@@ -58,18 +58,8 @@ class App extends Component {
   }
 
   componentWillMount() {
-    const { theme: themeCreator, updateTheme } = this.props;
-    // Grab the original theme from props, then decorate the theme with
-    // styling from the user's theme plugins. This returns a callback function that when invoked,
-    // returns the proper styling. Update the Redux store with latest theme callback function
-    const decoratedThemeFunc = decorateTheme(themeCreator);
-    const themeConfig = this.handleThemeConfig(decoratedThemeFunc);
-    updateTheme(decoratedThemeFunc);
-    // Load theming for the <body> and <html> tags
-    for (const k in themeConfig.app.body) {
-      document.body.style[k] = themeConfig.app.body[k];
-      document.documentElement.style[k] = themeConfig.app.body[k];
-    }
+    const { updateTheme } = this.props;
+    updateTheme();
   }
 
   componentWillUnmount() {
