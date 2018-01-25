@@ -16,7 +16,7 @@ export const mapComponentState = {
 };
 
 export const decorateFooter = (Footer, { React, PropTypes }) => {
-  return class extends React.Component {
+  return class extends React.PureComponent {
     static displayName() {
       return 'bPanelFooter';
     }
