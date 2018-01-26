@@ -1,7 +1,6 @@
 import Immutable from 'seamless-immutable';
 
 import Dashboard from './Dashboard';
-
 import { addRecentBlock, getRecentBlocks } from './actions';
 import {
   ADD_NEW_BLOCK,

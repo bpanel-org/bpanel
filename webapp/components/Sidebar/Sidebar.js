@@ -5,10 +5,7 @@ import * as UI from 'bpanel-ui';
 
 import { pluginMetaProps } from '../../containers/App/App';
 
-const {
-  components: { Text, Header, SidebarNavItem },
-  utils: { connectTheme }
-} = UI;
+const { components: { Text, Header, SidebarNavItem } } = UI;
 
 class Sidebar extends PureComponent {
   static get propTypes() {
@@ -61,13 +58,13 @@ class Sidebar extends PureComponent {
   }
 
   renderSidebarItems() {
-    const { sidebarNavItems, location: { pathname = '' } } = this.props;
+    const { sidebarNavItems, location: { pathname = '' }, theme } = this.props;
     return sidebarNavItems
       .filter(plugin => plugin.sidebar || React.isValidElement(plugin))
       .map((plugin, index) => {
         // filter will first remove any plugins w/o sidebar property set to true
         // mapping through each parent item to create the sidebar nav element
-        const sidebarItemProps = { ...plugin, pathname };
+        const sidebarItemProps = { ...plugin, theme, pathname };
         if (plugin.subItems) {
           // if this sidebar item has sub items
           // then we need to create and append the children elements
@@ -77,6 +74,7 @@ class Sidebar extends PureComponent {
                 ...subItem,
                 subItem: true,
                 pathname,
+                theme,
                 key: `${index}-${subIndex}`
               };
               return this.renderNavItem(plugin, props);
@@ -129,4 +127,4 @@ class Sidebar extends PureComponent {
   }
 }
 
-export default connectTheme(Sidebar);
+export default Sidebar;
