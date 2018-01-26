@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
 
-import { propsReducerCallback } from './utils';
+import { propsReducerCallback, loadConnectors } from './utils';
 import constants from '../store/constants';
 
 // Instantiate caches
@@ -38,8 +38,6 @@ export const loadPlugins = config => {
   // initialize cache that we populate with extension methods
   // connectors for plugins to connect to state and dispatch
   // used in `connect` method
-  // TODO: Need to generalize this so we don't have to add
-  // a new key every time we're connecting a new component
   connectors = {
     App: { state: [], dispatch: [] }
   };
@@ -106,33 +104,8 @@ export const loadPlugins = config => {
       }
 
       // catch all state and dispatch mappers
-      if (plugin.mapComponentState) {
-        for (let key in plugin.mapComponentState) {
-          // skip if is an internal property
-          if (key[0] === '_') continue;
-          if (!connectors[key]) {
-            connectors[key] = {
-              state: [],
-              dispatch: []
-            };
-          }
-          connectors[key].state.push(plugin.mapComponentState[key]);
-        }
-      }
-
-      if (plugin.mapComponentDispatch) {
-        for (let key in plugin.mapComponentDispatch) {
-          // skip if is an internal property
-          if (key[0] === '_') continue;
-          if (!connectors[key]) {
-            connectors[key] = {
-              state: [],
-              dispatch: []
-            };
-          }
-          connectors[key].dispatch.push(plugin.mapComponentDispatch[key]);
-        }
-      }
+      loadConnectors(plugin, 'state', connectors);
+      loadConnectors(plugin, 'dispatch', connectors);
 
       // propsDecorators
       // routePropsDecorators is an object with keys corresponding to route
