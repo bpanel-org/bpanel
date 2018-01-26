@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import * as UI from 'bpanel-ui';
 
 const { utils: { connectTheme } } = UI;
 
-class Footer extends Component {
+class Footer extends PureComponent {
   static get propTypes() {
     return {
       customChildren: PropTypes.node,
