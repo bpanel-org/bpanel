@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
 
-import { propsReducerCallback } from './utils';
+import { propsReducerCallback, loadConnectors } from './utils';
 import constants from '../store/constants';
 
 // Instantiate caches
@@ -39,8 +39,7 @@ export const loadPlugins = config => {
   // connectors for plugins to connect to state and dispatch
   // used in `connect` method
   connectors = {
-    App: { state: [], dispatch: [] },
-    Panel: { state: [], dispatch: [] }
+    App: { state: [], dispatch: [] }
   };
 
   // setup constant decorators
@@ -96,21 +95,17 @@ export const loadPlugins = config => {
       }
 
       // state mappers
-      if (plugin.mapPanelState) {
-        connectors.Panel.state.push(plugin.mapPanelState);
-      }
-
       if (plugin.mapAppState) {
         connectors.App.state.push(plugin.mapAppState);
-      }
-
-      if (plugin.mapPanelDispatch) {
-        connectors.Panel.dispatch.push(plugin.mapPanelDispatch);
       }
 
       if (plugin.mapAppDispatch) {
         connectors.App.dispatch.push(plugin.mapAppDispatch);
       }
+
+      // catch all state and dispatch mappers
+      loadConnectors(plugin, 'state', connectors);
+      loadConnectors(plugin, 'dispatch', connectors);
 
       // propsDecorators
       // routePropsDecorators is an object with keys corresponding to route
@@ -131,6 +126,18 @@ export const loadPlugins = config => {
       // the generalized system may end up being
       if (plugin.getPanelProps) {
         panelPropsDecorators.push(plugin.getPanelProps);
+      }
+
+      // catchall props getter
+      // key should match the component that will be getting props
+      // and value (in the plugin) is a function that extends the props
+      // these are collected in an array of functions mapped to component name
+      if (plugin.getProps) {
+        for (let key in plugin.getProps) {
+          if (key[0] === '_') continue; // skip if is an internal property
+          if (!propsDecorators[key]) propsDecorators[key] = [];
+          propsDecorators[key] = plugin.getProps;
+        }
       }
 
       // reducersDecorators
@@ -201,11 +208,13 @@ export const pluginMiddleware = store => next => action => {
 // `parentProps` is used by the plugin to pull out what props it needs
 // then through the decorator adds those props to the final props object
 // that will get passed to the child component
-const getProps = (name, parentProps, props = {}, ...fnArgs) =>
-  propsDecorators[name].reduce(
-    propsReducerCallback(name, parentProps, ...fnArgs),
-    Object.assign({}, props)
-  );
+export const getProps = (name, parentProps, props = {}, ...fnArgs) =>
+  !propsDecorators[name]
+    ? parentProps // if no prop getter for component then return parent props
+    : propsDecorators[name].reduce(
+        propsReducerCallback(name, parentProps, ...fnArgs),
+        Object.assign({}, props)
+      );
 
 export function getPanelProps(parentProps, props) {
   return getProps('getPanelProps', parentProps, props);
@@ -223,8 +232,8 @@ export const decorateTheme = themeCreator => {
   // Grab the latest theme decorator added to the theme decorator plugins list
   const latestThemeDecorator = themeDecorators[themeDecorators.length - 1];
   // Decorate default theme with the latest theme plugin
-  if (latestThemeDecorator) return latestThemeDecorator(themeCreator);
-  return themeCreator;
+  if (latestThemeDecorator) return latestThemeDecorator(themeCreator)();
+  return themeCreator();
 };
 
 // decorate and export reducers

@@ -8,8 +8,7 @@ export const metadata = {
   name: 'ui',
   author: 'bcoin-org',
   order: 0,
-  icon: 'cubes',
-  parent: ''
+  icon: 'cubes'
 };
 
 export const decorateSidebar = (Sidebar, { React, PropTypes }) => {

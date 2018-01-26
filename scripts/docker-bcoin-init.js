@@ -20,10 +20,7 @@ const {
   memory,
   uri
 } = configs;
-fs.writeFileSync(
-  path.resolve(__dirname, '/code/.bcoin/wallet.conf'),
-  'http-host: 0.0.0.0'
-);
+
 let prefix = configs.prefix ? configs.prefix : `${os.homedir()}/.bcoin/`;
 prefix = prefix.replace('~', os.homedir());
 // create the node with our custom configs

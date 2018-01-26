@@ -22,11 +22,13 @@ export const metadata = {
   author: 'bcoin-org'
 };
 
-export const mapPanelState = (state, map) =>
-  Object.assign(map, {
-    mempoolTx: state.node.mempool.tx,
-    mempoolSize: state.node.mempool.size
-  });
+export const mapComponentState = {
+  Panel: (state, map) =>
+    Object.assign(map, {
+      mempoolTx: state.node.mempool.tx,
+      mempoolSize: state.node.mempool.size
+    })
+};
 
 export const addSocketsConstants = (sockets = {}) =>
   Object.assign(sockets, {
