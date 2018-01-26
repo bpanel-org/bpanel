@@ -23,7 +23,7 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        theme: PropTypes.func,
+        theme: PropTypes.object,
         version: PropTypes.string,
         progress: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         customChildren: PropTypes.node
@@ -43,10 +43,10 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-3 version text-truncate">
-              <Text style={theme().footer.text}>{version}</Text>
+              <Text style={theme.footer.text}>{version}</Text>
             </div>
-            <div className="col-3" style={theme().footer.progress}>
-              <Text style={theme().footer.text}>
+            <div className="col-3" style={theme.footer.progress}>
+              <Text style={theme.footer.text}>
                 {progressPercentage.toFixed(2)}% synced
               </Text>
             </div>
