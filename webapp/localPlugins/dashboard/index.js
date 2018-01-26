@@ -1,17 +1,12 @@
 import Immutable from 'seamless-immutable';
 
 import Dashboard from './Dashboard';
+
+import { addRecentBlock, getRecentBlocks } from './actions';
 import {
-  watchChain,
-  subscribeBlockConnect,
-  addRecentBlock,
-  getRecentBlocks
-} from './actions';
-import {
+  ADD_NEW_BLOCK,
   ADD_RECENT_BLOCK,
-  SET_CHAIN_TIP,
-  SET_RECENT_BLOCKS,
-  SOCKET_CONNECTED
+  SET_RECENT_BLOCKS
 } from './constants';
 
 // this component needs to be available to be decorated
@@ -29,41 +24,21 @@ export const metadata = {
   parent: ''
 };
 
-// this decorator lets us add to the app constants
-// in this case we want to add to the array of listeners
-// in the sockets constants
-// the `new block` listener below is set on the server
-// by the subscribe action. When there is a new block,
-// we want to dispatch SET_CHAIN_TIP. Payload will be raw
-// block information
-export const addSocketsConstants = (sockets = {}) =>
-  Object.assign(sockets, {
-    socketListeners: sockets.listeners.push({
-      event: 'new block',
-      actionType: SET_CHAIN_TIP
-    })
-  });
-
 // custom middleware for our plugin. This gets
 // added to the list of middlewares in the app's store creator
-export const middleware = ({ dispatch, getState }) => next => async action => {
+export const middleware = ({ dispatch, getState }) => next => action => {
   const { type, payload } = action;
-  const recentBlocks = getState().chain.recentBlocks;
-  if (type === SOCKET_CONNECTED) {
-    // if socket has connected,
-    // then dispatch `watch chain` broadcast
-    // also make sure to pass the action to `next`
-    // so that other plugins can be informed
-    // that the socket has connected
-    dispatch(watchChain());
-    dispatch(subscribeBlockConnect());
-  } else if (type === SET_CHAIN_TIP && recentBlocks && recentBlocks.length) {
-    // if dispatched action is SET_CHAIN_TIP,
+  const { recentBlocks, progress } = getState().chain;
+  if (
+    type === ADD_NEW_BLOCK &&
+    recentBlocks &&
+    recentBlocks.length &&
+    progress > 0.9
+  ) {
+    // if dispatched action is ADD_NEW_BLOCK,
     // and recent blocks are already loaded
-    // this middleware will intercept and disptch addRecentBlock
-    // instead of default behavior
-    const newBlockAction = await addRecentBlock(...payload);
-    dispatch(newBlockAction);
+    // this middleware will intercept and dispatch addRecentBlock
+    dispatch(addRecentBlock(...payload));
   }
   return next(action);
 };
@@ -79,10 +54,9 @@ export const reduceChain = (state, action) => {
       break;
     }
 
-    // this is dispatched after socket receives new block
-    // by `addRecetBlock` action creator
     case ADD_RECENT_BLOCK: {
-      const { numBlocks, block, progress, tip, height } = payload;
+      const block = payload;
+      const numBlocks = 10;
       const blocks = state.getIn(['recentBlocks']);
       const newBlocks = [...blocks]; // get mutable version of blocks
 
@@ -99,9 +73,6 @@ export const reduceChain = (state, action) => {
       }
 
       return state.merge({
-        progress,
-        tip,
-        height,
         recentBlocks: Immutable(newBlocks)
       });
     }
@@ -113,22 +84,26 @@ export const reduceChain = (state, action) => {
 
 // mapping dispatches to panel component props
 // used by the app's custom react-redux connect
-export const mapPanelDispatch = (dispatch, map) =>
-  Object.assign(map, {
-    getRecentBlocks: (n = 10) => dispatch(getRecentBlocks(n))
-  });
+export const mapComponentDispatch = {
+  Panel: (dispatch, map) =>
+    Object.assign(map, {
+      getRecentBlocks: (n = 10) => dispatch(getRecentBlocks(n))
+    })
+};
 
 // Tells the decorator what our plugin needs from the state
 // This is available for container components that use an
 // extended version of react-redux's connect to connect
 // a container to the state and retrieve props
-export const mapPanelState = (state, map) =>
-  Object.assign(map, {
-    chainHeight: state.chain.height,
-    recentBlocks: state.chain.recentBlocks ? state.chain.recentBlocks : []
-  });
+export const mapComponentState = {
+  Panel: (state, map) =>
+    Object.assign(map, {
+      chainHeight: state.chain.height,
+      recentBlocks: state.chain.recentBlocks ? state.chain.recentBlocks : []
+    })
+};
 
-// mapPanelState will use react-redux's connect to
+// mapComponentDispatch will use react-redux's connect to
 // retrieve chainHeight from the state, but we need a way
 // for the Panel Container to pass it down to the Dashboard Route view
 // props getters like this are used in the app to pass new props

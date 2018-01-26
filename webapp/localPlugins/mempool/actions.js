@@ -38,13 +38,15 @@ export function watchMempool() {
 }
 
 export function updateMempool() {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     const response = await fetch(api.get.info(), { mode: 'cors' });
     const { mempool } = await response.json();
-    dispatch({
-      type: UPDATE_MEMPOOL,
-      payload: mempool
-    });
+    if (getState().chain.progress > 0.99) {
+      dispatch({
+        type: UPDATE_MEMPOOL,
+        payload: mempool
+      });
+    }
   };
 }
 

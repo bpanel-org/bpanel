@@ -6,7 +6,7 @@ import { decorate } from '../../plugins/plugins';
 import ThemeProvider from '../ThemeProvider/ThemeProvider';
 import { nodeActions, socketActions, themeActions } from '../../store/actions/';
 import Header from '../../components/Header/Header';
-import Footer from '../../components/Footer/Footer';
+import Footer from '../../containers/Footer/Footer';
 import Sidebar_ from '../../components/Sidebar/Sidebar';
 import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
@@ -77,7 +77,6 @@ class App extends Component {
       nodeInfo,
       loading,
       bcoinUri,
-      nodeProgress = 0,
       sortedPluginMeta,
       location,
       theme
@@ -106,7 +105,7 @@ class App extends Component {
               />
               <Panel />
             </div>
-            <Footer version={nodeInfo.version} progress={nodeProgress} />
+            <Footer />
           </div>
         </div>
       </ThemeProvider>

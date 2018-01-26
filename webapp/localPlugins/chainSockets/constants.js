@@ -1,0 +1,3 @@
+export const EMIT_SOCKET = 'EMIT_SOCKET';
+export const ADD_NEW_BLOCK = 'ADD_NEW_BLOCK';
+export const SOCKET_CONNECTED = 'SOCKET_CONNECTED';
