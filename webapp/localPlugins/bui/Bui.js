@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import * as UI from 'bpanel-ui';
 import tableProps from './constants/tableProps';
 
-const { components: { Header, Link, Button, Text, Table } } = UI;
+const { components: { Header, Link, Button, Text, Table: { Table } } } = UI;
 
 export default class Bui extends PureComponent {
   render() {
