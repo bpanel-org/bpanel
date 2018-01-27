@@ -16,16 +16,16 @@ services:
       BCOIN_PREFIX: '/code/.bcoin'
       BCOIN_MEMORY: 'false'
     ############ Regtest
-      # BCOIN_URI: http://bcoin:48332
-      # BCOIN_PORT: 48332
-      # BCOIN_INIT_SCRIPT: funded-dummy-wallets.js
-      # BCOIN_NETWORK: regtest
+      BCOIN_URI: http://bcoin:48332
+      BCOIN_PORT: 48332
+      BCOIN_INIT_SCRIPT: funded-dummy-wallets.js
+      BCOIN_NETWORK: regtest
     ############ Testnet
-      BCOIN_URI: http://bcoin:18332
-      BCOIN_PORT: 18332
-      BCOIN_NETWORK: testnet
-      BCOIN_PRUNE: 'true'
-      BCOIN_DB: 'leveldb'
+      # BCOIN_URI: http://bcoin:18332
+      # BCOIN_PORT: 18332
+      # BCOIN_NETWORK: testnet
+      # BCOIN_PRUNE: 'true'
+      # BCOIN_DB: 'leveldb'
     ############ Mainnet
     #   BCOIN_NETWORK: mainnet
     #   BCOIN_INIT_SCRIPT: test-scripts/dummy-10-wallet.js
@@ -48,6 +48,7 @@ services:
     restart: unless-stopped
     environment:
       BCOIN_WALLET_HTTP_HOST: 0.0.0.0
+      BLOCKS_2_MINE: 101
     ports:
       # comment these if they conflict with something else you're running.
       #-- Mainnet
@@ -65,8 +66,8 @@ services:
     volumes:
       - configs:/code/configs
       - ./scripts:/code/scripts
-      # Uncomment to make these persistant
-      - ~/.bcoin_bpanel:/code/.bcoin
+      # Uncomment to make bcoin chain and wallet database persistant
+      # - ~/.bcoin_bpanel:/code/.bcoin
     depends_on:
       - app
 volumes:
