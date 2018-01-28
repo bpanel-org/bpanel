@@ -1,6 +1,5 @@
 import Immutable from 'seamless-immutable';
 import { UPDATE_THEME } from '../constants/theme';
-import { decorateTheme } from '../../plugins/plugins';
 import themeConfig from '../../config/themeConfig/';
 const { themeCreator } = themeConfig;
 
