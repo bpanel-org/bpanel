@@ -1,5 +1,7 @@
 import tinygradient from 'tinygradient';
-import { makeRem, makeGutter } from 'bpanel-ui';
+import { utils } from 'bpanel-ui';
+
+const { makeRem, makeGutter } = utils;
 
 const logo =
   'https://e2-cdns2-fp.akamaized.net/media/img/subscription_modal/rocket.svg';
