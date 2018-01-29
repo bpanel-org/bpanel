@@ -23,10 +23,13 @@ app.use(bodyParser.json());
 app.use(cors());
 
 (async function() {
-  await nodeClient.open();
-  nodeClient.fire('auth');
+  try {
+    await nodeClient.open();
+    await walletClient.open();
+  } catch (err) {
+    logger.error('Error connecting sockets: ', err);
+  }
 
-  // const nodeRouter = bcoinRouter(nodeClient, walletClient);
   bsock.on('socket', socketHandler(nodeClient, walletClient));
 
   /**

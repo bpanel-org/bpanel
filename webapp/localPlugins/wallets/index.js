@@ -19,10 +19,23 @@ export const addSocketConstants = (sockets = { listeners: [] }) =>
     })
   });
 
+export const mapComponentDispatch = {
+  Panel: (dispatch, map) =>
+    Object.assign(map, {
+      joinWallet: (id, token) => dispatch(joinWallet(id, token))
+    })
+};
+
+export const getRouteProps = {
+  wallets: (parentProps, props) =>
+    Object.assign(props, {
+      joinWallet: parentProps.joinWallet
+    })
+};
+
 export const middleware = ({ dispatch }) => next => action => {
   const { type, payload } = action;
   if (type === SOCKET_CONNECTED) {
-    dispatch(joinWallet());
     dispatch(watchTX());
   } else if (type === ON_WALLET_TX) {
     console.log('got a wallet tx!! ', payload);

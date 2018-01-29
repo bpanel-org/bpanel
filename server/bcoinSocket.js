@@ -62,11 +62,10 @@ const socketHandler = (nodeClient, walletClient) => {
       }
     });
 
-    nodeClient.socket.on('error', err => {
+    nodeClient.on('error', err => {
       logger.error('Socket error (node): ', err);
     });
-
-    walletClient.socket.on('error', err => {
+    walletClient.on('error', err => {
       logger.error('Socket error (wallet): ', err);
     });
   };

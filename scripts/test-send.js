@@ -11,11 +11,11 @@ const { WalletClient } = require('bclient');
   try {
     const response = await walletClient.send('primary', {
       value: 1,
-      address: 'RYUzPesXk4vNtnscwCBPrR3netCcvEuAaT',
+      address: 'RBhL5fhNSnm1KA2XBzjh1Aamxyqs6vshjr',
       outputs: [
         {
           value: 10000,
-          address: 'RYUzPesXk4vNtnscwCBPrR3netCcvEuAaT',
+          address: 'RBhL5fhNSnm1KA2XBzjh1Aamxyqs6vshjr',
           account: 'default'
         }
       ]
