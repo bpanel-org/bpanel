@@ -30,7 +30,7 @@ export const mapComponentState = {
     })
 };
 
-export const addSocketsConstants = (sockets = {}) =>
+export const addSocketConstants = (sockets = {}) =>
   Object.assign(sockets, {
     socketListeners: sockets.listeners.push(
       {
@@ -72,7 +72,7 @@ export const getRouteProps = {
     })
 };
 
-export const middleware = ({ dispatch }) => next => async action => {
+export const middleware = ({ dispatch }) => next => action => {
   const { type } = action;
   if (type === SOCKET_CONNECTED) {
     // actions to dispatch when the socket has connected

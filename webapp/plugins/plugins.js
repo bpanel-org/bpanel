@@ -150,8 +150,8 @@ export const loadPlugins = config => {
       }
 
       // other miscellaneous decorators
-      if (plugin.addSocketsConstants) {
-        extendConstants.sockets.push(plugin.addSocketsConstants);
+      if (plugin.addSocketConstants) {
+        extendConstants.sockets.push(plugin.addSocketConstants);
       }
 
       // themeDecorators

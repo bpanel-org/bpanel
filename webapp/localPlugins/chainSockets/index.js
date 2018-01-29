@@ -6,7 +6,7 @@ export const metadata = {
   author: 'bcoin-org'
 };
 
-export const addSocketsConstants = (sockets = {}) =>
+export const addSocketConstants = (sockets = { listeners: [] }) =>
   Object.assign(sockets, {
     socketListeners: sockets.listeners.push({
       event: 'new block',

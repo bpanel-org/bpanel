@@ -27,7 +27,7 @@ app.use(cors());
   nodeClient.fire('auth');
 
   // const nodeRouter = bcoinRouter(nodeClient, walletClient);
-  bsock.on('socket', socketHandler(nodeClient));
+  bsock.on('socket', socketHandler(nodeClient, walletClient));
 
   /**
     ROUTES
