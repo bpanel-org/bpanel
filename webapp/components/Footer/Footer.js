@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import * as UI from 'bpanel-ui';
-
-const { utils: { connectTheme } } = UI;
+import { connectTheme } from 'bpanel-ui';
 
 class Footer extends PureComponent {
   static get propTypes() {

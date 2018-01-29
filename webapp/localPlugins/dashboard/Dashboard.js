@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { components } from 'bpanel-ui';
-
-const { Button, Header, Table } = components;
+import { Button, Header, Table } from 'bpanel-ui';
 
 const recentBlocksTable = recentBlocks =>
   recentBlocks.map(({ height, hash }, index) => (

@@ -1,6 +1,6 @@
 // Dashboard widget for showing mempool information
 
-import { components } from 'bpanel-ui';
+import { Header, Button } from 'bpanel-ui';
 
 import {
   ADD_RECENT_BLOCK,
@@ -14,8 +14,6 @@ import {
   updateMempool,
   watchMempool
 } from './actions';
-
-const { Header, Button } = components;
 
 export const metadata = {
   name: 'mempool',
