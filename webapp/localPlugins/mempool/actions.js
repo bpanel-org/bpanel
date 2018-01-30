@@ -41,7 +41,7 @@ export function updateMempool() {
   return async (dispatch, getState) => {
     const response = await fetch(api.get.info(), { mode: 'cors' });
     const { mempool } = await response.json();
-    if (getState().chain.progress > 0.99) {
+    if (getState().chain.progress > 0.9) {
       dispatch({
         type: UPDATE_MEMPOOL,
         payload: mempool
