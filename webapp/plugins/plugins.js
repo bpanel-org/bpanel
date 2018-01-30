@@ -28,6 +28,7 @@ let propsDecorators = {};
 // reducers
 let chainReducers;
 let nodeReducers;
+let walletsReducers;
 let reducersDecorators = {};
 
 // miscellaneous decorators
@@ -56,11 +57,14 @@ export const loadPlugins = config => {
   };
 
   // setup reducers decorators
+  // TODO: This needs to be generalized
   chainReducers = [];
   nodeReducers = [];
+  walletsReducers = [];
   reducersDecorators = {
     chainReducer: chainReducers,
-    nodeReducer: nodeReducers
+    nodeReducer: nodeReducers,
+    walletsReducer: walletsReducers
   };
 
   middlewares = [];
@@ -147,6 +151,10 @@ export const loadPlugins = config => {
 
       if (plugin.reduceNode) {
         reducersDecorators.nodeReducer.push(plugin.reduceNode);
+      }
+
+      if (plugin.reduceWallets) {
+        reducersDecorators.walletsReducer.push(plugin.reduceWallets);
       }
 
       // other miscellaneous decorators
@@ -238,11 +246,9 @@ export const decorateTheme = themeCreator => {
 
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>
-  !reducersDecorators[name]
-    ? Immutable(reducer(state, action)) // if no decorator for this reducer then return default
-    : reducersDecorators[name].reduce((state_, reducer_) => {
-        return reducer_(state_, action);
-      }, Immutable(reducer(state, action)));
+  reducersDecorators[name].reduce((state_, reducer_) => {
+    return reducer_(state_, action);
+  }, Immutable(reducer(state, action)));
 
 // connects + decorates a class
 // plugins can override mapToState, dispatchToProps

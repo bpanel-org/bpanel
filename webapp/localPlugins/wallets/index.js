@@ -1,6 +1,6 @@
 import Wallet from './Wallet';
-import { SOCKET_CONNECTED, ON_WALLET_TX } from './constants';
-import { joinWallet, leaveWallet, watchTX } from './actions';
+import { SOCKET_CONNECTED, WALLET_TX, ADD_WALLET_TX } from './constants';
+import { joinWallet, leaveWallet, watchTX, addWalletTX } from './actions';
 
 export const metadata = {
   name: 'wallets',
@@ -15,7 +15,7 @@ export const addSocketConstants = (sockets = { listeners: [] }) =>
   Object.assign(sockets, {
     socketListeners: sockets.listeners.push({
       event: 'wallet tx',
-      actionType: ON_WALLET_TX
+      actionType: WALLET_TX
     })
   });
 
@@ -27,20 +27,46 @@ export const mapComponentDispatch = {
     })
 };
 
+export const mapComponentState = {
+  Panel: (state, map) =>
+    Object.assign(map, {
+      wallets: state.wallets
+    })
+};
+
 export const getRouteProps = {
   wallets: (parentProps, props) =>
     Object.assign(props, {
       joinWallet: parentProps.joinWallet,
-      leaveWallet: parentProps.leaveWallet
+      leaveWallet: parentProps.leaveWallet,
+      wallets: parentProps.wallets
     })
+};
+
+export const reduceWallets = (state, action) => {
+  const { type, payload } = action;
+
+  switch (type) {
+    case ADD_WALLET_TX: {
+      const { id, tx } = payload;
+      const transactions = state[id].transactions
+        ? state[id].transactions.asMutable()
+        : [];
+      transactions.push(tx);
+      return state.setIn([id, 'transactions'], transactions);
+    }
+
+    default:
+      return state;
+  }
 };
 
 export const middleware = ({ dispatch }) => next => action => {
   const { type, payload } = action;
   if (type === SOCKET_CONNECTED) {
     dispatch(watchTX());
-  } else if (type === ON_WALLET_TX) {
-    console.log('got a wallet tx!! ', payload);
+  } else if (type === WALLET_TX) {
+    dispatch(addWalletTX(...payload));
   }
   return next(action);
 };

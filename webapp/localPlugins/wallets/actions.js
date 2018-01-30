@@ -1,6 +1,7 @@
 import {
-  EMIT_SOCKET,
   ADD_WALLET,
+  ADD_WALLET_TX,
+  EMIT_SOCKET,
   UPDATE_WALLET,
   REMOVE_WALLET
 } from './constants';
@@ -41,15 +42,23 @@ export function leaveWallet(id) {
   };
 }
 
-export const removeWallet = id => ({
-  type: REMOVE_WALLET,
-  payload: { id }
-});
+export const removeWallet = id => {
+  // eslint-disable-next-line no-console
+  console.log(`Left wallet "${id}"`);
+  return {
+    type: REMOVE_WALLET,
+    payload: { id }
+  };
+};
 
-const acknowledgeJoin = id => ({
-  type: ADD_WALLET,
-  payload: { id }
-});
+const acknowledgeJoin = id => {
+  // eslint-disable-next-line no-console
+  console.log(`Joined wallet "${id}"`);
+  return {
+    type: ADD_WALLET,
+    payload: { id }
+  };
+};
 
 export function watchTX() {
   return {
@@ -59,5 +68,12 @@ export function watchTX() {
       message: 'wallet tx',
       responseEvent: 'wallet tx'
     }
+  };
+}
+
+export function addWalletTX(id, tx) {
+  return {
+    type: ADD_WALLET_TX,
+    payload: { id, tx }
   };
 }

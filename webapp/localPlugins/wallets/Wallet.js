@@ -1,8 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { components } from 'bpanel-ui';
-
-const { Button, Header, Text } = components;
+import { Button, Header, Text, Table } from 'bpanel-ui';
 
 export default class Wallets extends PureComponent {
   constructor(props) {
@@ -15,12 +13,23 @@ export default class Wallets extends PureComponent {
   static get propTypes() {
     return {
       joinWallet: PropTypes.func,
-      leaveWallet: PropTypes.func
+      leaveWallet: PropTypes.func,
+      wallets: PropTypes.object
     };
   }
 
   render() {
-    const { joinWallet, leaveWallet } = this.props;
+    const { joinWallet, leaveWallet, wallets } = this.props;
+
+    let walletTable;
+    if (wallets[this.id] && wallets[this.id].transactions) {
+      walletTable = <Table tableData={wallets[this.id].transactions} />;
+    } else {
+      walletTable = (
+        <Text>No transaction data available for wallet {this.id}</Text>
+      );
+    }
+
     return (
       <div className="dashboard-container">
         <Header type="h2">Wallets</Header>
@@ -30,6 +39,7 @@ export default class Wallets extends PureComponent {
         <Text>Must join wallet before subscribing to transactions</Text>
         <Button onClick={() => leaveWallet(this.id)}>Leave Wallet</Button>
         <Header type="h3">Wallet Transactions</Header>
+        {walletTable}
       </div>
     );
   }
