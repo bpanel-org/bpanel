@@ -14,12 +14,13 @@ export default class Wallets extends PureComponent {
 
   static get propTypes() {
     return {
-      joinWallet: PropTypes.func
+      joinWallet: PropTypes.func,
+      leaveWallet: PropTypes.func
     };
   }
 
   render() {
-    const { joinWallet } = this.props;
+    const { joinWallet, leaveWallet } = this.props;
     return (
       <div className="dashboard-container">
         <Header type="h2">Wallets</Header>
@@ -27,6 +28,7 @@ export default class Wallets extends PureComponent {
           Join Wallet
         </Button>
         <Text>Must join wallet before subscribing to transactions</Text>
+        <Button onClick={() => leaveWallet(this.id)}>Leave Wallet</Button>
         <Header type="h3">Wallet Transactions</Header>
       </div>
     );

@@ -34,4 +34,3 @@ const nodeState = (state = initialState, action) => {
 };
 
 export default decorateReducer(nodeState, 'nodeReducer');
-// export default nodeState;

@@ -238,9 +238,11 @@ export const decorateTheme = themeCreator => {
 
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>
-  reducersDecorators[name].reduce((state_, reducer_) => {
-    return reducer_(state_, action);
-  }, Immutable(reducer(state, action)));
+  !reducersDecorators[name]
+    ? Immutable(reducer(state, action)) // if no decorator for this reducer then return default
+    : reducersDecorators[name].reduce((state_, reducer_) => {
+        return reducer_(state_, action);
+      }, Immutable(reducer(state, action)));
 
 // connects + decorates a class
 // plugins can override mapToState, dispatchToProps

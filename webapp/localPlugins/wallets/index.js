@@ -1,6 +1,6 @@
 import Wallet from './Wallet';
 import { SOCKET_CONNECTED, ON_WALLET_TX } from './constants';
-import { joinWallet, watchTX } from './actions';
+import { joinWallet, leaveWallet, watchTX } from './actions';
 
 export const metadata = {
   name: 'wallets',
@@ -22,14 +22,16 @@ export const addSocketConstants = (sockets = { listeners: [] }) =>
 export const mapComponentDispatch = {
   Panel: (dispatch, map) =>
     Object.assign(map, {
-      joinWallet: (id, token) => dispatch(joinWallet(id, token))
+      joinWallet: (id, token) => dispatch(joinWallet(id, token)),
+      leaveWallet: id => dispatch(leaveWallet(id))
     })
 };
 
 export const getRouteProps = {
   wallets: (parentProps, props) =>
     Object.assign(props, {
-      joinWallet: parentProps.joinWallet
+      joinWallet: parentProps.joinWallet,
+      leaveWallet: parentProps.leaveWallet
     })
 };
 
