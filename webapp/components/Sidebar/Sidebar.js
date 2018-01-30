@@ -1,11 +1,9 @@
 import React, { PureComponent } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import * as UI from 'bpanel-ui';
+import { Text, Header, SidebarNavItem } from 'bpanel-ui';
 
 import { pluginMetaProps } from '../../containers/App/App';
-
-const { components: { Text, Header, SidebarNavItem } } = UI;
 
 class Sidebar extends PureComponent {
   static get propTypes() {
