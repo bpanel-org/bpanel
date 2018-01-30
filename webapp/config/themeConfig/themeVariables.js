@@ -1,9 +1,9 @@
 import tinygradient from 'tinygradient';
 import border from 'css-border-property';
 import logo from '../../assets/logo.png';
-import * as bpanelUI from 'bpanel-ui';
+import { utils } from 'bpanel-ui';
 
-const { utils: { makeRem, makeGutter } } = bpanelUI;
+const { makeRem, makeGutter } = utils;
 
 /// *****
 /// FONTS

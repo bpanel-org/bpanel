@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import * as UI from 'bpanel-ui';
+import { Text, utils } from 'bpanel-ui';
 
-const { components: { Text }, utils: { connectTheme } } = UI;
+const { connectTheme } = utils;
 
 class Header extends PureComponent {
   static get propTypes() {

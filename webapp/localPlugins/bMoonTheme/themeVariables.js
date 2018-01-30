@@ -1,9 +1,10 @@
 import tinygradient from 'tinygradient';
-import * as bpanelUI from 'bpanel-ui';
+import { utils } from 'bpanel-ui';
+
+const { makeRem, makeGutter } = utils;
+
 const logo =
   'https://e2-cdns2-fp.akamaized.net/media/img/subscription_modal/rocket.svg';
-
-const { utils: { makeRem, makeGutter } } = bpanelUI;
 
 // Font Size
 const fontSizeBase = 1; // This gets transformed to rem

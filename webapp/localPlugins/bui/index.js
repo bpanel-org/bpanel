@@ -1,8 +1,6 @@
-import { components } from 'bpanel-ui';
+import { SidebarNavItem } from 'bpanel-ui';
 
 import Bui from './Bui';
-
-const { SidebarNavItem } = components;
 
 export const metadata = {
   name: 'ui',

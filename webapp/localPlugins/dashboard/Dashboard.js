@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { components } from 'bpanel-ui';
-
-const { Button, Header } = components;
+import { Button, Header, Table } from 'bpanel-ui';
 
 const recentBlocksTable = recentBlocks =>
   recentBlocks.map(({ height, hash }, index) => (
@@ -70,7 +68,7 @@ export default class Dashboard extends Component {
 
     let table;
     if (Array.isArray(recentBlocks) && recentBlocks.length) {
-      table = recentBlocksTable(recentBlocks);
+      table = <Table tableData={recentBlocks} />;
     } else {
       table = <p>Loading...</p>;
     }
@@ -78,11 +76,10 @@ export default class Dashboard extends Component {
     return (
       <div className="dashboard-container">
         {customChildrenBefore}
+        <Header type="h4">Chain height: {chainHeight}</Header>
         <Button onClick={() => this.props.getRecentBlocks(10)}>
           Get Blocks
         </Button>
-        <Header type="h4">First... the chain height: {chainHeight}</Header>
-        <Header type="h4">Then... some blocks:</Header>
         {table}
         {customChildren}
       </div>
