@@ -1,7 +1,7 @@
 import Immutable from 'seamless-immutable';
 
 import { decorateReducer } from '../../plugins/plugins';
-import { ADD_WALLET, UPDATE_WALLET } from '../constants/wallets';
+import { ADD_WALLET, UPDATE_WALLET, REMOVE_WALLET } from '../constants/wallets';
 
 /*
   wallets state should be structured where key is wallet id
@@ -33,6 +33,11 @@ const walletsState = (state = initialState, action) => {
       if (!state[id])
         throw `The wallet of id ${id} does not exist! Please add it first`;
       return state.set(id, { ...rest });
+    }
+
+    case REMOVE_WALLET: {
+      const { id } = action.payload;
+      return state.without(id);
     }
 
     default:

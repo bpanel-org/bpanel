@@ -1,39 +1,55 @@
-import { EMIT_SOCKET, ADD_WALLET } from './constants';
+import {
+  EMIT_SOCKET,
+  ADD_WALLET,
+  UPDATE_WALLET,
+  REMOVE_WALLET
+} from './constants';
 
 export function joinWallet(id, token) {
-  return dispatch => {
-    dispatch({
+  return (dispatch, getState) => {
+    const wallet = getState().wallets[id];
+    if (wallet) {
+      return dispatch({
+        type: UPDATE_WALLET,
+        payload: { id }
+      });
+    }
+    return dispatch({
       type: EMIT_SOCKET,
       bsock: {
         type: 'broadcast',
         message: 'wallet join',
         id,
         token,
-        acknowledge: () => {
-          dispatch(acknowledgeJoin({ id }));
-        }
+        acknowledge: () => dispatch(acknowledgeJoin(id))
       }
     });
   };
 }
 
 export function leaveWallet(id) {
-  return {
-    type: EMIT_SOCKET,
-    bsock: {
-      type: 'broadcast',
-      message: 'wallet leave',
-      id
-    }
+  return dispatch => {
+    dispatch({
+      type: EMIT_SOCKET,
+      bsock: {
+        type: 'broadcast',
+        message: 'wallet leave',
+        id,
+        acknowledge: () => dispatch(removeWallet(id))
+      }
+    });
   };
 }
 
-const acknowledgeJoin = ({ id }) => {
-  return {
-    type: ADD_WALLET,
-    payload: { id }
-  };
-};
+export const removeWallet = id => ({
+  type: REMOVE_WALLET,
+  payload: { id }
+});
+
+const acknowledgeJoin = id => ({
+  type: ADD_WALLET,
+  payload: { id }
+});
 
 export function watchTX() {
   return {
