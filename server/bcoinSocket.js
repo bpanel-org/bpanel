@@ -4,36 +4,15 @@ const socketHandler = (nodeClient, walletClient) => {
   const walletPrefix = 'wallet ';
   const subscriptions = {}; // cache to manage subscriptions made by clients
   return async socket => {
-    // requests from client for messages to be broadcast to node
-    socket.hook('broadcast', async (event, ...args) => {
+    // broadcasts only send messages to the bcoin node
+    // but originating socket does not expect a response
+    socket.bind('broadcast', (event, ...args) => {
       /**
         // Example broadcast from client:
         socket.fire('broadcast', 'set filter', '00000000000000000000');
         // which will result in the following fire to bcoin server
         nodeClient.socket.fire('set filter', '00000000000000000000');
       **/
-      // use wallet client if broadcasting wallet event
-      logger.info('broadcast: ', event);
-      if (event.indexOf(walletPrefix) > -1) {
-        // need to slice out prefix since wallet server
-        // is now separate and no longer needs/recognizes the prefix
-        const walletEvent = event.slice(walletPrefix.length);
-        let debugStatement = `Firing "${walletEvent}" to wallet server`;
-        if (args)
-          debugStatement = debugStatement.concat(
-            ` with the following args: ${args}`
-          );
-        logger.debug(debugStatement);
-        const response = await walletClient.call(walletEvent, ...args);
-        return { response };
-      } else {
-        logger.debug(`Firing "${event}" to bcoin node`);
-        await nodeClient.call(event, ...args);
-      }
-    });
-
-    socket.bind('broadcast', (event, ...args) => {
-      // use wallet client if broadcasting wallet event
       logger.info('broadcast: ', event);
       if (event.indexOf(walletPrefix) > -1) {
         // need to slice out prefix since wallet server
@@ -49,6 +28,28 @@ const socketHandler = (nodeClient, walletClient) => {
       } else {
         logger.debug(`Firing "${event}" to bcoin node`);
         nodeClient.call(event, ...args);
+      }
+    });
+
+    // requests from client for messages to be dispatched to node
+    // dispatches expect bsock calls which wait for acknowledgement response
+    socket.hook('dispatch', async (event, ...args) => {
+      // use wallet client if dispatching wallet event
+      if (event.indexOf(walletPrefix) > -1) {
+        // need to slice out prefix since wallet server
+        // is now separate and no longer needs/recognizes the prefix
+        const walletEvent = event.slice(walletPrefix.length);
+        let debugStatement = `Firing "${walletEvent}" to wallet server`;
+        if (args)
+          debugStatement = debugStatement.concat(
+            ` with the following args: ${args}`
+          );
+        logger.debug(debugStatement);
+        const response = await walletClient.call(walletEvent, ...args);
+        return { response };
+      } else {
+        logger.debug(`Firing "${event}" to bcoin node`);
+        await nodeClient.call(event, ...args);
       }
     });
 

@@ -19,7 +19,7 @@ export function joinWallet(id, token) {
     return dispatch({
       type: EMIT_SOCKET,
       bsock: {
-        type: 'broadcast',
+        type: 'dispatch',
         message: 'wallet join',
         id,
         token,
@@ -34,7 +34,7 @@ export function leaveWallet(id) {
     dispatch({
       type: EMIT_SOCKET,
       bsock: {
-        type: 'broadcast',
+        type: 'dispatch',
         message: 'wallet leave',
         id,
         acknowledge: () => dispatch(removeWallet(id))
