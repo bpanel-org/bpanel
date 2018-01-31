@@ -1,45 +1,30 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Header, Text, Table } from 'bpanel-ui';
+import { Header, Text } from 'bpanel-ui';
 
-export default class Wallets extends PureComponent {
+export default class Wallet extends Component {
   constructor(props) {
     super(props);
-    this.id = 'primary';
-    this.token =
-      '5c0dac3bc6a1177b03fae8d97ff53b6f838ff8e3954783959c10ee20b3f71a01';
   }
 
   static get propTypes() {
     return {
-      joinWallet: PropTypes.func,
-      leaveWallet: PropTypes.func,
-      wallets: PropTypes.object
+      id: PropTypes.string,
+      balance: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      address: PropTypes.string
     };
   }
 
   render() {
-    const { joinWallet, leaveWallet, wallets } = this.props;
-
-    let walletTable;
-    if (wallets[this.id] && wallets[this.id].transactions) {
-      walletTable = <Table tableData={wallets[this.id].transactions} />;
-    } else {
-      walletTable = (
-        <Text>No transaction data available for wallet {this.id}</Text>
-      );
-    }
-
+    const { id, balance, address } = this.props;
     return (
-      <div className="dashboard-container">
-        <Header type="h2">Wallets</Header>
-        <Button onClick={() => joinWallet(this.id, this.token)}>
-          Join Wallet
-        </Button>
-        <Text>Must join wallet before subscribing to transactions</Text>
-        <Button onClick={() => leaveWallet(this.id)}>Leave Wallet</Button>
-        <Header type="h3">Wallet Transactions</Header>
-        {walletTable}
+      <div className="wallet-info">
+        <Header type="h4">Wallet ID</Header>
+        <Text type="p">{id}</Text>
+        <Header type="h4">Balance</Header>
+        <Text type="p">{balance}</Text>
+        <Header type="h4">Address</Header>
+        <Text type="p">{address}</Text>
       </div>
     );
   }

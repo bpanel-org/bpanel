@@ -1,6 +1,17 @@
-import Wallet from './Wallet';
-import { SOCKET_CONNECTED, WALLET_TX, ADD_WALLET_TX } from './constants';
-import { joinWallet, leaveWallet, watchTX, addWalletTX } from './actions';
+import Wallets from './Wallets';
+import {
+  SOCKET_CONNECTED,
+  WALLET_TX,
+  ADD_WALLET_TX,
+  UPDATE_ADDRESS
+} from './constants';
+import {
+  addWallet,
+  joinWallet,
+  leaveWallet,
+  watchTX,
+  addWalletTX
+} from './actions';
 
 export const metadata = {
   name: 'wallets',
@@ -23,7 +34,8 @@ export const mapComponentDispatch = {
   Panel: (dispatch, map) =>
     Object.assign(map, {
       joinWallet: (id, token) => dispatch(joinWallet(id, token)),
-      leaveWallet: id => dispatch(leaveWallet(id))
+      leaveWallet: id => dispatch(leaveWallet(id)),
+      addWallet: wallet => dispatch(addWallet(wallet))
     })
 };
 
@@ -37,6 +49,7 @@ export const mapComponentState = {
 export const getRouteProps = {
   wallets: (parentProps, props) =>
     Object.assign(props, {
+      addWallet: parentProps.addWallet,
       joinWallet: parentProps.joinWallet,
       leaveWallet: parentProps.leaveWallet,
       wallets: parentProps.wallets
@@ -54,6 +67,11 @@ export const reduceWallets = (state, action) => {
         : [];
       transactions.push(tx);
       return state.setIn([id, 'transactions'], transactions);
+    }
+
+    case UPDATE_ADDRESS: {
+      const { id, address } = payload;
+      return state.setIn([id, 'receiveAddress'], address);
     }
 
     default:
@@ -87,7 +105,7 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
       const { customChildren = [] } = this.props;
       const pluginData = {
         name: metadata.name,
-        Component: Wallet
+        Component: Wallets
       };
       return (
         <Panel
