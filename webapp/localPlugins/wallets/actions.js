@@ -59,15 +59,12 @@ const acknowledgeJoin = id => {
 
     let wallet = await fetch(api.get.wallet(id));
     wallet = await wallet.json();
-    dispatch({
-      type: ADD_WALLET,
-      payload: { id, ...wallet }
-    });
+    dispatch(addWallet(wallet));
     const accounts = await getAccounts(id);
     dispatch(addAccounts(id, accounts));
-    // We are going to default to the first account
-    // which is probably `default`
-    // in a real application you'll probably want to make this more robust
+    // We are going to default to the first account for an address
+    // which is probably `default`.
+    // In a real application you'll probably want to make this more robust
     const address = await getReceiveAddress(id, accounts[0]);
     dispatch(updateAddress(id, address));
   };

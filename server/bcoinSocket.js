@@ -13,7 +13,6 @@ const socketHandler = (nodeClient, walletClient) => {
         // which will result in the following fire to bcoin server
         nodeClient.socket.fire('set filter', '00000000000000000000');
       **/
-      logger.info('broadcast: ', event);
       if (event.indexOf(walletPrefix) > -1) {
         // need to slice out prefix since wallet server
         // is now separate and no longer needs/recognizes the prefix
