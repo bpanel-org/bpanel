@@ -6,13 +6,15 @@ export const metadata = {
   author: 'bcoin-org'
 };
 
-export const addSocketConstants = (sockets = { listeners: [] }) =>
-  Object.assign(sockets, {
-    socketListeners: sockets.listeners.push({
-      event: 'new block',
-      actionType: ADD_NEW_BLOCK
-    })
+export const addSocketConstants = (sockets = { listeners: [] }) => {
+  sockets.listeners.push({
+    event: 'new block',
+    actionType: ADD_NEW_BLOCK
   });
+  return Object.assign(sockets, {
+    socketListeners: sockets.listeners
+  });
+};
 
 // custom middleware for our plugin. This gets
 // added to the list of middlewares in the app's store creator

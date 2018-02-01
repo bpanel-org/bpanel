@@ -22,13 +22,16 @@ export const metadata = {
   parent: ''
 };
 
-export const addSocketConstants = (sockets = { listeners: [] }) =>
-  Object.assign(sockets, {
-    socketListeners: sockets.listeners.push({
-      event: 'wallet tx',
-      actionType: WALLET_TX
-    })
+export const addSocketConstants = (sockets = { listeners: [] }) => {
+  sockets.listeners.push({
+    event: 'wallet tx',
+    actionType: WALLET_TX
   });
+
+  return Object.assign(sockets, {
+    socketListeners: sockets.listeners
+  });
+};
 
 export const mapComponentDispatch = {
   Panel: (dispatch, map) =>

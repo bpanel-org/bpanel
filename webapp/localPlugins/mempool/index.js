@@ -28,19 +28,21 @@ export const mapComponentState = {
     })
 };
 
-export const addSocketConstants = (sockets = {}) =>
-  Object.assign(sockets, {
-    socketListeners: sockets.listeners.push(
-      {
-        event: 'update mempool',
-        actionType: UPDATE_MEMPOOL
-      },
-      {
-        event: 'mempool tx',
-        actionType: MEMPOOL_TX
-      }
-    )
+export const addSocketConstants = (sockets = { listeners: [] }) => {
+  sockets.listeners.push(
+    {
+      event: 'update mempool',
+      actionType: UPDATE_MEMPOOL
+    },
+    {
+      event: 'mempool tx',
+      actionType: MEMPOOL_TX
+    }
+  );
+  return Object.assign(sockets, {
+    socketListeners: sockets.listeners
   });
+};
 
 export const reduceNode = (state, action) => {
   const { type, payload } = action;
