@@ -9,9 +9,10 @@ export function broadcastSetFilter() {
   return {
     type: EMIT_SOCKET,
     bsock: {
-      type: 'broadcast',
+      type: 'dispatch',
       message: 'set filter',
-      filter: '00000000000000000000'
+      filter: '00000000000000000000',
+      acknowledge: () => ({})
     }
   };
 }
@@ -31,8 +32,9 @@ export function watchMempool() {
   return {
     type: EMIT_SOCKET,
     bsock: {
-      type: 'broadcast',
-      message: 'watch mempool'
+      type: 'dispatch',
+      message: 'watch mempool',
+      acknowledge: () => ({})
     }
   };
 }

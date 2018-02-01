@@ -23,10 +23,10 @@ const socketHandler = (nodeClient, walletClient) => {
             ` with the following args: ${args}`
           );
         logger.debug(debugStatement);
-        walletClient.call(walletEvent, ...args);
+        walletClient.fire(walletEvent, ...args);
       } else {
         logger.debug(`Firing "${event}" to bcoin node`);
-        nodeClient.call(event, ...args);
+        nodeClient.fire(event, ...args);
       }
     });
 
@@ -34,22 +34,29 @@ const socketHandler = (nodeClient, walletClient) => {
     // dispatches expect bsock calls which wait for acknowledgement response
     socket.hook('dispatch', async (event, ...args) => {
       // use wallet client if dispatching wallet event
+      let response;
       if (event.indexOf(walletPrefix) > -1) {
         // need to slice out prefix since wallet server
         // is now separate and no longer needs/recognizes the prefix
         const walletEvent = event.slice(walletPrefix.length);
-        let debugStatement = `Firing "${walletEvent}" to wallet server`;
+        let debugStatement = `Calling "${walletEvent}" to wallet server`;
         if (args)
           debugStatement = debugStatement.concat(
             ` with the following args: ${args}`
           );
         logger.debug(debugStatement);
-        const response = await walletClient.call(walletEvent, ...args);
-        return { response };
+        response = await walletClient.call(walletEvent, ...args);
       } else {
-        logger.debug(`Firing "${event}" to bcoin node`);
-        await nodeClient.call(event, ...args);
+        let debugStatement = `Calling "${event}" to node server`;
+        if (args)
+          debugStatement = debugStatement.concat(
+            ` with the following args: ${args}`
+          );
+        logger.debug(debugStatement);
+        response = await nodeClient.call(event, ...args);
       }
+      logger.debug(`Response for ${event}: `, response);
+      return { response };
     });
 
     // requests from client to subscribe to events from node
