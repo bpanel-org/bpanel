@@ -101,19 +101,41 @@ const themeColors = {
 
 const borderWidth = { property: 'border-width', value: '1px' };
 const borderStyle = { property: 'border-style', value: 'solid' };
+const borderTransparentColor = {
+  property: 'border-color',
+  value: themeColors.transparent
+};
 const border1Color = { property: 'border-color', value: 'white' };
 const border2Color = {
   property: 'border-color',
   value: 'rgba(255, 255, 255, 0.2)'
 };
-const border3Color = {
-  property: 'border-color',
-  value: themeColors.highlight1
-};
+const borderTransparent = border.stringify([
+  borderWidth,
+  borderStyle,
+  borderTransparentColor
+]);
 const border1 = border.stringify([borderWidth, borderStyle, border1Color]);
 const border2 = border.stringify([borderWidth, borderStyle, border2Color]);
-const border3 = border.stringify([borderWidth, borderStyle, border3Color]);
 const borderRadius = '5px';
+
+/// **********
+/// CONTAINERS
+/// **********
+
+const rowContainer = {
+  display: 'flex',
+  flexDirection: 'row',
+  justifyContent: 'start',
+  alignItems: 'center'
+};
+
+/// *******
+/// DISPLAY
+/// *******
+
+const displayNone = 'none';
+const displayBlock = 'block';
 
 /// *******************
 /// COMPONENT VARIABLES
@@ -121,7 +143,6 @@ const borderRadius = '5px';
 
 // Footer
 const footerHeight = makeRem(2, fontSizeBase);
-const footerTextMargin = makeGutter('margin', { bottom: 0 });
 
 // App
 const appBodyHeight = '100%';
@@ -137,6 +158,7 @@ const headerHeight = makeRem(7, fontSizeBase);
 const sidebarContainerHeight = appHeight;
 const sidebarContainerPadding = makeGutter('padding', { left: 0 });
 const sidebarFooterPadding = makeGutter('padding', { bottom: 3.125 });
+const sidebarFooterTextMargin = makeGutter('margin', { bottom: 0 });
 const sidebarItemIconPadding = makeGutter('padding', { right: 0.75 });
 const sidebarItemPadding = makeGutter('padding', {
   horizontal: 2.1875,
@@ -156,20 +178,17 @@ const logoUrl = logo;
 // Button
 const buttonActionPadding = makeRem(0.3125, fontSizeBase);
 
-// Table
-const rowRenderer = ({ index }) => {
-  const style = {
-    fontWeight: fontWeights.light
-  };
-  if (index === -1) {
-    style.backgroundColor = themeColors.mediumBg;
-  } else if (index % 2 === 0 || index === 0) {
-    style.backgroundColor = themeColors.transparent;
-  } else {
-    style.backgroundColor = themeColors.lightBg;
-  }
-  return style;
-};
+// Tab Menu
+const tabMenuHeaderTextMarginBottom = '-1px';
+const tabMenuHeaderTextPadding = makeGutter('padding', {
+  horizontal: 0.625,
+  vertical: 0.3125
+});
+const tabMenuHeaderTextActiveZindex = '1';
+const tabMenuHeaderTextInactiveZindex = '0';
+const tabMenuHeaderTextInactiveBorderLeft = '3px solid transparent';
+const tabMenuHeaderTextInactiveBorderBottom = '3px solid transparent';
+const tabMenuBodyPadding = makeGutter('padding', { all: 1.25 });
 
 const themeVariables = {
   /// *****
@@ -201,14 +220,23 @@ const themeVariables = {
   /// ******
   themeColors,
   /// *******
+  /// DISPLAY
+  /// *******
+  displayBlock,
+  displayNone,
+  /// *******
   /// BORDERS
   /// *******
   borderWidth,
   borderStyle,
+  borderTransparent,
   border1,
   border2,
-  border3,
   borderRadius,
+  /// *********
+  /// CONTAINER
+  /// *********
+  rowContainer,
   /// *******************
   /// COMPONENT VARIABLES
   /// *******************
@@ -222,11 +250,11 @@ const themeVariables = {
   headerHeight,
   // Footer
   footerHeight,
-  footerTextMargin,
   // Sidebar
   sidebarContainerHeight,
   sidebarContainerPadding,
   sidebarFooterPadding,
+  sidebarFooterTextMargin,
   sidebarItemIconPadding,
   sidebarItemPadding,
   sidebarItemTransition,
@@ -237,8 +265,12 @@ const themeVariables = {
   logoUrl,
   // Button
   buttonActionPadding,
-  // Table
-  rowRenderer
+  // TabMenu
+  tabMenuHeaderTextMarginBottom,
+  tabMenuHeaderTextPadding,
+  tabMenuHeaderTextActiveZindex,
+  tabMenuHeaderTextInactiveZindex,
+  tabMenuBodyPadding
 };
 
 export default themeVariables;
