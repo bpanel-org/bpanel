@@ -54,6 +54,7 @@ module.exports = env => ({
     path: path.resolve(__dirname, 'dist')
   },
   resolve: {
+    symlinks: false,
     extensions: ['-browser.js', '.js', '.json', '.jsx'],
     alias: {
       bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),

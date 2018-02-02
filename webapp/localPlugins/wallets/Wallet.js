@@ -1,9 +1,31 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Header, Text } from 'bpanel-ui';
 
-const Wallets = () => (
-  <div className="dashboard-container">
-    <h2>Wallet</h2>
-  </div>
-);
+export default class Wallet extends Component {
+  constructor(props) {
+    super(props);
+  }
 
-export default Wallets;
+  static get propTypes() {
+    return {
+      id: PropTypes.string,
+      balance: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      address: PropTypes.string
+    };
+  }
+
+  render() {
+    const { id, balance, address } = this.props;
+    return (
+      <div className="wallet-info">
+        <Header type="h4">Wallet ID</Header>
+        <Text type="p">{id}</Text>
+        <Header type="h4">Balance</Header>
+        <Text type="p">{balance}</Text>
+        <Header type="h4">Address</Header>
+        <Text type="p">{address}</Text>
+      </div>
+    );
+  }
+}

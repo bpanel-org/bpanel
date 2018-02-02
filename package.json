@@ -17,13 +17,20 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{js,json,css,jsx,scss}": ["prettier --write", "git add"]
+    "*.{js,json,css,jsx,scss}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
     "url": "git@git.purse.io:bcoin/bpanel.git"
   },
-  "keywords": ["bcoin", "bitcoin", "GUI"],
+  "keywords": [
+    "bcoin",
+    "bitcoin",
+    "GUI"
+  ],
   "author": "bcoin",
   "license": "MIT",
   "dependencies": {
@@ -33,7 +40,7 @@
     "body-parser": "^1.18.2",
     "bpanel-ui": "git+ssh://github.com/bcoin-org/bpanel-ui.git",
     "bsock": "git+https://github.com/bcoin-org/bsock",
-    "bsock-middleware": "^1.1.2",
+    "bsock-middleware": "^1.1.3",
     "bweb": "0.0.1",
     "cors": "^2.8.4",
     "css-border-property": "^1.1.0",

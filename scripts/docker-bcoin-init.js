@@ -45,8 +45,6 @@ const hadWalletDB = fileList.indexOf('wallet') > -1;
 if (!node.config.bool('no-wallet') && !node.has('walletdb')) {
   const walletPlugin = bcoin.wallet.plugin;
   node.use(walletPlugin);
-  console.log('node configs: ', node.config);
-  console.log('node wallet', node.config.filter('wallet'));
 }
 
 (async () => {

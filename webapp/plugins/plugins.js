@@ -28,6 +28,7 @@ let propsDecorators = {};
 // reducers
 let chainReducers;
 let nodeReducers;
+let walletsReducers;
 let reducersDecorators = {};
 
 // miscellaneous decorators
@@ -56,11 +57,14 @@ export const loadPlugins = config => {
   };
 
   // setup reducers decorators
+  // TODO: This needs to be generalized
   chainReducers = [];
   nodeReducers = [];
+  walletsReducers = [];
   reducersDecorators = {
     chainReducer: chainReducers,
-    nodeReducer: nodeReducers
+    nodeReducer: nodeReducers,
+    walletsReducer: walletsReducers
   };
 
   middlewares = [];
@@ -149,9 +153,13 @@ export const loadPlugins = config => {
         reducersDecorators.nodeReducer.push(plugin.reduceNode);
       }
 
+      if (plugin.reduceWallets) {
+        reducersDecorators.walletsReducer.push(plugin.reduceWallets);
+      }
+
       // other miscellaneous decorators
-      if (plugin.addSocketsConstants) {
-        extendConstants.sockets.push(plugin.addSocketsConstants);
+      if (plugin.addSocketConstants) {
+        extendConstants.sockets.push(plugin.addSocketConstants);
       }
 
       // themeDecorators
@@ -293,7 +301,7 @@ export function connect(
               } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error(
-                  `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
+                  `Plugin error: Problem with \`map${name}Dispatch\` for ${mapper._pluginName}: `,
                   err.stack
                 );
               }

@@ -1,10 +1,10 @@
 import { connect } from '../plugins/plugins';
 import Header from '../components/Header/Header';
 
-const mapPropsWithState = state => ({ ...state });
-const mapPropsWithDispatch = () => ({});
+const mapStateToProps = state => ({ ...state });
+const mapDispatchToProps = () => ({});
 
-const HeaderContainer = connect(mapPropsWithState, mapPropsWithDispatch)(
+const HeaderContainer = connect(mapStateToProps, mapDispatchToProps)(
   Header,
   'Header'
 );

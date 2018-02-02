@@ -3,7 +3,15 @@
 
 export const get = {
   block: heightOrHash => `/node/block/${heightOrHash}`,
-  info: () => '/node'
+  info: () => '/node',
+  wallet: id => `/node/wallet/${id}`,
+  accounts: id => `node/wallet/${id}/account`,
+  account: (wallet = 'primary', account = 'default') =>
+    `/node/wallet/${wallet}/account/${account}`
 };
 
-export default { get };
+export const post = {
+  tx: (id = 'primary') => `/node/wallet/${id}/send`
+};
+
+export default { get, post };

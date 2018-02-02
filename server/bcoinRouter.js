@@ -10,7 +10,8 @@ const routerWithClient = nodeClient =>
     const { method, path, body } = req;
     try {
       const bcoinResponse = await nodeClient.request(method, path, body);
-      return res.status(200).json(bcoinResponse);
+      if (bcoinResponse) return res.status(200).json(bcoinResponse);
+      next();
     } catch (error) {
       logger.error('Error querying bcoin node:', error);
       const err = new Error('There was a problem querying the bcoin node');

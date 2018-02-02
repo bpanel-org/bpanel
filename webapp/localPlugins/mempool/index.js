@@ -28,19 +28,21 @@ export const mapComponentState = {
     })
 };
 
-export const addSocketsConstants = (sockets = {}) =>
-  Object.assign(sockets, {
-    socketListeners: sockets.listeners.push(
-      {
-        event: 'update mempool',
-        actionType: UPDATE_MEMPOOL
-      },
-      {
-        event: 'mempool tx',
-        actionType: MEMPOOL_TX
-      }
-    )
+export const addSocketConstants = (sockets = { listeners: [] }) => {
+  sockets.listeners.push(
+    {
+      event: 'update mempool',
+      actionType: UPDATE_MEMPOOL
+    },
+    {
+      event: 'mempool tx',
+      actionType: MEMPOOL_TX
+    }
+  );
+  return Object.assign(sockets, {
+    socketListeners: sockets.listeners
   });
+};
 
 export const reduceNode = (state, action) => {
   const { type, payload } = action;
@@ -70,7 +72,7 @@ export const getRouteProps = {
     })
 };
 
-export const middleware = ({ dispatch }) => next => async action => {
+export const middleware = ({ dispatch }) => next => action => {
   const { type } = action;
   if (type === SOCKET_CONNECTED) {
     // actions to dispatch when the socket has connected

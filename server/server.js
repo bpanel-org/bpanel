@@ -12,7 +12,7 @@ const cors = require('cors');
 const logger = require('./logger');
 const bcoinRouter = require('./bcoinRouter');
 const socketHandler = require('./bcoinSocket');
-const { nodeClient } = require('./bcoinClients');
+const { nodeClient, walletClient } = require('./bcoinClients');
 
 // Preparing bsock socket server and express server
 const app = express();
@@ -23,11 +23,14 @@ app.use(bodyParser.json());
 app.use(cors());
 
 (async function() {
-  await nodeClient.open();
-  nodeClient.fire('auth');
+  try {
+    await nodeClient.open();
+    await walletClient.open();
+  } catch (err) {
+    logger.error('Error connecting sockets: ', err);
+  }
 
-  const nodeRouter = bcoinRouter(nodeClient);
-  bsock.on('socket', socketHandler(nodeClient));
+  bsock.on('socket', socketHandler(nodeClient, walletClient));
 
   /**
     ROUTES
@@ -44,7 +47,8 @@ app.use(cors());
   );
 
   // Path to route calls to bcoin node
-  app.use('/node', nodeRouter);
+  app.use('/node/wallet', bcoinRouter(walletClient));
+  app.use('/node', bcoinRouter(nodeClient));
   app.get('/*', resolveIndex);
 
   /**
