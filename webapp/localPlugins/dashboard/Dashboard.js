@@ -2,13 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Header, Table } from 'bpanel-ui';
 
-const recentBlocksTable = recentBlocks =>
-  recentBlocks.map(({ height, hash }, index) => (
-    <p key={index}>
-      Height of block: {height}, <br /> Hash: {hash}
-    </p>
-  ));
-
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);

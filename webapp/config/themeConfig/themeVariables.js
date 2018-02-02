@@ -186,8 +186,6 @@ const tabMenuHeaderTextPadding = makeGutter('padding', {
 });
 const tabMenuHeaderTextActiveZindex = '1';
 const tabMenuHeaderTextInactiveZindex = '0';
-const tabMenuHeaderTextInactiveBorderLeft = '3px solid transparent';
-const tabMenuHeaderTextInactiveBorderBottom = '3px solid transparent';
 const tabMenuBodyPadding = makeGutter('padding', { all: 1.25 });
 
 const themeVariables = {
