@@ -258,52 +258,56 @@ export function connect(
       // reducing down to final state using the state mappers from plugins
       // initial state is passed to connector from container component
       state =>
-        connectors[name].state.reduce((acc, mapper) => {
-          let ret = acc;
-          try {
-            // this is the decorator, everything after in this reduce is error checking
-            ret = mapper(state, acc);
-          } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error(
-              `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
-              err.stack
-            );
-          }
-          if (!ret || typeof ret !== 'object') {
-            // eslint-disable-next-line no-console
-            console.error(
-              'Plugin error ',
-              `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
-            );
-            return;
-          }
-          return ret;
-        }, stateFn(state)), // initial state is from `mapStateToProps` from parent container
+        !connectors[name]
+          ? stateFn(state) // return default if no connectors
+          : connectors[name].state.reduce((acc, mapper) => {
+              let ret = acc;
+              try {
+                // this is the decorator, everything after in this reduce is error checking
+                ret = mapper(state, acc);
+              } catch (err) {
+                // eslint-disable-next-line no-console
+                console.error(
+                  `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
+                  err.stack
+                );
+              }
+              if (!ret || typeof ret !== 'object') {
+                // eslint-disable-next-line no-console
+                console.error(
+                  'Plugin error ',
+                  `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
+                );
+                return;
+              }
+              return ret;
+            }, stateFn(state)), // initial state is from `mapStateToProps` from parent container
       dispatch =>
-        connectors[name].dispatch.reduce((acc, mapper) => {
-          let ret = acc;
-          try {
-            // this is the decorator, everything after in reduce is error checking
-            ret = mapper(dispatch, acc);
-          } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error(
-              `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
-              err.stack
-            );
-          }
-          if (!ret || typeof ret !== 'object') {
-            // eslint-disable-next-line no-console
-            console.error(
-              'Plugin error ',
-              `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
-            );
-            return;
-          }
+        !connectors[name]
+          ? dispatchFn(dispatch) // return default if no connectors
+          : connectors[name].dispatch.reduce((acc, mapper) => {
+              let ret = acc;
+              try {
+                // this is the decorator, everything after in reduce is error checking
+                ret = mapper(dispatch, acc);
+              } catch (err) {
+                // eslint-disable-next-line no-console
+                console.error(
+                  `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
+                  err.stack
+                );
+              }
+              if (!ret || typeof ret !== 'object') {
+                // eslint-disable-next-line no-console
+                console.error(
+                  'Plugin error ',
+                  `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
+                );
+                return;
+              }
 
-          return ret;
-        }, dispatchFn(dispatch)), // initial state is from parent container
+              return ret;
+            }, dispatchFn(dispatch)), // initial state is from parent container
       mergeProps,
       options
     )(decorate(Class, name));
