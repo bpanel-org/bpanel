@@ -284,7 +284,7 @@ export function connect(
             }, stateFn(state)), // initial state is from `mapStateToProps` from parent container
       dispatch =>
         !connectors[name]
-          ? dispatchFn(dispatch)
+          ? dispatchFn(dispatch) // return default if no connectors
           : connectors[name].dispatch.reduce((acc, mapper) => {
               let ret = acc;
               try {
