@@ -5,12 +5,9 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --env.NODE_ENV=production --config webpack.config.js",
-    "watch":
-      "webpack --env.NODE_ENV=production --config webpack.config.js --watch",
-    "build:dev":
-      "webpack --env.NODE_ENV=development --config webpack.config.js",
-    "watch:dev":
-      "webpack --env.NODE_ENV=development --config webpack.config.js --watch",
+    "watch": "webpack --env.NODE_ENV=production --config webpack.config.js --watch",
+    "build:dev": "webpack --env.NODE_ENV=development --config webpack.config.js",
+    "watch:dev": "webpack --env.NODE_ENV=development --config webpack.config.js --watch",
     "start": "nodemon ./server/server.js",
     "start:dev": "NODE_ENV=development nodemon ./server/server.js",
     "start:docker": "node ./scripts/docker-config-init.js && npm run start",
