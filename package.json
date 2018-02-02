@@ -5,9 +5,12 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --env.NODE_ENV=production --config webpack.config.js",
-    "watch": "webpack --env.NODE_ENV=production --config webpack.config.js --watch",
-    "build:dev": "webpack --env.NODE_ENV=development --config webpack.config.js",
-    "watch:dev": "webpack --env.NODE_ENV=development --config webpack.config.js --watch",
+    "watch":
+      "webpack --env.NODE_ENV=production --config webpack.config.js --watch",
+    "build:dev":
+      "webpack --env.NODE_ENV=development --config webpack.config.js",
+    "watch:dev":
+      "webpack --env.NODE_ENV=development --config webpack.config.js --watch",
     "start": "nodemon ./server/server.js",
     "start:dev": "NODE_ENV=development nodemon ./server/server.js",
     "start:docker": "node ./scripts/docker-config-init.js && npm run start",
@@ -17,20 +20,13 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.{js,json,css,jsx,scss}": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.{js,json,css,jsx,scss}": ["prettier --write", "git add"]
   },
   "repository": {
     "type": "git",
     "url": "git@git.purse.io:bcoin/bpanel.git"
   },
-  "keywords": [
-    "bcoin",
-    "bitcoin",
-    "GUI"
-  ],
+  "keywords": ["bcoin", "bitcoin", "GUI"],
   "author": "bcoin",
   "license": "MIT",
   "dependencies": {
