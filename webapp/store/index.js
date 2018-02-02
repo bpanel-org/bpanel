@@ -2,6 +2,7 @@ import { combineReducers, createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunkMiddleware from 'redux-thunk';
 import bsockMiddleware from 'bsock-middleware';
+import effects from 'effects-middleware';
 
 import config from '../config/appConfig';
 import { getConstants } from '../plugins/plugins';
@@ -12,7 +13,7 @@ import * as reducers from './reducers';
 loadPlugins(config);
 
 const rootReducer = combineReducers(reducers);
-const middleware = [pluginMiddleware, thunkMiddleware];
+const middleware = [thunkMiddleware, pluginMiddleware, effects];
 let compose,
   debug = false;
 
