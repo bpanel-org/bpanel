@@ -44,6 +44,7 @@
     "bweb": "0.0.1",
     "cors": "^2.8.4",
     "css-border-property": "^1.1.0",
+    "effects-middleware": "^1.0.1",
     "express": "^4.16.2",
     "level-js": "^2.2.4",
     "prop-types": "^15.6.0",

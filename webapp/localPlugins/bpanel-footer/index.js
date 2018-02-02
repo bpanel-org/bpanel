@@ -37,7 +37,7 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
       } = this.props;
       const progressPercentage = progress * 100;
 
-      let customChildren = (
+      const customChildren = (
         <div className="container">
           <div className="row align-items-center">
             <div className="col-3 version text-truncate">

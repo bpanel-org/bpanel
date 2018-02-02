@@ -1,10 +1,10 @@
 import { connect } from '../../plugins/plugins';
 import Footer from '../../components/Footer/Footer';
 
-const mapPropsWithState = state => ({ ...state });
-const mapPropsWithDispatch = () => ({});
+const mapStateToProps = state => ({ ...state });
+const mapDispatchToProps = () => ({});
 
-const FooterContainer = connect(mapPropsWithState, mapPropsWithDispatch)(
+const FooterContainer = connect(mapStateToProps, mapDispatchToProps)(
   Footer,
   'Footer'
 );
