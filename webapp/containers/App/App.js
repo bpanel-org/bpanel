@@ -5,12 +5,12 @@ import { bindActionCreators } from 'redux';
 import { decorate } from '../../plugins/plugins';
 import ThemeProvider from '../ThemeProvider/ThemeProvider';
 import { nodeActions, socketActions, themeActions } from '../../store/actions/';
-import Header from '../../components/Header/Header';
+import Header from '../../containers/Header';
 import Footer from '../../containers/Footer/Footer';
 import Sidebar_ from '../../components/Sidebar/Sidebar';
 import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
-import { connect, decorateTheme } from '../../plugins/plugins';
+import { connect } from '../../plugins/plugins';
 import './app.scss';
 
 export const pluginMetaProps = {
@@ -29,11 +29,7 @@ class App extends Component {
 
   static get propTypes() {
     return {
-      loading: PropTypes.bool,
-      bcoinUri: PropTypes.string,
-      nodeInfo: PropTypes.object,
       children: PropTypes.node,
-      nodeProgress: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       sortedPluginMeta: PropTypes.arrayOf(
         PropTypes.shape({
           ...pluginMetaProps,
@@ -73,14 +69,7 @@ class App extends Component {
   }
 
   render() {
-    const {
-      nodeInfo,
-      loading,
-      bcoinUri,
-      sortedPluginMeta,
-      location,
-      theme
-    } = this.props;
+    const { sortedPluginMeta, location, theme } = this.props;
 
     return (
       <ThemeProvider theme={theme}>
@@ -98,11 +87,7 @@ class App extends Component {
               />
             </div>
             <div className="col-sm-8 col-lg-9" style={theme.app.content}>
-              <Header
-                network={nodeInfo.network}
-                loading={loading}
-                bcoinUri={bcoinUri}
-              />
+              <Header />
               <Panel />
             </div>
             <Footer />
@@ -114,10 +99,6 @@ class App extends Component {
 }
 
 const mapStateToProps = state => ({
-  nodeInfo: state.node.node,
-  nodeProgress: state.chain.progress,
-  bcoinUri: state.node.serverInfo.bcoinUri,
-  loading: state.node.loading,
   sortedPluginMeta: plugins.getSortedPluginMetadata(state),
   theme: state.theme
 });
