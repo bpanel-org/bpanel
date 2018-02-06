@@ -13,8 +13,7 @@ export default {
     'mempool',
     'wallets',
     'bui',
-    'bMoonTheme',
-    'bpanel-footer'
+    'bMoonTheme'
   ],
   // This will be the list of plugins to install from npm
   // This system still needs to be built

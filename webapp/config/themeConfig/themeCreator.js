@@ -326,7 +326,7 @@ const themeCreator = (
         border: border2
       },
       bodyInactive: {
-        display: displayNone
+        display: 'none'
       }
     },
 
