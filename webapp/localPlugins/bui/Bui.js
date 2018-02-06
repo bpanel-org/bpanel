@@ -57,6 +57,10 @@ export default class Bui extends PureComponent {
           <Input type="radio" name="radio" value="no" /> No<br />
           <Input type="radio" name="radio" value="maybe" /> Maybe<br />
         </form>
+        <form>
+          Upload a file<br />
+          <Input type="file" name="file" />
+        </form>
         <Table {...tableProps} />
         <TabMenu />
       </div>

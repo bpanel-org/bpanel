@@ -90,6 +90,15 @@ const themeCreator = (
   /// THEME CONFIG
   /// ******
 
+  const defaultButtonStyle = {
+    backgroundColor: themeColors.transparent,
+    border: `${borderWidth.value} ${borderStyle.value} ${themeColors.highlight1}`,
+    borderRadius: borderRadius,
+    color: themeColors.highlight1,
+    cursor: 'pointer',
+    fontSize: fontSizeBase
+  };
+
   const themeConfig = Immutable({
     // MAIN APP COMPONENTS
 
@@ -220,12 +229,7 @@ const themeCreator = (
     // Button
     button: {
       primary: {
-        backgroundColor: themeColors.transparent,
-        border: `${borderWidth.value} ${borderStyle.value} ${themeColors.highlight1}`,
-        borderRadius: borderRadius,
-        color: themeColors.highlight1,
-        cursor: 'pointer',
-        fontSize: fontSizeBase
+        ...defaultButtonStyle
       },
       action: {
         border: 'none',
@@ -267,6 +271,9 @@ const themeCreator = (
       date: {},
       'datetime-local': {},
       email: {},
+      file: {
+        ...defaultButtonStyle
+      },
       month: {},
       number: {},
       password: {
@@ -278,21 +285,11 @@ const themeCreator = (
       radio: {},
       range: {},
       reset: {
-        backgroundColor: themeColors.transparent,
-        border: `${borderWidth.value} ${borderStyle.value} ${themeColors.highlight1}`,
-        borderRadius: borderRadius,
-        color: themeColors.highlight1,
-        cursor: 'pointer',
-        fontSize: fontSizeBase
+        ...defaultButtonStyle
       },
       search: {},
       submit: {
-        backgroundColor: themeColors.transparent,
-        border: `${borderWidth.value} ${borderStyle.value} ${themeColors.highlight1}`,
-        borderRadius: borderRadius,
-        color: themeColors.highlight1,
-        cursor: 'pointer',
-        fontSize: fontSizeBase
+        ...defaultButtonStyle
       },
       tel: {},
       text: {
