@@ -74,6 +74,10 @@ const themeCreator = (
     logoUrl,
     // Button
     buttonActionPadding,
+    // Input
+    inputTextPadding,
+    // Table
+    rowRenderer,
     // TabMenu
     tabMenuHeaderTextMarginBottom,
     tabMenuHeaderTextPadding,
@@ -256,6 +260,52 @@ const themeCreator = (
       }
     },
 
+    // Input
+    input: {
+      checkbox: {},
+      color: {},
+      date: {},
+      'datetime-local': {},
+      email: {},
+      month: {},
+      number: {},
+      password: {
+        backgroundColor: themeColors.darkBg,
+        border: 'none',
+        color: themeColors.primary,
+        ...inputTextPadding
+      },
+      radio: {},
+      range: {},
+      reset: {
+        backgroundColor: themeColors.transparent,
+        border: `${borderWidth.value} ${borderStyle.value} ${themeColors.highlight1}`,
+        borderRadius: borderRadius,
+        color: themeColors.highlight1,
+        cursor: 'pointer',
+        fontSize: fontSizeBase
+      },
+      search: {},
+      submit: {
+        backgroundColor: themeColors.transparent,
+        border: `${borderWidth.value} ${borderStyle.value} ${themeColors.highlight1}`,
+        borderRadius: borderRadius,
+        color: themeColors.highlight1,
+        cursor: 'pointer',
+        fontSize: fontSizeBase
+      },
+      tel: {},
+      text: {
+        backgroundColor: themeColors.darkBg,
+        border: 'none',
+        color: themeColors.primary,
+        ...inputTextPadding
+      },
+      time: {},
+      url: {},
+      week: {}
+    },
+
     // Link
     link: {
       color: themeColors.highlight1,
@@ -277,19 +327,7 @@ const themeCreator = (
       },
       // This row renderer alternates background colors between
       // transparent and a slightly transparent white
-      row: ({ index }) => {
-        const style = {
-          fontWeight: fontWeights.light
-        };
-        if (index === -1) {
-          style.backgroundColor = themeColors.mediumBg;
-        } else if (index % 2 === 0 || index === 0) {
-          style.backgroundColor = themeColors.transparent;
-        } else {
-          style.backgroundColor = themeColors.lightBg;
-        }
-        return style;
-      }
+      row: rowRenderer
     },
 
     //Tab Menu

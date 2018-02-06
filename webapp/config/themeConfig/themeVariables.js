@@ -171,6 +171,27 @@ const logoUrl = logo;
 // Button
 const buttonActionPadding = makeRem(0.3125, fontSizeBase);
 
+// Input
+const inputTextPadding = makeGutter('padding', {
+  horizontal: 0.75,
+  vertical: 0.5
+});
+
+// Table
+const rowRenderer = ({ index }) => {
+  const style = {
+    fontWeight: fontWeights.light
+  };
+  if (index === -1) {
+    style.backgroundColor = themeColors.mediumBg;
+  } else if (index % 2 === 0 || index === 0) {
+    style.backgroundColor = themeColors.transparent;
+  } else {
+    style.backgroundColor = themeColors.lightBg;
+  }
+  return style;
+};
+
 // Tab Menu
 const tabMenuHeaderTextMarginBottom = '-1px';
 const tabMenuHeaderTextPadding = makeGutter('padding', {
@@ -251,6 +272,10 @@ const themeVariables = {
   logoUrl,
   // Button
   buttonActionPadding,
+  // Input
+  inputTextPadding,
+  // Table
+  rowRenderer,
   // TabMenu
   tabMenuHeaderTextMarginBottom,
   tabMenuHeaderTextPadding,
