@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
-import path from 'path';
+import { resolve } from 'path';
 
 import { propsReducerCallback, loadConnectors } from './utils';
 import constants from '../store/constants';
@@ -74,13 +74,22 @@ export const loadPlugins = async config => {
   // load each plugin object into the the cache of modules
   // in hyper the list of absolute paths are generated with a util function
   // ahead of time, then required. Could solve these issues
+  const base = resolve(__dirname);
+  const paths = {
+    local: base
+  };
+
+  const localPlugins = config.localPlugins.map(name =>
+    resolve(paths.local, name)
+  );
+
   plugins = await Promise.all(
     config.localPlugins
       .map(async pluginName => {
         let plugin;
         try {
-          plugin = await import(`../localPlugins/${pluginName}`);
-          console.log('got plugin: ', pluginName);
+          const path = `${resolve(paths.local, pluginName)}`;
+          plugin = await import(`./${pluginName}`);
         } catch (e) {
           // eslint-disable-next-line no-console
           console.error(`There was a problem loading ${pluginName}: ${e}`);
