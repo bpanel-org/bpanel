@@ -53,7 +53,8 @@ export const loadConnectors = (plugin, type, connectors) => {
   }
 };
 
-// const plugins = resolve(cfgDir, '.hyper_plugins');
+// const homedir = homedir();
+// const plugins = resolve(homedir, '.hyper_plugins');
 // const plugs = {
 //   base: plugins,
 //   local: resolve(plugins, 'local'),
