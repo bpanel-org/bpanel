@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Header, Link, Button, Text, Table, TabMenu } from 'bpanel-ui';
+import { Header, Input, Link, Button, Text, Table, TabMenu } from 'bpanel-ui';
 import tableProps from './constants/tableProps';
 
 export default class Bui extends PureComponent {
@@ -24,6 +24,43 @@ export default class Bui extends PureComponent {
         <Button type="primary">Primary Button Component</Button>
         <Button type="action">Action Button Component</Button>
         <br />
+        <form>
+          <Input
+            type="text"
+            name="text"
+            placeholder="Text Input"
+            style={{ marginBottom: '5px' }}
+          />
+          <br />
+          <Input
+            type="password"
+            name="password"
+            placeholder="Add your password"
+            style={{ marginBottom: '5px' }}
+          />
+          <br />
+          <Input
+            type="submit"
+            name="submit"
+            value="Submit"
+            style={{ marginBottom: '5px', marginRight: '5px' }}
+          />
+          <Input
+            type="reset"
+            name="reset"
+            value="Reset"
+            style={{ marginBottom: '5px', marginRight: '5px' }}
+          />
+        </form>
+        <form>
+          <Input type="radio" name="radio" value="yes" checked /> Yes<br />
+          <Input type="radio" name="radio" value="no" /> No<br />
+          <Input type="radio" name="radio" value="maybe" /> Maybe<br />
+        </form>
+        <form>
+          Upload a file<br />
+          <Input type="file" name="file" />
+        </form>
         <Table {...tableProps} />
         <TabMenu />
       </div>
