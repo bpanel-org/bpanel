@@ -1,4 +1,5 @@
 // utilities for the plugin system modules
+import { resolve } from 'path';
 
 export const propsReducerCallback = (name, parentProps, ...fnArgs) => (
   acc,
@@ -51,3 +52,20 @@ export const loadConnectors = (plugin, type, connectors) => {
     }
   }
 };
+
+// const plugins = resolve(cfgDir, '.hyper_plugins');
+// const plugs = {
+//   base: plugins,
+//   local: resolve(plugins, 'local'),
+//   cache: resolve(plugins, 'cache')
+// };
+// export function getPaths() {
+//   return {
+//     plugins: plugins.plugins.map(name => {
+//       return resolve(path, 'node_modules', name.split('#')[0].split('@')[0]);
+//     }),
+//     localPlugins: plugins.localPlugins.map(name => {
+//       return resolve(localPath, name);
+//     })
+//   };
+// }
