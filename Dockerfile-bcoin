@@ -1,6 +1,7 @@
 FROM nfnty/arch-mini:latest
 
 # Build deps
+RUN pacman -Sy --noconfirm archlinux-keyring
 RUN pacman -Syu --noconfirm nodejs npm unrar git python2 base-devel
 
 ENV BCOIN_BRANCH wallet-rewrite
