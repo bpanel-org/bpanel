@@ -59,12 +59,9 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    const { theme } = this.props;
     // Unload theming for the <body> and <html> tags
-    for (const k in theme.app.body) {
-      document.body.style[k] = null;
-      document.document.documentElement.style[k] = null;
-    }
+    document.body.className = null;
+    document.document.documentElement.className = null;
     this.props.disconnectSocket();
   }
 

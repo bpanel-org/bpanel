@@ -124,11 +124,15 @@ const borderRadius = '5px';
 /// **********
 
 const rowContainer = {
-  display: 'flex',
   flexDirection: 'row',
   justifyContent: 'start',
   alignItems: 'center'
 };
+/// ***********
+/// TRANSITIONS
+/// ***********
+
+const smoothTransition = '0.3s ease';
 
 /// *******************
 /// COMPONENT VARIABLES
@@ -138,7 +142,7 @@ const rowContainer = {
 const footerHeight = makeRem(2, fontSizeBase);
 
 // App
-const appBodyHeight = '100%';
+const appBodyHeight = `calc(100% + ${footerHeight})`;
 const appBodyMinHeight = makeRem(18.75, fontSizeBase);
 const appContentHeight = `calc(100vh - ${footerHeight} - ${headerHeight})`;
 const appContentPadding = makeGutter('padding', { left: 1.25, right: 2.5 });
@@ -157,7 +161,6 @@ const sidebarItemPadding = makeGutter('padding', {
   horizontal: 2.1875,
   vertical: 0.625
 });
-const sidebarItemTransition = '0.3s ease';
 const sidebarLinkMinWidth = makeRem(9.375, fontSizeBase);
 
 // Logo
@@ -244,6 +247,10 @@ const themeVariables = {
   /// CONTAINER
   /// *********
   rowContainer,
+  /// ***********
+  /// TRANSITIONS
+  /// ***********
+  smoothTransition,
   /// *******************
   /// COMPONENT VARIABLES
   /// *******************
@@ -264,7 +271,6 @@ const themeVariables = {
   sidebarFooterTextMargin,
   sidebarItemIconPadding,
   sidebarItemPadding,
-  sidebarItemTransition,
   sidebarLinkMinWidth,
   // Logo
   logoContainerPadding,

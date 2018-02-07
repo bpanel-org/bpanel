@@ -1,3 +1,4 @@
+import { css } from 'aphrodite';
 import { Text } from 'bpanel-ui';
 
 export const metadata = {
@@ -45,24 +46,28 @@ export const decorateHeader = (Header, { React, PropTypes }) => {
         <div className="container">
           {existingCustomChildren}
           <div
-            className="ml-md-auto text-right col"
-            style={theme.headerbar.networkStatus}
+            className={`${css(
+              theme.headerbar.networkStatus
+            )} ml-md-auto text-right col`}
           >
             <div className="network text-uppercase">
-              <Text style={theme.headerbar.text}>Status: {network} </Text>
+              <Text className={css(theme.headerbar.text)}>
+                Status: {network}{' '}
+              </Text>
               <i
-                className={`fa fa-${statusIcon}`}
+                className={`${css(theme.headerbar.icon)} fa fa-${statusIcon}`}
                 areahidden="true"
-                style={theme.headerbar.icon}
               />
             </div>
             <div className="node">
               <Text
-                style={{ ...theme.headerbar.nodeText, ...theme.headerbar.text }}
+                className={`${css(theme.headerbar.nodeText)} ${css(
+                  theme.headerbar.text
+                )}`}
               >
                 Node:{' '}
               </Text>
-              <Text style={theme.headerbar.text}>{bcoinUri}</Text>
+              <Text className={`${css(theme.headerbar.text)}`}>{bcoinUri}</Text>
             </div>
           </div>
         </div>
