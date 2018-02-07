@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Header, Link, Button, Text, Table } from 'bpanel-ui';
+import { Header, Link, Button, Text, Table, TabMenu } from 'bpanel-ui';
 import tableProps from './constants/tableProps';
 
 export default class Bui extends PureComponent {
@@ -25,6 +25,7 @@ export default class Bui extends PureComponent {
         <Button type="action">Action Button Component</Button>
         <br />
         <Table {...tableProps} />
+        <TabMenu />
       </div>
     );
   }

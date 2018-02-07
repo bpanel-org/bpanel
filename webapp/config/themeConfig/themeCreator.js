@@ -38,9 +38,14 @@ const themeCreator = (
     /// *******
     borderWidth,
     borderStyle,
+    borderTransparent,
     border1,
     border2,
     borderRadius,
+    /// *********
+    /// CONTAINER
+    /// *********
+    rowContainer,
     /// *******************
     /// COMPONENT VARIABLES
     /// *******************
@@ -54,7 +59,7 @@ const themeCreator = (
     headerHeight,
     // Footer
     footerHeight,
-    footerTextMargin,
+    sidebarFooterTextMargin,
     // Sidebar
     sidebarContainerHeight,
     sidebarContainerPadding,
@@ -68,7 +73,13 @@ const themeCreator = (
     logoSize,
     logoUrl,
     // Button
-    buttonActionPadding
+    buttonActionPadding,
+    // TabMenu
+    tabMenuHeaderTextMarginBottom,
+    tabMenuHeaderTextPadding,
+    tabMenuHeaderTextActiveZindex,
+    tabMenuHeaderTextInactiveZindex,
+    tabMenuBodyPadding
   } = Immutable(themeVariables).merge(_themeVariables, { deep: true });
 
   /// ******
@@ -156,7 +167,7 @@ const themeCreator = (
         fontSize: fontSizeSmall,
         fontWeight: fontWeights.light,
         opacity: fontOpacity,
-        ...footerTextMargin
+        ...sidebarFooterTextMargin
       }
     },
 
@@ -278,6 +289,39 @@ const themeCreator = (
           style.backgroundColor = themeColors.lightBg;
         }
         return style;
+      }
+    },
+
+    //Tab Menu
+    tabMenu: {
+      headerContainer: {
+        ...rowContainer
+      },
+      headerText: {
+        marginBottom: tabMenuHeaderTextMarginBottom,
+        ...tabMenuHeaderTextPadding
+      },
+      headerTextActive: {
+        backgroundColor: themeColors.transparent,
+        border: border2,
+        borderBottomColor: themeColors.highlight1,
+        zIndex: tabMenuHeaderTextActiveZindex
+      },
+      headerTextInactive: {
+        backgroundColor: themeColors.darkBg,
+        border: borderTransparent,
+        borderBottomColor: themeColors.transparent,
+        zIndex: tabMenuHeaderTextInactiveZindex
+      },
+      bodyContainer: {
+        ...tabMenuBodyPadding
+      },
+      bodyActive: {
+        display: 'block',
+        border: border2
+      },
+      bodyInactive: {
+        display: 'none'
       }
     },
 
