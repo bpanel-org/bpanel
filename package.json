@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "postinstall": "node scripts/postinstall.js"
   },
   "lint-staged": {
     "*.{js,json,css,jsx,scss}": [
