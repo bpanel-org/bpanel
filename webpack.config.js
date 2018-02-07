@@ -71,6 +71,7 @@ module.exports = env => ({
         query: {
           presets: ['env', 'react', 'stage-3'],
           plugins: [
+            'syntax-dynamic-import',
             [
               'transform-runtime',
               {
