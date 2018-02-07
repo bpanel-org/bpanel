@@ -130,13 +130,6 @@ const rowContainer = {
   alignItems: 'center'
 };
 
-/// *******
-/// DISPLAY
-/// *******
-
-const displayNone = 'none';
-const displayBlock = 'block';
-
 /// *******************
 /// COMPONENT VARIABLES
 /// *******************
@@ -217,11 +210,6 @@ const themeVariables = {
   /// COLORS
   /// ******
   themeColors,
-  /// *******
-  /// DISPLAY
-  /// *******
-  displayBlock,
-  displayNone,
   /// *******
   /// BORDERS
   /// *******

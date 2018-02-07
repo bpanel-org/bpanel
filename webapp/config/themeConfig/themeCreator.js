@@ -46,11 +46,6 @@ const themeCreator = (
     /// CONTAINER
     /// *********
     rowContainer,
-    /// *******
-    /// DISPLAY
-    /// *******
-    displayBlock,
-    displayNone,
     /// *******************
     /// COMPONENT VARIABLES
     /// *******************
@@ -322,7 +317,7 @@ const themeCreator = (
         ...tabMenuBodyPadding
       },
       bodyActive: {
-        display: displayBlock,
+        display: 'block',
         border: border2
       },
       bodyInactive: {
