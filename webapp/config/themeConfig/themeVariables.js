@@ -124,6 +124,7 @@ const borderRadius = '5px';
 /// **********
 
 const rowContainer = {
+  display: 'flex',
   flexDirection: 'row',
   justifyContent: 'start',
   alignItems: 'center'

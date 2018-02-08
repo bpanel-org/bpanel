@@ -408,23 +408,27 @@ const themeCreator = (
     app,
     sidebar,
     headerbar,
+    input,
     footer,
     button,
     header,
     link,
     table,
     tableRowStyle,
+    tabMenu,
     text
   } = themeConfig;
   const styleSheet = {
     app: StyleSheet.create(app),
     sidebar: StyleSheet.create(sidebar),
     headerbar: StyleSheet.create(headerbar),
+    input: StyleSheet.create(input),
     footer: StyleSheet.create(footer),
     button: StyleSheet.create(button),
     header: StyleSheet.create(header),
     link: StyleSheet.create(link),
     table: StyleSheet.create(table),
+    tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
     logoUrl,
     tableRowStyle
