@@ -24,8 +24,13 @@ app.use(cors());
 
 (async function() {
   try {
-    await nodeClient.open();
-    await walletClient.open();
+    if (nodeClient) {
+      const resp = await nodeClient.open();
+      logger.debug(resp);
+    }
+    if (walletClient) {
+      await walletClient.open();
+    }
   } catch (err) {
     logger.error('Error connecting sockets: ', err);
   }
@@ -47,8 +52,12 @@ app.use(cors());
   );
 
   // Path to route calls to bcoin node
-  app.use('/node/wallet', bcoinRouter(walletClient));
-  app.use('/node', bcoinRouter(nodeClient));
+  if (walletClient) {
+    app.use('/node/wallet', bcoinRouter(walletClient));
+  }
+  if (nodeClient) {
+    app.use('/node', bcoinRouter(nodeClient));
+  }
   app.get('/*', resolveIndex);
 
   /**
