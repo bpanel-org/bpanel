@@ -24,7 +24,7 @@ export default class Dashboard extends Component {
 
   componentDidMount() {
     const { chainHeight, getRecentBlocks } = this.props;
-    if (chainHeight > 0) {
+    if (chainHeight > 0 && !this.callingRecentBlocks) {
       this.callingRecentBlocks = true;
       getRecentBlocks(10);
     }
