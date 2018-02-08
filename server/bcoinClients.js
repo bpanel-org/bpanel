@@ -10,10 +10,11 @@ const configs = {
   port: typeof port === 'number' ? port : parseInt(port)
 };
 
-if (port === '443' || config.uri.indexOf('https') > -1) configs.ssl = true;
+if (port == '443' || config.uri.indexOf('https') > -1) configs.ssl = true;
 
-const nodeClient = new NodeClient(configs);
-let walletClient;
+let walletClient, nodeClient;
+if (port) nodeClient = new NodeClient(configs);
+
 if (walletPort) {
   walletClient = new WalletClient({
     ...configs,
