@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { css } from 'aphrodite';
 import { utils } from 'bpanel-ui';
 
 const { connectTheme } = utils;
@@ -17,9 +16,7 @@ class Footer extends PureComponent {
     const { theme, customChildren } = this.props;
     return (
       <div className="container-fluid">
-        <footer
-          className={`${css(theme.footer.container)} row align-items-center`}
-        >
+        <footer className={`${theme.footer.container} row align-items-center`}>
           {customChildren}
         </footer>
       </div>

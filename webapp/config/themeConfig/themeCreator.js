@@ -1,6 +1,7 @@
 import Immutable from 'seamless-immutable';
 import themeVariables from './themeVariables';
-import { StyleSheet } from 'aphrodite';
+import { StyleSheet, css } from 'aphrodite';
+import { createCss } from '../../utils/createCss';
 
 const themeCreator = (
   _themeVariables = Immutable({}),
@@ -60,6 +61,7 @@ const themeCreator = (
     appContentHeight,
     appContentPadding,
     appHeight,
+    appSidebarContainer,
     // Header
     headerHeight,
     // Footer
@@ -120,10 +122,6 @@ const themeCreator = (
         height: appHeight,
         overflowY: 'overlay'
       },
-      content: {
-        height: appContentHeight,
-        ...appContentPadding
-      },
       body: {
         color: themeColors.primary,
         background: appBg,
@@ -132,6 +130,13 @@ const themeCreator = (
         minHeight: appBodyMinHeight,
         overflowY: 'visible',
         fontFamily
+      },
+      content: {
+        height: appContentHeight,
+        ...appContentPadding
+      },
+      sidebarContainer: {
+        ...appSidebarContainer
       }
     },
 
@@ -160,10 +165,10 @@ const themeCreator = (
         ...sidebarItemPadding,
         ':hover': {
           border: border1
-        },
-        ':active': {
-          background: themeColors.lowlightGradient
         }
+      },
+      itemActive: {
+        background: themeColors.lowlightGradient
       },
       itemIcon: {
         ...sidebarItemIconPadding
@@ -176,8 +181,7 @@ const themeCreator = (
       },
       logoImg: {
         height: logoSize,
-        width: logoSize,
-        url: logoUrl
+        width: logoSize
       },
       footer: {
         ...sidebarFooterPadding
@@ -421,9 +425,13 @@ const themeCreator = (
     header: StyleSheet.create(header),
     link: StyleSheet.create(link),
     table: StyleSheet.create(table),
-    tableRowStyle,
-    text: StyleSheet.create(text)
+    text: StyleSheet.create(text),
+    logoUrl,
+    tableRowStyle
   };
+  // createCss takes the style sheets and turns their properties into css classes
+  createCss(styleSheet);
+
   return styleSheet;
 };
 

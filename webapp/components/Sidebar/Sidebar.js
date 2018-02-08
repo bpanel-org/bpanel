@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { css } from 'aphrodite';
 import { Text, Header, SidebarNavItem } from 'bpanel-ui';
 import { Link } from 'react-router-dom';
 
@@ -36,11 +35,8 @@ class Sidebar extends PureComponent {
     const { theme } = this.props;
     return (
       <Link to="/">
-        <div className={css(theme.sidebar.logoContainer)}>
-          <img
-            src={theme.sidebar.logoImg._definition.url}
-            className={css(theme.sidebar.logoImg)}
-          />
+        <div className={theme.sidebar.logoContainer}>
+          <img src={theme.logoUrl} className={theme.sidebar.logoImg} />
         </div>
       </Link>
     );
@@ -89,17 +85,17 @@ class Sidebar extends PureComponent {
     const commitHash = process.env.__COMMIT__.slice(0, 7);
     const version = process.env.__VERSION__;
     return (
-      <div className={`${css(theme.sidebar.footer)} mt-auto text-center`}>
+      <div className={`${theme.sidebar.footer} mt-auto text-center`}>
         <Header type="h5">bpanel</Header>
         <Text
           type="p"
-          className={`${css(theme.sidebar.footerText)} version text-truncate`}
+          className={`${theme.sidebar.footerText} version text-truncate`}
         >
           bcoin: {version}
         </Text>
         <Text
           type="p"
-          className={`${css(theme.sidebar.footerText)} commit text-truncate`}
+          className={`${theme.sidebar.footerText} commit text-truncate`}
         >
           UI: {commitHash}
         </Text>
@@ -111,9 +107,8 @@ class Sidebar extends PureComponent {
     const { theme, beforeNav, afterNav } = this.props;
     return (
       <nav
-        className={`${css(
-          theme.sidebar.container
-        )} d-flex flex-column navbar navbar-default navbar-fixed-side`}
+        className={`${theme.sidebar
+          .container} d-flex flex-column navbar navbar-default navbar-fixed-side`}
       >
         {this.renderLogo()}
         {beforeNav}

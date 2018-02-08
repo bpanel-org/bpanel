@@ -147,6 +147,7 @@ const appBodyMinHeight = makeRem(18.75, fontSizeBase);
 const appContentHeight = `calc(100vh - ${footerHeight} - ${headerHeight})`;
 const appContentPadding = makeGutter('padding', { left: 1.25, right: 2.5 });
 const appHeight = `calc(100vh - ${footerHeight})`;
+const appSidebarContainer = makeGutter('padding', { left: 0 });
 
 // Header
 const headerHeight = makeRem(7, fontSizeBase);
@@ -260,6 +261,7 @@ const themeVariables = {
   appContentHeight,
   appContentPadding,
   appHeight,
+  appSidebarContainer,
   // Header
   headerHeight,
   // Footer

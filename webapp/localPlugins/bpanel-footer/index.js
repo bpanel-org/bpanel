@@ -1,4 +1,3 @@
-import { css } from 'aphrodite';
 import { Text } from 'bpanel-ui';
 
 export const metadata = {
@@ -42,10 +41,10 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-3 version text-truncate">
-              <Text className={css(theme.footer.text)}>{version}</Text>
+              <Text className={theme.footer.text}>{version}</Text>
             </div>
-            <div className={`${css(theme.footer.progress)} col-3`}>
-              <Text className={css(theme.footer.text)}>
+            <div className={`${theme.footer.progress} col-3`}>
+              <Text className={theme.footer.text}>
                 {progressPercentage.toFixed(2)}% synced
               </Text>
             </div>
