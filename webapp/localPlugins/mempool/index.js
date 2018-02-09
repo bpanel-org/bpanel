@@ -72,6 +72,8 @@ export const getRouteProps = {
     })
 };
 
+const debounceInterval = 1000;
+let deboucer = null;
 export const middleware = ({ dispatch }) => next => action => {
   const { type } = action;
   if (type === SOCKET_CONNECTED) {
@@ -82,8 +84,12 @@ export const middleware = ({ dispatch }) => next => action => {
     dispatch(broadcastSetFilter());
     dispatch(subscribeTX());
   } else if (type === MEMPOOL_TX || type === ADD_RECENT_BLOCK) {
+    if (deboucer) return next(action);
     // update mempool state if new tx in pool or we got a new block
     dispatch(updateMempool());
+    deboucer = setTimeout(() => {
+      deboucer = null;
+    }, debounceInterval);
   }
   return next(action);
 };

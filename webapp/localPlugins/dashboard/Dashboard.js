@@ -48,6 +48,7 @@ export default class Dashboard extends Component {
       !this.callingRecentBlocks
     ) {
       getRecentBlocks(10);
+      this.callingRecentBlocks = true;
     }
   }
 
