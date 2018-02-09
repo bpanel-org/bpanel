@@ -143,7 +143,7 @@ const smoothTransition = '0.3s ease';
 const footerHeight = makeRem(2, fontSizeBase);
 
 // App
-const appBodyHeight = `calc(100% + ${footerHeight})`;
+const appBodyHeight = '100%';
 const appBodyMinHeight = makeRem(18.75, fontSizeBase);
 const appContentHeight = `calc(100vh - ${footerHeight} - ${headerHeight})`;
 const appContentPadding = makeGutter('padding', { left: 1.25, right: 2.5 });
