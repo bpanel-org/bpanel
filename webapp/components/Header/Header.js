@@ -16,7 +16,7 @@ class Header extends PureComponent {
     const { customChildren, theme } = this.props;
 
     return (
-      <div className="navbar" style={theme.headerbar.container}>
+      <div className={`${theme.headerbar.container} navbar`}>
         {customChildren}
       </div>
     );

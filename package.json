@@ -35,6 +35,7 @@
   "author": "bcoin",
   "license": "MIT",
   "dependencies": {
+    "aphrodite": "^1.2.5",
     "babel-runtime": "^6.26.0",
     "bclient": "0.0.1",
     "bcoin": "git+https://github.com/bcoin-org/bcoin.git#wallet-rewrite",

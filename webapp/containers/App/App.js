@@ -59,12 +59,9 @@ class App extends Component {
   }
 
   componentWillUnmount() {
-    const { theme } = this.props;
     // Unload theming for the <body> and <html> tags
-    for (const k in theme.app.body) {
-      document.body.style[k] = null;
-      document.document.documentElement.style[k] = null;
-    }
+    document.body.className = null;
+    document.document.documentElement.className = null;
     this.props.disconnectSocket();
   }
 
@@ -73,20 +70,16 @@ class App extends Component {
 
     return (
       <ThemeProvider theme={theme}>
-        <div
-          className="container-fluid"
-          role="main"
-          style={theme.app.container}
-        >
+        <div className={`${theme.app.container} container-fluid`} role="main">
           <div className="row">
-            <div className="col-sm-4 col-lg-3" style={{ paddingLeft: 0 }}>
+            <div className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}>
               <Sidebar
                 sidebarNavItems={sortedPluginMeta}
                 location={location}
                 theme={theme}
               />
             </div>
-            <div className="col-sm-8 col-lg-9" style={theme.app.content}>
+            <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
               <Header />
               <Panel />
             </div>

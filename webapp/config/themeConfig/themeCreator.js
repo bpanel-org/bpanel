@@ -1,5 +1,7 @@
 import Immutable from 'seamless-immutable';
 import themeVariables from './themeVariables';
+import { StyleSheet, css } from 'aphrodite';
+import { createCss } from '../../utils/createCss';
 
 const themeCreator = (
   _themeVariables = Immutable({}),
@@ -46,6 +48,10 @@ const themeCreator = (
     /// CONTAINER
     /// *********
     rowContainer,
+    /// ***********
+    /// TRANSITIONS
+    /// ***********
+    smoothTransition,
     /// *******************
     /// COMPONENT VARIABLES
     /// *******************
@@ -55,6 +61,7 @@ const themeCreator = (
     appContentHeight,
     appContentPadding,
     appHeight,
+    appSidebarContainer,
     // Header
     headerHeight,
     // Footer
@@ -66,7 +73,6 @@ const themeCreator = (
     sidebarFooterPadding,
     sidebarItemIconPadding,
     sidebarItemPadding,
-    sidebarItemTransition,
     sidebarLinkMinWidth,
     // Logo
     logoContainerPadding,
@@ -99,6 +105,14 @@ const themeCreator = (
     fontSize: fontSizeBase
   };
 
+  const transition = {
+    WebkitTransition: smoothTransition,
+    MozTransition: smoothTransition,
+    OTransition: smoothTransition,
+    msTransition: smoothTransition,
+    transition: smoothTransition
+  };
+
   const themeConfig = Immutable({
     // MAIN APP COMPONENTS
 
@@ -108,18 +122,21 @@ const themeCreator = (
         height: appHeight,
         overflowY: 'overlay'
       },
-      content: {
-        height: appContentHeight,
-        ...appContentPadding
-      },
       body: {
         color: themeColors.primary,
         background: appBg,
         backgroundSize: appBgSize,
         height: appBodyHeight,
         minHeight: appBodyMinHeight,
-        overflowY: 'hidden',
+        overflowY: 'visible',
         fontFamily
+      },
+      content: {
+        height: appContentHeight,
+        ...appContentPadding
+      },
+      sidebarContainer: {
+        ...appSidebarContainer
       }
     },
 
@@ -135,7 +152,7 @@ const themeCreator = (
         textDecoration: 'none',
         textTransform: 'capitalize',
         width: '100%',
-        hover: {
+        ':hover': {
           textDecoration: 'none'
         }
       },
@@ -144,34 +161,27 @@ const themeCreator = (
         color: themeColors.primary,
         fontWeight: fontWeights.light,
         textDecoration: 'none',
-        WebkitTransition: sidebarItemTransition,
-        MozTransition: sidebarItemTransition,
-        OTransition: sidebarItemTransition,
-        msTransition: sidebarItemTransition,
-        transition: sidebarItemTransition,
+        ...transition,
         ...sidebarItemPadding,
-        hover: {
+        ':hover': {
           border: border1
-        },
-        active: {
-          background: themeColors.lowlightGradient
         }
+      },
+      itemActive: {
+        background: themeColors.lowlightGradient
       },
       itemIcon: {
         ...sidebarItemIconPadding
       },
-      logo: {
-        container: {
-          opacity: fontOpacity,
-          textAlign: 'center',
-          width: '100%',
-          ...logoContainerPadding
-        },
-        img: {
-          height: logoSize,
-          width: logoSize,
-          url: logoUrl
-        }
+      logoContainer: {
+        opacity: fontOpacity,
+        textAlign: 'center',
+        width: '100%',
+        ...logoContainerPadding
+      },
+      logoImg: {
+        height: logoSize,
+        width: logoSize
       },
       footer: {
         ...sidebarFooterPadding
@@ -229,15 +239,22 @@ const themeCreator = (
     // Button
     button: {
       primary: {
-        ...defaultButtonStyle
+        ...defaultButtonStyle,
+        ...transition,
+        ':hover': {
+          backgroundColor: themeColors.highlight1,
+          color: themeColors.white
+        }
       },
       action: {
         border: 'none',
         backgroundColor: themeColors.primary,
         cursor: 'pointer',
         padding: buttonActionPadding,
-        hover: {
-          background: themeColors.lowlightGradient
+        ...transition,
+        ':hover': {
+          background: themeColors.lowlightGradient,
+          color: themeColors.white
         }
       }
     },
@@ -305,9 +322,11 @@ const themeCreator = (
 
     // Link
     link: {
-      color: themeColors.highlight1,
-      fontSize: fontSizeBase,
-      textDecoration: 'underline'
+      default: {
+        color: themeColors.highlight1,
+        fontSize: fontSizeBase,
+        textDecoration: 'underline'
+      }
     },
 
     // Table
@@ -321,10 +340,7 @@ const themeCreator = (
       },
       body: {
         fontWeight: fontWeights.light
-      },
-      // This row renderer alternates background colors between
-      // transparent and a slightly transparent white
-      row: rowRenderer
+      }
     },
 
     //Tab Menu
@@ -360,6 +376,20 @@ const themeCreator = (
       }
     },
 
+    tableRowStyle: ({ index }) => {
+      const style = {
+        fontWeight: fontWeights.light
+      };
+      if (index === -1) {
+        style.backgroundColor = themeColors.mediumBg;
+      } else if (index % 2 === 0 || index === 0) {
+        style.backgroundColor = themeColors.transparent;
+      } else {
+        style.backgroundColor = themeColors.lightBg;
+      }
+      return style;
+    },
+
     // Text
     text: {
       span: {
@@ -374,7 +404,39 @@ const themeCreator = (
       }
     }
   }).merge(_themeConfig, { deep: true });
-  return themeConfig;
+  const {
+    app,
+    sidebar,
+    headerbar,
+    input,
+    footer,
+    button,
+    header,
+    link,
+    table,
+    tableRowStyle,
+    tabMenu,
+    text
+  } = themeConfig;
+  const styleSheet = {
+    app: StyleSheet.create(app),
+    sidebar: StyleSheet.create(sidebar),
+    headerbar: StyleSheet.create(headerbar),
+    input: StyleSheet.create(input),
+    footer: StyleSheet.create(footer),
+    button: StyleSheet.create(button),
+    header: StyleSheet.create(header),
+    link: StyleSheet.create(link),
+    table: StyleSheet.create(table),
+    tabMenu: StyleSheet.create(tabMenu),
+    text: StyleSheet.create(text),
+    logoUrl,
+    tableRowStyle
+  };
+  // createCss takes the style sheets and turns their properties into css classes
+  createCss(styleSheet);
+
+  return styleSheet;
 };
 
 export default themeCreator;

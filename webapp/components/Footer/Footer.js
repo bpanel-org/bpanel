@@ -16,10 +16,7 @@ class Footer extends PureComponent {
     const { theme, customChildren } = this.props;
     return (
       <div className="container-fluid">
-        <footer
-          className="row align-items-center"
-          style={theme.footer.container}
-        >
+        <footer className={`${theme.footer.container} row align-items-center`}>
           {customChildren}
         </footer>
       </div>

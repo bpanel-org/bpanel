@@ -14,18 +14,16 @@ const {
 
 // MAIN APP COMPONENTS
 const sidebar = {
-  logo: {
-    container: {
-      background: logoContainerBg,
-      borderRadius: logoContainerBorderRadius,
-      opacity: logoOpacity,
-      ...logoContainerPadding,
-      ...logoContainerMargin
-    },
-    img: {
-      height: logoSize,
-      width: logoSize
-    }
+  logoContainer: {
+    background: logoContainerBg,
+    borderRadius: logoContainerBorderRadius,
+    opacity: logoOpacity,
+    ...logoContainerPadding,
+    ...logoContainerMargin
+  },
+  logoImg: {
+    height: logoSize,
+    width: logoSize
   }
 };
 

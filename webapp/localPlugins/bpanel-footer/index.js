@@ -41,10 +41,10 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
         <div className="container">
           <div className="row align-items-center">
             <div className="col-3 version text-truncate">
-              <Text style={theme.footer.text}>{version}</Text>
+              <Text className={theme.footer.text}>{version}</Text>
             </div>
-            <div className="col-3" style={theme.footer.progress}>
-              <Text style={theme.footer.text}>
+            <div className={`${theme.footer.progress} col-3`}>
+              <Text className={theme.footer.text}>
                 {progressPercentage.toFixed(2)}% synced
               </Text>
             </div>

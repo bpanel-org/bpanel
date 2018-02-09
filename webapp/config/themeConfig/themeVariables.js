@@ -129,6 +129,11 @@ const rowContainer = {
   justifyContent: 'start',
   alignItems: 'center'
 };
+/// ***********
+/// TRANSITIONS
+/// ***********
+
+const smoothTransition = '0.3s ease';
 
 /// *******************
 /// COMPONENT VARIABLES
@@ -143,6 +148,7 @@ const appBodyMinHeight = makeRem(18.75, fontSizeBase);
 const appContentHeight = `calc(100vh - ${footerHeight} - ${headerHeight})`;
 const appContentPadding = makeGutter('padding', { left: 1.25, right: 2.5 });
 const appHeight = `calc(100vh - ${footerHeight})`;
+const appSidebarContainer = makeGutter('padding', { left: 0 });
 
 // Header
 const headerHeight = makeRem(7, fontSizeBase);
@@ -157,7 +163,6 @@ const sidebarItemPadding = makeGutter('padding', {
   horizontal: 2.1875,
   vertical: 0.625
 });
-const sidebarItemTransition = '0.3s ease';
 const sidebarLinkMinWidth = makeRem(9.375, fontSizeBase);
 
 // Logo
@@ -244,6 +249,10 @@ const themeVariables = {
   /// CONTAINER
   /// *********
   rowContainer,
+  /// ***********
+  /// TRANSITIONS
+  /// ***********
+  smoothTransition,
   /// *******************
   /// COMPONENT VARIABLES
   /// *******************
@@ -253,6 +262,7 @@ const themeVariables = {
   appContentHeight,
   appContentPadding,
   appHeight,
+  appSidebarContainer,
   // Header
   headerHeight,
   // Footer
@@ -264,7 +274,6 @@ const themeVariables = {
   sidebarFooterTextMargin,
   sidebarItemIconPadding,
   sidebarItemPadding,
-  sidebarItemTransition,
   sidebarLinkMinWidth,
   // Logo
   logoContainerPadding,

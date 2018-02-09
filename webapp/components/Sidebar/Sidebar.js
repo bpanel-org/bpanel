@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
-import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Text, Header, SidebarNavItem } from 'bpanel-ui';
+import { Link } from 'react-router-dom';
 
 import { pluginMetaProps } from '../../containers/App/App';
 
@@ -35,11 +35,8 @@ class Sidebar extends PureComponent {
     const { theme } = this.props;
     return (
       <Link to="/">
-        <div style={theme.sidebar.logo.container}>
-          <img
-            src={theme.sidebar.logo.img.url}
-            style={theme.sidebar.logo.img}
-          />
+        <div className={theme.sidebar.logoContainer}>
+          <img src={theme.logoUrl} className={theme.sidebar.logoImg} />
         </div>
       </Link>
     );
@@ -88,19 +85,17 @@ class Sidebar extends PureComponent {
     const commitHash = process.env.__COMMIT__.slice(0, 7);
     const version = process.env.__VERSION__;
     return (
-      <div className="mt-auto text-center" style={theme.sidebar.footer}>
+      <div className={`${theme.sidebar.footer} mt-auto text-center`}>
         <Header type="h5">bpanel</Header>
         <Text
           type="p"
-          className="version text-truncate"
-          style={theme.sidebar.footerText}
+          className={`${theme.sidebar.footerText} version text-truncate`}
         >
           bcoin: {version}
         </Text>
         <Text
           type="p"
-          className="commit text-truncate"
-          style={theme.sidebar.footerText}
+          className={`${theme.sidebar.footerText} commit text-truncate`}
         >
           UI: {commitHash}
         </Text>
@@ -112,8 +107,8 @@ class Sidebar extends PureComponent {
     const { theme, beforeNav, afterNav } = this.props;
     return (
       <nav
-        className="d-flex flex-column navbar navbar-default navbar-fixed-side"
-        style={theme.sidebar.container}
+        className={`${theme.sidebar
+          .container} d-flex flex-column navbar navbar-default navbar-fixed-side`}
       >
         {this.renderLogo()}
         {beforeNav}
