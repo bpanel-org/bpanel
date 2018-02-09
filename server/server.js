@@ -25,8 +25,7 @@ app.use(cors());
 (async function() {
   try {
     if (nodeClient) {
-      const resp = await nodeClient.open();
-      logger.debug(resp);
+      await nodeClient.open();
     }
     if (walletClient) {
       await walletClient.open();

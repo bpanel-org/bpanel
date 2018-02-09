@@ -14,7 +14,6 @@ if (port == '443' || config.uri.indexOf('https') > -1) configs.ssl = true;
 
 let walletClient, nodeClient;
 if (port) nodeClient = new NodeClient(configs);
-
 if (walletPort) {
   walletClient = new WalletClient({
     ...configs,
