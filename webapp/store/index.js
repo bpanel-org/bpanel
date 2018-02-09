@@ -9,10 +9,10 @@ import { getConstants } from '../plugins/plugins';
 import { loadPlugins, pluginMiddleware } from '../plugins/plugins';
 import * as reducers from './reducers';
 
-export const getStore = async () => {
+export default async () => {
   // load plugin information before setting up app and store
   await loadPlugins(config);
-  console.log('loading plugins');
+
   const rootReducer = combineReducers(reducers);
   const middleware = [thunkMiddleware, pluginMiddleware, effects];
   let compose,

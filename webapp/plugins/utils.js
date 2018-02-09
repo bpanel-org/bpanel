@@ -53,20 +53,47 @@ export const loadConnectors = (plugin, type, connectors) => {
   }
 };
 
-// const homedir = homedir();
-// const plugins = resolve(homedir, '.hyper_plugins');
-// const plugs = {
-//   base: plugins,
-//   local: resolve(plugins, 'local'),
-//   cache: resolve(plugins, 'cache')
-// };
-// export function getPaths() {
-//   return {
-//     plugins: plugins.plugins.map(name => {
-//       return resolve(path, 'node_modules', name.split('#')[0].split('@')[0]);
-//     }),
-//     localPlugins: plugins.localPlugins.map(name => {
-//       return resolve(localPath, name);
-//     })
-//   };
-// }
+export const moduleLoader = config => {
+  const modules = [];
+  const { localPlugins, pluginModules, plugins } = config;
+
+  if (localPlugins) {
+    // load local plugins from current directory
+    assert(
+      Array.isArray(localPlugins) && typeof localPlugins[0] === 'string',
+      'Local plugins must be an array of strings'
+    );
+    localPlugins.forEach(name => {
+      const plugin = require(`./${name}`);
+      modules.push(plugin);
+    });
+  }
+
+  // if (pluginModules) {
+  //   // load pluginModules from plugin config object
+  //   const modulesArr = Array.isArray(pluginModules)
+  //     ? pluginModules
+  //     : [pluginModules];
+  //   modulesArr.forEach(module => {
+  //     assert(
+  //       module.metadata,
+  //       'Each module must have a metadata property and be in the expected plugin format'
+  //     );
+  //     modules.push(module);
+  //   });
+  // }
+
+  // if (plugins) {
+  //   // load modules from node_modules
+  //   assert(
+  //     Array.isArray(plugins) && typeof plugins[0] === 'string',
+  //     'Plugins must be an array of strings of module names to import from node_modules'
+  //   );
+  //   plugins.forEach(name => {
+  //     const plugin = require(`../../node_modules/${name}`);
+  //     modules.push(plugin);
+  //   });
+  // }
+
+  return modules;
+};

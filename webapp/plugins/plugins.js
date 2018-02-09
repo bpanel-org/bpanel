@@ -3,9 +3,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
-import { resolve } from 'path';
 
-import { propsReducerCallback, loadConnectors } from './utils';
+import { propsReducerCallback, loadConnectors, moduleLoader } from './utils';
 import constants from '../store/constants';
 
 // Instantiate caches
@@ -73,143 +72,140 @@ export const loadPlugins = async config => {
   // Loop/map through local (and later 'remote') plugins
   // load each plugin object into the the cache of modules
   // in hyper the list of absolute paths are generated with a util function
-  // ahead of time, then required. Could solve these issues
+  // ahead of time, then required. could solve these issues
+  plugins = moduleLoader(config)
+    .map(plugin => {
+      // plugins = config.localplugins
+      //   .map(async pluginName => {
+      //     let plugin;
+      //     try {
+      //       plugin = require(`./${pluginName}`);
+      //     } catch (e) {
+      //       // eslint-disable-next-line no-console
+      //       console.error(`There was a problem loading ${pluginName}: ${e}`);
+      //       return;
+      //     }
 
-  plugins = await Promise.all(
-    config.localPlugins
-      .map(async pluginName => {
-        let plugin;
-        try {
-          plugin = require(`./${pluginName}`);
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error(`There was a problem loading ${pluginName}: ${e}`);
-          return;
+      let name, pluginVersion;
+
+      try {
+        name = plugin.metadata.name;
+        pluginVersion = plugin.metadata.pluginVersion;
+        metadata[name] = plugin.metadata;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(`There was a problem loading the metadata for ${name}`);
+      }
+
+      for (const method in plugin) {
+        if (plugin.hasOwnProperty(method)) {
+          plugin[method]._pluginName = name;
+          plugin[method]._pluginVersion = pluginVersion;
         }
+      }
 
-        let name, pluginVersion;
+      if (plugin.appConfig) {
+        // recursively loading plugin dependencies from a plugins config export
+        // await loadPlugins(plugin.appConfig);
+      }
 
-        try {
-          name = plugin.metadata.name;
-          pluginVersion = plugin.metadata.pluginVersion;
-          metadata[pluginName] = plugin.metadata;
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error(
-            `There was a problem loading the metadata for ${pluginName}`
-          );
+      if (plugin.middleware) {
+        middlewares.push(plugin.middleware);
+      }
+
+      // state mappers
+      if (plugin.mapAppState) {
+        connectors.App.state.push(plugin.mapAppState);
+      }
+
+      if (plugin.mapAppDispatch) {
+        connectors.App.dispatch.push(plugin.mapAppDispatch);
+      }
+
+      // catch all state and dispatch mappers
+      loadConnectors(plugin, 'state', connectors);
+      loadConnectors(plugin, 'dispatch', connectors);
+
+      // propsDecorators
+      // routePropsDecorators is an object with keys corresponding to route
+      if (plugin.getRouteProps) {
+        for (let key in plugin.getRouteProps) {
+          // skip if is an internal property
+          if (key[0] === '_') continue;
+          // initialize array of decorators for route if none
+          if (!routePropsDecorators[key]) routePropsDecorators[key] = [];
+
+          routePropsDecorators[key].push(plugin.getRouteProps[key]);
         }
+      }
 
-        for (const method in plugin) {
-          if (plugin.hasOwnProperty(method)) {
-            plugin[method]._pluginName = name;
-            plugin[method]._pluginVersion = pluginVersion;
+      // TODO: will prob. want to clean this up w/ plugin system refactor
+      // all prop-getting now happening in getRouteProps
+      // which also looks closer to what
+      // the generalized system may end up being
+      if (plugin.getPanelProps) {
+        panelPropsDecorators.push(plugin.getPanelProps);
+      }
+
+      // catchall props getter
+      // key should match the component that will be getting props
+      // and value (in the plugin) is a function that extends the props
+      // these are collected in an array of functions mapped to component name
+      if (plugin.getProps) {
+        for (let key in plugin.getProps) {
+          if (key[0] === '_') continue; // skip if is an internal property
+          if (!propsDecorators[key]) propsDecorators[key] = [];
+          propsDecorators[key] = plugin.getProps;
+        }
+      }
+
+      // reducersDecorators
+      if (plugin.reduceChain) {
+        reducersDecorators.chainReducer.push(plugin.reduceChain);
+      }
+
+      if (plugin.reduceNode) {
+        reducersDecorators.nodeReducer.push(plugin.reduceNode);
+      }
+
+      if (plugin.reduceWallets) {
+        reducersDecorators.walletsReducer.push(plugin.reduceWallets);
+      }
+
+      // other miscellaneous decorators
+      if (plugin.addSocketConstants) {
+        extendConstants.sockets.push(plugin.addSocketConstants);
+      }
+
+      // themeDecorators
+      if (plugin.decorateTheme) {
+        themeDecorators.push(plugin.decorateTheme);
+      }
+
+      // for plugins that can be decorated by other plugins
+      if (plugin.decoratePlugin) {
+        // check for each plugin decorator
+        for (let key in plugin.decoratePlugin) {
+          if (key[0] === '_') continue; // skip if is an internal property
+          // check if dependency plugin has been loaded
+          if (!metadata[key]) {
+            // eslint-disable-next-line no-console
+            console.error(
+              `Plugin dependency "${key}" does not exist for ${name}.`,
+              `Please make sure plugin "${key}" has been added to configs`,
+              `and is loaded before child plugin "${name}"`
+            );
+            return;
           }
+          // initialize of plugin decorators if none
+          if (!pluginDecorators[key]) pluginDecorators[key] = [];
+          pluginDecorators[key].push(plugin.decoratePlugin[key]);
         }
+      }
 
-        if (plugin.appConfig) {
-          // recursively loading plugin dependencies from a plugins config export
-          // await loadPlugins(plugin.appConfig);
-        }
-
-        if (plugin.middleware) {
-          middlewares.push(plugin.middleware);
-        }
-
-        // state mappers
-        if (plugin.mapAppState) {
-          connectors.App.state.push(plugin.mapAppState);
-        }
-
-        if (plugin.mapAppDispatch) {
-          connectors.App.dispatch.push(plugin.mapAppDispatch);
-        }
-
-        // catch all state and dispatch mappers
-        loadConnectors(plugin, 'state', connectors);
-        loadConnectors(plugin, 'dispatch', connectors);
-
-        // propsDecorators
-        // routePropsDecorators is an object with keys corresponding to route
-        if (plugin.getRouteProps) {
-          for (let key in plugin.getRouteProps) {
-            // skip if is an internal property
-            if (key[0] === '_') continue;
-            // initialize array of decorators for route if none
-            if (!routePropsDecorators[key]) routePropsDecorators[key] = [];
-
-            routePropsDecorators[key].push(plugin.getRouteProps[key]);
-          }
-        }
-
-        // TODO: will prob. want to clean this up w/ plugin system refactor
-        // all prop-getting now happening in getRouteProps
-        // which also looks closer to what
-        // the generalized system may end up being
-        if (plugin.getPanelProps) {
-          panelPropsDecorators.push(plugin.getPanelProps);
-        }
-
-        // catchall props getter
-        // key should match the component that will be getting props
-        // and value (in the plugin) is a function that extends the props
-        // these are collected in an array of functions mapped to component name
-        if (plugin.getProps) {
-          for (let key in plugin.getProps) {
-            if (key[0] === '_') continue; // skip if is an internal property
-            if (!propsDecorators[key]) propsDecorators[key] = [];
-            propsDecorators[key] = plugin.getProps;
-          }
-        }
-
-        // reducersDecorators
-        if (plugin.reduceChain) {
-          reducersDecorators.chainReducer.push(plugin.reduceChain);
-        }
-
-        if (plugin.reduceNode) {
-          reducersDecorators.nodeReducer.push(plugin.reduceNode);
-        }
-
-        if (plugin.reduceWallets) {
-          reducersDecorators.walletsReducer.push(plugin.reduceWallets);
-        }
-
-        // other miscellaneous decorators
-        if (plugin.addSocketConstants) {
-          extendConstants.sockets.push(plugin.addSocketConstants);
-        }
-
-        // themeDecorators
-        if (plugin.decorateTheme) {
-          themeDecorators.push(plugin.decorateTheme);
-        }
-
-        // for plugins that can be decorated by other plugins
-        if (plugin.decoratePlugin) {
-          // check for each plugin decorator
-          for (let key in plugin.decoratePlugin) {
-            if (key[0] === '_') continue; // skip if is an internal property
-            // check if dependency plugin has been loaded
-            if (!metadata[key]) {
-              // eslint-disable-next-line no-console
-              console.error(
-                `Plugin dependency "${key}" does not exist for ${name}.`,
-                `Please make sure plugin "${key}" has been added to configs`,
-                `and is loaded before child plugin "${name}"`
-              );
-              return;
-            }
-            // initialize of plugin decorators if none
-            if (!pluginDecorators[key]) pluginDecorators[key] = [];
-            pluginDecorators[key].push(plugin.decoratePlugin[key]);
-          }
-        }
-
-        return plugin;
-      })
-      .filter(plugin => Boolean(plugin))
-  );
+      return plugin;
+    })
+    .filter(plugin => Boolean(plugin));
   return plugins;
 };
 
