@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
+import { resolve } from 'path';
 
 import { propsReducerCallback, loadConnectors, moduleLoader } from './utils';
 import constants from '../store/constants';
