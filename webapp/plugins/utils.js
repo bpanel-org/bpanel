@@ -1,5 +1,6 @@
 // utilities for the plugin system modules
-import { resolve } from 'path';
+import assert from 'assert';
+import semver from 'semver';
 
 export const propsReducerCallback = (name, parentProps, ...fnArgs) => (
   acc,
@@ -53,8 +54,48 @@ export const loadConnectors = (plugin, type, connectors) => {
   }
 };
 
-export const moduleLoader = config => {
-  const modules = [];
+// plugin to add method and check for duplicates
+// and use latest version of plugin
+// TODO: Use seamless immutable for modules?
+export const addPlugin = (modules = [], plugin) => {
+  const { name: pluginName, version: pluginVersion } = plugin.metadata;
+  assert(
+    !pluginVersion || typeof pluginVersion === 'string',
+    'Plugin version must be string'
+  );
+
+  if (modules.length) {
+    let exists = false;
+    const updated = modules.map(module => {
+      const { name: moduleName, version: moduleVersion } = module.metadata;
+      if (moduleName === pluginName) {
+        // if the plugin already exists
+        exists = true;
+        if (
+          (pluginVersion && !moduleVersion) ||
+          semver.lt(moduleVersion, pluginVersion)
+        ) {
+          // and only the newer one has a version but not the existing
+          // or the newer one is newer version
+          // then replace existing with newer version
+          return plugin;
+        } else {
+          return module;
+        }
+      } else {
+        // otherwise can just return the existing version
+        return module;
+      }
+    });
+    // if no match in existing array
+    // return array with new plugin pushed on
+    if (!exists) updated.push(plugin);
+    return updated;
+  }
+  return [plugin];
+};
+
+export const moduleLoader = (config, modules = []) => {
   const { localPlugins, pluginModules, plugins } = config;
 
   if (localPlugins) {
@@ -63,25 +104,37 @@ export const moduleLoader = config => {
       Array.isArray(localPlugins) && typeof localPlugins[0] === 'string',
       'Local plugins must be an array of strings'
     );
-    localPlugins.forEach(name => {
-      const plugin = require(`./${name}`);
-      modules.push(plugin);
+    localPlugins.forEach(async name => {
+      try {
+        const plugin = require(`./${name}`);
+        modules = addPlugin(modules, plugin);
+        if (plugin.pluginConfig)
+          // doing recursive call if plugin has plugin bundle
+          modules = moduleLoader(plugin.pluginConfig, modules);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(`There was a problem loading local plugin "${name}:"`, e);
+      }
     });
   }
 
-  // if (pluginModules) {
-  //   // load pluginModules from plugin config object
-  //   const modulesArr = Array.isArray(pluginModules)
-  //     ? pluginModules
-  //     : [pluginModules];
-  //   modulesArr.forEach(module => {
-  //     assert(
-  //       module.metadata,
-  //       'Each module must have a metadata property and be in the expected plugin format'
-  //     );
-  //     modules.push(module);
-  //   });
-  // }
+  if (pluginModules) {
+    // load pluginModules from plugin config object
+    const modulesArr = Array.isArray(pluginModules)
+      ? pluginModules
+      : [pluginModules];
+    modulesArr.forEach(module => {
+      assert(
+        typeof module !== 'string',
+        'pluginModules cannot be strings. You must export the actual modules.'
+      );
+      assert(
+        module.metadata,
+        'Each module must have a metadata property and be in the expected plugin format'
+      );
+      modules = addPlugin(modules, module);
+    });
+  }
 
   // if (plugins) {
   //   // load modules from node_modules
@@ -92,6 +145,9 @@ export const moduleLoader = config => {
   //   plugins.forEach(name => {
   //     const plugin = require(`../../node_modules/${name}`);
   //     modules.push(plugin);
+  //     if (plugin.pluginConfig)
+  //       // doing recursive call if plugin has plugin bundle
+  //       modules = moduleLoader(plugin.pluginConfig, modules);
   //   });
   // }
 

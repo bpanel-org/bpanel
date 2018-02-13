@@ -7,8 +7,7 @@ export const metadata = {
 };
 
 export const mapComponentState = {
-  Footer: (state, map) =>
-    Object.assign(map, { address: state.wallets.primary.receiveAddress })
+  Footer: (state, map) => Object.assign(map, { address: state.wallets })
 };
 
 export const decorateFooter = (Footer, { React, PropTypes }) => {
@@ -19,14 +18,15 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        address: PropTypes.string,
+        wallets: PropTypes.object,
         customChildren: PropTypes.node
       };
     }
 
     render() {
-      const { address, customChildren: existingCustomChildren } = this.props;
+      const { wallets, customChildren: existingCustomChildren } = this.props;
       let customChildren = existingCustomChildren;
+      const address = wallets.primary ? wallets.primary.receiveAddress : '...';
       if (address) {
         customChildren = (
           <div>

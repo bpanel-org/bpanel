@@ -3,7 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
-import { resolve } from 'path';
 
 import { propsReducerCallback, loadConnectors, moduleLoader } from './utils';
 import constants from '../store/constants';
@@ -70,28 +69,16 @@ export const loadPlugins = async config => {
 
   middlewares = [];
 
-  // Loop/map through local (and later 'remote') plugins
-  // load each plugin object into the the cache of modules
-  // in hyper the list of absolute paths are generated with a util function
-  // ahead of time, then required. could solve these issues
+  // moduleLoader takes a config and returns all modules
+  // indicated by that config (local, node_modules, and pluginModules)
+  // then we map through each module and compose and cache app decorators
   plugins = moduleLoader(config)
     .map(plugin => {
-      // plugins = config.localplugins
-      //   .map(async pluginName => {
-      //     let plugin;
-      //     try {
-      //       plugin = require(`./${pluginName}`);
-      //     } catch (e) {
-      //       // eslint-disable-next-line no-console
-      //       console.error(`There was a problem loading ${pluginName}: ${e}`);
-      //       return;
-      //     }
-
-      let name, pluginVersion;
+      let name, version;
 
       try {
         name = plugin.metadata.name;
-        pluginVersion = plugin.metadata.pluginVersion;
+        version = plugin.metadata.version;
         metadata[name] = plugin.metadata;
       } catch (e) {
         // eslint-disable-next-line no-console
@@ -101,13 +88,8 @@ export const loadPlugins = async config => {
       for (const method in plugin) {
         if (plugin.hasOwnProperty(method)) {
           plugin[method]._pluginName = name;
-          plugin[method]._pluginVersion = pluginVersion;
+          plugin[method]._pluginVersion = version;
         }
-      }
-
-      if (plugin.appConfig) {
-        // recursively loading plugin dependencies from a plugins config export
-        // await loadPlugins(plugin.appConfig);
       }
 
       if (plugin.middleware) {

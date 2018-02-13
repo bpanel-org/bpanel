@@ -3,7 +3,8 @@ import { watchChain, subscribeBlockConnect, setChainTip } from './actions';
 
 export const metadata = {
   name: 'chainSockets',
-  author: 'bcoin-org'
+  author: 'bcoin-org',
+  version: '0.0.1'
 };
 
 export const addSocketConstants = (sockets = { listeners: [] }) => {
