@@ -56,7 +56,6 @@ export const loadConnectors = (plugin, type, connectors) => {
 
 // plugin to add method and check for duplicates
 // and use latest version of plugin
-// TODO: Use seamless immutable for modules?
 export const addPlugin = (modules = [], plugin) => {
   const { name: pluginName, version: pluginVersion } = plugin.metadata;
   assert(
@@ -96,16 +95,12 @@ export const addPlugin = (modules = [], plugin) => {
 };
 
 export const moduleLoader = (config, modules = []) => {
-  const { localPlugins, pluginModules, plugins } = config;
-
+  const { localPlugins, plugins } = config;
   if (localPlugins) {
+    assert(Array.isArray(localPlugins), 'Local plugins should be an array');
     // load local plugins from current directory
-    assert(
-      Array.isArray(localPlugins) &&
-        (typeof localPlugins[0] === 'string' || localPlugins.length === 0),
-      'Local plugins must be an array of strings'
-    );
-    localPlugins.forEach(async name => {
+    localPlugins.forEach(name => {
+      assert(typeof name === 'string', 'Local plugin name should be a string');
       try {
         const plugin = require(`./${name}`);
         modules = addPlugin(modules, plugin);
@@ -114,25 +109,23 @@ export const moduleLoader = (config, modules = []) => {
           modules = moduleLoader(plugin.pluginConfig, modules);
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.error(`There was a problem loading local plugin "${name}:"`, e);
+        console.error(`There was a problem loading local plugin '${name}:'`, e);
       }
     });
   }
 
-  if (pluginModules || plugins) {
-    // load pluginModules from plugin config object
-    const toAdd = pluginModules ? pluginModules : plugins;
-    const modulesArr = Array.isArray(toAdd) ? toAdd : [toAdd];
-    modulesArr.forEach(module => {
+  if (plugins) {
+    // load plugin exports from config
+    const pluginsArr = Array.isArray(plugins) ? plugins : [plugins];
+    pluginsArr.forEach(plugin => {
       assert(
-        typeof module !== 'string',
-        'Only localPlugins can be strings, otherwise you must export the actual modules.'
+        typeof plugin !== 'string' && plugin.metadata,
+        'Plugin must be an exported plugin module with a metadata property'
       );
-      assert(
-        module.metadata,
-        'Each module must have a metadata property and be in the expected plugin format'
-      );
-      modules = addPlugin(modules, module);
+      modules = addPlugin(modules, plugin);
+      if (plugin.pluginConfig)
+        // doing recursive call if plugin has plugin bundle
+        modules = moduleLoader(plugin.pluginConfig, modules);
     });
   }
 
