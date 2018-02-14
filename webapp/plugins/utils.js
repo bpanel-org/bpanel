@@ -101,7 +101,8 @@ export const moduleLoader = (config, modules = []) => {
   if (localPlugins) {
     // load local plugins from current directory
     assert(
-      Array.isArray(localPlugins) && typeof localPlugins[0] === 'string',
+      Array.isArray(localPlugins) &&
+        (typeof localPlugins[0] === 'string' || localPlugins.length === 0),
       'Local plugins must be an array of strings'
     );
     localPlugins.forEach(async name => {
@@ -118,15 +119,14 @@ export const moduleLoader = (config, modules = []) => {
     });
   }
 
-  if (pluginModules) {
+  if (pluginModules || plugins) {
     // load pluginModules from plugin config object
-    const modulesArr = Array.isArray(pluginModules)
-      ? pluginModules
-      : [pluginModules];
+    const toAdd = pluginModules ? pluginModules : plugins;
+    const modulesArr = Array.isArray(toAdd) ? toAdd : [toAdd];
     modulesArr.forEach(module => {
       assert(
         typeof module !== 'string',
-        'pluginModules cannot be strings. You must export the actual modules.'
+        'Only localPlugins can be strings, otherwise you must export the actual modules.'
       );
       assert(
         module.metadata,
@@ -135,21 +135,6 @@ export const moduleLoader = (config, modules = []) => {
       modules = addPlugin(modules, module);
     });
   }
-
-  // if (plugins) {
-  //   // load modules from node_modules
-  //   assert(
-  //     Array.isArray(plugins) && typeof plugins[0] === 'string',
-  //     'Plugins must be an array of strings of module names to import from node_modules'
-  //   );
-  //   plugins.forEach(name => {
-  //     const plugin = require(`../../node_modules/${name}`);
-  //     modules.push(plugin);
-  //     if (plugin.pluginConfig)
-  //       // doing recursive call if plugin has plugin bundle
-  //       modules = moduleLoader(plugin.pluginConfig, modules);
-  //   });
-  // }
 
   return modules;
 };

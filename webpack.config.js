@@ -66,7 +66,7 @@ module.exports = env => ({
     loaders: [
       {
         test: /\.jsx?$/,
-        exclude: /(node_modules)/,
+        exclude: /node_modules/,
         loader: 'babel-loader',
         query: {
           presets: ['env', 'react', 'stage-3'],

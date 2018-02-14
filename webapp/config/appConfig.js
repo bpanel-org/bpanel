@@ -13,8 +13,7 @@ export default {
     'bMoonTheme',
     'my-bpanel-admin'
   ],
-  // This will be the list of plugins to install from npm
-  // TODO: This system still needs to be built
+  // This is is a list of plugins to install from node_modules
   plugins: [],
   theme: {
     themeVariables,
