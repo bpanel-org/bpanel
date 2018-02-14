@@ -10,8 +10,9 @@ export default {
     'dashboard',
     'mempool',
     'bui',
-    'bMoonTheme',
-    'my-bpanel-admin'
+    'bpanel-theme',
+    'bMoonTheme'
+    // 'my-bpanel-admin'
   ],
   // This is is a list of plugins to install from node_modules
   plugins: [],
