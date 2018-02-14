@@ -12,7 +12,6 @@ export default {
     'bui',
     'bpanel-theme',
     'bMoonTheme'
-    // 'my-bpanel-admin'
   ],
   // This is is a list of plugins to install from node_modules
   plugins: [],
