@@ -1,3 +1,6 @@
+const path = require('path');
+const config = require('./webpack.config.js');
+
 module.exports = {
   parser: 'babel-eslint',
   plugins: ['prettier', 'react'],
@@ -9,6 +12,13 @@ module.exports = {
   },
   rules: {
     'prettier/prettier': 'error'
+  },
+  settings: {
+    'import/resolver': {
+      webpack: {
+        config: config({})
+      }
+    }
   },
   extends: [
     'prettier',

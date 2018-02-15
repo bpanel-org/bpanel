@@ -78,9 +78,8 @@ export const addPlugin = (modules = [], plugin) => {
           // or the newer one is newer version
           // then replace existing with newer version
           return plugin;
-        } else {
-          return module;
         }
+        return module;
       } else {
         // otherwise can just return the existing version
         return module;

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { addPlugin } from '../utils';
 
-describe.only('addPlugin', () => {
+describe('addPlugin', () => {
   let modules;
   beforeEach(() => {
     modules = [
@@ -38,7 +38,7 @@ describe.only('addPlugin', () => {
     expect(updatedModules[updatedModules.length - 1]).to.deep.equal(plugin);
   });
 
-  it('should replace plugin of the same name but with smaller version', () => {
+  it('should replace plugin of the same name if the version is smaller/older', () => {
     const plugin = { metadata: Object.assign({}, modules[1].metadata) };
     const newVersion = '0.10.1';
     plugin.metadata.version = newVersion;

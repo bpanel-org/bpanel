@@ -44,74 +44,76 @@ const loaders = {
   }
 };
 
-module.exports = env => ({
-  entry: ['whatwg-fetch', './webapp/index'],
-  node: { __dirname: true },
-  target: 'web',
-  devtool: 'eval-source-map',
-  output: {
-    filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist')
-  },
-  resolve: {
-    symlinks: false,
-    extensions: ['-browser.js', '.js', '.json', '.jsx'],
-    alias: {
-      bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
-      bpanel: path.resolve(__dirname, 'webapp/'),
-      tinycolor: 'tinycolor2'
-    }
-  },
-  module: {
-    loaders: [
-      {
-        test: /\.jsx?$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader',
-        query: {
-          presets: ['env', 'react', 'stage-3'],
-          plugins: [
-            [
-              'transform-runtime',
-              {
-                helpers: true,
-                polyfill: true,
-                regenerator: true
-              }
+module.exports = function(env) {
+  return {
+    entry: ['whatwg-fetch', './webapp/index'],
+    node: { __dirname: true },
+    target: 'web',
+    devtool: 'eval-source-map',
+    output: {
+      filename: '[name].bundle.js',
+      path: path.resolve(__dirname, 'dist')
+    },
+    resolve: {
+      symlinks: false,
+      extensions: ['-browser.js', '.js', '.json', '.jsx'],
+      alias: {
+        bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
+        bpanel: path.resolve(__dirname, 'webapp/'),
+        tinycolor: 'tinycolor2'
+      }
+    },
+    module: {
+      loaders: [
+        {
+          test: /\.jsx?$/,
+          exclude: /node_modules/,
+          loader: 'babel-loader',
+          query: {
+            presets: ['env', 'react', 'stage-3'],
+            plugins: [
+              [
+                'transform-runtime',
+                {
+                  helpers: true,
+                  polyfill: true,
+                  regenerator: true
+                }
+              ]
             ]
+          }
+        },
+        {
+          test: /\.(scss|css)$/,
+          use: ExtractTextPlugin.extract({
+            fallback: 'style-loader',
+            use: [loaders.css, loaders.postcss, loaders.sass]
+          })
+        },
+        {
+          test: /\.(png|jpg|gif)$/,
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                outputPath: 'assets/'
+              }
+            }
           ]
         }
-      },
-      {
-        test: /\.(scss|css)$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [loaders.css, loaders.postcss, loaders.sass]
-        })
-      },
-      {
-        test: /\.(png|jpg|gif)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              outputPath: 'assets/'
-            }
-          }
-        ]
-      }
+      ]
+    },
+    plugins: [
+      new UglifyJSPlugin({ sourceMap: true }),
+      new ExtractTextPlugin('[name].css'),
+      new webpack.DefinePlugin({
+        'process.env': {
+          BCOIN_URI: JSON.stringify(env.BCOIN_URI),
+          NODE_ENV: JSON.stringify(env.NODE_ENV),
+          __COMMIT__: JSON.stringify(commitHash),
+          __VERSION__: JSON.stringify(version)
+        }
+      })
     ]
-  },
-  plugins: [
-    new UglifyJSPlugin({ sourceMap: true }),
-    new ExtractTextPlugin('[name].css'),
-    new webpack.DefinePlugin({
-      'process.env': {
-        BCOIN_URI: JSON.stringify(env.BCOIN_URI),
-        NODE_ENV: JSON.stringify(env.NODE_ENV),
-        __COMMIT__: JSON.stringify(commitHash),
-        __VERSION__: JSON.stringify(version)
-      }
-    })
-  ]
-});
+  };
+};

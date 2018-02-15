@@ -1,5 +1,4 @@
 import { ChainEntry } from 'bcoin';
-// eslint-disable-next-line import/no-unresolved
 import { chain as chainUtils } from 'bpanel/utils';
 
 import { ADD_RECENT_BLOCK, SET_RECENT_BLOCKS } from './constants';

@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import { api } from 'bpanel/utils';
 import { SET_CHAIN_INFO, SET_GENESIS } from '../constants/chain';
 
