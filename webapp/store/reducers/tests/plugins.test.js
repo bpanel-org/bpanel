@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import Immutable from 'seamless-immutable';
 
 import pluginMetadata from '../pluginMetadata';
 import { ADD_PLUGIN } from '../../constants/plugins';
@@ -6,7 +7,7 @@ import { ADD_PLUGIN } from '../../constants/plugins';
 describe('pluginMetadata reducer', () => {
   let state;
   beforeEach(() => {
-    state = {
+    state = Immutable({
       dashboard: {
         name: 'dashboard',
         order: 0
@@ -19,7 +20,7 @@ describe('pluginMetadata reducer', () => {
         name: 'testWallet',
         order: 0
       }
-    };
+    });
   });
 
   describe('ADD_PLUGIN', () => {

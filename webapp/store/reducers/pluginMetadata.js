@@ -9,7 +9,7 @@ const pluginMetadata = (state = Immutable(initialPlugins), action) => {
   switch (action.type) {
     case ADD_PLUGIN: {
       const newPlugin = action.payload;
-      if (!state.getIn([newPlugin, newPlugin.name])) {
+      if (!state.getIn([newPlugin.name])) {
         return state.setIn([newPlugin.name], newPlugin);
         // TODO call a reload function to reload plugins
       } else {

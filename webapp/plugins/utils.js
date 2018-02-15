@@ -79,11 +79,9 @@ export const addPlugin = (modules = [], plugin) => {
           // then replace existing with newer version
           return plugin;
         }
-        return module;
-      } else {
-        // otherwise can just return the existing version
-        return module;
       }
+      // otherwise can just return the existing version
+      return module;
     });
     // if no match in existing array
     // return array with new plugin pushed on
