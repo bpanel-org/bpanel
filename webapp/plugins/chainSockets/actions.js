@@ -1,5 +1,5 @@
 import { ChainEntry } from 'bcoin';
-// eslint-disable-next-line import/no-unresolved
+
 import { chain as chainUtils } from 'bpanel/utils';
 
 export function watchChain() {

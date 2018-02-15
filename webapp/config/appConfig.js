@@ -7,16 +7,13 @@ export default {
   // for default/built-in plugins
   localPlugins: [
     'chainSockets',
-    'bpanel-header',
-    'bpanel-footer',
     'dashboard',
     'mempool',
-    'wallets',
     'bui',
+    'bpanel-theme',
     'bMoonTheme'
   ],
-  // This will be the list of plugins to install from npm
-  // This system still needs to be built
+  // This is is a list of plugins to install from node_modules
   plugins: [],
   theme: {
     themeVariables,

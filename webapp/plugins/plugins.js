@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 import Immutable from 'seamless-immutable';
 
-import { propsReducerCallback, loadConnectors } from './utils';
+import { propsReducerCallback, loadConnectors, moduleLoader } from './utils';
 import constants from '../store/constants';
 
 // Instantiate caches
-let plugins;
+let plugins = [];
 let connectors;
 let metadata = {};
 
@@ -35,7 +35,7 @@ let reducersDecorators = {};
 let extendConstants = {};
 
 // Module/plugin loader
-export const loadPlugins = config => {
+export const loadPlugins = async config => {
   // initialize cache that we populate with extension methods
   // connectors for plugins to connect to state and dispatch
   // used in `connect` method
@@ -69,28 +69,26 @@ export const loadPlugins = config => {
 
   middlewares = [];
 
-  // Loop/map through local (and later 'remote') plugins
-  // load each plugin object into the the cache of modules
-  plugins = config.localPlugins
-    .map(pluginName => {
-      const plugin = require('../localPlugins/' + pluginName);
-      let name, pluginVersion;
+  // moduleLoader takes a config and returns all modules
+  // indicated by that config (local, node_modules, and pluginModules)
+  // then we map through each module and compose and cache app decorators
+  plugins = moduleLoader(config)
+    .map(plugin => {
+      let name, version;
 
       try {
         name = plugin.metadata.name;
-        pluginVersion = plugin.metadata.pluginVersion;
-        metadata[pluginName] = plugin.metadata;
+        version = plugin.metadata.version;
+        metadata[name] = plugin.metadata;
       } catch (e) {
         // eslint-disable-next-line no-console
-        console.error(
-          `There was a problem loading the metadata for ${pluginName}`
-        );
+        console.error(`There was a problem loading the metadata for ${name}`);
       }
 
       for (const method in plugin) {
         if (plugin.hasOwnProperty(method)) {
           plugin[method]._pluginName = name;
-          plugin[method]._pluginVersion = pluginVersion;
+          plugin[method]._pluginVersion = version;
         }
       }
 
@@ -191,6 +189,7 @@ export const loadPlugins = config => {
       return plugin;
     })
     .filter(plugin => Boolean(plugin));
+  return plugins;
 };
 
 export function getConstants(name) {
@@ -369,7 +368,7 @@ function getDecorated(Component, name) {
     // if it doesn't, loop through all plugins and decorate the component class with appropriate method
     plugins.forEach(plugin => {
       const methodName = `decorate${name}`;
-      const decorator = plugin[methodName];
+      const decorator = plugin ? plugin[methodName] : '';
 
       if (decorator) {
         const pluginName = decorator._pluginName;

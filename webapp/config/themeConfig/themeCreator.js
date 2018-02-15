@@ -1,6 +1,6 @@
 import Immutable from 'seamless-immutable';
 import themeVariables from './themeVariables';
-import { StyleSheet, css } from 'aphrodite';
+import { StyleSheet } from 'aphrodite';
 import { createCss } from '../../utils/createCss';
 
 const themeCreator = (
@@ -82,8 +82,6 @@ const themeCreator = (
     buttonActionPadding,
     // Input
     inputTextPadding,
-    // Table
-    rowRenderer,
     // TabMenu
     tabMenuHeaderTextMarginBottom,
     tabMenuHeaderTextPadding,

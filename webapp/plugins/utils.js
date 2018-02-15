@@ -1,4 +1,6 @@
 // utilities for the plugin system modules
+import assert from 'assert';
+import semver from 'semver';
 
 export const propsReducerCallback = (name, parentProps, ...fnArgs) => (
   acc,
@@ -50,4 +52,81 @@ export const loadConnectors = (plugin, type, connectors) => {
       connectors[key][type].push(plugin[module][key]);
     }
   }
+};
+
+// plugin to add method and check for duplicates
+// and use latest version of plugin
+export const addPlugin = (modules = [], plugin) => {
+  const { name: pluginName, version: pluginVersion } = plugin.metadata;
+  assert(
+    !pluginVersion || typeof pluginVersion === 'string',
+    'Plugin version must be string'
+  );
+
+  if (modules.length) {
+    let exists = false;
+    const updated = modules.map(module => {
+      const { name: moduleName, version: moduleVersion } = module.metadata;
+      if (moduleName === pluginName) {
+        // if the plugin already exists
+        exists = true;
+        if (
+          (pluginVersion && !moduleVersion) ||
+          semver.lt(moduleVersion, pluginVersion)
+        ) {
+          // and only the newer one has a version but not the existing
+          // or the newer one is newer version
+          // then replace existing with newer version
+          return plugin;
+        }
+        return module;
+      } else {
+        // otherwise can just return the existing version
+        return module;
+      }
+    });
+    // if no match in existing array
+    // return array with new plugin pushed on
+    if (!exists) updated.push(plugin);
+    return updated;
+  }
+  return [plugin];
+};
+
+export const moduleLoader = (config, modules = []) => {
+  const { localPlugins, plugins } = config;
+  if (localPlugins) {
+    assert(Array.isArray(localPlugins), 'Local plugins should be an array');
+    // load local plugins from current directory
+    localPlugins.forEach(name => {
+      assert(typeof name === 'string', 'Local plugin name should be a string');
+      try {
+        const plugin = require(`./${name}`);
+        modules = addPlugin(modules, plugin);
+        if (plugin.pluginConfig)
+          // doing recursive call if plugin has plugin bundle
+          modules = moduleLoader(plugin.pluginConfig, modules);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(`There was a problem loading local plugin '${name}:'`, e);
+      }
+    });
+  }
+
+  if (plugins) {
+    // load plugin exports from config
+    const pluginsArr = Array.isArray(plugins) ? plugins : [plugins];
+    pluginsArr.forEach(plugin => {
+      assert(
+        typeof plugin !== 'string' && plugin.metadata,
+        'Plugin must be an exported plugin module with a metadata property'
+      );
+      modules = addPlugin(modules, plugin);
+      if (plugin.pluginConfig)
+        // doing recursive call if plugin has plugin bundle
+        modules = moduleLoader(plugin.pluginConfig, modules);
+    });
+  }
+
+  return modules;
 };

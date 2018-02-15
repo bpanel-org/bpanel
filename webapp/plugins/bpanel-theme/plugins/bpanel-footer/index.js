@@ -2,7 +2,8 @@ import { Text } from 'bpanel-ui';
 
 export const metadata = {
   name: 'bpanel-footer',
-  author: 'bcoin-org'
+  author: 'bcoin-org',
+  description: 'Default footer display for bpanel'
 };
 
 export const mapComponentState = {
