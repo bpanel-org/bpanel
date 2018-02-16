@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 
-import { decorate } from '../../plugins/plugins';
 import ThemeProvider from '../ThemeProvider/ThemeProvider';
 import { nodeActions, socketActions, themeActions } from '../../store/actions/';
 import Header from '../../containers/Header';
 import Footer from '../../containers/Footer/Footer';
-import Sidebar_ from '../../components/Sidebar/Sidebar';
+import Sidebar from '../../containers/Sidebar';
 import Panel from '../Panel/Panel';
 import { plugins } from '../../store/selectors';
 import { connect } from '../../plugins/plugins';
@@ -19,8 +18,6 @@ export const pluginMetaProps = {
   parent: PropTypes.string,
   icon: PropTypes.string
 };
-
-const Sidebar = decorate(Sidebar_, 'Sidebar');
 
 class App extends Component {
   constructor(props) {

@@ -25,6 +25,8 @@ class Sidebar extends PureComponent {
           })
         ])
       ),
+      customSidebarHeader: PropTypes.node,
+      customSidebarFooter: PropTypes.node,
       location: PropTypes.shape({
         pathname: PropTypes.string
       })
@@ -104,17 +106,23 @@ class Sidebar extends PureComponent {
   }
 
   render() {
-    const { theme, beforeNav, afterNav } = this.props;
+    const {
+      theme,
+      beforeNav,
+      afterNav,
+      customSidebarHeader,
+      customSidebarFooter
+    } = this.props;
     return (
       <nav
         className={`${theme.sidebar
           .container} d-flex flex-column navbar navbar-default navbar-fixed-side`}
       >
-        {this.renderLogo()}
+        {customSidebarHeader ? customSidebarHeader : this.renderLogo()}
         {beforeNav}
         {this.renderSidebarItems()}
         {afterNav}
-        {this.renderFooter()}
+        {customSidebarFooter ? customSidebarFooter : this.renderFooter()}
       </nav>
     );
   }
