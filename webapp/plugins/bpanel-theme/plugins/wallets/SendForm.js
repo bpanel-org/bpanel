@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button } from 'bpanel-ui';
 import { Amount } from 'bcoin';
 
-import { api } from 'bpanel/utils';
+import { api } from 'bpanel-utils';
 
 export default class SendForm extends PureComponent {
   constructor(props) {

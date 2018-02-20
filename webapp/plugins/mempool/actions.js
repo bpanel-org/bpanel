@@ -1,4 +1,4 @@
-import { api } from 'bpanel/utils';
+import { api } from 'bpanel-utils';
 
 import { EMIT_SOCKET, UPDATE_MEMPOOL } from './constants';
 
