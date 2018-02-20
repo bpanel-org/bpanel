@@ -1,5 +1,5 @@
 import { ChainEntry } from 'bcoin';
-import { chain as chainUtils } from 'bpanel/utils';
+import { chain as chainUtils } from 'bpanel-utils';
 
 import { ADD_RECENT_BLOCK, SET_RECENT_BLOCKS } from './constants';
 

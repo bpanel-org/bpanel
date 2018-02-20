@@ -1,4 +1,4 @@
-import { api } from 'bpanel/utils';
+import { api } from 'bpanel-utils';
 import { SET_CHAIN_INFO, SET_GENESIS } from '../constants/chain';
 
 export function setChainInfo(chain) {

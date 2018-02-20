@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'bpanel-ui';
 
-import { api } from 'bpanel/utils';
+import { api } from 'bpanel-utils';
 
 export default class WalletForm extends PureComponent {
   constructor(props) {
