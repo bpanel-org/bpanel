@@ -1,5 +1,5 @@
-import { connect } from '../../plugins/plugins';
-import Footer from '../../components/Footer/Footer';
+import { connect } from '../plugins/plugins';
+import Footer from '../components/Footer';
 
 const mapStateToProps = state => ({ ...state });
 const mapDispatchToProps = () => ({});
