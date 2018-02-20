@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { sortPluginMetadata } from '../plugins';
-import * as utils from '../../../utils/plugins';
+import { sortPluginMetadata } from '../store/selectors/plugins';
+import * as utils from 'bpanel-utils';
 
 describe('sortPluginMetadata', () => {
   let actual, subItems, parentItems;

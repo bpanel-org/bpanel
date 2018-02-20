@@ -8,10 +8,10 @@ module.exports = config => {
     files: [
       'node_modules/babel-polyfill/dist/polyfill.js',
       'node_modules/whatwg-fetch/fetch.js',
-      'webapp/**/tests/**/*.test.js'
+      'webapp/tests/*-test.js'
     ],
     preprocessors: {
-      'webapp/**/tests/*.js': ['webpack', 'sourcemap']
+      'webapp/tests/*.js': ['webpack', 'sourcemap']
     },
     webpack: webpackConfig({}),
     webpackServer: {

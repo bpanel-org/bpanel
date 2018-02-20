@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import Immutable from 'seamless-immutable';
 
-import pluginMetadata from '../pluginMetadata';
-import { ADD_PLUGIN } from '../../constants/plugins';
+import pluginMetadata from '../store/reducers/pluginMetadata';
+import { ADD_PLUGIN } from '../store/constants/plugins';
 
 describe('pluginMetadata reducer', () => {
   let state;
