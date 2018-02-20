@@ -11,7 +11,8 @@ module.exports = config => {
       'webapp/tests/*-test.js'
     ],
     preprocessors: {
-      'webapp/tests/*.js': ['webpack', 'sourcemap']
+      'webapp/tests/*.js': ['webpack', 'sourcemap'],
+      'node_modules/*.js': ['webpack']
     },
     webpack: webpackConfig({}),
     webpackServer: {

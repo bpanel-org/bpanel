@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
-import { plugins as pluginUtils } from 'bpanel-utils';
+import { plugins } from 'bpanel-utils';
 
-const { comparePlugins } = pluginUtils;
+const { comparePlugins } = plugins;
 const getPluginMetadata = state => state.pluginMetadata;
 
 export const sortPluginMetadata = pluginMeta => {
