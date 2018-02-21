@@ -1,4 +1,4 @@
-import { api } from 'bpanel/utils';
+import { api } from 'bpanel-utils';
 
 import {
   ADD_WALLET,

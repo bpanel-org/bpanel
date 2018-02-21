@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Text, Header, SidebarNavItem } from 'bpanel-ui';
 import { Link } from 'react-router-dom';
 
-import { pluginMetaProps } from '../../containers/App/App';
+import { pluginMetaProps } from '../containers/App/App';
 
 class Sidebar extends PureComponent {
   static get propTypes() {

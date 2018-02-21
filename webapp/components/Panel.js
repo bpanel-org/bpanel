@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import { getRouteProps } from '../../plugins/plugins';
+import { getRouteProps } from '../plugins/plugins';
 
 export default class extends Component {
   constructor(props) {

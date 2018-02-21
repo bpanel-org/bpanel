@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 
-import ThemeProvider from '../ThemeProvider/ThemeProvider';
+import ThemeProvider from '../ThemeProvider';
 import { nodeActions, socketActions, themeActions } from '../../store/actions/';
-import Header from '../../containers/Header';
-import Footer from '../../containers/Footer/Footer';
-import Sidebar from '../../containers/Sidebar';
-import Panel from '../Panel/Panel';
+import Header from '../Header';
+import Footer from '../Footer';
+import Sidebar from '../Sidebar';
+import Panel from '../Panel';
 import { plugins } from '../../store/selectors';
 import { connect } from '../../plugins/plugins';
 import './app.scss';

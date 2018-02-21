@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { sortPluginMetadata } from '../plugins';
-import * as utils from '../../../utils/plugins';
+import { sortPluginMetadata } from '../store/selectors/plugins';
+import { plugins } from 'bpanel-utils';
 
 describe('sortPluginMetadata', () => {
   let actual, subItems, parentItems;
@@ -55,9 +55,9 @@ describe('sortPluginMetadata', () => {
   });
 
   it('should call comparePlugins for sorting on parents and subItems', () => {
-    const spy = sinon.spy(utils, 'comparePlugins');
+    const spy = sinon.spy(Array.prototype, 'sort');
     sortPluginMetadata({ ...parentItems, ...subItems });
-    expect(spy.called).to.be.true;
+    expect(spy.calledWith(plugins.comparePlugins)).to.be.true;
     const parentNames = Object.keys(parentItems).sort();
     expect(parentNames[0]).to.equal(actual[0].name);
   });

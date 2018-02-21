@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { addPlugin } from '../utils';
+import { addPlugin } from '../plugins/utils';
 
 describe('addPlugin', () => {
   let modules;

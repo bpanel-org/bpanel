@@ -1,5 +1,5 @@
 import { connect } from '../plugins/plugins';
-import Sidebar from '../components/Sidebar/Sidebar';
+import Sidebar from '../components/Sidebar';
 
 const mapStateToProps = state => ({ ...state });
 const mapDispatchToProps = () => ({});

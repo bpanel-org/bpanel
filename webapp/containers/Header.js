@@ -1,5 +1,5 @@
 import { connect } from '../plugins/plugins';
-import Header from '../components/Header/Header';
+import Header from '../components/Header';
 
 const mapStateToProps = state => ({ ...state });
 const mapDispatchToProps = () => ({});
