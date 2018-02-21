@@ -86,7 +86,7 @@ export const loadPlugins = async config => {
       }
 
       for (const method in plugin) {
-        if (plugin.hasOwnProperty(method)) {
+        if (plugin.hasOwnProperty(method) && method[0] !== '_') {
           plugin[method]._pluginName = name;
           plugin[method]._pluginVersion = version;
         }
