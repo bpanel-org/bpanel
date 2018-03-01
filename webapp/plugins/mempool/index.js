@@ -108,7 +108,7 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        customChildren: PropTypes.array,
+        customChildren: PropTypes.node,
         mempoolSize: PropTypes.number,
         mempoolTx: PropTypes.number
       };

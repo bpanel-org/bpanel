@@ -170,16 +170,6 @@ export const loadPlugins = async config => {
         // check for each plugin decorator
         for (let key in plugin.decoratePlugin) {
           if (key[0] === '_') continue; // skip if is an internal property
-          // check if dependency plugin has been loaded
-          if (!metadata[key]) {
-            // eslint-disable-next-line no-console
-            console.error(
-              `Plugin dependency "${key}" does not exist for ${name}.`,
-              `Please make sure plugin "${key}" has been added to configs`,
-              `and is loaded before child plugin "${name}"`
-            );
-            return;
-          }
           // initialize of plugin decorators if none
           if (!pluginDecorators[key]) pluginDecorators[key] = [];
           pluginDecorators[key].push(plugin.decoratePlugin[key]);
@@ -223,13 +213,9 @@ export const getProps = (name, parentProps, props = {}, ...fnArgs) =>
         Object.assign({}, props)
       );
 
-export function getPanelProps(parentProps, props) {
-  return getProps('getPanelProps', parentProps, props);
-}
-
 export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
   !routePropsDecorators[name]
-    ? parentProps // if no prop getter for route then return parent props
+    ? props // if no prop getter for route then return default props
     : routePropsDecorators[name].reduce(
         propsReducerCallback(name, parentProps, ...fnArgs),
         Object.assign({}, props)
