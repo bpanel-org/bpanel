@@ -213,10 +213,6 @@ export const getProps = (name, parentProps, props = {}, ...fnArgs) =>
         Object.assign({}, props)
       );
 
-export function getPanelProps(parentProps, props) {
-  return getProps('getPanelProps', parentProps, props);
-}
-
 export const getRouteProps = (name, parentProps, props = {}, ...fnArgs) =>
   !routePropsDecorators[name]
     ? props // if no prop getter for route then return default props
