@@ -1,4 +1,4 @@
-import { api } from 'bpanel-utils';
+import { bwalletClient } from 'bpanel-utils';
 
 import {
   ADD_WALLET,
@@ -9,10 +9,7 @@ import {
   UPDATE_ADDRESS
 } from './constants';
 
-const getAccounts = async id => {
-  let accounts = await fetch(api.get.accounts(id));
-  return await accounts.json();
-};
+const client = bwalletClient();
 
 export function joinWallet(id, token) {
   return async dispatch => {
@@ -57,10 +54,9 @@ const acknowledgeJoin = id => {
     // eslint-disable-next-line no-console
     console.log(`Joined wallet "${id}"`);
 
-    let wallet = await fetch(api.get.wallet(id));
-    wallet = await wallet.json();
+    const wallet = await client.getInfo(id);
     dispatch(addWallet(wallet));
-    const accounts = await getAccounts(id);
+    const accounts = await client.getAccounts(id);
     dispatch(addAccounts(id, accounts));
     // We are going to default to the first account for an address
     // which is probably `default`.
@@ -101,9 +97,8 @@ export const addAccounts = (id, accounts) => ({
 });
 
 export const getReceiveAddress = async (id, accountID) => {
-  let account = await fetch(api.get.account(id, accountID));
-  account = await account.json();
-  return account.receiveAddress;
+  const { receiveAddress } = await client.getAccount(id, accountID);
+  return receiveAddress;
 };
 
 export const updateAddress = (id, address) => ({

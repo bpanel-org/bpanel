@@ -2,7 +2,9 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Button } from 'bpanel-ui';
 
-import { api } from 'bpanel-utils';
+import { bwalletClient } from 'bpanel-utils';
+
+const walletClient = bwalletClient();
 
 export default class WalletForm extends PureComponent {
   constructor(props) {
@@ -21,8 +23,7 @@ export default class WalletForm extends PureComponent {
   async handleSubmit(event) {
     event.preventDefault();
     const { walletId } = this.state;
-    let wallet = await fetch(api.get.wallet(walletId), { mode: 'cors' });
-    wallet = await wallet.json();
+    const wallet = await walletClient.getInfo(walletId);
     window.sessionStorage.setItem('walletToken', wallet.token);
     window.sessionStorage.setItem('walletId', walletId);
     this.props.addWallet(wallet);
