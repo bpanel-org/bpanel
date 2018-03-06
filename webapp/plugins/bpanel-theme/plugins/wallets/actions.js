@@ -11,8 +11,6 @@ import {
 
 const client = bwalletClient();
 
-const getAccounts = async id => await client.getAccounts(id);
-
 export function joinWallet(id, token) {
   return async dispatch => {
     return dispatch({
@@ -58,7 +56,7 @@ const acknowledgeJoin = id => {
 
     const wallet = await client.getInfo(id);
     dispatch(addWallet(wallet));
-    const accounts = await getAccounts(id);
+    const accounts = await client.getAccounts(id);
     dispatch(addAccounts(id, accounts));
     // We are going to default to the first account for an address
     // which is probably `default`.
@@ -99,8 +97,6 @@ export const addAccounts = (id, accounts) => ({
 });
 
 export const getReceiveAddress = async (id, accountID) => {
-  // let account = await fetch(api.get.account(id, accountID));
-  // account = await account.json();
   const { receiveAddress } = await client.getAccount(id, accountID);
   return receiveAddress;
 };
