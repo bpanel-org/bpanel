@@ -1,6 +1,8 @@
-import { api } from 'bpanel-utils';
+import { bpanelClient } from 'bpanel-utils';
 
 import { EMIT_SOCKET, UPDATE_MEMPOOL } from './constants';
+
+const client = bpanelClient();
 
 export function broadcastSetFilter() {
   // need to set a filter for the socket to get mempool updates
@@ -40,8 +42,7 @@ export function watchMempool() {
 
 export function updateMempool() {
   return async (dispatch, getState) => {
-    const response = await fetch(api.get.info(), { mode: 'cors' });
-    const { mempool } = await response.json();
+    const { mempool } = await client.getInfo();
     if (getState().chain.progress > 0.9) {
       dispatch({
         type: UPDATE_MEMPOOL,
