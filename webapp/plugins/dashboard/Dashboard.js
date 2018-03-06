@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Header, Table } from 'bpanel-ui';
 
+import ExpandedRow from './ExpandedRow';
+
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
@@ -62,7 +64,13 @@ export default class Dashboard extends Component {
 
     let table;
     if (Array.isArray(recentBlocks) && recentBlocks.length) {
-      table = <Table tableData={recentBlocks} />;
+      table = (
+        <Table
+          ExpandedComponent={ExpandedRow}
+          expandedHeight={240}
+          tableData={recentBlocks}
+        />
+      );
     } else {
       table = <p>Loading...</p>;
     }

@@ -182,21 +182,6 @@ const inputTextPadding = makeGutter('padding', {
   vertical: 0.5
 });
 
-// Table
-const rowRenderer = ({ index }) => {
-  const style = {
-    fontWeight: fontWeights.light
-  };
-  if (index === -1) {
-    style.backgroundColor = themeColors.mediumBg;
-  } else if (index % 2 === 0 || index === 0) {
-    style.backgroundColor = themeColors.transparent;
-  } else {
-    style.backgroundColor = themeColors.lightBg;
-  }
-  return style;
-};
-
 // Tab Menu
 const tabMenuHeaderTextMarginBottom = '-1px';
 const tabMenuHeaderTextPadding = makeGutter('padding', {
@@ -283,8 +268,6 @@ const themeVariables = {
   buttonActionPadding,
   // Input
   inputTextPadding,
-  // Table
-  rowRenderer,
   // TabMenu
   tabMenuHeaderTextMarginBottom,
   tabMenuHeaderTextPadding,

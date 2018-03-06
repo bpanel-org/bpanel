@@ -1,7 +1,10 @@
 import Immutable from 'seamless-immutable';
-import themeVariables from './themeVariables';
 import { StyleSheet } from 'aphrodite';
+import { utils } from 'bpanel-ui';
+import themeVariables from './themeVariables';
 import { createCss } from '../../utils/createCss';
+
+const { makeGutter } = utils;
 
 const themeCreator = (
   _themeVariables = Immutable({}),
@@ -341,6 +344,57 @@ const themeCreator = (
       }
     },
 
+    // tableRowStyle: Function that styles the table rows depending on their index
+    tableRowStyle: ({ index }) => {
+      const style = {
+        fontWeight: fontWeights.light
+      };
+      if (index === -1) {
+        style.backgroundColor = themeColors.mediumBg;
+      } else if (index % 2 === 0 || index === 0) {
+        style.backgroundColor = themeColors.transparent;
+      } else {
+        style.backgroundColor = themeColors.lightBg;
+      }
+      return style;
+    },
+
+    expandedRow: {
+      container: {
+        backgroundColor: themeColors.darkBg,
+        ...makeGutter('padding', { all: 1 })
+      },
+      mainDataContainer: {
+        display: 'flex',
+        flexDirection: 'column'
+      },
+      subDataContainer: {
+        display: 'flex',
+        flexDirection: 'row'
+      },
+      rowHeader: {
+        width: '6rem'
+      },
+      dataRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        marginBottom: '7px',
+        ...makeGutter('padding', { all: 0.33 })
+      },
+      borderedCol: {
+        border: border2,
+        overflow: 'scroll',
+        width: '80%',
+        ...makeGutter('padding', { all: 0.2 })
+      },
+      copyIcon: {
+        lineHeight: '2rem',
+        cursor: 'pointer',
+        color: themeColors.highlight1,
+        ...makeGutter('padding', { left: 1 })
+      }
+    },
+
     //Tab Menu
     tabMenu: {
       headerContainer: {
@@ -374,20 +428,6 @@ const themeCreator = (
       }
     },
 
-    tableRowStyle: ({ index }) => {
-      const style = {
-        fontWeight: fontWeights.light
-      };
-      if (index === -1) {
-        style.backgroundColor = themeColors.mediumBg;
-      } else if (index % 2 === 0 || index === 0) {
-        style.backgroundColor = themeColors.transparent;
-      } else {
-        style.backgroundColor = themeColors.lightBg;
-      }
-      return style;
-    },
-
     // Text
     text: {
       span: {
@@ -412,6 +452,7 @@ const themeCreator = (
     header,
     link,
     table,
+    expandedRow,
     tableRowStyle,
     tabMenu,
     text
@@ -426,6 +467,7 @@ const themeCreator = (
     header: StyleSheet.create(header),
     link: StyleSheet.create(link),
     table: StyleSheet.create(table),
+    expandedRow: StyleSheet.create(expandedRow),
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
     logoUrl,
