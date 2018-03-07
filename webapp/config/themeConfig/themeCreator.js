@@ -1,31 +1,33 @@
 import Immutable from 'seamless-immutable';
 import { StyleSheet } from 'aphrodite';
 import { utils } from 'bpanel-ui';
+
 import themeVariables from './themeVariables';
 import { createCss } from '../../utils/createCss';
 
-const { makeGutter } = utils;
+const { makeRem, makeGutter } = utils;
 
 const themeCreator = (
   _themeVariables = Immutable({}),
   _themeConfig = Immutable({})
 ) => {
+  /* This if statement gives you access to default themeVariables in your custom theme.
+  ** Declaring your themeVariables as a function gives you access to the default themeVariables as
+  ** an argument to that function.
+  */
+  if (typeof _themeVariables === 'function')
+    _themeVariables = _themeVariables(themeVariables);
+
   const {
+    // rawRem holds all the values that will be converted to a stringified rem value
+    rawRem,
     /// *****
     /// FONTS
     /// *****
+    fontSizeBase,
     // Font Family
     fontFamily,
-    // Font Size
-    fontSizeBase,
-    fontSizeSmall,
-    fontSizeLarge,
-    fontSizeH1,
-    fontSizeH2,
-    fontSizeH3,
-    fontSizeH4,
-    fontSizeH5,
-    fontSizeH6,
+    // Font Opacity
     fontOpacity,
     // Font Weights
     fontWeights,
@@ -47,10 +49,6 @@ const themeCreator = (
     border1,
     border2,
     borderRadius,
-    /// *********
-    /// CONTAINER
-    /// *********
-    rowContainer,
     /// ***********
     /// TRANSITIONS
     /// ***********
@@ -58,40 +56,36 @@ const themeCreator = (
     /// *******************
     /// COMPONENT VARIABLES
     /// *******************
-    // App
-    appBodyHeight,
-    appBodyMinHeight,
-    appContentHeight,
-    appContentPadding,
-    appHeight,
-    appSidebarContainer,
+    // Logo
+    logoUrl
+  } = Immutable(themeVariables).merge(_themeVariables, { deep: true });
+
+  const {
+    /// *****
+    /// FONTS
+    /// *****
+    // Font Size
+    fontSizeSmall,
+    fontSizeNormal,
+    fontSizeLarge,
+    fontSizeH1,
+    fontSizeH2,
+    fontSizeH3,
+    fontSizeH4,
+    fontSizeH5,
+    fontSizeH6,
     // Header
     headerHeight,
     // Footer
-    footerHeight,
-    sidebarFooterTextMargin,
-    // Sidebar
-    sidebarContainerHeight,
-    sidebarContainerPadding,
-    sidebarFooterPadding,
-    sidebarItemIconPadding,
-    sidebarItemPadding,
-    sidebarLinkMinWidth,
-    // Logo
-    logoContainerPadding,
-    logoSize,
-    logoUrl,
-    // Button
-    buttonActionPadding,
-    // Input
-    inputTextPadding,
-    // TabMenu
-    tabMenuHeaderTextMarginBottom,
-    tabMenuHeaderTextPadding,
-    tabMenuHeaderTextActiveZindex,
-    tabMenuHeaderTextInactiveZindex,
-    tabMenuBodyPadding
-  } = Immutable(themeVariables).merge(_themeVariables, { deep: true });
+    footerHeight
+  } = Object.keys(rawRem).reduce((acc, key) => {
+    acc[key] = makeRem(rawRem[key], fontSizeBase);
+    return acc;
+  }, {});
+  const appHeight = `calc(100vh - ${footerHeight})`;
+  const lowlightGradient =
+    themeColors.lowlightGradient ||
+    `linear-gradient(to left, ${themeColors.lowlight1}, ${themeColors.lowlight2})`;
 
   /// ******
   /// THEME CONFIG
@@ -99,11 +93,11 @@ const themeCreator = (
 
   const defaultButtonStyle = {
     backgroundColor: themeColors.transparent,
-    border: `${borderWidth.value} ${borderStyle.value} ${themeColors.highlight1}`,
+    border: `${borderWidth} ${borderStyle} ${themeColors.highlight1}`,
     borderRadius: borderRadius,
     color: themeColors.highlight1,
     cursor: 'pointer',
-    fontSize: fontSizeBase
+    fontSize: fontSizeNormal
   };
 
   const transition = {
@@ -127,29 +121,29 @@ const themeCreator = (
         color: themeColors.primary,
         background: appBg,
         backgroundSize: appBgSize,
-        height: appBodyHeight,
-        minHeight: appBodyMinHeight,
+        height: '100%',
+        minHeight: makeRem(18.75, fontSizeBase),
         overflowY: 'visible',
         fontFamily
       },
       content: {
-        height: appContentHeight,
-        ...appContentPadding
+        height: `calc(100vh - ${footerHeight} - ${headerHeight})`,
+        ...makeGutter('padding', { left: 1.25, right: 2.5 })
       },
       sidebarContainer: {
-        ...appSidebarContainer
+        ...makeGutter('padding', { left: 0 })
       }
     },
 
     // Sidebar
     sidebar: {
       container: {
-        height: sidebarContainerHeight,
+        height: appHeight,
         minHeight: '50vh',
-        ...sidebarContainerPadding
+        ...makeGutter('padding', { left: 0 })
       },
       link: {
-        minWidth: sidebarLinkMinWidth,
+        minWidth: makeRem(9.375, fontSizeBase),
         textDecoration: 'none',
         textTransform: 'capitalize',
         width: '100%',
@@ -158,40 +152,46 @@ const themeCreator = (
         }
       },
       item: {
-        border: '1px solid transparent',
+        border: borderTransparent,
         color: themeColors.primary,
         fontWeight: fontWeights.light,
         textDecoration: 'none',
         ...transition,
-        ...sidebarItemPadding,
+        ...makeGutter('padding', {
+          horizontal: 2.1875,
+          vertical: 0.625
+        }),
         ':hover': {
           border: border1
         }
       },
       itemActive: {
-        background: themeColors.lowlightGradient
+        background: lowlightGradient
       },
       itemIcon: {
-        ...sidebarItemIconPadding
+        ...makeGutter('padding', { right: 0.75 })
       },
       logoContainer: {
         opacity: fontOpacity,
         textAlign: 'center',
         width: '100%',
-        ...logoContainerPadding
+        ...makeGutter('padding', {
+          horizontal: 0,
+          vertical: 1.875
+        })
       },
       logoImg: {
-        height: logoSize,
-        width: logoSize
+        height: makeRem(3.75, fontSizeBase),
+        width: makeRem(3.75, fontSizeBase)
       },
       footer: {
-        ...sidebarFooterPadding
+        ...makeGutter('padding', { bottom: 3.125 })
       },
       footerText: {
         fontSize: fontSizeSmall,
         fontWeight: fontWeights.light,
         opacity: fontOpacity,
-        ...sidebarFooterTextMargin
+        ...makeGutter('margin', { bottom: 0 })
       }
     },
 
@@ -203,7 +203,7 @@ const themeCreator = (
       icon: {
         color: themeColors.highlight1,
         fontSize: fontSizeLarge,
-        marginLeft: fontSizeBase
+        marginLeft: fontSizeNormal
       },
       networkStatus: {
         fontSize: fontSizeSmall,
@@ -220,7 +220,7 @@ const themeCreator = (
     // Footer
     footer: {
       container: {
-        backgroundColor: themeColors.footerBg,
+        backgroundColor: themeColors.light2Bg,
         bottom: 0,
         color: themeColors.primary,
         height: footerHeight,
@@ -251,10 +251,10 @@ const themeCreator = (
         border: 'none',
         backgroundColor: themeColors.primary,
         cursor: 'pointer',
-        padding: buttonActionPadding,
+        padding: makeRem(0.3125, fontSizeBase),
         ...transition,
         ':hover': {
-          background: themeColors.lowlightGradient,
+          background: lowlightGradient,
           color: themeColors.white
         }
       }
@@ -298,7 +298,10 @@ const themeCreator = (
         backgroundColor: themeColors.darkBg,
         border: 'none',
         color: themeColors.primary,
-        ...inputTextPadding
+        ...makeGutter('padding', {
+          horizontal: 0.75,
+          vertical: 0.5
+        })
       },
       radio: {},
       range: {},
@@ -314,7 +317,10 @@ const themeCreator = (
         backgroundColor: themeColors.darkBg,
         border: 'none',
         color: themeColors.primary,
-        ...inputTextPadding
+        ...makeGutter('padding', {
+          horizontal: 0.75,
+          vertical: 0.5
+        })
       },
       time: {},
       url: {},
@@ -325,7 +331,7 @@ const themeCreator = (
     link: {
       default: {
         color: themeColors.highlight1,
-        fontSize: fontSizeBase,
+        fontSize: fontSizeNormal,
         textDecoration: 'underline'
       }
     },
@@ -398,26 +404,32 @@ const themeCreator = (
     //Tab Menu
     tabMenu: {
       headerContainer: {
-        ...rowContainer
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'start',
+        alignItems: 'center'
       },
       headerText: {
-        marginBottom: tabMenuHeaderTextMarginBottom,
-        ...tabMenuHeaderTextPadding
+        marginBottom: '-1px',
+        ...makeGutter('padding', {
+          horizontal: 0.625,
+          vertical: 0.3125
+        })
       },
       headerTextActive: {
         backgroundColor: themeColors.transparent,
         border: border2,
         borderBottomColor: themeColors.highlight1,
-        zIndex: tabMenuHeaderTextActiveZindex
+        zIndex: '1'
       },
       headerTextInactive: {
         backgroundColor: themeColors.darkBg,
         border: borderTransparent,
         borderBottomColor: themeColors.transparent,
-        zIndex: tabMenuHeaderTextInactiveZindex
+        zIndex: '0'
       },
       bodyContainer: {
-        ...tabMenuBodyPadding
+        ...makeGutter('padding', { all: 1.25 })
       },
       bodyActive: {
         display: 'block',
@@ -431,17 +443,27 @@ const themeCreator = (
     // Text
     text: {
       span: {
-        fontSize: fontSizeBase
+        fontSize: fontSizeNormal
       },
       p: {
-        fontSize: fontSizeBase
+        fontSize: fontSizeNormal
       },
       strong: {
-        fontSize: fontSizeBase,
+        fontSize: fontSizeNormal,
         fontWeight: fontWeights.semiBold
       }
     }
-  }).merge(_themeConfig, { deep: true });
+  });
+
+  /* This if statement gives you access to default themeConfig in your custom theme.
+  ** Declaring your themeConfig as a function gives you access to the default theme config as
+  ** an argument to that function.
+  */
+  if (typeof _themeConfig === 'function')
+    _themeConfig = _themeConfig(themeVariables, themeConfig);
+
+  const theme = themeConfig.merge(_themeConfig, { deep: true });
+
   const {
     app,
     sidebar,
@@ -456,7 +478,8 @@ const themeCreator = (
     tableRowStyle,
     tabMenu,
     text
-  } = themeConfig;
+  } = theme;
+
   const styleSheet = {
     app: StyleSheet.create(app),
     sidebar: StyleSheet.create(sidebar),

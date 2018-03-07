@@ -1,33 +1,27 @@
-import themeVariables from './themeVariables';
-const {
-  logoContainerBg,
-  logoContainerBorderRadius,
-  logoContainerMargin,
-  logoContainerPadding,
-  logoOpacity,
-  logoSize
-} = themeVariables;
+import { utils } from 'bpanel-ui';
+
+const { makeRem, makeGutter } = utils;
 
 /// ******
 /// THEME CONFIG
 /// ******
-
-// MAIN APP COMPONENTS
-const sidebar = {
-  logoContainer: {
-    background: logoContainerBg,
-    borderRadius: logoContainerBorderRadius,
-    opacity: logoOpacity,
-    ...logoContainerPadding,
-    ...logoContainerMargin
-  },
-  logoImg: {
-    height: logoSize,
-    width: logoSize
-  }
+const themeCreator = themeVariables => {
+  const logoSize = makeRem(2.25);
+  // MAIN APP COMPONENTS
+  const sidebar = {
+    logoContainer: {
+      background: themeVariables.themeColors.light2Bg,
+      borderRadius: '50%',
+      opacity: 1,
+      ...makeGutter('padding', { all: 1.25 }), // Creates the padding
+      ...makeGutter('margin', { vertical: 1.875 }) // Creates the vertical margin
+    },
+    logoImg: {
+      height: logoSize,
+      width: logoSize
+    }
+  };
+  return { sidebar };
 };
 
-export default {
-  // App components
-  sidebar
-};
+export default themeCreator;
