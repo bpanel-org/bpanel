@@ -92,25 +92,7 @@ export const addPlugin = (modules = [], plugin) => {
 };
 
 export const moduleLoader = (config, modules = []) => {
-  const { localPlugins, plugins } = config;
-  if (localPlugins) {
-    assert(Array.isArray(localPlugins), 'Local plugins should be an array');
-    // load local plugins from current directory
-    localPlugins.forEach(name => {
-      assert(typeof name === 'string', 'Local plugin name should be a string');
-      try {
-        const plugin = require(`./${name}`);
-        modules = addPlugin(modules, plugin);
-        if (plugin.pluginConfig)
-          // doing recursive call if plugin has plugin bundle
-          modules = moduleLoader(plugin.pluginConfig, modules);
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(`There was a problem loading local plugin '${name}:'`, e);
-      }
-    });
-  }
-
+  const { plugins } = config;
   if (plugins) {
     // load plugin exports from config
     const pluginsArr = Array.isArray(plugins) ? plugins : [plugins];
