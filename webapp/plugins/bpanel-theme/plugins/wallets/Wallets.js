@@ -62,9 +62,13 @@ export default class Wallets extends Component {
       <div className="dashboard-container">
         <Header type="h2">Wallets</Header>
         <WalletForm addWallet={addWallet} />
-        <Button onClick={() => this.handleJoin()}>Join Wallet</Button>
-        <Text>Must join wallet before subscribing to transactions</Text>
-        <Button onClick={() => this.handleLeave()}>Leave Wallet</Button>
+        <div>
+          <Text>Must join wallet before subscribing to transactions</Text>
+        </div>
+        <div>
+          <Button onClick={() => this.handleJoin()}>Join Wallet</Button>
+          <Button onClick={() => this.handleLeave()}>Leave Wallet</Button>
+        </div>
         <Header type="h3">Wallets</Header>
         {Object.keys(wallets).map(id => (
           <Wallet

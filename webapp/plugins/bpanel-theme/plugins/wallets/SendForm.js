@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'bpanel-ui';
+import { Button, Input } from 'bpanel-ui';
 import { Amount } from 'bcoin';
 
 import { bwalletClient } from 'bpanel-utils';
@@ -47,21 +47,21 @@ export default class SendForm extends PureComponent {
   render() {
     return (
       <form className="send-form" onSubmit={event => this.handleSubmit(event)}>
-        <input
+        <Input
           type="text"
           name="value"
           placeholder="Value"
           value={this.state.value}
           onChange={event => this.handleChange(event)}
         />
-        <input
+        <Input
           type="text"
           name="address"
           placeholder="Address"
           value={this.state.address}
           onChange={event => this.handleChange(event)}
         />
-        <Button type="submit">Send</Button>
+        <Input type="submit">Send</Input>
       </form>
     );
   }

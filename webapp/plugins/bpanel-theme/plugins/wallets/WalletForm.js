@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'bpanel-ui';
+import { Button, Input } from 'bpanel-ui';
 
 import { bwalletClient } from 'bpanel-utils';
 
@@ -40,13 +40,13 @@ export default class WalletForm extends PureComponent {
     const { walletId } = this.state;
     return (
       <form onSubmit={event => this.handleSubmit(event)}>
-        <input
+        <Input
           type="text"
           onChange={event => this.handleChange(event)}
           value={walletId}
           placeholder="Wallet ID"
         />
-        <Button type="submit">Submit</Button>
+        <Input type="submit">Submit</Input>
       </form>
     );
   }
