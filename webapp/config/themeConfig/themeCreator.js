@@ -18,6 +18,10 @@ const themeCreator = (
   if (typeof _themeVariables === 'function')
     _themeVariables = _themeVariables(themeVariables);
 
+  const mergedThemeVariables = Immutable(themeVariables).merge(
+    _themeVariables,
+    { deep: true }
+  );
   const {
     // rawRem holds all the values that will be converted to a stringified rem value
     rawRem,
@@ -58,7 +62,7 @@ const themeCreator = (
     /// *******************
     // Logo
     logoUrl
-  } = Immutable(themeVariables).merge(_themeVariables, { deep: true });
+  } = mergedThemeVariables;
 
   const {
     /// *****
@@ -462,7 +466,7 @@ const themeCreator = (
   if (typeof _themeConfig === 'function')
     _themeConfig = _themeConfig(themeVariables, themeConfig);
 
-  const theme = themeConfig.merge(_themeConfig, { deep: true });
+  const mergedThemeConfig = themeConfig.merge(_themeConfig, { deep: true });
 
   const {
     app,
@@ -478,7 +482,7 @@ const themeCreator = (
     tableRowStyle,
     tabMenu,
     text
-  } = theme;
+  } = mergedThemeConfig;
 
   const styleSheet = {
     app: StyleSheet.create(app),
@@ -493,6 +497,7 @@ const themeCreator = (
     expandedRow: StyleSheet.create(expandedRow),
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
+    themeVariables: mergedThemeVariables,
     logoUrl,
     tableRowStyle
   };
