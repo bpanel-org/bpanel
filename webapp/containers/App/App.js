@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
+import { Route, Redirect } from 'react-router';
 
 import ThemeProvider from '../ThemeProvider';
 import { nodeActions, socketActions, themeActions } from '../../store/actions/';
@@ -62,6 +63,15 @@ class App extends Component {
     this.props.disconnectSocket();
   }
 
+  getHomePath() {
+    const { sortedPluginMeta } = this.props;
+    const panels = sortedPluginMeta.filter(
+      plugin => plugin.sidebar || React.isValidElement(plugin)
+    );
+    const homePath = panels[0] ? panels[0].name : '';
+    return homePath;
+  }
+
   render() {
     const { sortedPluginMeta, location, theme } = this.props;
 
@@ -78,6 +88,11 @@ class App extends Component {
             </div>
             <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
               <Header />
+              <Route
+                exact
+                path="/"
+                render={() => <Redirect to={`/${this.getHomePath()}`} />}
+              />
               <Panel />
             </div>
             <Footer />

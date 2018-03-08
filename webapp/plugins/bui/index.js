@@ -6,7 +6,8 @@ export const metadata = {
   name: 'ui',
   author: 'bcoin-org',
   order: 0,
-  icon: 'cubes'
+  icon: 'cubes',
+  sidebar: true
 };
 
 export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
@@ -41,9 +42,10 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
       });
 
       const newNavItem = React.createElement(SidebarNavItem, {
-        name: metadata.name.toUpperCase(),
+        name: metadata.name,
         icon: 'cubes',
-        pathname
+        pathname,
+        sidebar: true
       });
 
       const _sidebarNavItems = existingNavItems
