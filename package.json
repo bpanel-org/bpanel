@@ -116,5 +116,12 @@
   },
   "peerDependencies": {
     "brq": "git+https://github.com/bucko13/brq.git#body-bug"
-  }
+  },
+  "eslintIgnore": [
+    "**/*.js",
+    "!server/**/*",
+    "!webapp/**/*",
+    "!scripts/**/*",
+    "!webpack.config.js"
+  ]
 }
