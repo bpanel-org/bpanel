@@ -42,11 +42,14 @@ export default class WalletForm extends PureComponent {
       <form onSubmit={event => this.handleSubmit(event)}>
         <Input
           type="text"
+          name="wallet-id"
           onChange={event => this.handleChange(event)}
           value={walletId}
           placeholder="Wallet ID"
         />
-        <Input type="submit">Submit</Input>
+        <Input type="submit" name="submit">
+          Submit
+        </Input>
       </form>
     );
   }

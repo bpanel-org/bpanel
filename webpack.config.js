@@ -5,6 +5,7 @@ const { execSync } = require('child_process');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
+const WebpackShellPlugin = require('webpack-shell-plugin');
 
 const commitHash = execSync('git rev-parse HEAD').toString();
 
@@ -73,6 +74,7 @@ module.exports = function(env) {
             presets: ['env', 'react', 'stage-3'],
             plugins: [
               [
+                'syntax-dynamic-import',
                 'transform-runtime',
                 {
                   helpers: true,
@@ -106,6 +108,9 @@ module.exports = function(env) {
     plugins: [
       new UglifyJSPlugin({ sourceMap: true }),
       new ExtractTextPlugin('[name].css'),
+      new WebpackShellPlugin({
+        onBuildStart: ['echo "Webpack Start"', 'npm run build:plugins']
+      }),
       new webpack.DefinePlugin({
         'process.env': {
           BCOIN_URI: JSON.stringify(env.BCOIN_URI),

@@ -92,37 +92,23 @@ export const addPlugin = (modules = [], plugin) => {
 };
 
 export const moduleLoader = (config, modules = []) => {
-  const { localPlugins, plugins } = config;
-  if (localPlugins) {
-    assert(Array.isArray(localPlugins), 'Local plugins should be an array');
-    // load local plugins from current directory
-    localPlugins.forEach(name => {
-      assert(typeof name === 'string', 'Local plugin name should be a string');
+  const { plugins } = config;
+  if (plugins) {
+    // load plugin exports from config
+    const pluginsArr = Array.isArray(plugins) ? plugins : [plugins];
+    pluginsArr.forEach(plugin => {
       try {
-        const plugin = require(`./${name}`);
+        assert(
+          typeof plugin !== 'string' && plugin.metadata,
+          'Plugin must be an exported plugin module with a metadata property'
+        );
         modules = addPlugin(modules, plugin);
         if (plugin.pluginConfig)
           // doing recursive call if plugin has plugin bundle
           modules = moduleLoader(plugin.pluginConfig, modules);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(`There was a problem loading local plugin '${name}:'`, e);
+        console.error(`Plugin failure: ${e.message} \n`, plugin);
       }
-    });
-  }
-
-  if (plugins) {
-    // load plugin exports from config
-    const pluginsArr = Array.isArray(plugins) ? plugins : [plugins];
-    pluginsArr.forEach(plugin => {
-      assert(
-        typeof plugin !== 'string' && plugin.metadata,
-        'Plugin must be an exported plugin module with a metadata property'
-      );
-      modules = addPlugin(modules, plugin);
-      if (plugin.pluginConfig)
-        // doing recursive call if plugin has plugin bundle
-        modules = moduleLoader(plugin.pluginConfig, modules);
     });
   }
 

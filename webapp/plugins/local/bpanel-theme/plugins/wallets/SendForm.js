@@ -61,7 +61,9 @@ export default class SendForm extends PureComponent {
           value={this.state.address}
           onChange={event => this.handleChange(event)}
         />
-        <Input type="submit">Send</Input>
+        <Input type="submit" name="submit">
+          Send
+        </Input>
       </form>
     );
   }
