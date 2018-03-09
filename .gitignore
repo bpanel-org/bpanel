@@ -66,6 +66,9 @@ dist/*
 # bcoin config
 bcoin.config.json
 
+# script generated files
+
+
 # Secrets
 secrets.env
 
