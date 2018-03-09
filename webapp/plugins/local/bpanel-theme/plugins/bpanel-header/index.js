@@ -10,7 +10,7 @@ export const mapComponentState = {
     Object.assign(map, {
       bcoinUri: state.node.serverInfo.bcoinUri,
       loading: state.node.loading,
-      nodeInfo: state.node.node.network
+      network: state.node.node.network
     })
 };
 
