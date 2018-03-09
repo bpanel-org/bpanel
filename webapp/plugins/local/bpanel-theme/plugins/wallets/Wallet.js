@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Header, Text } from 'bpanel-ui';
+import { Header, Text } from '@bpanel/bpanel-ui';
 
 export default class Wallet extends Component {
   constructor(props) {

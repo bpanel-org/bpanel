@@ -1,4 +1,4 @@
-import { SidebarNavItem } from 'bpanel-ui';
+import { SidebarNavItem } from '@bpanel/bpanel-ui';
 
 import Bui from './Bui';
 

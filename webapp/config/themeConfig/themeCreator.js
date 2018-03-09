@@ -1,6 +1,6 @@
 import Immutable from 'seamless-immutable';
 import { StyleSheet } from 'aphrodite';
-import { utils } from 'bpanel-ui';
+import { utils } from '@bpanel/bpanel-ui';
 
 import themeVariables from './themeVariables';
 import { createCss } from '../../utils/createCss';

@@ -1,4 +1,4 @@
-import { Text } from 'bpanel-ui';
+import { Text } from '@bpanel/bpanel-ui';
 
 export const metadata = {
   name: 'bpanel-footer',

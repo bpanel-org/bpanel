@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Header, Table } from 'bpanel-ui';
+import { Button, Header, Table } from '@bpanel/bpanel-ui';
 
 import ExpandedRow from './ExpandedRow';
 

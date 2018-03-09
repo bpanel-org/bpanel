@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Header, Text, Table } from 'bpanel-ui';
+import { Button, Header, Text, Table } from '@bpanel/bpanel-ui';
 
 import WalletForm from './WalletForm';
 import Wallet from './Wallet';

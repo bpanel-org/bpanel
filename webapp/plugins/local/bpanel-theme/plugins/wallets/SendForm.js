@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Input } from 'bpanel-ui';
+import { Button, Input } from '@bpanel/bpanel-ui';
 import { Amount } from 'bcoin';
 
 import { bwalletClient } from 'bpanel-utils';

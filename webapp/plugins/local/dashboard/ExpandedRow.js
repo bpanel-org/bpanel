@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { CellMeasurer, CellMeasurerCache } from 'react-virtualized';
-import { utils } from 'bpanel-ui';
+import { utils } from '@bpanel/bpanel-ui';
 
 const { connectTheme } = utils;
 
