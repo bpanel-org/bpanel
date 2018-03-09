@@ -4,7 +4,8 @@ export const localPlugins = [
   'mempool',
   'bui',
   'bpanel-theme',
-  'bMoonTheme'
+  'bMoonTheme',
+  'bDarkTheme'
 ];
 
 export const plugins = [];
