@@ -16,7 +16,7 @@
     "karma": "karma start --autoWatch",
     "precommit": "lint-staged",
     "postinstall": "node scripts/postinstall.js",
-    "localplugins": "babel-node --presets=env scripts/local-plugins.js"
+    "build:plugins": "babel-node --presets=env scripts/build-plugins.js"
   },
   "lint-staged": {
     "*.{js,json,css,jsx,scss}": [

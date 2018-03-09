@@ -109,7 +109,7 @@ module.exports = function(env) {
       new UglifyJSPlugin({ sourceMap: true }),
       new ExtractTextPlugin('[name].css'),
       new WebpackShellPlugin({
-        onBuildStart: ['echo "Webpack Start"', 'npm run localplugins']
+        onBuildStart: ['echo "Webpack Start"', 'npm run build:plugins']
       }),
       new webpack.DefinePlugin({
         'process.env': {
