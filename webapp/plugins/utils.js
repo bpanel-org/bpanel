@@ -97,14 +97,18 @@ export const moduleLoader = (config, modules = []) => {
     // load plugin exports from config
     const pluginsArr = Array.isArray(plugins) ? plugins : [plugins];
     pluginsArr.forEach(plugin => {
-      assert(
-        typeof plugin !== 'string' && plugin.metadata,
-        'Plugin must be an exported plugin module with a metadata property'
-      );
-      modules = addPlugin(modules, plugin);
-      if (plugin.pluginConfig)
-        // doing recursive call if plugin has plugin bundle
-        modules = moduleLoader(plugin.pluginConfig, modules);
+      try {
+        assert(
+          typeof plugin !== 'string' && plugin.metadata,
+          'Plugin must be an exported plugin module with a metadata property'
+        );
+        modules = addPlugin(modules, plugin);
+        if (plugin.pluginConfig)
+          // doing recursive call if plugin has plugin bundle
+          modules = moduleLoader(plugin.pluginConfig, modules);
+      } catch (e) {
+        console.error(`Plugin failure: ${e.message} \n`, plugin);
+      }
     });
   }
 

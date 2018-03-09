@@ -18,7 +18,6 @@ if (localModules) localPlugins = getModuleList(localModules);
 if (plugins) plugins = getModuleList(modules);
 
 export default {
-  // This is the list of plugins to install in our app
   plugins: [...localPlugins, ...plugins],
   theme: {
     themeVariables,
