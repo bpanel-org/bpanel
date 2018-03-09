@@ -50,6 +50,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-bcoin
+      args:
+        branch: wallet-rewrite
     restart: unless-stopped
     environment:
       BCOIN_WALLET_HTTP_HOST: 0.0.0.0

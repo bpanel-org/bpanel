@@ -1,24 +1,25 @@
-FROM nfnty/arch-mini:latest
-
-# Build deps
-RUN pacman -Sy --noconfirm archlinux-keyring
-RUN pacman -Syu --noconfirm nodejs npm unrar git python2 base-devel
-
-ENV BCOIN_BRANCH wallet-rewrite
-ENV BCOIN_REPO https://github.com/bcoin-org/bcoin.git
+FROM nfnty/arch-mini:latest AS base
 
 RUN mkdir -p /code/node_modules/bcoin /data
-RUN git clone --branch $BCOIN_BRANCH $BCOIN_REPO /code/node_modules/bcoin
-
-# Installation
 WORKDIR /code/node_modules/bcoin
+ENTRYPOINT ["node"]
+CMD ["/code/scripts/docker-bcoin-init.js"]
+
+RUN pacman -Sy --noconfirm archlinux-keyring && \
+    pacman -Syu --noconfirm nodejs npm && \
+    rm /var/cache/pacman/pkg/*
+
+FROM base AS build
+# Install build dependencies
+RUN pacman -Syu --noconfirm base-devel unrar git python2
+
+ARG repo=https://github.com/bcoin-org/bcoin.git
+ARG branch=master
+
+# Install bcoin
+RUN git clone --branch $branch $repo /code/node_modules/bcoin
 RUN npm install --production
 
-# Cleanup
-RUN npm uninstall node-gyp
-RUN pacman -Rns --noconfirm unrar python2 && \
-                rm /var/cache/pacman/pkg/*
-
-ADD ./scripts/ /code/scripts
-
-CMD ["node", "/code/scripts/docker-bcoin-init.js"]
+FROM base
+COPY --from=build /code/node_modules/bcoin /code/node_modules/bcoin
+COPY ./scripts/ /code/scripts
