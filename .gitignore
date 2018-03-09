@@ -67,7 +67,8 @@ dist/*
 bcoin.config.json
 
 # script generated files
-
+/webapp/plugins/index.js
+/webapp/plugins/local/index.js
 
 # Secrets
 secrets.env
