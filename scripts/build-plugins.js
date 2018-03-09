@@ -12,7 +12,7 @@ const camelize = str =>
     .replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
       return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
     })
-    .replace(/[^\w\s]/gi, '');
+    .replace(/[^\w]/gi, '');
 
 const prepareModules = (plugins = [], local = true) => {
   const pluginsPath = resolve(__dirname, '../webapp/plugins');
