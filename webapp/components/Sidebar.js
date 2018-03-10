@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Text, Header, SidebarNavItem } from 'bpanel-ui';
+import { Text, Header, SidebarNavItem } from '@bpanel/bpanel-ui';
 import { Link } from 'react-router-dom';
 
 import { pluginMetaProps } from '../containers/App/App';

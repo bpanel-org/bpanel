@@ -1,6 +1,6 @@
 // Dashboard widget for showing mempool information
 
-import { Header, Button } from 'bpanel-ui';
+import { Header, Button } from '@bpanel/bpanel-ui';
 
 import {
   ADD_RECENT_BLOCK,

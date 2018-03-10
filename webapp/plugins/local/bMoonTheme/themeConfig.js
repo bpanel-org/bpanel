@@ -1,4 +1,4 @@
-import { utils } from 'bpanel-ui';
+import { utils } from '@bpanel/bpanel-ui';
 
 const { makeRem, makeGutter } = utils;
 

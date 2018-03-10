@@ -8,7 +8,7 @@ import {
   Table,
   TabMenu,
   utils
-} from 'bpanel-ui';
+} from '@bpanel/bpanel-ui';
 import tableProps from './constants/tableProps';
 import * as codeSnippets from './constants/codeSnippets';
 
