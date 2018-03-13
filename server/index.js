@@ -11,7 +11,7 @@ if (require.main === module) {
     require('./saveConfig.js');
   }
   if (process.argv.indexOf('--dev') >= 0) {
-    // Watch server instead
+    // Watch this server
     return require('nodemon')({
       script: 'server/index.js',
       watch: ['server'],
@@ -32,33 +32,40 @@ require('nodemon')({
   process.exit(1);
 }).on('quit', process.exit);
 
-// make server
+// Import server dependencies
 const path = require('path');
 const http = require('http');
 const express = require('express');
 const bsock = require('bsock').createServer();
 
-// import express middlewares
+// Import express middlewares
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-// import app server utilities and modules
+// Import app server utilities and modules
 const logger = require('./logger');
 const bcoinRouter = require('./bcoinRouter');
 const socketHandler = require('./bcoinSocket');
 const { nodeClient, walletClient } = require('./bcoinClients');
 
-// Preparing bsock socket server and express server
-const app = express();
-module.exports = app; //TODO: dont listen, return router & clients
-
+// Init bsock socket server
 const socketHttpServer = http.createServer();
 bsock.attach(socketHttpServer);
-app.set('port', process.env.PORT || 5000);
+
+// Init app express server
+const app = express.Router();
+const port = process.env.PORT || 5000
 app.use(bodyParser.json());
 app.use(cors());
 
-(async function() {
+// Export app and clients
+module.exports = app;
+app.nodeClient = nodeClient;
+app.walletClient = walletClient;
+
+// Wait for async part of server setup
+app.ready = (async function() {
+  // Setup bsock server
   try {
     if (nodeClient) {
       await nodeClient.open();
@@ -72,9 +79,7 @@ app.use(cors());
 
   bsock.on('socket', socketHandler(nodeClient, walletClient));
 
-  /**
-    ROUTES
-  **/
+  // Setup app server
   app.use(express.static(path.join(__dirname, '../dist')));
   const resolveIndex = (req, res) => {
     res.sendFile(path.resolve(__dirname, '../webapp/index.html'));
@@ -95,15 +100,25 @@ app.use(cors());
   }
   app.get('/*', resolveIndex);
 
-  /**
-    START SERVERS
-  **/
-  app.listen(app.get('port'), () => {
-    logger.info('Node app is running on port', app.get('port'));
-  });
+  // Handle the unhandled
+  if (process.listenerCount('unhandledRejection') === 0) {
+    process.on('unhandledRejection', function(err, p) {
+      throw err;
+    });
+  }
 
-  // start up the socket server
+  // Start bsock server
   socketHttpServer.listen(8000, () => {
     logger.info('Socket server connected');
   });
+
+  // If NOT required from another script...
+  if (require.main === module) {
+    // Start app server
+    express().use(app).listen(port, () => {
+      logger.info('bpanel app is running on port', port);
+    });
+  }
+
+  return app;
 })();
