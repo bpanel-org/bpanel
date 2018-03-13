@@ -11,6 +11,8 @@ if (require.main === module) {
     require('./saveConfig.js');
   }
   if (process.argv.indexOf('--dev') >= 0) {
+    if (!process.env.NODE_ENV)
+      process.env.NODE_ENV = 'development';
     // Watch this server
     return require('nodemon')({
       script: 'server/index.js',
