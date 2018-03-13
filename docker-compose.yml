@@ -38,12 +38,13 @@ services:
       # shared volume for configs with app service
       - configs:/usr/src/app/configs
       # mapping to local files- Handy for dev
-      - ./dist:/usr/src/app/dist
-      - ./node_modules:/usr/src/app/node_modules
-      - ./package.json:/usr/src/app/package.json
-      - ./server:/usr/src/app/server
-      # - ./scripts/docker-config-init.js:/usr/src/app/docker-config-init.js
-    command: ["start:docker"]
+      # - ./dist:/usr/src/app/dist
+      # - ./node_modules:/usr/src/app/node_modules
+      # - ./package.json:/usr/src/app/package.json
+      # - ./webpack.config.js:/usr/src/app/webpack.config.js
+      # - ./server:/usr/src/app/server
+      # - ./webapp:/usr/src/app/webapp
+    # command: server --dev
 
   bcoin:
     container_name: bcoin
@@ -52,7 +53,7 @@ services:
       dockerfile: Dockerfile-bcoin
       args:
         branch: wallet-rewrite
-        repo: https://github.com/thann/bcoin.git
+        repo:   https://github.com/thann/bcoin.git
     restart: unless-stopped
     environment:
       BCOIN_WALLET_HTTP_HOST: 0.0.0.0
@@ -78,5 +79,7 @@ services:
       # - ~/.bcoin_bpanel:/code/.bcoin
     depends_on:
       - app
+
+
 volumes:
   configs:

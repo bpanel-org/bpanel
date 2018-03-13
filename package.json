@@ -4,19 +4,14 @@
   "description": "GUI application to interact with a Bcoin Bitcoin node",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --env.NODE_ENV=production --config webpack.config.js",
-    "watch": "webpack --env.NODE_ENV=production --config webpack.config.js --watch",
-    "build:dev": "webpack --env.NODE_ENV=development --config webpack.config.js",
-    "watch:dev": "webpack --env.NODE_ENV=development --config webpack.config.js --watch",
-    "start": "nodemon ./server/server.js",
-    "start:dev": "NODE_ENV=development nodemon ./server/server.js",
-    "start:docker": "node ./scripts/docker-config-init.js && npm run start",
+    "start": "node server",
+    "start:dev": "node server --dev",
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
     "precommit": "lint-staged",
     "postinstall": "node scripts/postinstall.js",
-    "build:plugins": "babel-node --presets=env scripts/build-plugins.js"
+    "build:plugins": "babel-node --presets=env server/build-plugins.js"
   },
   "lint-staged": {
     "*.{js,json,css,jsx,scss}": [
@@ -40,7 +35,7 @@
     "aphrodite": "^1.2.5",
     "babel-runtime": "^6.26.0",
     "bclient": "0.0.1",
-    "bcoin": "git+https://github.com/bcoin-org/bcoin.git#wallet-rewrite",
+    "bcoin": "git+https://github.com/thann/bcoin.git#wallet-rewrite",
     "body-parser": "^1.18.2",
     "bpanel-utils": "^0.0.3",
     "bsock": "git+https://github.com/bcoin-org/bsock",
@@ -99,7 +94,7 @@
     "karma-webpack": "^2.0.6",
     "lint-staged": "^4.3.0",
     "mocha": "^4.0.1",
-    "node-sass": "^4.5.3",
+    "node-sass": "^4.7.2",
     "nodemon": "^1.12.1",
     "postcss-loader": "^2.0.8",
     "prettier": "1.7.4",

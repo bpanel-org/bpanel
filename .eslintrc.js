@@ -5,11 +5,21 @@ module.exports = {
   parser: 'babel-eslint',
   plugins: ['prettier', 'react'],
   env: {
-    browser: true,
-    mocha: true,
     node: true,
     es6: true
   },
+  overrides: [
+    {
+      "files": ["webapp/**/*.js"],
+      "env": {
+        "node": false,
+        "browser": true,
+      }
+    }, {
+      "files": ["webapp/tests/**/*.js"],
+      "env": { "mocha": true }
+    },
+  ],
   rules: {
     'prettier/prettier': 'error'
   },

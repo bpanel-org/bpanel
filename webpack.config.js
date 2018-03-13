@@ -7,18 +7,14 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const WebpackShellPlugin = require('webpack-shell-plugin');
 
-const commitHash = execSync('git rev-parse HEAD').toString();
-
+let commitHash = ''
 let version = 'bpanel';
 try {
+  commitHash = execSync('git rev-parse HEAD').toString();
   version = execSync(
     'git describe --tags $(git rev-list --tags --max-count=1)'
   ).toString();
-} catch (e) {
-  // eslint-disable-next-line no-console
-  console.log(e);
-  return;
-}
+} catch (e) { }
 
 const loaders = {
   css: {
@@ -46,6 +42,7 @@ const loaders = {
 };
 
 module.exports = function(env) {
+  env = env || process.env;
   return {
     entry: ['whatwg-fetch', './webapp/index'],
     node: { __dirname: true },
@@ -109,7 +106,7 @@ module.exports = function(env) {
       new UglifyJSPlugin({ sourceMap: true }),
       new ExtractTextPlugin('[name].css'),
       new WebpackShellPlugin({
-        onBuildStart: ['echo "Webpack Start"', 'npm run build:plugins']
+        onBuildStart: ['echo "Webpack Start"', 'npm run -s build:plugins']
       }),
       new webpack.DefinePlugin({
         'process.env': {

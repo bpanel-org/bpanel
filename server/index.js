@@ -1,4 +1,34 @@
-/*eslint-env node*/
+#!/usr/bin/env node
+
+if (require.main === module) {
+  // Parse args
+  if (process.argv.indexOf('--no-save-config') < 0) {
+    // Turn env into config and save
+    require('./saveConfig.js');
+  }
+  if (process.argv.indexOf('--dev') >= 0) {
+    // Watch server instead
+    return require('nodemon')({
+      script: 'server/index.js',
+      watch: ['server'],
+      args: ['--no-save-config', '--watch'],
+      ext: 'js',
+    }).on('crash', () => {
+      process.exit(1);
+    }).on('quit', process.exit);
+  }
+}
+
+// Always start webpack
+require('nodemon')({
+  script: './node_modules/.bin/webpack',
+  args: (process.argv.indexOf('--watch') >= 0)? ['--watch']: [],
+  watch: ['webapp/config/pluginsConfig.js'],
+}).on('crash', () => {
+  process.exit(1);
+}).on('quit', process.exit);
+
+// make server
 const path = require('path');
 const http = require('http');
 const express = require('express');
@@ -16,6 +46,8 @@ const { nodeClient, walletClient } = require('./bcoinClients');
 
 // Preparing bsock socket server and express server
 const app = express();
+module.exports = app; //TODO:
+
 const socketHttpServer = http.createServer();
 bsock.attach(socketHttpServer);
 app.set('port', process.env.PORT || 5000);
