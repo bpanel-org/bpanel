@@ -1,7 +1,11 @@
 #!/usr/bin/env node
+// Bpanel server -- The bcoin UI
+// --watch Watch webapp
+// --dev Watch server and webapp
+// --no-save-config Don't turn ENV into config
 
+// If run from command line, parse args
 if (require.main === module) {
-  // Parse args
   if (process.argv.indexOf('--no-save-config') < 0) {
     // Turn env into config and save
     require('./saveConfig.js');
@@ -46,7 +50,7 @@ const { nodeClient, walletClient } = require('./bcoinClients');
 
 // Preparing bsock socket server and express server
 const app = express();
-module.exports = app; //TODO:
+module.exports = app; //TODO: dont listen, return router & clients
 
 const socketHttpServer = http.createServer();
 bsock.attach(socketHttpServer);
