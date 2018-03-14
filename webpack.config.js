@@ -1,15 +1,11 @@
 const webpack = require('webpack');
 const path = require('path');
-const { execSync } = require('child_process');
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const WebpackShellPlugin = require('webpack-shell-plugin');
-
-try {
-  var { commit, version } = require('./webapp/version.json');
-} catch(e) {}
+const bcoinConfig = require('./configs/bcoin.config.json');
 
 const loaders = {
   css: {
@@ -104,11 +100,9 @@ module.exports = function(env) {
         onBuildStart: ['echo "Webpack Start"', 'npm run -s build:plugins']
       }),
       new webpack.DefinePlugin({
-        'process.env': {
-          BCOIN_URI: JSON.stringify(env.BCOIN_URI),
-          NODE_ENV: JSON.stringify(env.NODE_ENV),
-          __COMMIT__: JSON.stringify(commit || ''),
-          __VERSION__: JSON.stringify(version || '')
+        'envConfig': {
+          BCOIN_URI: bcoinConfig['BCOIN_URI'],
+          NODE_ENV:  bcoinConfig['NODE_ENV'],
         }
       })
     ]

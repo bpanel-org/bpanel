@@ -1,14 +1,24 @@
 #!/usr/bin/env node
 // Bpanel server -- The bcoin UI
 // --watch Watch webapp
+// --watch-poll Watch webapp in docker on a Mac
 // --dev Watch server and webapp
 // --no-save-config Don't turn ENV into config
+
+let poll = false;
+const webpackArgs = [];
 
 // If run from command line, parse args
 if (require.main === module) {
   if (process.argv.indexOf('--no-save-config') < 0) {
     // Turn env into config and save
     require('./saveConfig.js');
+  }
+  if (process.argv.indexOf('--watch-poll') >= 0) {
+    poll = true;
+    webpackArgs.push('--watch-poll', '--watch')
+  } else if (process.argv.indexOf('--watch') >= 0) {
+    webpackArgs.push('--watch')
   }
   if (process.argv.indexOf('--dev') >= 0) {
     if (!process.env.NODE_ENV)
@@ -17,7 +27,8 @@ if (require.main === module) {
     return require('nodemon')({
       script: 'server/index.js',
       watch: ['server'],
-      args: ['--no-save-config', '--watch'],
+      args: ['--no-save-config', poll ? '--watch-poll': '--watch'],
+      legacyWatch: poll,
       ext: 'js',
     }).on('crash', () => {
       process.exit(1);
@@ -28,8 +39,9 @@ if (require.main === module) {
 // Always start webpack
 require('nodemon')({
   script: './node_modules/.bin/webpack',
-  args: (process.argv.indexOf('--watch') >= 0)? ['--watch']: [],
   watch: ['webapp/config/pluginsConfig.js'],
+  args: webpackArgs,
+  legacyWatch: poll,
 }).on('crash', () => {
   process.exit(1);
 }).on('quit', process.exit);
