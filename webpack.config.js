@@ -7,14 +7,9 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const WebpackShellPlugin = require('webpack-shell-plugin');
 
-let commitHash = ''
-let version = 'bpanel';
 try {
-  commitHash = execSync('git rev-parse HEAD').toString();
-  version = execSync(
-    'git describe --tags $(git rev-list --tags --max-count=1)'
-  ).toString();
-} catch (e) { }
+  var { commit, version } = require('./webapp/version.json');
+} catch(e) {}
 
 const loaders = {
   css: {
@@ -112,8 +107,8 @@ module.exports = function(env) {
         'process.env': {
           BCOIN_URI: JSON.stringify(env.BCOIN_URI),
           NODE_ENV: JSON.stringify(env.NODE_ENV),
-          __COMMIT__: JSON.stringify(commitHash),
-          __VERSION__: JSON.stringify(version)
+          __COMMIT__: JSON.stringify(commit || ''),
+          __VERSION__: JSON.stringify(version || '')
         }
       })
     ]

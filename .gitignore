@@ -68,6 +68,7 @@ configs/
 bcoin.config.json
 
 # script generated files
+/webapp/version.json
 /webapp/plugins/index.js
 /webapp/plugins/local/index.js
 

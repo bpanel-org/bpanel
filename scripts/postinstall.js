@@ -10,3 +10,5 @@ if (!fs.existsSync(fname)) {
     { mode: 0o600 }
   );
 }
+
+require('./version.js')
