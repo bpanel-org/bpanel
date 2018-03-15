@@ -16,23 +16,24 @@ if (require.main === module) {
   }
   if (process.argv.indexOf('--watch-poll') >= 0) {
     poll = true;
-    webpackArgs.push('--watch-poll', '--watch')
+    webpackArgs.push('--watch-poll', '--watch');
   } else if (process.argv.indexOf('--watch') >= 0) {
-    webpackArgs.push('--watch')
+    webpackArgs.push('--watch');
   }
   if (process.argv.indexOf('--dev') >= 0) {
-    if (!process.env.NODE_ENV)
-      process.env.NODE_ENV = 'development';
+    if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
     // Watch this server
     return require('nodemon')({
       script: 'server/index.js',
       watch: ['server'],
-      args: ['--no-save-config', poll ? '--watch-poll': '--watch'],
+      args: ['--no-save-config', poll ? '--watch-poll' : '--watch'],
       legacyWatch: poll,
-      ext: 'js',
-    }).on('crash', () => {
-      process.exit(1);
-    }).on('quit', process.exit);
+      ext: 'js'
+    })
+      .on('crash', () => {
+        process.exit(1);
+      })
+      .on('quit', process.exit);
   }
 }
 
@@ -41,10 +42,12 @@ require('nodemon')({
   script: './node_modules/.bin/webpack',
   watch: ['webapp/config/pluginsConfig.js'],
   args: webpackArgs,
-  legacyWatch: poll,
-}).on('crash', () => {
-  process.exit(1);
-}).on('quit', process.exit);
+  legacyWatch: poll
+})
+  .on('crash', () => {
+    process.exit(1);
+  })
+  .on('quit', process.exit);
 
 // Import server dependencies
 const path = require('path');
@@ -68,7 +71,7 @@ bsock.attach(socketHttpServer);
 
 // Init app express server
 const app = express.Router();
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -116,7 +119,7 @@ app.ready = (async function() {
 
   // Handle the unhandled
   if (process.listenerCount('unhandledRejection') === 0) {
-    process.on('unhandledRejection', function(err, p) {
+    process.on('unhandledRejection', function(err) {
       throw err;
     });
   }
@@ -129,9 +132,11 @@ app.ready = (async function() {
   // If NOT required from another script...
   if (require.main === module) {
     // Start app server
-    express().use(app).listen(port, () => {
-      logger.info('bpanel app is running on port', port);
-    });
+    express()
+      .use(app)
+      .listen(port, () => {
+        logger.info('bpanel app is running on port', port);
+      });
   }
 
   return app;

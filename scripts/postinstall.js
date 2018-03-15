@@ -11,4 +11,4 @@ if (!fs.existsSync(fname)) {
   );
 }
 
-require('./version.js')
+require('./version.js');
