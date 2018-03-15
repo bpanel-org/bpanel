@@ -46,7 +46,8 @@ services:
       # - ./server:/usr/src/app/server
       ## uncomment for webapp dev
       - ./webapp:/usr/src/app/webapp
-    command: server --dev
+    ## Only MacOSX users need --watch-poll
+    command: server --dev --watch-poll
 
   bcoin:
     container_name: bcoin

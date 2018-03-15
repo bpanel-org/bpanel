@@ -21,7 +21,7 @@ export default async () => {
   // get extended listeners
   const { listeners } = getConstants('sockets');
 
-  if (envConfig.NODE_ENV === 'development') {
+  if (NODE_ENV === 'development') {
     const composeEnhancers = composeWithDevTools({
       autoPause: true,
       maxAge: 10
