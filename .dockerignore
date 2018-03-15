@@ -2,4 +2,6 @@
 logs
 dist
 secrets.env
+configs
 node_modules
+webapp/version.json

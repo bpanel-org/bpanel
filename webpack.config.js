@@ -1,24 +1,10 @@
-const webpack = require('webpack');
 const path = require('path');
-const { execSync } = require('child_process');
+const webpack = require('webpack');
 
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const WebpackShellPlugin = require('webpack-shell-plugin');
-
-const commitHash = execSync('git rev-parse HEAD').toString();
-
-let version = 'bpanel';
-try {
-  version = execSync(
-    'git describe --tags $(git rev-list --tags --max-count=1)'
-  ).toString();
-} catch (e) {
-  // eslint-disable-next-line no-console
-  console.log(e);
-  return;
-}
+const CompressionPlugin = require('compression-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const loaders = {
   css: {
@@ -46,6 +32,19 @@ const loaders = {
 };
 
 module.exports = function(env) {
+  env = env || process.env;
+
+  const plugins = [];
+  if (env.NODE_ENV !== 'development') {
+    plugins.push(
+      new webpack.optimize.UglifyJsPlugin({
+        minimize: true,
+        sourceMap: true,
+        compress: { warnings: false }
+      })
+    );
+  }
+
   return {
     entry: ['whatwg-fetch', './webapp/index'],
     node: { __dirname: true },
@@ -105,20 +104,19 @@ module.exports = function(env) {
         }
       ]
     },
-    plugins: [
-      new UglifyJSPlugin({ sourceMap: true }),
+    plugins: plugins.concat(
       new ExtractTextPlugin('[name].css'),
       new WebpackShellPlugin({
-        onBuildStart: ['echo "Webpack Start"', 'npm run build:plugins']
+        onBuildStart: ['echo "Webpack Start"', 'npm run -s build:plugins']
       }),
       new webpack.DefinePlugin({
-        'process.env': {
-          BCOIN_URI: JSON.stringify(env.BCOIN_URI),
-          NODE_ENV: JSON.stringify(env.NODE_ENV),
-          __COMMIT__: JSON.stringify(commitHash),
-          __VERSION__: JSON.stringify(version)
-        }
+        NODE_ENV: `"${env.NODE_ENV}"`
+      }),
+      new CompressionPlugin({
+        test: /\.js$/,
+        algorithm: 'gzip',
+        asset: '[path].gz[query]'
       })
-    ]
+    )
   };
 };

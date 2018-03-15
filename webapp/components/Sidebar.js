@@ -4,6 +4,9 @@ import { Text, Header, SidebarNavItem } from '@bpanel/bpanel-ui';
 import { Link } from 'react-router-dom';
 
 import { pluginMetaProps } from '../containers/App/App';
+try {
+  var { version, commit } = require('../version.json');
+} catch (e) {}
 
 class Sidebar extends PureComponent {
   static get propTypes() {
@@ -84,8 +87,7 @@ class Sidebar extends PureComponent {
 
   renderFooter() {
     const { theme } = this.props;
-    const commitHash = process.env.__COMMIT__.slice(0, 7);
-    const version = process.env.__VERSION__;
+    const commitHash = (commit || '').slice(0, 7);
     return (
       <div className={`${theme.sidebar.footer} mt-auto text-center`}>
         <Header type="h5">bpanel</Header>

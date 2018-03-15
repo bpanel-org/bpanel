@@ -35,15 +35,19 @@ services:
       # BCOIN_NETWORK: mainnet
       # BCOIN_INIT_SCRIPT: test-scripts/dummy-10-wallet.js
     volumes:
-      # shared volume for configs with app service
-      - configs:/usr/src/app/configs
-      # mapping to local files- Handy for dev
-      - ./dist:/usr/src/app/dist
-      - ./node_modules:/usr/src/app/node_modules
-      - ./package.json:/usr/src/app/package.json
-      - ./server:/usr/src/app/server
-      # - ./scripts/docker-config-init.js:/usr/src/app/docker-config-init.js
-    command: ["start:docker"]
+      ## Shared volume for configs with app service
+      - ./configs:/usr/src/app/configs
+      ## Mapping to local files- Handy for dev
+      ## uncomment for local webpack
+      # - ./dist:/usr/src/app/dist
+      ## uncomment when adding packages
+      # - ./node_modules:/usr/src/app/node_modules
+      ## uncomment for server dev
+      # - ./server:/usr/src/app/server
+      ## uncomment for webapp dev
+      - ./webapp:/usr/src/app/webapp
+    ## Only MacOSX users need --watch-poll
+    command: server --dev --watch-poll
 
   bcoin:
     container_name: bcoin
@@ -52,13 +56,13 @@ services:
       dockerfile: Dockerfile-bcoin
       args:
         branch: wallet-rewrite
-        repo: https://github.com/thann/bcoin.git
+        repo:   https://github.com/thann/bcoin.git
     restart: unless-stopped
     environment:
       BCOIN_WALLET_HTTP_HOST: 0.0.0.0
       BLOCKS_2_MINE: 101
     ports:
-      # comment these if they conflict with something else you're running.
+      ## Comment these if they conflict with something else you're running.
       #-- Mainnet
       - "8333:8333"
       - "8332:8332" # RPC
@@ -72,11 +76,9 @@ services:
       - "48332:48332" # RPC
       - "48334:48334" # Wallet
     volumes:
-      - configs:/code/configs
+      - ./configs:/code/configs
       - ./scripts:/code/scripts
-      # Uncomment to make bcoin chain and wallet database persistant
+      ## Uncomment to make bcoin chain and wallet database persistant
       # - ~/.bcoin_bpanel:/code/.bcoin
     depends_on:
       - app
-volumes:
-  configs:
