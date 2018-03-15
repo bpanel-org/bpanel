@@ -54,8 +54,20 @@ export const loadConnectors = (plugin, type, connectors) => {
   }
 };
 
-// plugin to add method and check for duplicates
-// and use latest version of plugin
+// utility to check plugin metadata
+// conforms to expected format.
+const checkMetadata = ({ metadata, decoratePanel }) => {
+  // check `name` exists and conforms to npm rules
+  // check `displayName` exists
+    // if it doesn't duplicate from `name`
+  // check if `path` exists
+    // if no `path` but has decoratePanel module
+      // add `path`
+    // encodeURI if it has path
+}
+
+// add plugin to list and check for duplicates
+// use latest version of plugin if duplicate exists
 export const addPlugin = (modules = [], plugin) => {
   const { name: pluginName, version: pluginVersion } = plugin.metadata;
   assert(

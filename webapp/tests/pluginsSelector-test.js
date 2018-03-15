@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { sortPluginMetadata } from '../store/selectors/plugins';
-import { plugins } from 'bpanel-utils';
+import { plugins } from '@bpanel/bpanel-utils';
 
 describe('sortPluginMetadata', () => {
   let actual, subItems, parentItems;

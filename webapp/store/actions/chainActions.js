@@ -1,4 +1,4 @@
-import { bpanelClient } from 'bpanel-utils';
+import { bpanelClient } from '@bpanel/bpanel-utils';
 
 import { SET_CHAIN_INFO, SET_GENESIS } from '../constants/chain';
 

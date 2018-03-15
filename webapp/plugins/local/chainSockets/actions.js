@@ -1,6 +1,6 @@
 import { ChainEntry } from 'bcoin';
 
-import { chain as chainUtils } from 'bpanel-utils';
+import { chain as chainUtils } from '@bpanel/bpanel-utils';
 
 export function watchChain() {
   return {
