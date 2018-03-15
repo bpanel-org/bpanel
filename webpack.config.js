@@ -1,10 +1,10 @@
-const webpack = require('webpack');
 const path = require('path');
+const webpack = require('webpack');
 
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const autoprefixer = require('autoprefixer');
 const WebpackShellPlugin = require('webpack-shell-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 const loaders = {
   css: {
@@ -33,6 +33,18 @@ const loaders = {
 
 module.exports = function(env) {
   env = env || process.env;
+
+  const plugins = [];
+  if (env.NODE_ENV !== 'development') {
+    plugins.push(
+      new webpack.optimize.UglifyJsPlugin({
+        minimize: true,
+        sourceMap: true,
+        compress: { warnings: false }
+      })
+    );
+  }
+
   return {
     entry: ['whatwg-fetch', './webapp/index'],
     node: { __dirname: true },
@@ -92,15 +104,19 @@ module.exports = function(env) {
         }
       ]
     },
-    plugins: [
-      new UglifyJSPlugin({ sourceMap: true }),
+    plugins: plugins.concat(
       new ExtractTextPlugin('[name].css'),
       new WebpackShellPlugin({
         onBuildStart: ['echo "Webpack Start"', 'npm run -s build:plugins']
       }),
       new webpack.DefinePlugin({
         NODE_ENV: `"${env.NODE_ENV}"`
+      }),
+      new CompressionPlugin({
+        test: /\.js$/,
+        algorithm: 'gzip',
+        asset: '[path].gz[query]'
       })
-    ]
+    )
   };
 };

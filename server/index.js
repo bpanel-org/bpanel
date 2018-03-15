@@ -97,7 +97,17 @@ app.ready = (async function() {
   bsock.on('socket', socketHandler(nodeClient, walletClient));
 
   // Setup app server
-  app.use(express.static(path.join(__dirname, '../dist')));
+  app.use(
+    express.static('dist', {
+      setHeaders: function(res, path) {
+        if (path.endsWith('/main.bundle.js.gz')) {
+          res.setHeader('Content-Encoding', 'gzip');
+          res.setHeader('Content-Type', 'application/javascript');
+        }
+      }
+    })
+  );
+
   const resolveIndex = (req, res) => {
     res.sendFile(path.resolve(__dirname, '../webapp/index.html'));
   };
