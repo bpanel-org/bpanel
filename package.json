@@ -18,12 +18,6 @@
       "git add"
     ]
   },
-  "babel": {
-    "presets": [
-      "env",
-      "stage-3"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "git@git.purse.io:bcoin/bpanel.git"
