@@ -1,7 +1,7 @@
 import { utils } from '@bpanel/bpanel-ui';
 import themeVariables from './themeVariables';
 
-const { makeRem, makeGutter } = utils;
+const { makeGutter } = utils;
 
 const themeCreator = defaultThemeVariables => {
   /// ******

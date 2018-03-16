@@ -57,29 +57,23 @@ export const loadConnectors = (plugin, type, connectors) => {
 
 // utility to check plugin metadata
 // conforms to expected format.
-const checkMetadata = metadata => {
+export const checkMetadata = metadata => {
   const { name, displayName, pathName } = metadata;
   const updatedMeta = { ...metadata };
-  try {
-    // check `name` exists and conforms to npm rules
-    assert(name, 'Plugin must have a name');
-    const { errors = [], warnings = [] } = validate(name);
-    assert(
-      !errors.length && !warnings.length,
-      `${name}: ` + errors.concat(warnings).join(' & ')
-    );
-    // check `displayName` exists
-    // if it doesn't duplicate from `name`
-    if (!displayName) updatedMeta.displayName = name;
-    // encode pathName if it exists
-    if (pathName) updatedMeta.pathName = encodeURI(pathName);
+  // check `name` exists and conforms to npm rules
+  assert(name, 'Plugin must have a name');
+  const { errors = [], warnings = [] } = validate(name);
+  assert(
+    !errors.length && !warnings.length,
+    `${name}: ` + errors.concat(warnings).join(' & ')
+  );
+  // check `displayName` exists
+  // if it doesn't, duplicate from `name`
+  if (!displayName) updatedMeta.displayName = name;
+  // encode pathName if it exists
+  if (pathName) updatedMeta.pathName = encodeURI(pathName);
 
-    return updatedMeta;
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(`There was an error with the plugin metadata:`, e.message);
-    return false;
-  }
+  return updatedMeta;
 };
 
 // add plugin to list and check for duplicates

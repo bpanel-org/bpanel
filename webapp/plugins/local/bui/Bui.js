@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import {
   Header,
   Input,
@@ -58,6 +59,12 @@ class Bui extends PureComponent {
     };
   }
 
+  static get propTypes() {
+    return {
+      theme: PropTypes.object
+    };
+  }
+
   render() {
     const styles = this.getStyles();
     return (
@@ -70,19 +77,19 @@ class Bui extends PureComponent {
           </div>
           <div style={styles.componentContainer}>
             <Text type="p">
-              Welcome to the bPanel Component Library! The goal of this library
+              {`Welcome to the bPanel Component Library! The goal of this library
               is to provide components that all receive default and user defined
               theming. To make the best plugins possible, it's recommended that
               you use these components so that all of your components look like
               they visually belong within user defined themes. Making a plugin
               without these components is still possible, but your component
               will not receive theming from themes that users choose to apply,
-              and will tend to look out of place.
+              and will tend to look out of place.`}
             </Text>
             <br />
             <Text type="p">
-              PRs are welcome, if you have a component you'd like to add or
-              modify, feel free to make a PR at
+              {`PRs are welcome, if you have a component you'd like to add or
+              modify, feel free to make a PR at`}
               <br />
               <Link to="https://github.com/bcoin-org/bpanel-ui">
                 https://github.com/bcoin-org/bpanel-ui

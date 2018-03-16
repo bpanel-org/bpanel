@@ -23,7 +23,7 @@ module.exports = config => {
     port: 9876,
     colors: true,
     autoWatch: true,
-    browsers: ['PhantomJS'],
-    concurrency: Infinity
+    concurrency: Infinity,
+    browsers: ['Firefox']
   });
 };

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { addPlugin } from '../plugins/utils';
+import { addPlugin, checkMetadata } from '../plugins/utils';
 
 describe('addPlugin', () => {
   let modules;
@@ -56,5 +56,79 @@ describe('addPlugin', () => {
 
     expect(updatedModules.length).to.equal(modules.length);
     expect(updatedModules[1].metadata.version).to.not.equal(newVersion);
+  });
+});
+
+describe('checkMetadata', () => {
+  it('should throw if there is no plugin name', () => {
+    const test = {
+      pathName: 'path',
+      displayName: 'display',
+      version: '0.0.1'
+    };
+    expect(() => checkMetadata(test)).to.throw();
+  });
+
+  it('should throw for file names that are not compatible with npm', () => {
+    // examples from npm tests
+    // https://github.com/npm/validate-npm-package-name/blob/master/test/index.js
+    const invalid = [
+      {
+        name: ''
+      },
+      {
+        name: ' leading'
+      },
+      {
+        name: 'Capital'
+      },
+      {
+        name: 'weird:character'
+      },
+      {
+        name: '.start-period'
+      },
+      {
+        name: ' _start-underscore'
+      },
+      {
+        name: ' leading'
+      },
+      {
+        name: 's/l/a/s/h/e/s'
+      },
+      {
+        name: 'node_modules'
+      },
+      {
+        name: 'favicon.ico'
+      },
+      {
+        name: 'http'
+      },
+      {
+        name:
+          'ifyouwanttogetthesumoftwonumberswherethosetwonumbersarechosenbyfindingthelargestoftwooutofthreenumbersandsquaringthemwhichismultiplyingthembyitselfthenyoushouldinputthreenumbersintothisfunctionanditwilldothatforyou-'
+      }
+    ];
+
+    invalid.forEach(meta => expect(() => checkMetadata(meta)).to.throw());
+  });
+
+  it("should set displayName from name if it doesn't exist", () => {
+    const testName = 'test-name';
+    const expected = {
+      name: testName,
+      displayName: testName
+    };
+    const test = checkMetadata({ name: testName });
+    expect(test).to.deep.equal(expected);
+  });
+
+  it('should make sure pathName is encoded for URI if set', () => {
+    const testPath = 'my path';
+    const expectedPath = encodeURI(testPath);
+    const test = checkMetadata({ name: 'test', pathName: testPath });
+    expect(test.pathName).to.equal(expectedPath);
   });
 });
