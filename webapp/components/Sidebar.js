@@ -73,7 +73,7 @@ class Sidebar extends PureComponent {
               const props = {
                 ...subItem,
                 subItem: true,
-                pathname,
+                pathName: subItem.pathName ? subItem.pathName : subItem.name,
                 theme,
                 key: `${index}-${subIndex}`
               };

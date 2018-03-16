@@ -31,7 +31,7 @@
   "license": "MIT",
   "dependencies": {
     "@bpanel/bpanel-ui": "^0.0.1",
-    "@bpanel/bpanel-utils": "0.0.4",
+    "@bpanel/bpanel-utils": "^0.0.4",
     "aphrodite": "^1.2.5",
     "babel-runtime": "^6.26.0",
     "bclient": "0.0.1",
@@ -55,6 +55,7 @@
     "redux-thunk": "^2.2.0",
     "seamless-immutable": "^7.1.2",
     "semver": "^5.5.0",
+    "validate-npm-package-name": "^3.0.0",
     "winston": "^2.4.0"
   },
   "devDependencies": {
@@ -98,7 +99,7 @@
     "node-sass": "^4.7.2",
     "nodemon": "^1.12.1",
     "postcss-loader": "^2.0.8",
-    "prettier": "1.7.4",
+    "prettier": "^1.7.4",
     "redux-devtools-extension": "^2.13.2",
     "reselect": "^3.0.1",
     "sass-lint": "^1.12.1",

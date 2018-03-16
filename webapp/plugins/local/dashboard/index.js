@@ -16,6 +16,8 @@ let _DecoratedDashboard = Dashboard;
 
 export const metadata = {
   name: 'dashboard',
+  displayName: 'My Dashboard',
+  pathName: 'dash',
   author: 'bcoin-org',
   order: 0,
   icon: 'home',
@@ -152,8 +154,10 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
 
     render() {
       const { customChildren = [] } = this.props;
+      const { name, pathName } = metadata;
       const routeData = {
-        name: metadata.name,
+        name,
+        pathName,
         Component: _DecoratedDashboard
       };
       return (
