@@ -2,7 +2,7 @@ import { SOCKET_CONNECTED, ADD_NEW_BLOCK } from './constants';
 import { watchChain, subscribeBlockConnect, setChainTip } from './actions';
 
 export const metadata = {
-  name: 'chainSockets',
+  name: 'chain-sockets',
   author: 'bcoin-org',
   version: '0.0.1'
 };

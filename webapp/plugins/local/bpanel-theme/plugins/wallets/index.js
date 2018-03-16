@@ -110,7 +110,7 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
     render() {
       const { customChildren = [] } = this.props;
       const pluginData = {
-        name: metadata.name,
+        metadata,
         Component: Wallets
       };
       return (

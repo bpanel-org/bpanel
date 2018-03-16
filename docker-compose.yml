@@ -41,7 +41,7 @@ services:
       ## uncomment for local webpack
       # - ./dist:/usr/src/app/dist
       ## uncomment when adding packages
-      - ../bpanel-ui:/usr/src/app/node_modules/@bpanel/bpanel-ui
+      # - ./node_modules:/usr/src/app/node_modules
       ## uncomment for server dev
       # - ./server:/usr/src/app/server
       ## uncomment for webapp dev
@@ -56,7 +56,7 @@ services:
       dockerfile: Dockerfile-bcoin
       args:
         branch: wallet-rewrite
-        # repo:   https://github.com/bcoin-org/bcoin.git
+        # repo:   https://github.com/thann/bcoin.git
         # rebuild: 1
     restart: unless-stopped
     environment:

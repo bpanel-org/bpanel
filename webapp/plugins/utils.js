@@ -65,8 +65,8 @@ const checkMetadata = metadata => {
     assert(name, 'Plugin must have a name');
     const { errors = [], warnings = [] } = validate(name);
     assert(
-      !errors.length || warnings.length,
-      errors.concat(warnings).join(' & ')
+      !errors.length && !warnings.length,
+      `${name}: ` + errors.concat(warnings).join(' & ')
     );
     // check `displayName` exists
     // if it doesn't duplicate from `name`
@@ -75,7 +75,7 @@ const checkMetadata = metadata => {
     if (pathName) updatedMeta.pathName = encodeURI(pathName);
 
     return updatedMeta;
-  } catch(e) {
+  } catch (e) {
     // eslint-disable-next-line no-console
     console.error(`There was an error with the plugin metadata:`, e.message);
     return false;

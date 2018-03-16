@@ -5,6 +5,8 @@ import Bui from './Bui';
 export const metadata = {
   name: 'ui',
   author: 'bcoin-org',
+  pathName: 'bui',
+  displayName: 'BUI',
   order: 0,
   icon: 'cubes',
   sidebar: true
@@ -42,10 +44,8 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
       });
 
       const newNavItem = React.createElement(SidebarNavItem, {
-        name: metadata.name,
-        icon: 'cubes',
         pathname,
-        sidebar: true
+        ...metadata
       });
 
       const _sidebarNavItems = existingNavItems
@@ -71,14 +71,10 @@ export const decoratePanel = (Panel, { React, PropTypes }) => {
 
     render() {
       const { customChildren = [] } = this.props;
-      const pluginData = {
-        name: metadata.name,
-        Component: Bui
-      };
       return (
         <Panel
           {...this.props}
-          customChildren={customChildren.concat(pluginData)}
+          customChildren={customChildren.concat({ Component: Bui, metadata })}
         />
       );
     }

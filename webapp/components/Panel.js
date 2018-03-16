@@ -31,7 +31,8 @@ export default class extends Component {
 
   render() {
     const { customChildren = [] } = this.props;
-    const routes = customChildren.map(({ Component, name, pathName }) => {
+    const routes = customChildren.map(({ Component, metadata }) => {
+      const { pathName, name } = metadata;
       let path;
       try {
         if (!name) throw 'Must pass a name for custom Panels';

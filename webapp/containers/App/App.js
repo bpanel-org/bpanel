@@ -68,7 +68,7 @@ class App extends Component {
     const panels = sortedPluginMeta.filter(
       plugin => plugin.sidebar || React.isValidElement(plugin)
     );
-    const homePath = panels[0] ? panels[0].name : '';
+    const homePath = panels[0] ? panels[0].pathName : '';
     return homePath;
   }
 
