@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Button, Input } from '@bpanel/bpanel-ui';
 import { Amount } from 'bcoin';
 
-import { bwalletClient } from 'bpanel-utils';
+import { bwalletClient } from '@bpanel/bpanel-utils';
 const walletClient = bwalletClient();
 
 export default class SendForm extends PureComponent {

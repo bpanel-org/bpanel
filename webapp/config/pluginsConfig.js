@@ -1,11 +1,11 @@
 export const localPlugins = [
-  'chainSockets',
+  'chain-sockets',
   'dashboard',
   'mempool',
   'bui',
   'bpanel-theme',
-  'bMoonTheme',
-  'bDarkTheme'
+  'bmoon-theme',
+  'bdark-theme'
 ];
 
 export const plugins = [];

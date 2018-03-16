@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { plugins } from 'bpanel-utils';
+import { plugins } from '@bpanel/bpanel-utils';
 
 const { comparePlugins } = plugins;
 const getPluginMetadata = state => state.pluginMetadata;

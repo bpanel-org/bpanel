@@ -1,6 +1,7 @@
 // utilities for the plugin system modules
 import assert from 'assert';
 import semver from 'semver';
+import validate from 'validate-npm-package-name';
 
 export const propsReducerCallback = (name, parentProps, ...fnArgs) => (
   acc,
@@ -54,8 +55,35 @@ export const loadConnectors = (plugin, type, connectors) => {
   }
 };
 
-// plugin to add method and check for duplicates
-// and use latest version of plugin
+// utility to check plugin metadata
+// conforms to expected format.
+const checkMetadata = metadata => {
+  const { name, displayName, pathName } = metadata;
+  const updatedMeta = { ...metadata };
+  try {
+    // check `name` exists and conforms to npm rules
+    assert(name, 'Plugin must have a name');
+    const { errors = [], warnings = [] } = validate(name);
+    assert(
+      !errors.length && !warnings.length,
+      `${name}: ` + errors.concat(warnings).join(' & ')
+    );
+    // check `displayName` exists
+    // if it doesn't duplicate from `name`
+    if (!displayName) updatedMeta.displayName = name;
+    // encode pathName if it exists
+    if (pathName) updatedMeta.pathName = encodeURI(pathName);
+
+    return updatedMeta;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(`There was an error with the plugin metadata:`, e.message);
+    return false;
+  }
+};
+
+// add plugin to list and check for duplicates
+// use latest version of plugin if duplicate exists
 export const addPlugin = (modules = [], plugin) => {
   const { name: pluginName, version: pluginVersion } = plugin.metadata;
   assert(
@@ -102,11 +130,15 @@ export const moduleLoader = (config, modules = []) => {
           typeof plugin !== 'string' && plugin.metadata,
           'Plugin must be an exported plugin module with a metadata property'
         );
+        const updatedMeta = checkMetadata(plugin.metadata);
+        assert(updatedMeta, 'Plugin could not load due to metadata failure');
+        plugin.metadata = updatedMeta;
         modules = addPlugin(modules, plugin);
         if (plugin.pluginConfig)
           // doing recursive call if plugin has plugin bundle
           modules = moduleLoader(plugin.pluginConfig, modules);
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error(`Plugin failure: ${e.message} \n`, plugin);
       }
     });

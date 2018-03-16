@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Input } from '@bpanel/bpanel-ui';
 
-import { bwalletClient } from 'bpanel-utils';
+import { bwalletClient } from '@bpanel/bpanel-utils';
 
 const walletClient = bwalletClient();
 

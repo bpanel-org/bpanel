@@ -31,14 +31,26 @@ export default class extends Component {
 
   render() {
     const { customChildren = [] } = this.props;
-    const routes = customChildren.map(({ Component, name }) => (
-      <Route
-        exact
-        path={`/${name}`}
-        key={`nav-${name}`}
-        render={() => this.childRoute(Component, name)} // using render so we can pass props
-      />
-    ));
+    const routes = customChildren.map(({ Component, metadata }) => {
+      const { pathName, name } = metadata;
+      let path;
+      try {
+        if (!name) throw 'Must pass a name for custom Panels';
+        if (!pathName) {
+          path = encodeURI(name);
+        } else {
+          path = encodeURI(pathName);
+        }
+        return (
+          <Route
+            exact
+            path={`/${path}`}
+            key={`nav-${name}`}
+            render={() => this.childRoute(Component, name)} // using render so we can pass props
+          />
+        );
+      } catch (e) {}
+    });
 
     return <div>{routes}</div>;
   }

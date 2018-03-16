@@ -1,4 +1,4 @@
-import { bwalletClient } from 'bpanel-utils';
+import { bwalletClient } from '@bpanel/bpanel-utils';
 
 import {
   ADD_WALLET,

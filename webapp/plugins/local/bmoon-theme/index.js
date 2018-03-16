@@ -2,7 +2,7 @@ import themeVariables from './themeVariables';
 import themeConfig from './themeConfig';
 
 export const metadata = {
-  name: 'bMoonTheme',
+  name: 'bmoon-theme',
   author: 'bcoin-org',
   theme: true
 };
