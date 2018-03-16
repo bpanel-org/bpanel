@@ -65,7 +65,6 @@ export const reduceChain = (state, action) => {
       // reason is new block can be received multiple times
       if (blocks && blocks.length && block.height !== blocks[0].height) {
         newBlocks.unshift(block);
-
         // check if action includes a length to limit recent blocks list to
         if (numBlocks && state.recentBlocks.length >= numBlocks) {
           newBlocks.pop();
