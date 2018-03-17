@@ -2,7 +2,7 @@
   "name": "bpanel",
   "version": "0.1.0-beta",
   "description": "GUI application to interact with a Bcoin Bitcoin node",
-  "main": "index.js",
+  "main": "server/index.js",
   "scripts": {
     "start": "node server",
     "start:dev": "node server --dev",
