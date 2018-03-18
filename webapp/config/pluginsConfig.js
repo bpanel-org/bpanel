@@ -1,6 +1,6 @@
 export const localPlugins = [
-  'chain-sockets',
-  'dashboard',
+  '@bpanel/dashboard',
+  '@bpanel/recent-blocks',
   'mempool',
   'bui',
   'bpanel-theme',
@@ -8,6 +8,6 @@ export const localPlugins = [
   'bdark-theme'
 ];
 
-export const plugins = [];
+export const plugins = ['@bpanel/chain-sockets'];
 
 export default { localPlugins, plugins };

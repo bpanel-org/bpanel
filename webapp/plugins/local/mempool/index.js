@@ -65,7 +65,7 @@ export const reduceNode = (state, action) => {
 };
 
 export const getRouteProps = {
-  dashboard: (parentProps, props) =>
+  '@bpanel/dashboard': (parentProps, props) =>
     Object.assign(props, {
       mempoolTx: parentProps.mempoolTx,
       mempoolSize: parentProps.mempoolSize
@@ -95,7 +95,8 @@ export const middleware = ({ dispatch }) => next => action => {
 };
 
 // very/exactly similar to normal decorators
-// name should map exactly to the name of the target plugin to decorate
+// name can be anything, but must match it to target
+// plugin name via decoratePlugin export below
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
   return class extends React.Component {
     constructor(props) {
@@ -108,7 +109,7 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        customChildren: PropTypes.node,
+        bottomWidgets: PropTypes.node,
         mempoolSize: PropTypes.number,
         mempoolTx: PropTypes.number
       };
@@ -119,7 +120,7 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
     }
 
     render() {
-      const customChildren = (
+      const bottomWidgets = (
         <div>
           <Header type="h5"> Current Mempool</Header>
           <p>Mempool TX: {this.props.mempoolTx}</p>
@@ -127,15 +128,15 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
           <Button onClick={() => this.justKidding()}>
             Make Transactions Cheaper
           </Button>
-          {this.props.customChildren}
+          {this.props.bottomWidgets}
         </div>
       );
 
-      return <Dashboard {...this.props} customChildren={customChildren} />;
+      return <Dashboard {...this.props} bottomWidgets={bottomWidgets} />;
     }
   };
 };
 
 // `decoratePlugin` passes an object with properties to map to the
-// plugins they will decorate
-export const decoratePlugin = { dashboard: decorateDashboard };
+// plugins they will decorate. Must match target plugin name exactly
+export const decoratePlugin = { '@bpanel/dashboard': decorateDashboard };

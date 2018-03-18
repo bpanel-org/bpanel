@@ -54,6 +54,9 @@ module.exports = function(env) {
       filename: '[name].bundle.js',
       path: path.resolve(__dirname, 'dist')
     },
+    watchOptions: {
+      poll: 1000
+    },
     resolve: {
       symlinks: false,
       extensions: ['-browser.js', '.js', '.json', '.jsx'],

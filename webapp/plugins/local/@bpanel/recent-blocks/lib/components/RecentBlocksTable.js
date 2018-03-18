@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Header, Table } from '@bpanel/bpanel-ui';
+import { Table } from '@bpanel/bpanel-ui';
 
 import ExpandedRow from './ExpandedRow';
 
@@ -16,11 +16,8 @@ export default class Dashboard extends Component {
   static get propTypes() {
     return {
       chainHeight: PropTypes.number,
-      customChildrenBefore: PropTypes.node,
-      customChildren: PropTypes.node,
       recentBlocks: PropTypes.array,
-      getRecentBlocks: PropTypes.func,
-      addBlock: PropTypes.func
+      getRecentBlocks: PropTypes.func
     };
   }
 
@@ -55,12 +52,7 @@ export default class Dashboard extends Component {
   }
 
   render() {
-    const {
-      recentBlocks,
-      chainHeight,
-      customChildrenBefore,
-      customChildren
-    } = this.props;
+    const { recentBlocks } = this.props;
 
     let table;
     if (Array.isArray(recentBlocks) && recentBlocks.length) {
@@ -75,16 +67,6 @@ export default class Dashboard extends Component {
       table = <p>Loading...</p>;
     }
 
-    return (
-      <div className="dashboard-container">
-        {customChildrenBefore}
-        <Header type="h4">Chain height: {chainHeight}</Header>
-        <Button onClick={() => this.props.getRecentBlocks(10)}>
-          Get Blocks
-        </Button>
-        {table}
-        {customChildren}
-      </div>
-    );
+    return <div className="recent-blocks">{table}</div>;
   }
 }
