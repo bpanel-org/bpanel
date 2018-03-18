@@ -261,7 +261,7 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
               React.createElement(
                 _bpanelUi.Header,
                 { type: 'h3' },
-                'Recet Blocks'
+                'Recent Blocks'
               ),
               React.createElement(_RecentBlocksTable2.default, tableProps),
               React.createElement(
