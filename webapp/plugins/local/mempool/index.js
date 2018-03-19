@@ -98,39 +98,56 @@ export const middleware = ({ dispatch }) => next => action => {
 // name can be anything, but must match it to target
 // plugin name via decoratePlugin export below
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
+  class Mempool extends React.PureComponent {
+    constructor(props) {
+      super(props);
+    }
+
+    static get propTypes() {
+      return {
+        mempoolSize: PropTypes.number,
+        mempoolTx: PropTypes.number
+      };
+    }
+
+    render() {
+      const { mempoolSize, mempoolTx } = this.props;
+      return (
+        <div className="col-lg-4" key="mempool">
+          <Header type="h5">Current Mempool</Header>
+          <p>Mempool TX: {mempoolTx}</p>
+          <p>Mempool Size: {mempoolSize}</p>
+          <Button onClick={() => this.justKidding()}>
+            Make Transactions Cheaper
+          </Button>
+        </div>
+      );
+    }
+  }
+
   return class extends React.Component {
     constructor(props) {
       super(props);
     }
 
     static displayName() {
-      return 'mempoolWidget';
+      return 'Mempool Widget';
     }
 
     static get propTypes() {
       return {
-        bottomWidgets: PropTypes.node,
-        mempoolSize: PropTypes.number,
-        mempoolTx: PropTypes.number
+        bottomWidgets: PropTypes.array
       };
     }
 
     justKidding() {
-      alert('Just Kidding!');
+      alert('Just Kidding!'); // eslint-disable-line
     }
 
     render() {
-      const bottomWidgets = (
-        <div>
-          <Header type="h5"> Current Mempool</Header>
-          <p>Mempool TX: {this.props.mempoolTx}</p>
-          <p>Mempool Size: {this.props.mempoolSize}</p>
-          <Button onClick={() => this.justKidding()}>
-            Make Transactions Cheaper
-          </Button>
-          {this.props.bottomWidgets}
-        </div>
-      );
+      const { bottomWidgets = [] } = this.props;
+      const _Mempool = () => <Mempool {...this.props} />;
+      bottomWidgets.push(_Mempool);
 
       return <Dashboard {...this.props} bottomWidgets={bottomWidgets} />;
     }

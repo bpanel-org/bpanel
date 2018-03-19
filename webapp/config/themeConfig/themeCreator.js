@@ -1,5 +1,5 @@
 import Immutable from 'seamless-immutable';
-import { StyleSheet } from 'aphrodite';
+import { StyleSheet } from 'aphrodite/no-important';
 import { utils } from '@bpanel/bpanel-ui';
 
 import themeVariables from './themeVariables';

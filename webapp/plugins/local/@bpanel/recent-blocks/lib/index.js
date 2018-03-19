@@ -155,7 +155,7 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
       const { chainHeight, recentBlocks, getRecentBlocks } = this.props;
       const tableProps = { chainHeight, recentBlocks, getRecentBlocks };
       const primaryWidget = (
-        <div>
+        <div className="col">
           <Header type="h3">Recent Blocks</Header>
           <RecentBlocksTable {...tableProps} />
           <Button onClick={() => getRecentBlocks(10)}>Get Blocks</Button>

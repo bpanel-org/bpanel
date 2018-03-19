@@ -76,7 +76,6 @@ class App extends Component {
 
   render() {
     const { sortedPluginMeta, location, theme } = this.props;
-
     return (
       <ThemeProvider theme={theme}>
         <div className={`${theme.app.container} container-fluid`} role="main">

@@ -1,6 +1,7 @@
 export const localPlugins = [
   '@bpanel/dashboard',
   '@bpanel/recent-blocks',
+  '@bpanel/peers-widget',
   'mempool',
   'bui',
   'bpanel-theme',

@@ -119,11 +119,11 @@ app.ready = (async function() {
   );
 
   // Path to route calls to bcoin node
+  if (nodeClient) {
+    app.use('/node', bcoinRouter(nodeClient, 'test'));
+  }
   if (walletClient) {
     app.use('/node/wallet', bcoinRouter(walletClient));
-  }
-  if (nodeClient) {
-    app.use('/node', bcoinRouter(nodeClient));
   }
   app.get('/*', resolveIndex);
 

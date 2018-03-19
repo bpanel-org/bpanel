@@ -11,26 +11,35 @@ export default class Dashboard extends Component {
     return {
       customChildrenBefore: PropTypes.node,
       primaryWidget: PropTypes.node,
-      bottomWidgets: PropTypes.node
+      bottomWidgets: PropTypes.array,
+      customChildrenAfter: PropTypes.node
     };
   }
 
   render() {
-    const { customChildrenBefore, primaryWidget, bottomWidgets } = this.props;
+    const {
+      customChildrenBefore,
+      primaryWidget,
+      bottomWidgets = [],
+      customChildrenAfter
+    } = this.props;
     return (
-      <div className="dashboard-container">
+      <div className="dashboard-container container">
         <Header type="h2">bPanel Dashboard</Header>
         <Text type="p">
           A simple Dashboard view that can be decorated by widgets. Widgets
           allow you to extend your dashboard according to your needs.
         </Text>
-        {customChildrenBefore}
+        <div className="row">{customChildrenBefore}</div>
         <Text type="p">
           Everything in this view is its own widget and can be edited, removed,
           and rearranged as desired.
         </Text>
-        {primaryWidget}
-        {bottomWidgets}
+        <div className="row">{primaryWidget}</div>
+        <div className="row">
+          {bottomWidgets.map((Widget, index) => <Widget key={index} />)}
+        </div>
+        <div className="row">{customChildrenAfter}</div>
       </div>
     );
   }

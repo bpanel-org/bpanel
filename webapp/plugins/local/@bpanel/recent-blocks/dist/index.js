@@ -257,7 +257,7 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
             };
             var primaryWidget = React.createElement(
               'div',
-              null,
+              { className: 'col' },
               React.createElement(
                 _bpanelUi.Header,
                 { type: 'h3' },

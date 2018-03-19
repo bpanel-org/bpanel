@@ -37,7 +37,7 @@ export const decorator = (pluginDecorator, { React, PropTypes }) => {
 export const decoratePanel = (Panel, { React, PropTypes }) => {
   return class extends React.Component {
     static displayName() {
-      return metadata.displayName;
+      return 'bPanel Dashboard';
     }
 
     static get propTypes() {
