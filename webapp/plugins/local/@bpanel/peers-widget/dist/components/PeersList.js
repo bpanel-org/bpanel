@@ -36,12 +36,16 @@ var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _bpanelUi = require('@bpanel/bpanel-ui');
 
+var _underscore = require('underscore');
+
+var _selectors = require('../selectors');
+
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-var _class = (function(_Component) {
-  (0, _inherits3.default)(_class, _Component);
+var _class = (function(_PureComponent) {
+  (0, _inherits3.default)(_class, _PureComponent);
 
   function _class(props) {
     (0, _classCallCheck3.default)(this, _class);
@@ -64,9 +68,21 @@ var _class = (function(_Component) {
 
           var table = void 0;
           if (Array.isArray(peers) && peers.length) {
-            // picking out peer data we want to display
+            var data = _selectors.peers.peerTableData(peers);
+            var expandedData = data.map(function(peer) {
+              return {
+                mainData: (0, _underscore.pick)(peer, [
+                  'addr',
+                  'name',
+                  'subver'
+                ])
+              };
+            });
             table = _react2.default.createElement(_bpanelUi.Table, {
-              tableData: peers
+              tableData: data,
+              expandedData: expandedData,
+              ExpandedComponent: _bpanelUi.ExpandedDataRow,
+              expandedHeight: 200
             });
           } else {
             table = _react2.default.createElement(
@@ -102,6 +118,6 @@ var _class = (function(_Component) {
     ]
   );
   return _class;
-})(_react.Component);
+})(_react.PureComponent);
 
 exports.default = _class;

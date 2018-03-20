@@ -3,19 +3,11 @@
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
-exports.decoratePlugin = exports.pluginConfig = exports.metadata = undefined;
+exports.decoratePlugin = exports.mapComponentState = exports.mapComponentDispatch = exports.getRouteProps = exports.reduceNode = exports.pluginConfig = exports.metadata = undefined;
 
 var _extends2 = require('babel-runtime/helpers/extends');
 
 var _extends3 = _interopRequireDefault(_extends2);
-
-var _regenerator = require('babel-runtime/regenerator');
-
-var _regenerator2 = _interopRequireDefault(_regenerator);
-
-var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
-
-var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
 var _getPrototypeOf = require('babel-runtime/core-js/object/get-prototype-of');
 
@@ -39,19 +31,29 @@ var _inherits2 = require('babel-runtime/helpers/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
+var _assign = require('babel-runtime/core-js/object/assign');
+
+var _assign2 = _interopRequireDefault(_assign);
+
 var _keys = require('babel-runtime/core-js/object/keys');
 
 var _keys2 = _interopRequireDefault(_keys);
+
+var _assert = require('assert');
+
+var _assert2 = _interopRequireDefault(_assert);
 
 var _bpanelUi = require('@bpanel/bpanel-ui');
 
 var _bpanelUtils = require('@bpanel/bpanel-utils');
 
-var _underscore = require('underscore');
-
 var _plugins = require('./plugins');
 
 var _plugins2 = _interopRequireDefault(_plugins);
+
+var _actions = require('./actions');
+
+var _constants = require('./constants');
 
 var _PeersList = require('./components/PeersList');
 
@@ -73,7 +75,6 @@ function _interopRequireDefault(obj) {
 var plugins = (0, _keys2.default)(_plugins2.default).map(function(name) {
   return _plugins2.default[name];
 });
-
 /* START EXPORTS */
 
 var metadata = (exports.metadata = {
@@ -88,104 +89,92 @@ var metadata = (exports.metadata = {
 
 var pluginConfig = (exports.pluginConfig = { plugins: plugins });
 
+var reduceNode = (exports.reduceNode = function reduceNode(state, action) {
+  var type = action.type,
+    payload = action.payload;
+
+  switch (type) {
+    case _constants.SET_PEERS: {
+      (0, _assert2.default)(
+        Array.isArray(payload),
+        'Payload for SET_PEERS must be array'
+      );
+      return state.set('peers', payload);
+    }
+
+    default:
+      return state;
+  }
+});
+
+var getRouteProps = (exports.getRouteProps = {
+  '@bpanel/dashboard': function bpanelDashboard(parentProps, props) {
+    return (0, _assign2.default)(props, {
+      peers: parentProps.peers,
+      getPeers: parentProps.getPeers
+    });
+  }
+});
+
+var mapComponentDispatch = (exports.mapComponentDispatch = {
+  Panel: function Panel(dispatch, map) {
+    return (0, _assign2.default)(map, {
+      getPeers: function getPeers() {
+        return dispatch((0, _actions.getPeers)());
+      }
+    });
+  }
+});
+
+var mapComponentState = (exports.mapComponentState = {
+  Panel: function Panel(state, map) {
+    return (0, _assign2.default)(map, {
+      peers: state.node.peers
+    });
+  }
+});
+
 var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
   var React = _ref.React,
     PropTypes = _ref.PropTypes;
 
-  return (function(_React$Component) {
-    (0, _inherits3.default)(_class, _React$Component);
+  // This way of creating the widgets is to help avoid re-renders
+  // if another widget has props/state update
+  var PeerListCreator = function PeerListCreator() {
+    var peers =
+      arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+    return (function(_React$PureComponent) {
+      (0, _inherits3.default)(_class, _React$PureComponent);
 
-    function _class(props) {
-      (0, _classCallCheck3.default)(this, _class);
-
-      var _this = (0, _possibleConstructorReturn3.default)(
-        this,
-        (_class.__proto__ || (0, _getPrototypeOf2.default)(_class)).call(
+      function _class() {
+        (0, _classCallCheck3.default)(this, _class);
+        return (0, _possibleConstructorReturn3.default)(
           this,
-          props
-        )
-      );
+          (_class.__proto__ || (0, _getPrototypeOf2.default)(_class)).apply(
+            this,
+            arguments
+          )
+        );
+      }
 
-      _this.client = (0, _bpanelUtils.bpanelClient)();
-      _this.state = {
-        peers: []
-      };
-      return _this;
-    }
-
-    (0, _createClass3.default)(
-      _class,
-      [
-        {
-          key: 'componentDidMount',
-          value: (function() {
-            var _ref2 = (0, _asyncToGenerator3.default)(
-              /*#__PURE__*/ _regenerator2.default.mark(function _callee() {
-                var peersList, peers;
-                return _regenerator2.default.wrap(
-                  function _callee$(_context) {
-                    while (1) {
-                      switch ((_context.prev = _context.next)) {
-                        case 0:
-                          this._isMounted = true;
-                          _context.next = 3;
-                          return this.client.execute('getpeerinfo');
-
-                        case 3:
-                          peersList = _context.sent;
-                          peers = peersList.map(function(peer) {
-                            return (0, _underscore.chain)(peer)
-                              .pick(function(value, key) {
-                                var keys = [
-                                  'id',
-                                  'addr',
-                                  'name',
-                                  'subver',
-                                  'inbound',
-                                  'relaytxes'
-                                ];
-                                if (keys.indexOf(key) > -1) return true;
-                              })
-                              .mapObject(function(value) {
-                                // for boolean values need to convert to a string
-                                if (typeof value === 'boolean')
-                                  return value.toString();
-                                return value;
-                              })
-                              .value();
-                          });
-
-                          this.setState({ peers: peers });
-
-                        case 6:
-                        case 'end':
-                          return _context.stop();
-                      }
-                    }
-                  },
-                  _callee,
-                  this
+      (0, _createClass3.default)(
+        _class,
+        [
+          {
+            key: 'render',
+            value: function render() {
+              var peerList = void 0;
+              if (peers.length > 0) {
+                peerList = React.createElement(_PeersList2.default, {
+                  peers: peers
+                });
+              } else {
+                React.createElement(
+                  _bpanelUi.Text,
+                  { type: 'p' },
+                  'Loading Peers...'
                 );
-              })
-            );
-
-            function componentDidMount() {
-              return _ref2.apply(this, arguments);
-            }
-
-            return componentDidMount;
-          })()
-        },
-        {
-          key: 'render',
-          value: function render() {
-            var peers = this.state.peers;
-            var _props$bottomWidgets = this.props.bottomWidgets,
-              bottomWidgets =
-                _props$bottomWidgets === undefined ? [] : _props$bottomWidgets;
-            // widget to display table of peers
-
-            var Peers = function Peers() {
+              }
               return React.createElement(
                 'div',
                 { className: 'col-lg-8' },
@@ -194,10 +183,73 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
                   { type: 'h5' },
                   'Peers List'
                 ),
-                React.createElement(_PeersList2.default, { peers: peers })
+                peerList
               );
-            };
-            bottomWidgets.push(Peers);
+            }
+          }
+        ],
+        [
+          {
+            key: 'displayName',
+            value: function displayName() {
+              return 'Peers List';
+            }
+          }
+        ]
+      );
+      return _class;
+    })(React.PureComponent);
+  };
+
+  return (function(_React$Component) {
+    (0, _inherits3.default)(_class2, _React$Component);
+
+    function _class2(props) {
+      (0, _classCallCheck3.default)(this, _class2);
+
+      var _this2 = (0, _possibleConstructorReturn3.default)(
+        this,
+        (_class2.__proto__ || (0, _getPrototypeOf2.default)(_class2)).call(
+          this,
+          props
+        )
+      );
+
+      _this2.client = (0, _bpanelUtils.bpanelClient)();
+      _this2.peersList = PeerListCreator();
+      return _this2;
+    }
+
+    (0, _createClass3.default)(
+      _class2,
+      [
+        {
+          key: 'componentDidMount',
+          value: function componentDidMount() {
+            this.props.getPeers();
+            this.peersList = PeerListCreator(this.props.peers);
+          }
+        },
+        {
+          key: 'componentWillUpdate',
+          value: function componentWillUpdate(_ref2) {
+            var peers = _ref2.peers;
+
+            if (peers.length > 0 && peers[0] !== this.props.peers[0])
+              this.peersList = PeerListCreator(peers);
+          }
+        },
+        {
+          key: 'render',
+          value: function render() {
+            var _props = this.props,
+              _props$bottomWidgets = _props.bottomWidgets,
+              bottomWidgets =
+                _props$bottomWidgets === undefined ? [] : _props$bottomWidgets,
+              peers = _props.peers;
+            // widget to display table of peers
+
+            bottomWidgets.push(this.peersList);
 
             // Widget for displaying a map with the peer locations
             var customChildrenAfter = React.createElement(
@@ -220,8 +272,16 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
       [
         {
           key: 'displayName',
-          get: function get() {
+          value: function displayName() {
             return 'Peers Widgets';
+          }
+        },
+        {
+          key: 'defaultProps',
+          get: function get() {
+            return {
+              peers: []
+            };
           }
         },
         {
@@ -229,13 +289,15 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
           get: function get() {
             return {
               bottomWidgets: PropTypes.array,
-              customChildrenAfter: PropTypes.node
+              customChildrenAfter: PropTypes.node,
+              peers: PropTypes.arrayOf(PropTypes.object),
+              getPeers: PropTypes.func.isRequired
             };
           }
         }
       ]
     );
-    return _class;
+    return _class2;
   })(React.Component);
 };
 

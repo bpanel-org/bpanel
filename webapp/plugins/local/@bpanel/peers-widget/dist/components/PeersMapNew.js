@@ -48,29 +48,25 @@ var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _bpanelUi = require('@bpanel/bpanel-ui');
 
-var _reactGmaps = require('react-gmaps');
-
 var _peers = require('../selectors/peers');
 
-var _markerStyles = require('./markerStyles');
-
-var _markerStyles2 = _interopRequireDefault(_markerStyles);
+var _reactGmaps = require('react-gmaps');
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-var connectTheme = _bpanelUi.utils.connectTheme;
+var params = { v: '3.exp', key: 'AIzaSyAt-64SBzyt3H3crm-C8xv010ns30J4J2c' };
 
-var PeersMap = (function(_React$PureComponent) {
-  (0, _inherits3.default)(PeersMap, _React$PureComponent);
+var GoogleMap = (function(_React$Component) {
+  (0, _inherits3.default)(GoogleMap, _React$Component);
 
-  function PeersMap(props) {
-    (0, _classCallCheck3.default)(this, PeersMap);
+  function GoogleMap(props) {
+    (0, _classCallCheck3.default)(this, GoogleMap);
 
     var _this = (0, _possibleConstructorReturn3.default)(
       this,
-      (PeersMap.__proto__ || (0, _getPrototypeOf2.default)(PeersMap)).call(
+      (GoogleMap.__proto__ || (0, _getPrototypeOf2.default)(GoogleMap)).call(
         this,
         props
       )
@@ -80,16 +76,12 @@ var PeersMap = (function(_React$PureComponent) {
       lat: 51.5258541,
       lng: -0.08040660000006028
     };
-    _this.mapParams = {
-      v: '3.exp',
-      key: 'AIzaSyAt-64SBzyt3H3crm-C8xv010ns30J4J2c'
-    };
     _this.state = { coordinates: [] };
     return _this;
   }
 
   (0, _createClass3.default)(
-    PeersMap,
+    GoogleMap,
     [
       {
         key: 'componentWillReceiveProps',
@@ -104,22 +96,35 @@ var PeersMap = (function(_React$PureComponent) {
                   while (1) {
                     switch ((_context.prev = _context.next)) {
                       case 0:
-                        peers = nextProps.peers;
-
-                        if (!peers.length) {
-                          _context.next = 6;
+                        if (
+                          !(
+                            this.props.peers &&
+                            this.props.peers[0] === nextProps.peers[0]
+                          )
+                        ) {
+                          _context.next = 2;
                           break;
                         }
 
-                        _context.next = 4;
+                        return _context.abrupt('return');
+
+                      case 2:
+                        peers = nextProps.peers;
+
+                        if (!peers.length) {
+                          _context.next = 8;
+                          break;
+                        }
+
+                        _context.next = 6;
                         return (0, _peers.getPeerCoordinates)(peers);
 
-                      case 4:
+                      case 6:
                         coordinates = _context.sent;
 
                         this.setState({ coordinates: coordinates });
 
-                      case 6:
+                      case 8:
                       case 'end':
                         return _context.stop();
                     }
@@ -142,27 +147,21 @@ var PeersMap = (function(_React$PureComponent) {
         key: 'render',
         value: function render() {
           var coordinates = this.state.coordinates;
-          var highlight = this.props.theme.themeVariables.themeColors
-            .highlight1;
 
           var markers = void 0;
 
-          var markerProps = (0, _markerStyles2.default)(highlight);
           if (coordinates.length) {
-            markers = coordinates.map(function(_ref2) {
-              var latitude = _ref2.latitude,
-                longitude = _ref2.longitude,
-                id = _ref2.id;
+            markers = coordinates.map(function(coord) {
               return _react2.default.createElement(
                 _reactGmaps.Marker,
                 (0, _extends3.default)(
                   {
-                    lat: latitude,
-                    lng: longitude,
-                    key: id,
-                    label: { text: id.toString() }
+                    className: 'marker',
+                    lat: coord.latitude,
+                    lng: coord.longitude,
+                    key: coord.id
                   },
-                  markerProps
+                  coord
                 )
               );
             });
@@ -175,35 +174,30 @@ var PeersMap = (function(_React$PureComponent) {
           }
 
           return _react2.default.createElement(
-            'div',
-            null,
-            _react2.default.createElement(
-              _bpanelUi.Header,
-              { type: 'h3' },
-              'Peer Locations'
-            ),
-            _react2.default.createElement(
-              _bpanelUi.Text,
-              { type: 'p' },
-              'Below are the approximate locations of your peers based on IP address'
-            ),
-            _react2.default.createElement(
-              _reactGmaps.Gmaps,
-              {
-                lat: this.center.lat,
-                lng: this.center.lng,
-                height: '300px',
-                zoom: 2,
-                loadingMessage: 'Loading peers map...',
-                params: this.mapParams
-              },
-              markers
-            )
+            _reactGmaps.Gmaps,
+            {
+              lat: this.center.lat,
+              lng: this.center.lng,
+              width: '900px',
+              height: '500px',
+              zoom: 2,
+              loadingMessage: 'Be happy',
+              params: params
+            },
+            markers
           );
         }
       }
     ],
     [
+      {
+        key: 'defaultProps',
+        get: function get() {
+          return {
+            peers: []
+          };
+        }
+      },
       {
         key: 'propTypes',
         get: function get() {
@@ -216,7 +210,7 @@ var PeersMap = (function(_React$PureComponent) {
       }
     ]
   );
-  return PeersMap;
-})(_react2.default.PureComponent);
+  return GoogleMap;
+})(_react2.default.Component);
 
-exports.default = connectTheme(PeersMap);
+exports.default = GoogleMap;

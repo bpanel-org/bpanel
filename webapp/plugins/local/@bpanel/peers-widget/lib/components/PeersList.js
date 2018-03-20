@@ -1,8 +1,11 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Text } from '@bpanel/bpanel-ui';
+import { Table, Text, ExpandedDataRow } from '@bpanel/bpanel-ui';
+import { pick } from 'underscore';
 
-export default class extends Component {
+import { peers as peerSelectors } from '../selectors';
+
+export default class extends PureComponent {
   constructor(props) {
     super(props);
   }
@@ -19,11 +22,20 @@ export default class extends Component {
 
   render() {
     const { peers } = this.props;
-
     let table;
     if (Array.isArray(peers) && peers.length) {
-      // picking out peer data we want to display
-      table = <Table tableData={peers} />;
+      const data = peerSelectors.peerTableData(peers);
+      const expandedData = data.map(peer => ({
+        mainData: pick(peer, ['addr', 'name', 'subver'])
+      }));
+      table = (
+        <Table
+          tableData={data}
+          expandedData={expandedData}
+          ExpandedComponent={ExpandedDataRow}
+          expandedHeight={200}
+        />
+      );
     } else {
       table = <Text type="p">Loading peers...</Text>;
     }

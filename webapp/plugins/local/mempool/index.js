@@ -98,36 +98,34 @@ export const middleware = ({ dispatch }) => next => action => {
 // name can be anything, but must match it to target
 // plugin name via decoratePlugin export below
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
-  class Mempool extends React.PureComponent {
-    constructor(props) {
-      super(props);
-    }
+  const getMempool = ({ mempoolSize = '', mempoolTx = '' }) =>
+    class Mempool extends React.PureComponent {
+      constructor(props) {
+        super(props);
+      }
 
-    static get propTypes() {
-      return {
-        mempoolSize: PropTypes.number,
-        mempoolTx: PropTypes.number
-      };
-    }
+      justKidding() {
+        alert('Just Kidding!'); // eslint-disable-line
+      }
 
-    render() {
-      const { mempoolSize, mempoolTx } = this.props;
-      return (
-        <div className="col-lg-4" key="mempool">
-          <Header type="h5">Current Mempool</Header>
-          <p>Mempool TX: {mempoolTx}</p>
-          <p>Mempool Size: {mempoolSize}</p>
-          <Button onClick={() => this.justKidding()}>
-            Make Transactions Cheaper
-          </Button>
-        </div>
-      );
-    }
-  }
+      render() {
+        return (
+          <div className="col-lg-4" key="mempool">
+            <Header type="h5">Current Mempool</Header>
+            <p>Mempool TX: {mempoolTx}</p>
+            <p>Mempool Size: {mempoolSize}</p>
+            <Button onClick={() => this.justKidding()}>
+              Make Transactions Cheaper
+            </Button>
+          </div>
+        );
+      }
+    };
 
   return class extends React.Component {
     constructor(props) {
       super(props);
+      this.mempoolWidget = getMempool(props);
     }
 
     static displayName() {
@@ -136,18 +134,23 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
 
     static get propTypes() {
       return {
-        bottomWidgets: PropTypes.array
+        bottomWidgets: PropTypes.array,
+        mempoolTx: PropTypes.number,
+        mempoolSize: PropTypes.number
       };
     }
 
-    justKidding() {
-      alert('Just Kidding!'); // eslint-disable-line
+    componentWillUpdate({ mempoolTx, mempoolSize }) {
+      if (
+        mempoolTx !== this.props.mempoolTx ||
+        mempoolSize !== this.props.mempoolSize
+      )
+        this.mempoolWidget = getMempool({ mempoolTx, mempoolSize });
     }
 
     render() {
       const { bottomWidgets = [] } = this.props;
-      const _Mempool = () => <Mempool {...this.props} />;
-      bottomWidgets.push(_Mempool);
+      bottomWidgets.push(this.mempoolWidget);
 
       return <Dashboard {...this.props} bottomWidgets={bottomWidgets} />;
     }

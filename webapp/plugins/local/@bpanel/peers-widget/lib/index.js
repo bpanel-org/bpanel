@@ -1,17 +1,18 @@
 // Entry point for your plugin
 // This should expose your plugin's modules
 /* START IMPORTS */
-import { Header } from '@bpanel/bpanel-ui';
+import assert from 'assert';
+import { Header, Text } from '@bpanel/bpanel-ui';
 import { bpanelClient } from '@bpanel/bpanel-utils';
-import { chain } from 'underscore';
 
 import modules from './plugins';
+import { getPeers } from './actions';
+import { SET_PEERS } from './constants';
 import PeersList from './components/PeersList';
 import PeersMap from './components/PeersMap';
 /* END IMPORTS */
 
 const plugins = Object.keys(modules).map(name => modules[name]);
-
 /* START EXPORTS */
 
 export const metadata = {
@@ -26,64 +27,107 @@ export const metadata = {
 
 export const pluginConfig = { plugins };
 
+export const reduceNode = (state, action) => {
+  const { type, payload } = action;
+
+  switch (type) {
+    case SET_PEERS: {
+      assert(Array.isArray(payload), 'Payload for SET_PEERS must be array');
+      return state.set('peers', payload);
+    }
+
+    default:
+      return state;
+  }
+};
+
+export const getRouteProps = {
+  '@bpanel/dashboard': (parentProps, props) =>
+    Object.assign(props, {
+      peers: parentProps.peers,
+      getPeers: parentProps.getPeers
+    })
+};
+
+export const mapComponentDispatch = {
+  Panel: (dispatch, map) =>
+    Object.assign(map, {
+      getPeers: () => dispatch(getPeers())
+    })
+};
+
+export const mapComponentState = {
+  Panel: (state, map) =>
+    Object.assign(map, {
+      peers: state.node.peers
+    })
+};
+
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
+  // This way of creating the widgets is to help avoid re-renders
+  // if another widget has props/state update
+  const PeerListCreator = (peers = []) =>
+    class extends React.PureComponent {
+      static displayName() {
+        return 'Peers List';
+      }
+
+      render() {
+        let peerList;
+        if (peers.length > 0) {
+          peerList = <PeersList peers={peers} />;
+        } else {
+          <Text type="p">Loading Peers...</Text>;
+        }
+        return (
+          <div className="col-lg-8">
+            <Header type="h5">Peers List</Header>
+            {peerList}
+          </div>
+        );
+      }
+    };
+
   return class extends React.Component {
     constructor(props) {
       super(props);
       this.client = bpanelClient();
-      this.state = {
-        peers: []
-      };
+      this.peersList = PeerListCreator();
     }
 
-    static get displayName() {
+    static displayName() {
       return 'Peers Widgets';
+    }
+
+    static get defaultProps() {
+      return {
+        peers: []
+      };
     }
 
     static get propTypes() {
       return {
         bottomWidgets: PropTypes.array,
-        customChildrenAfter: PropTypes.node
+        customChildrenAfter: PropTypes.node,
+        peers: PropTypes.arrayOf(PropTypes.object),
+        getPeers: PropTypes.func.isRequired
       };
     }
 
-    async componentDidMount() {
-      this._isMounted = true;
-      const peersList = await this.client.execute('getpeerinfo');
-      const peers = peersList.map(peer =>
-        chain(peer)
-          .pick((value, key) => {
-            const keys = [
-              'id',
-              'addr',
-              'name',
-              'subver',
-              'inbound',
-              'relaytxes'
-            ];
-            if (keys.indexOf(key) > -1) return true;
-          })
-          .mapObject(value => {
-            // for boolean values need to convert to a string
-            if (typeof value === 'boolean') return value.toString();
-            return value;
-          })
-          .value()
-      );
-      this.setState({ peers });
+    componentDidMount() {
+      this.props.getPeers();
+      this.peersList = PeerListCreator(this.props.peers);
+    }
+
+    componentWillUpdate({ peers }) {
+      if (peers.length > 0 && peers[0] !== this.props.peers[0])
+        this.peersList = PeerListCreator(peers);
     }
 
     render() {
-      const { peers } = this.state;
-      const { bottomWidgets = [] } = this.props;
+      const { bottomWidgets = [], peers } = this.props;
       // widget to display table of peers
-      const Peers = () => (
-        <div className="col-lg-8">
-          <Header type="h5">Peers List</Header>
-          <PeersList peers={peers} />
-        </div>
-      );
-      bottomWidgets.push(Peers);
+      bottomWidgets.push(this.peersList);
 
       // Widget for displaying a map with the peer locations
       const customChildrenAfter = (

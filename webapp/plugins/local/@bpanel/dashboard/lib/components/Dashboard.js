@@ -35,11 +35,11 @@ export default class Dashboard extends Component {
           Everything in this view is its own widget and can be edited, removed,
           and rearranged as desired.
         </Text>
-        <div className="row">{primaryWidget}</div>
-        <div className="row">
+        <div className="row mt-3">{primaryWidget}</div>
+        <div className="row mt-3">
           {bottomWidgets.map((Widget, index) => <Widget key={index} />)}
         </div>
-        <div className="row">{customChildrenAfter}</div>
+        <div className="row mt-3">{customChildrenAfter}</div>
       </div>
     );
   }

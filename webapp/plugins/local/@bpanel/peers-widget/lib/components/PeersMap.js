@@ -1,84 +1,83 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import GoogleMapReact from 'google-map-react';
-import { Text, utils } from '@bpanel/bpanel-ui';
-import Marker from './Marker';
+import { Text, Header, utils } from '@bpanel/bpanel-ui';
+import { Gmaps, Marker } from 'react-gmaps';
 
-const getCoords = async ({ addr, id }) => {
-  const ip = addr.split(':').slice(0, 1);
-  const response = await fetch(`http://freegeoip.net/json/${ip}`);
-  const location = await response.json();
-  const { latitude, longitude } = location;
-  return { latitude, longitude, id };
-};
+import { getPeerCoordinates } from '../selectors/peers';
+import getMarkerStyles from './markerStyles';
+const { connectTheme } = utils;
 
-class PeersMap extends Component {
+class PeersMap extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.state = { coordinates: [] };
-  }
-
-  static get defaultProps() {
-    return {
-      center: [59.938043, 30.337157],
-      zoom: 1,
-      peers: []
+    this.center = {
+      lat: 51.5258541,
+      lng: -0.08040660000006028
     };
+    this.mapParams = {
+      v: '3.exp',
+      key: 'AIzaSyAt-64SBzyt3H3crm-C8xv010ns30J4J2c'
+    };
+    this.state = { coordinates: [] };
   }
 
   static get propTypes() {
     return {
-      center: PropTypes.array,
-      zoom: PropTypes.number,
       peers: PropTypes.arrayOf(PropTypes.object),
-      theme: PropTypes.object
+      theme: PropTypes.object,
+      coordinates: PropTypes.arrayOf(PropTypes.object)
     };
   }
 
   async componentWillReceiveProps(nextProps) {
-    if (this.props.peers && this.props.peers[0] === nextProps.peers[0]) return;
     const { peers } = nextProps;
     if (peers.length) {
-      const getCoordsPromises = peers.map(peer => getCoords(peer));
-      const coordinates = await Promise.all(getCoordsPromises);
+      const coordinates = await getPeerCoordinates(peers);
       this.setState({ coordinates });
     }
   }
 
   render() {
-    const { center } = this.props;
     const { coordinates } = this.state;
+    const {
+      theme: { themeVariables: { themeColors: { highlight1: highlight } } }
+    } = this.props;
     let markers;
 
+    const markerProps = getMarkerStyles(highlight);
     if (coordinates.length) {
-      markers = coordinates.map(coord => (
+      markers = coordinates.map(({ latitude, longitude, id }) => (
         <Marker
-          className="marker"
-          lat={coord.latitude}
-          lng={coord.longitude}
-          key={coord.id}
-          {...coord}
+          lat={latitude}
+          lng={longitude}
+          key={id}
+          label={{ text: id.toString() }}
+          {...markerProps}
         />
       ));
     } else {
-      markers = (
-        <Text lat={center[0]} lng={center[1]} className="empty">
-          Loading...
-        </Text>
-      );
+      markers = <Text className="empty">Loading peers...</Text>;
     }
+
     return (
-      <GoogleMapReact
-        bootstrapURLKeys={{
-          key: ['AIzaSyAt-64SBzyt3H3crm-C8xv010ns30J4J2c']
-        }}
-        center={this.props.center}
-        zoom={this.props.zoom}
-      >
-        {markers}
-      </GoogleMapReact>
+      <div>
+        <Header type="h3">Peer Locations</Header>
+        <Text type="p">
+          Below are the approximate locations of your peers based on IP address
+        </Text>
+        <Gmaps
+          lat={this.center.lat}
+          lng={this.center.lng}
+          height={'300px'}
+          zoom={2}
+          loadingMessage={'Loading peers map...'}
+          params={this.mapParams}
+        >
+          {markers}
+        </Gmaps>
+      </div>
     );
   }
 }
 
-export default PeersMap;
+export default connectTheme(PeersMap);

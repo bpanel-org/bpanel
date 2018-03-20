@@ -37,7 +37,7 @@
     "eslint-plugin-react": "^7.4.0"
   },
   "peerDependencies": {
-    "@bpanel/bpanel-ui": "^0.0.4",
+    "@bpanel/bpanel-ui": "^0.0.5",
     "prop-types": "^15.6.0",
     "react": "^16.2.0"
   }

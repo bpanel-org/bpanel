@@ -371,7 +371,7 @@ const themeCreator = (
 
     expandedRow: {
       container: {
-        backgroundColor: themeColors.darkBg,
+        height: '100%',
         ...makeGutter('padding', { all: 1 })
       },
       mainDataContainer: {
