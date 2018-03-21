@@ -41,9 +41,9 @@ services:
       ## uncomment for local webpack
       # - ./dist:/usr/src/app/dist
       ## uncomment when developing packages locally
-      # - ./node_modules/my_package:/usr/src/app/node_modules/my_package
+      - ../bpanel-ui:/usr/src/app/node_modules/@bpanel/bpanel-ui
       ## uncomment for server dev
-      - ./server:/usr/src/app/server
+      # - ./server:/usr/src/app/server
       ## uncomment for webapp dev
       - ./webapp:/usr/src/app/webapp
     ## Only MacOSX users need --watch-poll

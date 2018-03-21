@@ -62,15 +62,15 @@ function _interopRequireDefault(obj) {
 
 var connectTheme = _bpanelUi.utils.connectTheme;
 
-var PeersMap = (function(_React$PureComponent) {
-  (0, _inherits3.default)(PeersMap, _React$PureComponent);
+var PeersMap_ = (function(_React$PureComponent) {
+  (0, _inherits3.default)(PeersMap_, _React$PureComponent);
 
-  function PeersMap(props) {
-    (0, _classCallCheck3.default)(this, PeersMap);
+  function PeersMap_(props) {
+    (0, _classCallCheck3.default)(this, PeersMap_);
 
     var _this = (0, _possibleConstructorReturn3.default)(
       this,
-      (PeersMap.__proto__ || (0, _getPrototypeOf2.default)(PeersMap)).call(
+      (PeersMap_.__proto__ || (0, _getPrototypeOf2.default)(PeersMap_)).call(
         this,
         props
       )
@@ -89,22 +89,20 @@ var PeersMap = (function(_React$PureComponent) {
   }
 
   (0, _createClass3.default)(
-    PeersMap,
+    PeersMap_,
     [
       {
-        key: 'componentWillReceiveProps',
+        key: 'componentDidMount',
         value: (function() {
           var _ref = (0, _asyncToGenerator3.default)(
-            /*#__PURE__*/ _regenerator2.default.mark(function _callee(
-              nextProps
-            ) {
+            /*#__PURE__*/ _regenerator2.default.mark(function _callee() {
               var peers, coordinates;
               return _regenerator2.default.wrap(
                 function _callee$(_context) {
                   while (1) {
                     switch ((_context.prev = _context.next)) {
                       case 0:
-                        peers = nextProps.peers;
+                        peers = this.props.peers;
 
                         if (!peers.length) {
                           _context.next = 6;
@@ -131,11 +129,11 @@ var PeersMap = (function(_React$PureComponent) {
             })
           );
 
-          function componentWillReceiveProps(_x) {
+          function componentDidMount() {
             return _ref.apply(this, arguments);
           }
 
-          return componentWillReceiveProps;
+          return componentDidMount;
         })()
       },
       {
@@ -176,7 +174,7 @@ var PeersMap = (function(_React$PureComponent) {
 
           return _react2.default.createElement(
             'div',
-            null,
+            { className: 'col', style: { height: '500px', width: '100%' } },
             _react2.default.createElement(
               _bpanelUi.Header,
               { type: 'h3' },
@@ -209,14 +207,15 @@ var PeersMap = (function(_React$PureComponent) {
         get: function get() {
           return {
             peers: _propTypes2.default.arrayOf(_propTypes2.default.object),
-            theme: _propTypes2.default.object,
-            coordinates: _propTypes2.default.arrayOf(_propTypes2.default.object)
+            theme: _propTypes2.default.object
           };
         }
       }
     ]
   );
-  return PeersMap;
+  return PeersMap_;
 })(_react2.default.PureComponent);
 
-exports.default = connectTheme(PeersMap);
+var PeersMap = connectTheme(PeersMap_);
+
+exports.default = (0, _bpanelUi.ErrorWrapper)(PeersMap);

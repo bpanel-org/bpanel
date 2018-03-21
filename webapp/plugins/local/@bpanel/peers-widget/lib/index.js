@@ -2,12 +2,11 @@
 // This should expose your plugin's modules
 /* START IMPORTS */
 import assert from 'assert';
-import { Header, Text } from '@bpanel/bpanel-ui';
-import { bpanelClient } from '@bpanel/bpanel-utils';
 
 import modules from './plugins';
 import { getPeers } from './actions';
 import { SET_PEERS } from './constants';
+import PeersComponentCreator from './containers/PeersComponentCreator';
 import PeersList from './components/PeersList';
 import PeersMap from './components/PeersMap';
 /* END IMPORTS */
@@ -64,35 +63,13 @@ export const mapComponentState = {
 };
 
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
-  // This way of creating the widgets is to help avoid re-renders
-  // if another widget has props/state update
-  const PeerListCreator = (peers = []) =>
-    class extends React.PureComponent {
-      static displayName() {
-        return 'Peers List';
-      }
-
-      render() {
-        let peerList;
-        if (peers.length > 0) {
-          peerList = <PeersList peers={peers} />;
-        } else {
-          <Text type="p">Loading Peers...</Text>;
-        }
-        return (
-          <div className="col-lg-8">
-            <Header type="h5">Peers List</Header>
-            {peerList}
-          </div>
-        );
-      }
-    };
-
   return class extends React.Component {
     constructor(props) {
       super(props);
-      this.client = bpanelClient();
-      this.peersList = PeerListCreator();
+      // This way of creating the widgets is to help avoid re-renders
+      // if another widget has props/state update
+      this.peersList = PeersComponentCreator(PeersList);
+      this.peersMap = PeersComponentCreator(PeersMap);
     }
 
     static displayName() {
@@ -116,26 +93,24 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
 
     componentDidMount() {
       this.props.getPeers();
-      this.peersList = PeerListCreator(this.props.peers);
+      this.peersList = PeersComponentCreator(PeersList, this.props.peers);
+      this.peersMap = PeersComponentCreator(PeersMap, this.props.peers);
     }
 
     componentWillUpdate({ peers }) {
-      if (peers.length > 0 && peers[0] !== this.props.peers[0])
-        this.peersList = PeerListCreator(peers);
+      if (peers.length > 0 && peers[0] !== this.props.peers[0]) {
+        this.peersList = PeersComponentCreator(PeersList, peers);
+        this.peersMap = PeersComponentCreator(PeersMap, peers);
+      }
     }
 
     render() {
-      const { bottomWidgets = [], peers } = this.props;
+      const { bottomWidgets = [], customChildrenAfter = [] } = this.props;
       // widget to display table of peers
       bottomWidgets.push(this.peersList);
 
       // Widget for displaying a map with the peer locations
-      const customChildrenAfter = (
-        <div className="col" style={{ height: '500px', width: '100%' }}>
-          <PeersMap peers={peers} />
-          {this.props.customChildrenAfter}
-        </div>
-      );
+      customChildrenAfter.push(this.peersMap);
 
       return (
         <Dashboard

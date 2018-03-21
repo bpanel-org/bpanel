@@ -1,11 +1,17 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Text, ExpandedDataRow } from '@bpanel/bpanel-ui';
+import {
+  Header,
+  Table,
+  Text,
+  ExpandedDataRow,
+  ErrorWrapper
+} from '@bpanel/bpanel-ui';
 import { pick } from 'underscore';
 
 import { peers as peerSelectors } from '../selectors';
 
-export default class extends PureComponent {
+class PeersList extends PureComponent {
   constructor(props) {
     super(props);
   }
@@ -40,6 +46,13 @@ export default class extends PureComponent {
       table = <Text type="p">Loading peers...</Text>;
     }
 
-    return <div className="peers-list">{table}</div>;
+    return (
+      <div className="col-lg-8">
+        <Header type="h3">Peers List</Header>
+        <div className="peers-list">{table}</div>
+      </div>
+    );
   }
 }
+
+export default ErrorWrapper(PeersList);

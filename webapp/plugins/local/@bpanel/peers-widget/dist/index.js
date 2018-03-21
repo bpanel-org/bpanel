@@ -43,10 +43,6 @@ var _assert = require('assert');
 
 var _assert2 = _interopRequireDefault(_assert);
 
-var _bpanelUi = require('@bpanel/bpanel-ui');
-
-var _bpanelUtils = require('@bpanel/bpanel-utils');
-
 var _plugins = require('./plugins');
 
 var _plugins2 = _interopRequireDefault(_plugins);
@@ -54,6 +50,10 @@ var _plugins2 = _interopRequireDefault(_plugins);
 var _actions = require('./actions');
 
 var _constants = require('./constants');
+
+var _PeersComponentCreator = require('./containers/PeersComponentCreator');
+
+var _PeersComponentCreator2 = _interopRequireDefault(_PeersComponentCreator);
 
 var _PeersList = require('./components/PeersList');
 
@@ -69,14 +69,14 @@ function _interopRequireDefault(obj) {
 
 /* END IMPORTS */
 
-// Entry point for your plugin
-// This should expose your plugin's modules
-/* START IMPORTS */
 var plugins = (0, _keys2.default)(_plugins2.default).map(function(name) {
   return _plugins2.default[name];
 });
 /* START EXPORTS */
 
+// Entry point for your plugin
+// This should expose your plugin's modules
+/* START IMPORTS */
 var metadata = (exports.metadata = {
   name: '@bpanel/peers-widget',
   pathName: '',
@@ -138,96 +138,44 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
   var React = _ref.React,
     PropTypes = _ref.PropTypes;
 
-  // This way of creating the widgets is to help avoid re-renders
-  // if another widget has props/state update
-  var PeerListCreator = function PeerListCreator() {
-    var peers =
-      arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-    return (function(_React$PureComponent) {
-      (0, _inherits3.default)(_class, _React$PureComponent);
-
-      function _class() {
-        (0, _classCallCheck3.default)(this, _class);
-        return (0, _possibleConstructorReturn3.default)(
-          this,
-          (_class.__proto__ || (0, _getPrototypeOf2.default)(_class)).apply(
-            this,
-            arguments
-          )
-        );
-      }
-
-      (0, _createClass3.default)(
-        _class,
-        [
-          {
-            key: 'render',
-            value: function render() {
-              var peerList = void 0;
-              if (peers.length > 0) {
-                peerList = React.createElement(_PeersList2.default, {
-                  peers: peers
-                });
-              } else {
-                React.createElement(
-                  _bpanelUi.Text,
-                  { type: 'p' },
-                  'Loading Peers...'
-                );
-              }
-              return React.createElement(
-                'div',
-                { className: 'col-lg-8' },
-                React.createElement(
-                  _bpanelUi.Header,
-                  { type: 'h5' },
-                  'Peers List'
-                ),
-                peerList
-              );
-            }
-          }
-        ],
-        [
-          {
-            key: 'displayName',
-            value: function displayName() {
-              return 'Peers List';
-            }
-          }
-        ]
-      );
-      return _class;
-    })(React.PureComponent);
-  };
-
   return (function(_React$Component) {
-    (0, _inherits3.default)(_class2, _React$Component);
+    (0, _inherits3.default)(_class, _React$Component);
 
-    function _class2(props) {
-      (0, _classCallCheck3.default)(this, _class2);
+    function _class(props) {
+      (0, _classCallCheck3.default)(this, _class);
 
-      var _this2 = (0, _possibleConstructorReturn3.default)(
+      // This way of creating the widgets is to help avoid re-renders
+      // if another widget has props/state update
+      var _this = (0, _possibleConstructorReturn3.default)(
         this,
-        (_class2.__proto__ || (0, _getPrototypeOf2.default)(_class2)).call(
+        (_class.__proto__ || (0, _getPrototypeOf2.default)(_class)).call(
           this,
           props
         )
       );
 
-      _this2.client = (0, _bpanelUtils.bpanelClient)();
-      _this2.peersList = PeerListCreator();
-      return _this2;
+      _this.peersList = (0, _PeersComponentCreator2.default)(
+        _PeersList2.default
+      );
+      _this.peersMap = (0, _PeersComponentCreator2.default)(_PeersMap2.default);
+      return _this;
     }
 
     (0, _createClass3.default)(
-      _class2,
+      _class,
       [
         {
           key: 'componentDidMount',
           value: function componentDidMount() {
             this.props.getPeers();
-            this.peersList = PeerListCreator(this.props.peers);
+            this.peersList = (0, _PeersComponentCreator2.default)(
+              _PeersList2.default,
+              this.props.peers
+            );
+            this.peersMap = (0, _PeersComponentCreator2.default)(
+              _PeersMap2.default,
+              this.props.peers
+            );
           }
         },
         {
@@ -235,8 +183,16 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
           value: function componentWillUpdate(_ref2) {
             var peers = _ref2.peers;
 
-            if (peers.length > 0 && peers[0] !== this.props.peers[0])
-              this.peersList = PeerListCreator(peers);
+            if (peers.length > 0 && peers[0] !== this.props.peers[0]) {
+              this.peersList = (0, _PeersComponentCreator2.default)(
+                _PeersList2.default,
+                peers
+              );
+              this.peersMap = (0, _PeersComponentCreator2.default)(
+                _PeersMap2.default,
+                peers
+              );
+            }
           }
         },
         {
@@ -246,18 +202,17 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
               _props$bottomWidgets = _props.bottomWidgets,
               bottomWidgets =
                 _props$bottomWidgets === undefined ? [] : _props$bottomWidgets,
-              peers = _props.peers;
+              _props$customChildren = _props.customChildrenAfter,
+              customChildrenAfter =
+                _props$customChildren === undefined
+                  ? []
+                  : _props$customChildren;
             // widget to display table of peers
 
             bottomWidgets.push(this.peersList);
 
             // Widget for displaying a map with the peer locations
-            var customChildrenAfter = React.createElement(
-              'div',
-              { className: 'col', style: { height: '500px', width: '100%' } },
-              React.createElement(_PeersMap2.default, { peers: peers }),
-              this.props.customChildrenAfter
-            );
+            customChildrenAfter.push(this.peersMap);
 
             return React.createElement(
               Dashboard,
@@ -297,7 +252,7 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
         }
       ]
     );
-    return _class2;
+    return _class;
   })(React.Component);
 };
 

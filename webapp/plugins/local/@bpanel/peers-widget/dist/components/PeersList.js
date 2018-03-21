@@ -44,14 +44,14 @@ function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-var _class = (function(_PureComponent) {
-  (0, _inherits3.default)(_class, _PureComponent);
+var PeersList = (function(_PureComponent) {
+  (0, _inherits3.default)(PeersList, _PureComponent);
 
-  function _class(props) {
-    (0, _classCallCheck3.default)(this, _class);
+  function PeersList(props) {
+    (0, _classCallCheck3.default)(this, PeersList);
     return (0, _possibleConstructorReturn3.default)(
       this,
-      (_class.__proto__ || (0, _getPrototypeOf2.default)(_class)).call(
+      (PeersList.__proto__ || (0, _getPrototypeOf2.default)(PeersList)).call(
         this,
         props
       )
@@ -59,7 +59,7 @@ var _class = (function(_PureComponent) {
   }
 
   (0, _createClass3.default)(
-    _class,
+    PeersList,
     [
       {
         key: 'render',
@@ -94,8 +94,17 @@ var _class = (function(_PureComponent) {
 
           return _react2.default.createElement(
             'div',
-            { className: 'peers-list' },
-            table
+            { className: 'col-lg-8' },
+            _react2.default.createElement(
+              _bpanelUi.Header,
+              { type: 'h3' },
+              'Peers List'
+            ),
+            _react2.default.createElement(
+              'div',
+              { className: 'peers-list' },
+              table
+            )
           );
         }
       }
@@ -117,7 +126,7 @@ var _class = (function(_PureComponent) {
       }
     ]
   );
-  return _class;
+  return PeersList;
 })(_react.PureComponent);
 
-exports.default = _class;
+exports.default = (0, _bpanelUi.ErrorWrapper)(PeersList);

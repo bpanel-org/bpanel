@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, Header, utils } from '@bpanel/bpanel-ui';
+import { Text, Header, utils, ErrorWrapper } from '@bpanel/bpanel-ui';
 import { Gmaps, Marker } from 'react-gmaps';
 
 import { getPeerCoordinates } from '../selectors/peers';
 import getMarkerStyles from './markerStyles';
 const { connectTheme } = utils;
 
-class PeersMap extends React.PureComponent {
+class PeersMap_ extends React.PureComponent {
   constructor(props) {
     super(props);
     this.center = {
@@ -24,13 +24,12 @@ class PeersMap extends React.PureComponent {
   static get propTypes() {
     return {
       peers: PropTypes.arrayOf(PropTypes.object),
-      theme: PropTypes.object,
-      coordinates: PropTypes.arrayOf(PropTypes.object)
+      theme: PropTypes.object
     };
   }
 
-  async componentWillReceiveProps(nextProps) {
-    const { peers } = nextProps;
+  async componentDidMount() {
+    const { peers } = this.props;
     if (peers.length) {
       const coordinates = await getPeerCoordinates(peers);
       this.setState({ coordinates });
@@ -60,7 +59,7 @@ class PeersMap extends React.PureComponent {
     }
 
     return (
-      <div>
+      <div className="col" style={{ height: '500px', width: '100%' }}>
         <Header type="h3">Peer Locations</Header>
         <Text type="p">
           Below are the approximate locations of your peers based on IP address
@@ -80,4 +79,6 @@ class PeersMap extends React.PureComponent {
   }
 }
 
-export default connectTheme(PeersMap);
+const PeersMap = connectTheme(PeersMap_);
+
+export default ErrorWrapper(PeersMap);
