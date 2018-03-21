@@ -19,9 +19,9 @@ if (require.main === module) {
   }
   if (process.argv.indexOf('--watch-poll') >= 0) {
     poll = true;
-    webpackArgs.push('--watch');
+    webpackArgs.push('--watch', '--env.dev', '--env.poll');
   } else if (process.argv.indexOf('--watch') >= 0) {
-    webpackArgs.push('--watch');
+    webpackArgs.push('--watch', '--env.dev');
   }
   if (process.argv.indexOf('--dev') >= 0) {
     if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';

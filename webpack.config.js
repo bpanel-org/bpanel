@@ -31,11 +31,9 @@ const loaders = {
   }
 };
 
-module.exports = function(env) {
-  env = env || process.env;
-
+module.exports = function(env={}) {
   const plugins = [];
-  if (env.NODE_ENV !== 'development') {
+  if (env.dev) {
     plugins.push(
       new webpack.optimize.UglifyJsPlugin({
         minimize: true,
@@ -55,7 +53,7 @@ module.exports = function(env) {
       path: path.resolve(__dirname, 'dist')
     },
     watchOptions: {
-      poll: 1000,
+      poll: env.poll && (parseInt(env.poll) || 1000),
       ignored: 'webapp/plugins/**/lib/*'
     },
     resolve: {
@@ -114,7 +112,7 @@ module.exports = function(env) {
         onBuildStart: ['echo "Webpack Start"', 'npm run -s build:plugins']
       }),
       new webpack.DefinePlugin({
-        NODE_ENV: `"${env.NODE_ENV}"`
+        NODE_ENV: `"${process.env.NODE_ENV}"`
       }),
       new CompressionPlugin({
         test: /\.js$/,
