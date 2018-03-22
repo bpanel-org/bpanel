@@ -13,7 +13,7 @@ export default class Dashboard extends Component {
   static get propTypes() {
     return {
       customChildrenBefore: PropTypes.node,
-      primaryWidget: PropTypes.node,
+      primaryWidget: PropTypes.oneOfType([PropTypes.array, PropTypes.node]),
       bottomWidgets: PropTypes.array,
       customChildrenAfter: PropTypes.oneOfType([
         PropTypes.array,
@@ -53,7 +53,11 @@ export default class Dashboard extends Component {
           Everything in this view is its own widget and can be edited, removed,
           and rearranged as desired.
         </Text>
-        <div className="row mt-3">{primaryWidget}</div>
+        <div className="row mt-3">
+          {Array.isArray(primaryWidget)
+            ? primaryWidget.map((Child, index) => <Child key={index} />)
+            : primaryWidget}
+        </div>
         <div className="row mt-3">
           {bottomWidgets.map((Widget, index) => <Widget key={index} />)}
         </div>

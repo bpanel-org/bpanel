@@ -41,7 +41,7 @@ services:
       ## uncomment for local webpack
       # - ./dist:/usr/src/app/dist
       ## uncomment when developing packages locally
-      - ../bpanel-ui:/usr/src/app/node_modules/@bpanel/bpanel-ui
+      # - /path/to/my_module:/usr/src/app/node_modules/my_module
       ## uncomment for server dev
       # - ./server:/usr/src/app/server
       ## uncomment for webapp dev

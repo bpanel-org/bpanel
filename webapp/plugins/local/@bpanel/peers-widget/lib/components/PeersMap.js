@@ -1,13 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, Header, utils, ErrorWrapper } from '@bpanel/bpanel-ui';
+import {
+  Text,
+  Header,
+  utils,
+  widgetCreator,
+  ErrorWrapper
+} from '@bpanel/bpanel-ui';
 import { Gmaps, Marker } from 'react-gmaps';
 
 import { getPeerCoordinates } from '../selectors/peers';
 import getMarkerStyles from './markerStyles';
 const { connectTheme } = utils;
 
-class PeersMap_ extends React.PureComponent {
+class PeersMap extends React.PureComponent {
   constructor(props) {
     super(props);
     this.center = {
@@ -23,7 +29,7 @@ class PeersMap_ extends React.PureComponent {
 
   static get propTypes() {
     return {
-      peers: PropTypes.arrayOf(PropTypes.object),
+      peers: PropTypes.arrayOf(PropTypes.object).isRequired,
       theme: PropTypes.object
     };
   }
@@ -79,6 +85,4 @@ class PeersMap_ extends React.PureComponent {
   }
 }
 
-const PeersMap = connectTheme(PeersMap_);
-
-export default ErrorWrapper(PeersMap);
+export default widgetCreator(connectTheme(PeersMap));

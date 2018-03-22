@@ -88,8 +88,8 @@ var Dashboard = (function(_Component) {
         }
       },
       {
-        key: 'componentWillUpdate',
-        value: function componentWillUpdate(nextProps) {
+        key: 'componentDidUpdate',
+        value: function componentDidUpdate(prevProps) {
           var _props2 = this.props,
             chainHeight = _props2.chainHeight,
             _props2$recentBlocks = _props2.recentBlocks,
@@ -103,8 +103,8 @@ var Dashboard = (function(_Component) {
           // and will dispatch action creators to udpate the state
 
           if (
-            nextProps.chainHeight &&
-            nextProps.chainHeight >= chainHeight &&
+            prevProps.chainHeight &&
+            prevProps.chainHeight >= chainHeight &&
             !recentBlocks.length &&
             !this.callingRecentBlocks
           ) {

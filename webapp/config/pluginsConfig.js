@@ -5,8 +5,8 @@ export const localPlugins = [
   'mempool',
   'bui',
   'bpanel-theme',
-  // 'bdark-theme'
-  'bmoon-theme'
+  'bmoon-theme',
+  'bdark-theme'
 ];
 
 export const plugins = ['@bpanel/chain-sockets'];

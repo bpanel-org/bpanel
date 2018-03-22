@@ -36,74 +36,54 @@ var _propTypes2 = _interopRequireDefault(_propTypes);
 
 var _bpanelUi = require('@bpanel/bpanel-ui');
 
-var _underscore = require('underscore');
+var _RecentBlocksTable = require('./RecentBlocksTable');
 
-var _selectors = require('../selectors');
+var _RecentBlocksTable2 = _interopRequireDefault(_RecentBlocksTable);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-var PeersList = (function(_PureComponent) {
-  (0, _inherits3.default)(PeersList, _PureComponent);
+var RecentBlocks = (function(_React$PureComponent) {
+  (0, _inherits3.default)(RecentBlocks, _React$PureComponent);
 
-  function PeersList(props) {
-    (0, _classCallCheck3.default)(this, PeersList);
+  function RecentBlocks(props) {
+    (0, _classCallCheck3.default)(this, RecentBlocks);
     return (0, _possibleConstructorReturn3.default)(
       this,
-      (PeersList.__proto__ || (0, _getPrototypeOf2.default)(PeersList)).call(
-        this,
-        props
-      )
+      (RecentBlocks.__proto__ || (0, _getPrototypeOf2.default)(RecentBlocks)
+      ).call(this, props)
     );
   }
 
   (0, _createClass3.default)(
-    PeersList,
+    RecentBlocks,
     [
       {
         key: 'render',
         value: function render() {
-          var peers = this.props.peers;
-
-          var table = void 0;
-          if (Array.isArray(peers) && peers.length) {
-            var data = _selectors.peers.peerTableData(peers);
-            var expandedData = data.map(function(peer) {
-              return {
-                mainData: (0, _underscore.pick)(peer, [
-                  'addr',
-                  'name',
-                  'subver'
-                ])
-              };
-            });
-            table = _react2.default.createElement(_bpanelUi.Table, {
-              tableData: data,
-              expandedData: expandedData,
-              ExpandedComponent: _bpanelUi.ExpandedDataRow,
-              expandedHeight: 200
-            });
-          } else {
-            table = _react2.default.createElement(
-              _bpanelUi.Text,
-              { type: 'p' },
-              'Loading peers...'
-            );
-          }
+          var getRecentBlocks = this.props.getRecentBlocks;
 
           return _react2.default.createElement(
             'div',
-            { className: 'col-lg-8' },
+            { className: 'col' },
             _react2.default.createElement(
               _bpanelUi.Header,
-              { type: 'h4' },
-              'Peers List'
+              { type: 'h3' },
+              'Recent Blocks'
             ),
             _react2.default.createElement(
-              'div',
-              { className: 'peers-list' },
-              table
+              _RecentBlocksTable2.default,
+              this.props
+            ),
+            _react2.default.createElement(
+              _bpanelUi.Button,
+              {
+                onClick: function onClick() {
+                  return getRecentBlocks(10);
+                }
+              },
+              'Get Blocks'
             )
           );
         }
@@ -113,20 +93,22 @@ var PeersList = (function(_PureComponent) {
       {
         key: 'displayName',
         get: function get() {
-          return 'Peers List';
+          return 'Recent Blocks Widget';
         }
       },
       {
         key: 'propTypes',
         get: function get() {
           return {
-            peers: _propTypes2.default.arrayOf(_propTypes2.default.object)
+            chainHeight: _propTypes2.default.number,
+            recentBlocks: _propTypes2.default.array,
+            getRecentBlocks: _propTypes2.default.func
           };
         }
       }
     ]
   );
-  return PeersList;
-})(_react.PureComponent);
+  return RecentBlocks;
+})(_react2.default.PureComponent);
 
-exports.default = (0, _bpanelUi.widgetCreator)(PeersList);
+exports.default = (0, _bpanelUi.widgetCreator)(RecentBlocks);

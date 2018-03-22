@@ -1,6 +1,4 @@
 // Dashboard widget for showing mempool information
-import { ErrorWrapper } from '@bpanel/bpanel-ui';
-
 import {
   ADD_RECENT_BLOCK,
   UPDATE_MEMPOOL,
@@ -13,7 +11,8 @@ import {
   updateMempool,
   watchMempool
 } from './actions';
-import Mempool, { MempoolContainer } from './components/Mempool';
+
+import Mempool from './components/Mempool';
 
 export const metadata = {
   name: 'mempool',
@@ -101,7 +100,6 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
   return class extends React.Component {
     constructor(props) {
       super(props);
-      this.mempoolWidget = MempoolContainer(this.props);
     }
 
     static displayName() {
@@ -116,12 +114,19 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
       };
     }
 
-    componentWillUpdate({ mempoolTx, mempoolSize }) {
+    componentWillMount() {
+      const { mempoolSize = 0, mempoolTx = 0 } = this.props;
+      this.mempoolWidget = Mempool({ mempoolTx, mempoolSize });
+    }
+
+    componentDidUpdate(prevProps) {
+      const { mempoolTx: prevTx, mempoolSize: prevSize } = prevProps;
+      const { mempoolTx, mempoolSize } = this.props;
       if (
-        mempoolTx !== this.props.mempoolTx ||
-        mempoolSize !== this.props.mempoolSize
+        prevTx !== this.props.mempoolTx ||
+        prevSize !== this.props.mempoolSize
       )
-        this.mempoolWidget = MempoolContainer({ mempoolTx, mempoolSize });
+        this.mempoolWidget = Mempool({ mempoolSize, mempoolTx });
     }
 
     render() {

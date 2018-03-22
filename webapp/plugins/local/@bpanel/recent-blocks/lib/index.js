@@ -2,10 +2,9 @@
 // This should expose your plugin's modules
 /* START IMPORTS */
 import Immutable from 'seamless-immutable';
-import { Button, Header } from '@bpanel/bpanel-ui';
 
 import modules from './plugins';
-import RecentBlocksTable from './components/RecentBlocksTable';
+import RecentBlocks from './components/RecentBlocks';
 import { addRecentBlock, getRecentBlocks } from './actions';
 import {
   ADD_NEW_BLOCK,
@@ -133,39 +132,50 @@ export const reduceChain = (state, action) => {
 // name can be anything, but must match it to target
 // plugin name via decoratePlugin export below
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
-  return class extends React.Component {
+  return class extends React.PureComponent {
     constructor(props) {
       super(props);
+      const { getRecentBlocks, chainHeight, recentBlocks } = props;
+      this.recentBlocks = RecentBlocks({
+        getRecentBlocks,
+        chainHeight,
+        recentBlocks
+      });
     }
 
-    static displayName() {
+    static get displayName() {
       return metadata.displayName;
     }
 
     static get propTypes() {
       return {
-        primaryWidget: PropTypes.node,
+        primaryWidget: PropTypes.oneOf([PropTypes.array, PropTypes.node]),
         chainHeight: PropTypes.number,
         recentBlocks: PropTypes.array,
         getRecentBlocks: PropTypes.func
       };
     }
 
-    render() {
+    componentDidUpdate({ chainHeight: prevHeight, recentBlocks: prevBlocks }) {
       const { chainHeight, recentBlocks, getRecentBlocks } = this.props;
-      const tableProps = { chainHeight, recentBlocks, getRecentBlocks };
-      const primaryWidget = (
-        <div className="col">
-          <Header type="h3">Recent Blocks</Header>
-          <RecentBlocksTable {...tableProps} />
-          <Button onClick={() => getRecentBlocks(10)}>Get Blocks</Button>
-          {
-            // skip this to overwrite existing primaryWidgets
-            this.props.primaryWidget
-          }
-        </div>
-      );
+      if (
+        chainHeight > prevHeight ||
+        !prevBlocks.length ||
+        (prevBlocks[0] &&
+          recentBlocks[0] &&
+          prevBlocks[0].hash !== recentBlocks[0].hash)
+      ) {
+        this.recentBlocks = RecentBlocks({
+          chainHeight,
+          recentBlocks,
+          getRecentBlocks
+        });
+      }
+    }
 
+    render() {
+      const { primaryWidget = [] } = this.props;
+      primaryWidget.push(this.recentBlocks);
       return <Dashboard {...this.props} primaryWidget={primaryWidget} />;
     }
   };

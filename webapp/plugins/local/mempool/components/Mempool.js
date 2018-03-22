@@ -2,7 +2,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Header, Button, ErrorWrapper } from '@bpanel/bpanel-ui';
+import { Header, Button, widgetCreator } from '@bpanel/bpanel-ui';
 
 class Mempool extends React.PureComponent {
   constructor(props) {
@@ -38,6 +38,4 @@ class Mempool extends React.PureComponent {
   }
 }
 
-const WrappedMempool = ErrorWrapper(Mempool);
-export const MempoolContainer = props => () =>
-  React.createElement(WrappedMempool, props);
+export default widgetCreator(Mempool);

@@ -33,7 +33,7 @@ export default class Dashboard extends Component {
     this.callingRecentBlocks = false;
   }
 
-  componentWillUpdate(nextProps) {
+  componentDidUpdate(prevProps) {
     const { chainHeight, recentBlocks = [], getRecentBlocks } = this.props;
 
     // if chainHeight has increased and recentBlocks is not set,
@@ -41,8 +41,8 @@ export default class Dashboard extends Component {
     // `getRecentBlocks` are attached to the store
     // and will dispatch action creators to udpate the state
     if (
-      nextProps.chainHeight &&
-      nextProps.chainHeight >= chainHeight &&
+      prevProps.chainHeight &&
+      prevProps.chainHeight >= chainHeight &&
       !recentBlocks.length &&
       !this.callingRecentBlocks
     ) {

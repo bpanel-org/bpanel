@@ -62,15 +62,15 @@ function _interopRequireDefault(obj) {
 
 var connectTheme = _bpanelUi.utils.connectTheme;
 
-var PeersMap_ = (function(_React$PureComponent) {
-  (0, _inherits3.default)(PeersMap_, _React$PureComponent);
+var PeersMap = (function(_React$PureComponent) {
+  (0, _inherits3.default)(PeersMap, _React$PureComponent);
 
-  function PeersMap_(props) {
-    (0, _classCallCheck3.default)(this, PeersMap_);
+  function PeersMap(props) {
+    (0, _classCallCheck3.default)(this, PeersMap);
 
     var _this = (0, _possibleConstructorReturn3.default)(
       this,
-      (PeersMap_.__proto__ || (0, _getPrototypeOf2.default)(PeersMap_)).call(
+      (PeersMap.__proto__ || (0, _getPrototypeOf2.default)(PeersMap)).call(
         this,
         props
       )
@@ -89,7 +89,7 @@ var PeersMap_ = (function(_React$PureComponent) {
   }
 
   (0, _createClass3.default)(
-    PeersMap_,
+    PeersMap,
     [
       {
         key: 'componentDidMount',
@@ -206,16 +206,15 @@ var PeersMap_ = (function(_React$PureComponent) {
         key: 'propTypes',
         get: function get() {
           return {
-            peers: _propTypes2.default.arrayOf(_propTypes2.default.object),
+            peers: _propTypes2.default.arrayOf(_propTypes2.default.object)
+              .isRequired,
             theme: _propTypes2.default.object
           };
         }
       }
     ]
   );
-  return PeersMap_;
+  return PeersMap;
 })(_react2.default.PureComponent);
 
-var PeersMap = connectTheme(PeersMap_);
-
-exports.default = (0, _bpanelUi.ErrorWrapper)(PeersMap);
+exports.default = (0, _bpanelUi.widgetCreator)(connectTheme(PeersMap));

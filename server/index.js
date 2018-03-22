@@ -16,7 +16,7 @@ if (require.main === module) {
   }
   if (process.argv.indexOf('--watch-poll') >= 0) {
     poll = true;
-    webpackArgs.push('--watch-poll', '--watch');
+    webpackArgs.push('--watch');
   } else if (process.argv.indexOf('--watch') >= 0) {
     webpackArgs.push('--watch');
   }

@@ -6,7 +6,6 @@ import assert from 'assert';
 import modules from './plugins';
 import { getPeers } from './actions';
 import { SET_PEERS } from './constants';
-import PeersComponentCreator from './containers/PeersComponentCreator';
 import PeersList from './components/PeersList';
 import PeersMap from './components/PeersMap';
 /* END IMPORTS */
@@ -63,16 +62,21 @@ export const mapComponentState = {
 };
 
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
-  return class extends React.Component {
+  return class extends React.PureComponent {
     constructor(props) {
       super(props);
-      // This way of creating the widgets is to help avoid re-renders
-      // if another widget has props/state update
-      this.peersList = PeersComponentCreator(PeersList);
-      this.peersMap = PeersComponentCreator(PeersMap);
+      const { peers } = props;
+      // These components are created with widgetCreator
+      // which allows you to append widgets to another plugin without
+      // causing full re-renders anytime other props change
+      // in the parent plugin. You'll need to update these when
+      // your target props change (in this case peers).
+      // See componentDidUpdate for example
+      this.peersList = PeersList({ peers });
+      this.peersMap = PeersMap({ peers });
     }
 
-    static displayName() {
+    static get displayName() {
       return 'Peers Widgets';
     }
 
@@ -93,14 +97,13 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
 
     componentDidMount() {
       this.props.getPeers();
-      this.peersList = PeersComponentCreator(PeersList, this.props.peers);
-      this.peersMap = PeersComponentCreator(PeersMap, this.props.peers);
     }
 
-    componentWillUpdate({ peers }) {
-      if (peers.length > 0 && peers[0] !== this.props.peers[0]) {
-        this.peersList = PeersComponentCreator(PeersList, peers);
-        this.peersMap = PeersComponentCreator(PeersMap, peers);
+    componentDidUpdate({ peers: prevPeers }) {
+      const { peers } = this.props;
+      if (peers.length > 0 && peers[0] !== prevPeers[0]) {
+        this.peersList = PeersList({ peers });
+        this.peersMap = PeersMap({ peers });
       }
     }
 

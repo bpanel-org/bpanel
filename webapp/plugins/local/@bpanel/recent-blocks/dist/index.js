@@ -47,15 +47,13 @@ var _seamlessImmutable = require('seamless-immutable');
 
 var _seamlessImmutable2 = _interopRequireDefault(_seamlessImmutable);
 
-var _bpanelUi = require('@bpanel/bpanel-ui');
-
 var _plugins = require('./plugins');
 
 var _plugins2 = _interopRequireDefault(_plugins);
 
-var _RecentBlocksTable = require('./components/RecentBlocksTable');
+var _RecentBlocks = require('./components/RecentBlocks');
 
-var _RecentBlocksTable2 = _interopRequireDefault(_RecentBlocksTable);
+var _RecentBlocks2 = _interopRequireDefault(_RecentBlocks);
 
 var _actions = require('./actions');
 
@@ -67,12 +65,11 @@ function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
 }
 
-var getBlocksWithTxCount = _selectors.recentBlocks.getBlocksWithTxCount;
-/* END IMPORTS */
-
 // Entry point for your plugin
 // This should expose your plugin's modules
 /* START IMPORTS */
+var getBlocksWithTxCount = _selectors.recentBlocks.getBlocksWithTxCount;
+/* END IMPORTS */
 
 var plugins = (0, _keys2.default)(_plugins2.default).map(function(name) {
   return _plugins2.default[name];
@@ -225,59 +222,68 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
   var React = _ref2.React,
     PropTypes = _ref2.PropTypes;
 
-  return (function(_React$Component) {
-    (0, _inherits3.default)(_class, _React$Component);
+  return (function(_React$PureComponent) {
+    (0, _inherits3.default)(_class, _React$PureComponent);
 
     function _class(props) {
       (0, _classCallCheck3.default)(this, _class);
-      return (0, _possibleConstructorReturn3.default)(
+
+      var _this = (0, _possibleConstructorReturn3.default)(
         this,
         (_class.__proto__ || (0, _getPrototypeOf2.default)(_class)).call(
           this,
           props
         )
       );
+
+      var getRecentBlocks = props.getRecentBlocks,
+        chainHeight = props.chainHeight,
+        recentBlocks = props.recentBlocks;
+
+      _this.recentBlocks = (0, _RecentBlocks2.default)({
+        getRecentBlocks: getRecentBlocks,
+        chainHeight: chainHeight,
+        recentBlocks: recentBlocks
+      });
+      return _this;
     }
 
     (0, _createClass3.default)(
       _class,
       [
         {
-          key: 'render',
-          value: function render() {
+          key: 'componentDidUpdate',
+          value: function componentDidUpdate(_ref3) {
+            var prevHeight = _ref3.chainHeight,
+              prevBlocks = _ref3.recentBlocks;
             var _props = this.props,
               chainHeight = _props.chainHeight,
               recentBlocks = _props.recentBlocks,
               getRecentBlocks = _props.getRecentBlocks;
 
-            var tableProps = {
-              chainHeight: chainHeight,
-              recentBlocks: recentBlocks,
-              getRecentBlocks: getRecentBlocks
-            };
-            var primaryWidget = React.createElement(
-              'div',
-              { className: 'col' },
-              React.createElement(
-                _bpanelUi.Header,
-                { type: 'h3' },
-                'Recent Blocks'
-              ),
-              React.createElement(_RecentBlocksTable2.default, tableProps),
-              React.createElement(
-                _bpanelUi.Button,
-                {
-                  onClick: function onClick() {
-                    return getRecentBlocks(10);
-                  }
-                },
-                'Get Blocks'
-              ),
+            if (
+              chainHeight > prevHeight ||
+              !prevBlocks.length ||
+              (prevBlocks[0] &&
+                recentBlocks[0] &&
+                prevBlocks[0].hash !== recentBlocks[0].hash)
+            ) {
+              this.recentBlocks = (0, _RecentBlocks2.default)({
+                chainHeight: chainHeight,
+                recentBlocks: recentBlocks,
+                getRecentBlocks: getRecentBlocks
+              });
+            }
+          }
+        },
+        {
+          key: 'render',
+          value: function render() {
+            var _props$primaryWidget = this.props.primaryWidget,
+              primaryWidget =
+                _props$primaryWidget === undefined ? [] : _props$primaryWidget;
 
-              // skip this to overwrite existing primaryWidgets
-              this.props.primaryWidget
-            );
-
+            primaryWidget.push(this.recentBlocks);
             return React.createElement(
               Dashboard,
               (0, _extends3.default)({}, this.props, {
@@ -290,7 +296,7 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
       [
         {
           key: 'displayName',
-          value: function displayName() {
+          get: function get() {
             return metadata.displayName;
           }
         },
@@ -298,7 +304,7 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
           key: 'propTypes',
           get: function get() {
             return {
-              primaryWidget: PropTypes.node,
+              primaryWidget: PropTypes.oneOf([PropTypes.array, PropTypes.node]),
               chainHeight: PropTypes.number,
               recentBlocks: PropTypes.array,
               getRecentBlocks: PropTypes.func
@@ -308,7 +314,7 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
       ]
     );
     return _class;
-  })(React.Component);
+  })(React.PureComponent);
 };
 
 // `decoratePlugin` passes an object with properties to map to the

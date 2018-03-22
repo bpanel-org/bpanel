@@ -51,10 +51,6 @@ var _actions = require('./actions');
 
 var _constants = require('./constants');
 
-var _PeersComponentCreator = require('./containers/PeersComponentCreator');
-
-var _PeersComponentCreator2 = _interopRequireDefault(_PeersComponentCreator);
-
 var _PeersList = require('./components/PeersList');
 
 var _PeersList2 = _interopRequireDefault(_PeersList);
@@ -69,14 +65,14 @@ function _interopRequireDefault(obj) {
 
 /* END IMPORTS */
 
+// Entry point for your plugin
+// This should expose your plugin's modules
+/* START IMPORTS */
 var plugins = (0, _keys2.default)(_plugins2.default).map(function(name) {
   return _plugins2.default[name];
 });
 /* START EXPORTS */
 
-// Entry point for your plugin
-// This should expose your plugin's modules
-/* START IMPORTS */
 var metadata = (exports.metadata = {
   name: '@bpanel/peers-widget',
   pathName: '',
@@ -138,14 +134,12 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
   var React = _ref.React,
     PropTypes = _ref.PropTypes;
 
-  return (function(_React$Component) {
-    (0, _inherits3.default)(_class, _React$Component);
+  return (function(_React$PureComponent) {
+    (0, _inherits3.default)(_class, _React$PureComponent);
 
     function _class(props) {
       (0, _classCallCheck3.default)(this, _class);
 
-      // This way of creating the widgets is to help avoid re-renders
-      // if another widget has props/state update
       var _this = (0, _possibleConstructorReturn3.default)(
         this,
         (_class.__proto__ || (0, _getPrototypeOf2.default)(_class)).call(
@@ -154,10 +148,16 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
         )
       );
 
-      _this.peersList = (0, _PeersComponentCreator2.default)(
-        _PeersList2.default
-      );
-      _this.peersMap = (0, _PeersComponentCreator2.default)(_PeersMap2.default);
+      var peers = props.peers;
+      // These components are created with widgetCreator
+      // which allows you to append widgets to another plugin without
+      // causing full re-renders anytime other props change
+      // in the parent plugin. You'll need to update these when
+      // your target props change (in this case peers).
+      // See componentDidUpdate for example
+
+      _this.peersList = (0, _PeersList2.default)({ peers: peers });
+      _this.peersMap = (0, _PeersMap2.default)({ peers: peers });
       return _this;
     }
 
@@ -168,30 +168,17 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
           key: 'componentDidMount',
           value: function componentDidMount() {
             this.props.getPeers();
-            this.peersList = (0, _PeersComponentCreator2.default)(
-              _PeersList2.default,
-              this.props.peers
-            );
-            this.peersMap = (0, _PeersComponentCreator2.default)(
-              _PeersMap2.default,
-              this.props.peers
-            );
           }
         },
         {
-          key: 'componentWillUpdate',
-          value: function componentWillUpdate(_ref2) {
-            var peers = _ref2.peers;
+          key: 'componentDidUpdate',
+          value: function componentDidUpdate(_ref2) {
+            var prevPeers = _ref2.peers;
+            var peers = this.props.peers;
 
-            if (peers.length > 0 && peers[0] !== this.props.peers[0]) {
-              this.peersList = (0, _PeersComponentCreator2.default)(
-                _PeersList2.default,
-                peers
-              );
-              this.peersMap = (0, _PeersComponentCreator2.default)(
-                _PeersMap2.default,
-                peers
-              );
+            if (peers.length > 0 && peers[0] !== prevPeers[0]) {
+              this.peersList = (0, _PeersList2.default)({ peers: peers });
+              this.peersMap = (0, _PeersMap2.default)({ peers: peers });
             }
           }
         },
@@ -227,7 +214,7 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
       [
         {
           key: 'displayName',
-          value: function displayName() {
+          get: function get() {
             return 'Peers Widgets';
           }
         },
@@ -253,7 +240,7 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
       ]
     );
     return _class;
-  })(React.Component);
+  })(React.PureComponent);
 };
 
 // `decoratePlugin` passes an object with properties to map to the

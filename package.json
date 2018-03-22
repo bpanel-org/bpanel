@@ -30,7 +30,7 @@
   "author": "bcoin",
   "license": "MIT",
   "dependencies": {
-    "@bpanel/bpanel-ui": "^0.0.5",
+    "@bpanel/bpanel-ui": "^0.0.6",
     "@bpanel/bpanel-utils": "^0.0.5",
     "@bpanel/chain-sockets": "0.0.1",
     "aphrodite": "^1.2.5",

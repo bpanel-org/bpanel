@@ -5,7 +5,7 @@ import {
   Table,
   Text,
   ExpandedDataRow,
-  ErrorWrapper
+  widgetCreator
 } from '@bpanel/bpanel-ui';
 import { pick } from 'underscore';
 
@@ -48,11 +48,11 @@ class PeersList extends PureComponent {
 
     return (
       <div className="col-lg-8">
-        <Header type="h3">Peers List</Header>
+        <Header type="h4">Peers List</Header>
         <div className="peers-list">{table}</div>
       </div>
     );
   }
 }
 
-export default ErrorWrapper(PeersList);
+export default widgetCreator(PeersList);
