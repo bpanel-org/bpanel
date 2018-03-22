@@ -53,11 +53,25 @@ export default class Dashboard extends Component {
 
   render() {
     const { recentBlocks } = this.props;
-
+    // use this to ensure order of columns
+    // otherwise table just uses object keys
+    const colHeaders = [
+      'depth',
+      'height',
+      'hash',
+      'version',
+      'prevBlock',
+      'merkleRoot',
+      'time',
+      'bits',
+      'nonce',
+      'txs'
+    ];
     let table;
     if (Array.isArray(recentBlocks) && recentBlocks.length) {
       table = (
         <Table
+          colHeaders={colHeaders}
           ExpandedComponent={ExpandedRow}
           expandedHeight={240}
           tableData={recentBlocks}

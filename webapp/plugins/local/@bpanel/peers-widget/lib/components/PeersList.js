@@ -31,11 +31,20 @@ class PeersList extends PureComponent {
     let table;
     if (Array.isArray(peers) && peers.length) {
       const data = peerSelectors.peerTableData(peers);
+      const colHeaders = [
+        'id',
+        'name',
+        'addr',
+        'relaytxes',
+        'subver',
+        'inbound'
+      ];
       const expandedData = data.map(peer => ({
         mainData: pick(peer, ['addr', 'name', 'subver'])
       }));
       table = (
         <Table
+          colHeaders={colHeaders}
           tableData={data}
           expandedData={expandedData}
           ExpandedComponent={ExpandedDataRow}

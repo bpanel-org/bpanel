@@ -69,6 +69,14 @@ var PeersList = (function(_PureComponent) {
           var table = void 0;
           if (Array.isArray(peers) && peers.length) {
             var data = _selectors.peers.peerTableData(peers);
+            var colHeaders = [
+              'id',
+              'name',
+              'addr',
+              'relaytxes',
+              'subver',
+              'inbound'
+            ];
             var expandedData = data.map(function(peer) {
               return {
                 mainData: (0, _underscore.pick)(peer, [
@@ -79,6 +87,7 @@ var PeersList = (function(_PureComponent) {
               };
             });
             table = _react2.default.createElement(_bpanelUi.Table, {
+              colHeaders: colHeaders,
               tableData: data,
               expandedData: expandedData,
               ExpandedComponent: _bpanelUi.ExpandedDataRow,

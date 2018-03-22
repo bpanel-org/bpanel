@@ -117,10 +117,25 @@ var Dashboard = (function(_Component) {
         key: 'render',
         value: function render() {
           var recentBlocks = this.props.recentBlocks;
+          // use this to ensure order of columns
+          // otherwise table just uses object keys
 
+          var colHeaders = [
+            'depth',
+            'height',
+            'hash',
+            'version',
+            'prevBlock',
+            'merkleRoot',
+            'time',
+            'bits',
+            'nonce',
+            'txs'
+          ];
           var table = void 0;
           if (Array.isArray(recentBlocks) && recentBlocks.length) {
             table = _react2.default.createElement(_bpanelUi.Table, {
+              colHeaders: colHeaders,
               ExpandedComponent: _ExpandedRow2.default,
               expandedHeight: 240,
               tableData: recentBlocks
