@@ -1,13 +1,14 @@
-import { ChainEntry } from 'bcoin';
+import { ChainEntry, TX } from 'bcoin';
 import { chain as chainUtils } from '@bpanel/bpanel-utils';
 
 import { ADD_RECENT_BLOCK, SET_RECENT_BLOCKS } from './constants';
 
 // can also accept raw txs array
 // as it is returned in payload
-export function addRecentBlock(entry) {
+export function addRecentBlock(entry, txs) {
   let blockMeta = ChainEntry.fromRaw(entry);
   blockMeta.hash = blockMeta.rhash();
+  blockMeta.txs = txs.map(tx => TX.fromRaw(tx));
   return {
     type: ADD_RECENT_BLOCK,
     payload: blockMeta

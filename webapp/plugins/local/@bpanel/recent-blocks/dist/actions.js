@@ -27,9 +27,12 @@ function _interopRequireDefault(obj) {
 
 // can also accept raw txs array
 // as it is returned in payload
-function addRecentBlock(entry) {
+function addRecentBlock(entry, txs) {
   var blockMeta = _bcoin.ChainEntry.fromRaw(entry);
   blockMeta.hash = blockMeta.rhash();
+  blockMeta.txs = txs.map(function(tx) {
+    return _bcoin.TX.fromRaw(tx);
+  });
   return {
     type: _constants.ADD_RECENT_BLOCK,
     payload: blockMeta

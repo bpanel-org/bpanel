@@ -189,7 +189,7 @@ var reduceChain = (exports.reduceChain = function reduceChain(state, action) {
     }
 
     case _constants.ADD_RECENT_BLOCK: {
-      var block = payload;
+      var block = (0, _seamlessImmutable2.default)(payload);
       var numBlocks = 10;
       var blocks = state.getIn(['recentBlocks']);
       var newBlocks = [].concat((0, _toConsumableArray3.default)(blocks)); // get mutable version of blocks
@@ -203,6 +203,9 @@ var reduceChain = (exports.reduceChain = function reduceChain(state, action) {
         if (numBlocks && state.recentBlocks.length >= numBlocks) {
           newBlocks.pop();
         }
+        newBlocks = newBlocks.map(function(block) {
+          return block.set('depth', block.depth ? block.depth + 1 : 1);
+        });
       }
 
       return state.merge({

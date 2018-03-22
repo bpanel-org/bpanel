@@ -102,10 +102,10 @@ export const reduceChain = (state, action) => {
     }
 
     case ADD_RECENT_BLOCK: {
-      const block = payload;
+      const block = Immutable(payload);
       const numBlocks = 10;
       const blocks = state.getIn(['recentBlocks']);
-      const newBlocks = [...blocks]; // get mutable version of blocks
+      let newBlocks = [...blocks]; // get mutable version of blocks
 
       // skip if the height of new block is same as top block
       // or recentBlocks haven't been hydrated yet
@@ -116,6 +116,9 @@ export const reduceChain = (state, action) => {
         if (numBlocks && state.recentBlocks.length >= numBlocks) {
           newBlocks.pop();
         }
+        newBlocks = newBlocks.map(block =>
+          block.set('depth', block.depth ? block.depth + 1 : 1)
+        );
       }
 
       return state.merge({
