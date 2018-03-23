@@ -5,7 +5,7 @@ import { connect } from '../plugins/plugins';
 import Panel from '../components/Panel';
 import { socketActions } from '../store/actions';
 
-const mapStateToProps = state => ({ ...state });
+const mapStateToProps = () => ({});
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ ...socketActions }, dispatch);
 

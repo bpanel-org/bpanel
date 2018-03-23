@@ -3,6 +3,7 @@ export const localPlugins = [
   '@bpanel/recent-blocks',
   '@bpanel/peers-widget',
   '@bpanel/mempool-widget',
+  '@bpanel/bpanel-footer',
   'bui',
   'bpanel-theme',
   'bmoon-theme',

@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { Header, Text } from '@bpanel/bpanel-ui';
 
-export default class Dashboard extends Component {
+export default class Dashboard extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {

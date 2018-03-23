@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { Route, Redirect } from 'react-router';
@@ -20,7 +20,7 @@ export const pluginMetaProps = {
   icon: PropTypes.string
 };
 
-class App extends Component {
+class App extends PureComponent {
   constructor(props) {
     super(props);
   }

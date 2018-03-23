@@ -1,12 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Text,
-  Header,
-  utils,
-  widgetCreator,
-  ErrorWrapper
-} from '@bpanel/bpanel-ui';
+import { Text, Header, utils, widgetCreator } from '@bpanel/bpanel-ui';
 import { Gmaps, Marker } from 'react-gmaps';
 
 import { getPeerCoordinates } from '../selectors/peers';

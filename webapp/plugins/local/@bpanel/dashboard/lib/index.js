@@ -35,7 +35,7 @@ export const decorator = (pluginDecorator, { React, PropTypes }) => {
 // You'll want to make sure to import an actual component
 // This is what you need if you're making a new view/route
 export const decoratePanel = (Panel, { React, PropTypes }) => {
-  return class extends React.Component {
+  return class extends React.PureComponent {
     static displayName() {
       return 'bPanel Dashboard';
     }

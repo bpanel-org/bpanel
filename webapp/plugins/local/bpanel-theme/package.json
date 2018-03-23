@@ -14,5 +14,10 @@
     "redux"
   ],
   "author": "bcoin-org",
-  "license": "MIT"
+  "license": "MIT",
+  "peerDependencies": {
+    "@bpanel/bpanel-ui": "^0.0.4",
+    "prop-types": "^15.6.0",
+    "react": "^16.2.0"
+  }
 }

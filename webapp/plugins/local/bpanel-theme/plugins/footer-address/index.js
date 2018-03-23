@@ -7,7 +7,7 @@ export const metadata = {
 };
 
 export const mapComponentState = {
-  Footer: (state, map) => Object.assign(map, { address: state.wallets })
+  Footer: (state, map) => Object.assign(map, { wallets: state.wallets })
 };
 
 export const decorateFooter = (Footer, { React, PropTypes }) => {

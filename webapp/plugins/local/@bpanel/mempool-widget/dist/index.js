@@ -169,29 +169,19 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
       _class,
       [
         {
-          key: 'componentWillMount',
-          value: function componentWillMount() {
-            var _props = this.props,
-              _props$mempoolSize = _props.mempoolSize,
-              mempoolSize =
-                _props$mempoolSize === undefined ? 0 : _props$mempoolSize,
-              _props$mempoolTx = _props.mempoolTx,
-              mempoolTx = _props$mempoolTx === undefined ? 0 : _props$mempoolTx;
-
-            this.mempoolWidget = (0, _Mempool2.default)({
-              mempoolTx: mempoolTx,
-              mempoolSize: mempoolSize
-            });
-          }
-        },
-        {
           key: 'componentDidUpdate',
+
+          // componentWillMount() {
+          //   const { mempoolSize, mempoolTx } = this.props;
+          //   this.mempoolWidget = Mempool({ mempoolTx, mempoolSize });
+          // }
+
           value: function componentDidUpdate(prevProps) {
             var prevTx = prevProps.mempoolTx,
               prevSize = prevProps.mempoolSize;
-            var _props2 = this.props,
-              mempoolTx = _props2.mempoolTx,
-              mempoolSize = _props2.mempoolSize;
+            var _props = this.props,
+              mempoolTx = _props.mempoolTx,
+              mempoolSize = _props.mempoolSize;
 
             if (
               prevTx !== this.props.mempoolTx ||
@@ -206,12 +196,22 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
         {
           key: 'render',
           value: function render() {
-            var _props$bottomWidgets = this.props.bottomWidgets,
+            var _props2 = this.props,
+              _props2$bottomWidgets = _props2.bottomWidgets,
               bottomWidgets =
-                _props$bottomWidgets === undefined ? [] : _props$bottomWidgets;
+                _props2$bottomWidgets === undefined
+                  ? []
+                  : _props2$bottomWidgets,
+              mempoolSize = _props2.mempoolSize,
+              mempoolTx = _props2.mempoolTx;
 
-            bottomWidgets.push(this.mempoolWidget);
-
+            bottomWidgets.push(
+              (0, _Mempool2.default)({
+                mempoolSize: mempoolSize,
+                mempoolTx: mempoolTx
+              })
+            );
+            // bottomWidgets.push(this.mempoolWidget);
             return React.createElement(
               Dashboard,
               (0, _extends3.default)({}, this.props, {
@@ -235,6 +235,15 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
               bottomWidgets: PropTypes.array,
               mempoolTx: PropTypes.number,
               mempoolSize: PropTypes.number
+            };
+          }
+        },
+        {
+          key: 'defaultProps',
+          get: function get() {
+            return {
+              mempoolTx: 0,
+              mempoolSize: 0
             };
           }
         }

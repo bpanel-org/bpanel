@@ -1,12 +1,13 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { getRouteProps } from '../plugins/plugins';
 
-export default class extends Component {
+export default class extends PureComponent {
   constructor(props) {
     super(props);
+    this.routes = [];
   }
 
   static get displayName() {
@@ -29,9 +30,9 @@ export default class extends Component {
     return <Component {...routeProps} />;
   }
 
-  render() {
+  componentWillMount() {
     const { customChildren = [] } = this.props;
-    const routes = customChildren.map(({ Component, metadata }) => {
+    this.routes = customChildren.map(({ Component, metadata }) => {
       const { pathName, name } = metadata;
       let path;
       try {
@@ -51,7 +52,9 @@ export default class extends Component {
         );
       } catch (e) {}
     });
+  }
 
-    return <div>{routes}</div>;
+  render() {
+    return <div>{this.routes}</div>;
   }
 }

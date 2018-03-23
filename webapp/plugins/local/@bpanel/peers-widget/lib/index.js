@@ -62,7 +62,7 @@ export const mapComponentState = {
 };
 
 const decorateDashboard = (Dashboard, { React, PropTypes }) => {
-  return class extends React.PureComponent {
+  return class extends React.Component {
     constructor(props) {
       super(props);
       const { peers } = props;
@@ -99,11 +99,12 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
       this.props.getPeers();
     }
 
-    componentDidUpdate({ peers: prevPeers }) {
+    componentWillUpdate({ peers: nextPeers }) {
       const { peers } = this.props;
-      if (peers.length > 0 && peers[0] !== prevPeers[0]) {
-        this.peersList = PeersList({ peers });
-        this.peersMap = PeersMap({ peers });
+      // if (peers.length > 0 && peers[0] !== prevPeers[0]) {
+      if (!peers.length && nextPeers.length) {
+        this.peersList = PeersList({ peers: nextPeers });
+        this.peersMap = PeersMap({ peers: nextPeers });
       }
     }
 

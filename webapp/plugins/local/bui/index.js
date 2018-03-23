@@ -58,7 +58,7 @@ export const decorateSidebar = (Sidebar, { React, PropTypes }) => {
 };
 
 export const decoratePanel = (Panel, { React, PropTypes }) => {
-  return class DecoratedDashboard extends React.Component {
+  return class DecoratedDashboard extends React.PureComponent {
     static displayName() {
       return 'bPanel UI';
     }

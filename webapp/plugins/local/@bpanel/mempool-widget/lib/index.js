@@ -114,10 +114,17 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
       };
     }
 
-    componentWillMount() {
-      const { mempoolSize = 0, mempoolTx = 0 } = this.props;
-      this.mempoolWidget = Mempool({ mempoolTx, mempoolSize });
+    static get defaultProps() {
+      return {
+        mempoolTx: 0,
+        mempoolSize: 0
+      };
     }
+
+    // componentWillMount() {
+    //   const { mempoolSize, mempoolTx } = this.props;
+    //   this.mempoolWidget = Mempool({ mempoolTx, mempoolSize });
+    // }
 
     componentDidUpdate(prevProps) {
       const { mempoolTx: prevTx, mempoolSize: prevSize } = prevProps;
@@ -130,9 +137,9 @@ const decorateDashboard = (Dashboard, { React, PropTypes }) => {
     }
 
     render() {
-      const { bottomWidgets = [] } = this.props;
-      bottomWidgets.push(this.mempoolWidget);
-
+      const { bottomWidgets = [], mempoolSize, mempoolTx } = this.props;
+      bottomWidgets.push(Mempool({ mempoolSize, mempoolTx }));
+      // bottomWidgets.push(this.mempoolWidget);
       return <Dashboard {...this.props} bottomWidgets={bottomWidgets} />;
     }
   };

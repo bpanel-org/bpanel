@@ -1,7 +1,7 @@
 import { connect } from '../plugins/plugins';
 import Sidebar from '../components/Sidebar';
 
-const mapStateToProps = state => ({ ...state });
+const mapStateToProps = () => ({});
 const mapDispatchToProps = () => ({});
 
 const SidebarContainer = connect(mapStateToProps, mapDispatchToProps)(

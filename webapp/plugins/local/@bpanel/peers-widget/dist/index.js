@@ -134,8 +134,8 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
   var React = _ref.React,
     PropTypes = _ref.PropTypes;
 
-  return (function(_React$PureComponent) {
-    (0, _inherits3.default)(_class, _React$PureComponent);
+  return (function(_React$Component) {
+    (0, _inherits3.default)(_class, _React$Component);
 
     function _class(props) {
       (0, _classCallCheck3.default)(this, _class);
@@ -171,14 +171,15 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
           }
         },
         {
-          key: 'componentDidUpdate',
-          value: function componentDidUpdate(_ref2) {
-            var prevPeers = _ref2.peers;
+          key: 'componentWillUpdate',
+          value: function componentWillUpdate(_ref2) {
+            var nextPeers = _ref2.peers;
             var peers = this.props.peers;
+            // if (peers.length > 0 && peers[0] !== prevPeers[0]) {
 
-            if (peers.length > 0 && peers[0] !== prevPeers[0]) {
-              this.peersList = (0, _PeersList2.default)({ peers: peers });
-              this.peersMap = (0, _PeersMap2.default)({ peers: peers });
+            if (!peers.length && nextPeers.length) {
+              this.peersList = (0, _PeersList2.default)({ peers: nextPeers });
+              this.peersMap = (0, _PeersMap2.default)({ peers: nextPeers });
             }
           }
         },
@@ -240,7 +241,7 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref) {
       ]
     );
     return _class;
-  })(React.PureComponent);
+  })(React.Component);
 };
 
 // `decoratePlugin` passes an object with properties to map to the
