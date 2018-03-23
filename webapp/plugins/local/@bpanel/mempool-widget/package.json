@@ -1,7 +1,7 @@
 {
-  "name": "@bpanel/recent-blocks",
+  "name": "@bpanel/mempool-widget",
   "version": "0.0.1",
-  "description": "A widget that shows the recent block information with expandable rows, optimized for bpanel dashboard",
+  "description": "A simple widget for the bpanel dashboard to display current mempool size and tx count",
   "main": "dist/index.js",
   "scripts": {
     "babel": "babel --presets=env,stage-3 lib -d dist",
@@ -14,7 +14,8 @@
   "keywords": [
     "bpanel",
     "bcoin",
-    ""
+    "mempool",
+    "blockchain"
   ],
   "author": "bcoin-org",
   "license": "MIT",
@@ -33,17 +34,6 @@
     "eslint-plugin-jsx-a11y": "^6.0.2",
     "eslint-plugin-prettier": "^2.3.1",
     "eslint-plugin-react": "^7.4.0",
-    "react": "^16.2.0",
-    "react-virtualized": "^9.18.5"
-  },
-  "peerDependencies": {
-    "@bpanel/bpanel-ui": "^0.0.4",
-    "@bpanel/bpanel-utils": "^0.0.5",
-    "bcoin": "git+https://github.com/bcoin-org/bcoin.git#wallet-rewrite",
-    "prop-types": "^15.6.0",
-    "react": "^16.2.0",
-    "reselect": "^3.0.1",
-    "underscore": "^1.8.3",
-    "seamless-immutable": "^7.1.2"
+    "react": "^16.2.0"
   }
 }
