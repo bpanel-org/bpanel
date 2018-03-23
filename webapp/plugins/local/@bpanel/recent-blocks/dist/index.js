@@ -94,7 +94,8 @@ var getRouteProps = (exports.getRouteProps = {
     return (0, _assign2.default)(props, {
       chainHeight: parentProps.chainHeight,
       recentBlocks: parentProps.recentBlocks,
-      getRecentBlocks: parentProps.getRecentBlocks
+      getRecentBlocks: parentProps.getRecentBlocks,
+      progress: parentProps.progress
     });
   }
 });
@@ -125,7 +126,8 @@ var mapComponentState = (exports.mapComponentState = {
   Panel: function Panel(state, map) {
     return (0, _assign2.default)(map, {
       chainHeight: state.chain.height,
-      recentBlocks: state.chain.recentBlocks ? getBlocksWithTxCount(state) : []
+      recentBlocks: state.chain.recentBlocks ? getBlocksWithTxCount(state) : [],
+      progress: state.chain.progress
     });
   }
 });
@@ -185,7 +187,7 @@ var reduceChain = (exports.reduceChain = function reduceChain(state, action) {
           (0, _seamlessImmutable2.default)(payload),
           { deep: true }
         );
-      break;
+      return state;
     }
 
     case _constants.ADD_RECENT_BLOCK: {
@@ -248,6 +250,10 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
         chainHeight: chainHeight,
         recentBlocks: recentBlocks
       });
+      // only want to do the recent block call once on mount
+      // or on update when route changes
+      // for other new blocks, we use the socket
+      _this.callingRecentBlocks = false;
       return _this;
     }
 
@@ -255,26 +261,67 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
       _class,
       [
         {
+          key: 'componentWillUnmount',
+          value: function componentWillUnmount() {
+            this.callingRecentBlocks = false;
+          }
+        },
+        {
           key: 'componentDidUpdate',
           value: function componentDidUpdate(_ref3) {
-            var prevHeight = _ref3.chainHeight,
-              prevBlocks = _ref3.recentBlocks;
+            var prevHeight = _ref3.chainHeight;
             var _props = this.props,
               chainHeight = _props.chainHeight,
-              recentBlocks = _props.recentBlocks,
+              _props$recentBlocks = _props.recentBlocks,
+              recentBlocks =
+                _props$recentBlocks === undefined ? [] : _props$recentBlocks,
               getRecentBlocks = _props.getRecentBlocks;
 
             if (
-              chainHeight > prevHeight ||
-              !prevBlocks.length ||
-              (prevBlocks[0] &&
-                recentBlocks[0] &&
-                prevBlocks[0].hash !== recentBlocks[0].hash)
+              chainHeight > prevHeight &&
+              !recentBlocks.length &&
+              !this.callingRecentBlocks
             ) {
+              // if chainHeight has increased and recentBlocks is not set,
+              // get the most recent blocks
+              // `getRecentBlocks` are attached to the store
+              // and will dispatch action creators to udpate the state
+              getRecentBlocks(10);
+              this.callingRecentBlocks = true;
               this.recentBlocks = (0, _RecentBlocks2.default)({
                 chainHeight: chainHeight,
                 recentBlocks: recentBlocks,
                 getRecentBlocks: getRecentBlocks
+              });
+            }
+          }
+        },
+        {
+          key: 'componentWillUpdate',
+          value: function componentWillUpdate(_ref4) {
+            var nextHeight = _ref4.chainHeight,
+              nextBlocks = _ref4.recentBlocks,
+              progress = _ref4.progress;
+            var _props2 = this.props,
+              chainHeight = _props2.chainHeight,
+              _props2$recentBlocks = _props2.recentBlocks,
+              recentBlocks =
+                _props2$recentBlocks === undefined ? [] : _props2$recentBlocks,
+              getRecentBlocks = _props2.getRecentBlocks;
+
+            if (
+              (progress > 0.9 && nextHeight && nextHeight > chainHeight) ||
+              (recentBlocks[0] &&
+                recentBlocks[0].hash !== nextBlocks[0].hash) ||
+              (!recentBlocks[0] && nextBlocks[0])
+            ) {
+              // otherwise if we just have an update to the chainHeight
+              // or recent blocks we should update the table
+              this.recentBlocks = (0, _RecentBlocks2.default)({
+                chainHeight: nextHeight,
+                recentBlocks: nextBlocks,
+                getRecentBlocks: getRecentBlocks,
+                progress: progress
               });
             }
           }
@@ -310,7 +357,8 @@ var decorateDashboard = function decorateDashboard(Dashboard, _ref2) {
               primaryWidget: PropTypes.oneOf([PropTypes.array, PropTypes.node]),
               chainHeight: PropTypes.number,
               recentBlocks: PropTypes.array,
-              getRecentBlocks: PropTypes.func
+              getRecentBlocks: PropTypes.func,
+              progress: PropTypes.number
             };
           }
         }

@@ -49,70 +49,18 @@ var Dashboard = (function(_Component) {
 
   function Dashboard(props) {
     (0, _classCallCheck3.default)(this, Dashboard);
-
-    // only want to do the recent block call once on mount
-    // or on update when route changes
-    // for other new blocks, we use the socket
-    var _this = (0, _possibleConstructorReturn3.default)(
+    return (0, _possibleConstructorReturn3.default)(
       this,
       (Dashboard.__proto__ || (0, _getPrototypeOf2.default)(Dashboard)).call(
         this,
         props
       )
     );
-
-    _this.callingRecentBlocks = false;
-    return _this;
   }
 
   (0, _createClass3.default)(
     Dashboard,
     [
-      {
-        key: 'componentDidMount',
-        value: function componentDidMount() {
-          var _props = this.props,
-            chainHeight = _props.chainHeight,
-            getRecentBlocks = _props.getRecentBlocks;
-
-          if (chainHeight > 0 && !this.callingRecentBlocks) {
-            this.callingRecentBlocks = true;
-            getRecentBlocks(10);
-          }
-        }
-      },
-      {
-        key: 'componentWillUnmount',
-        value: function componentWillUnmount() {
-          this.callingRecentBlocks = false;
-        }
-      },
-      {
-        key: 'componentDidUpdate',
-        value: function componentDidUpdate(prevProps) {
-          var _props2 = this.props,
-            chainHeight = _props2.chainHeight,
-            _props2$recentBlocks = _props2.recentBlocks,
-            recentBlocks =
-              _props2$recentBlocks === undefined ? [] : _props2$recentBlocks,
-            getRecentBlocks = _props2.getRecentBlocks;
-
-          // if chainHeight has increased and recentBlocks is not set,
-          // get the most recent blocks
-          // `getRecentBlocks` are attached to the store
-          // and will dispatch action creators to udpate the state
-
-          if (
-            prevProps.chainHeight &&
-            prevProps.chainHeight >= chainHeight &&
-            !recentBlocks.length &&
-            !this.callingRecentBlocks
-          ) {
-            getRecentBlocks(10);
-            this.callingRecentBlocks = true;
-          }
-        }
-      },
       {
         key: 'render',
         value: function render() {
