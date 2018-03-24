@@ -3,11 +3,7 @@
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
-exports.mapComponentState = exports.decorateFooter = exports.metadata = undefined;
-
-var _assign = require('babel-runtime/core-js/object/assign');
-
-var _assign2 = _interopRequireDefault(_assign);
+exports.decorateHeader = exports.mapComponentState = exports.metadata = undefined;
 
 var _extends2 = require('babel-runtime/helpers/extends');
 
@@ -35,9 +31,13 @@ var _inherits2 = require('babel-runtime/helpers/inherits');
 
 var _inherits3 = _interopRequireDefault(_inherits2);
 
-var _Footer = require('./Footer');
+var _assign = require('babel-runtime/core-js/object/assign');
 
-var _Footer2 = _interopRequireDefault(_Footer);
+var _assign2 = _interopRequireDefault(_assign);
+
+var _Header = require('./Header');
+
+var _Header2 = _interopRequireDefault(_Header);
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -48,21 +48,27 @@ function _interopRequireDefault(obj) {
 /* START EXPORTS */
 
 var metadata = (exports.metadata = {
-  name: '@bpanel/bpanel-footer',
+  name: '@bpanel/bpanel-header',
   pathName: '',
-  displayName: 'bPanel Footer',
+  displayName: 'bPanel Header',
   author: 'bcoin-org',
-  description:
-    'A simple footer to display chain sync progress and bcoin version',
+  description: 'Default header for bpanel',
   version: require('../package.json').version
-});
-
-// Decorate a target component (e.g. Footer, Header, Sidebar)
-// Entry point for your plugin
+}); // Entry point for your plugin
 // This should expose your plugin's modules
 /* START IMPORTS */
-var decorateFooter = (exports.decorateFooter = function decorateFooter(
-  Footer,
+var mapComponentState = (exports.mapComponentState = {
+  Header: function Header(state, map) {
+    return (0, _assign2.default)(map, {
+      bcoinUri: state.node.serverInfo.bcoinUri,
+      loading: state.node.loading,
+      network: state.node.node.network
+    });
+  }
+});
+
+var decorateHeader = (exports.decorateHeader = function decorateHeader(
+  Header,
   _ref
 ) {
   var React = _ref.React,
@@ -71,13 +77,13 @@ var decorateFooter = (exports.decorateFooter = function decorateFooter(
   return (function(_React$PureComponent) {
     (0, _inherits3.default)(_class, _React$PureComponent);
 
-    function _class(props) {
+    function _class() {
       (0, _classCallCheck3.default)(this, _class);
       return (0, _possibleConstructorReturn3.default)(
         this,
-        (_class.__proto__ || (0, _getPrototypeOf2.default)(_class)).call(
+        (_class.__proto__ || (0, _getPrototypeOf2.default)(_class)).apply(
           this,
-          props
+          arguments
         )
       );
     }
@@ -89,45 +95,38 @@ var decorateFooter = (exports.decorateFooter = function decorateFooter(
           key: 'componentWillMount',
           value: function componentWillMount() {
             var _props = this.props,
-              progress = _props.progress,
-              version = _props.version;
+              network = _props.network,
+              bcoinUri = _props.bcoinUri;
 
-            var progressPercentage = progress * 100;
-            this.footer = (0, _Footer2.default)({
-              progress: progressPercentage,
-              version: version
+            this.header = (0, _Header2.default)({
+              statusIcon: 'ellipsis-h',
+              bcoinUri: bcoinUri,
+              network: network
             });
           }
         },
         {
           key: 'componentWillUpdate',
           value: function componentWillUpdate(_ref2) {
-            var nextProgress = _ref2.progress,
-              version = _ref2.version;
-            var progress = this.props.progress;
+            var loading = _ref2.loading,
+              network = _ref2.network,
+              bcoinUri = _ref2.bcoinUri;
 
-            var progressPercentage = nextProgress * 100;
-
-            if (nextProgress > progress) {
-              this.footer = (0, _Footer2.default)({
-                progress: progressPercentage,
-                version: version
-              });
-            }
+            var statusIcon = loading ? 'ellipsis-h' : 'check-circle';
+            this.header = (0, _Header2.default)({
+              statusIcon: statusIcon,
+              bcoinUri: bcoinUri,
+              network: network
+            });
           }
         },
         {
           key: 'render',
           value: function render() {
-            var _props$footerWidgets = this.props.footerWidgets,
-              footerWidgets =
-                _props$footerWidgets === undefined ? [] : _props$footerWidgets;
-
-            footerWidgets.push(this.footer);
             return React.createElement(
-              Footer,
+              Header,
               (0, _extends3.default)({}, this.props, {
-                footerWidgets: footerWidgets
+                headerWidgets: this.header
               })
             );
           }
@@ -137,7 +136,7 @@ var decorateFooter = (exports.decorateFooter = function decorateFooter(
         {
           key: 'displayName',
           value: function displayName() {
-            return metadata.name;
+            return 'bPanelHeader';
           }
         },
         {
@@ -145,12 +144,9 @@ var decorateFooter = (exports.decorateFooter = function decorateFooter(
           get: function get() {
             return {
               theme: PropTypes.object,
-              version: PropTypes.string,
-              progress: PropTypes.oneOfType([
-                PropTypes.number,
-                PropTypes.string
-              ]),
-              footerWidgets: PropTypes.arrayOf(PropTypes.func)
+              network: PropTypes.string,
+              loading: PropTypes.bool,
+              bcoinUri: PropTypes.string
             };
           }
         }
@@ -159,21 +155,4 @@ var decorateFooter = (exports.decorateFooter = function decorateFooter(
     return _class;
   })(React.PureComponent);
 });
-
-// Tells the decorator what our plugin needs from the state
-// This is available for container components that use an
-// extended version of react-redux's connect to connect
-// a container to the state and retrieve props
-// make sure to replace the corresponding state mapping
-// (e.g. `state.chain.height`) and prop names
-var mapComponentState = (exports.mapComponentState = {
-  Footer: function Footer(state, map) {
-    return (0, _assign2.default)(map, {
-      version: state.node.node.version,
-      progress: state.chain.progress
-    });
-  }
-});
-
-/* END EXPORTS */
 //# sourceMappingURL=index.js.map

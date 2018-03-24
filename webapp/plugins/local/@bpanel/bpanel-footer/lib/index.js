@@ -21,7 +21,6 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
   return class extends React.PureComponent {
     constructor(props) {
       super(props);
-      this.footer = React.createElement('div');
     }
 
     static displayName() {
@@ -33,39 +32,35 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
         theme: PropTypes.object,
         version: PropTypes.string,
         progress: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-        customChildren: PropTypes.node
+        footerWidgets: PropTypes.arrayOf(PropTypes.func)
       };
     }
 
     componentWillMount() {
-      const {
-        progress,
-        version,
-        customChildren: existingCustomChildren
-      } = this.props;
+      const { progress, version } = this.props;
       const progressPercentage = progress * 100;
-      this.footer = React.createElement(FooterPlugin, {
+      this.footer = FooterPlugin({
         progress: progressPercentage,
-        version,
-        customChildren: existingCustomChildren
+        version
       });
     }
 
     componentWillUpdate({ progress: nextProgress, version }) {
-      const { progress, customChildren: existingCustomChildren } = this.props;
+      const { progress } = this.props;
       const progressPercentage = nextProgress * 100;
 
       if (nextProgress > progress) {
-        this.footer = React.createElement(FooterPlugin, {
+        this.footer = FooterPlugin({
           progress: progressPercentage,
-          version,
-          customChildren: existingCustomChildren
+          version
         });
       }
     }
 
     render() {
-      return <Footer {...this.props} customChildren={this.footer} />;
+      const { footerWidgets = [] } = this.props;
+      footerWidgets.push(this.footer);
+      return <Footer {...this.props} footerWidgets={footerWidgets} />;
     }
   };
 };

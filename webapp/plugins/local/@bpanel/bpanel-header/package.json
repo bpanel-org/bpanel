@@ -1,7 +1,7 @@
 {
-  "name": "@bpanel/bpanel-footer",
+  "name": "@bpanel/bpanel-header",
   "version": "0.0.1",
-  "description": "A simple footer to display chain sync progress and bcoin version",
+  "description": "Default header for bpanel",
   "main": "dist/index.js",
   "scripts": {
     "babel": "babel --presets=env,stage-3 lib -d dist",
@@ -14,8 +14,7 @@
   "keywords": [
     "bpanel",
     "bcoin",
-    "footer",
-    "blockchain"
+    ""
   ],
   "author": "bcoin-org",
   "license": "MIT",

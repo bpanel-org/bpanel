@@ -7,17 +7,34 @@ const { connectTheme } = utils;
 class Footer extends PureComponent {
   static get propTypes() {
     return {
-      customChildren: PropTypes.node,
+      footerWidgets: PropTypes.oneOfType([
+        PropTypes.arrayOf(PropTypes.func),
+        PropTypes.func
+      ]),
+      CustomChildren: PropTypes.node,
       theme: PropTypes.object
     };
   }
 
+  static get defaultProps() {
+    return {
+      footerWidgets: []
+    };
+  }
+
   render() {
-    const { theme, customChildren } = this.props;
+    const { footerWidgets, CustomChildren, theme } = this.props;
+    let FooterWidget;
+    if (!Array.isArray(footerWidgets)) FooterWidget = footerWidgets;
     return (
       <div className="container-fluid">
         <footer className={`${theme.footer.container} row align-items-center`}>
-          {customChildren}
+          {Array.isArray(footerWidgets) ? (
+            footerWidgets.map((Widget, index) => <Widget key={index} />)
+          ) : (
+            <FooterWidget />
+          )}
+          {CustomChildren && <CustomChildren />}
         </footer>
       </div>
     );

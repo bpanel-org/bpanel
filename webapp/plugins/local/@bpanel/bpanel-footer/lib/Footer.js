@@ -1,19 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Text, utils } from '@bpanel/bpanel-ui';
+import { Text, utils, widgetCreator } from '@bpanel/bpanel-ui';
 
 const { connectTheme } = utils;
 
-const Footer = ({ progress, version, customChildren, theme }) => (
-  <div className="container">
+const Footer = ({ progress, version, theme }) => (
+  <div className="col-6">
     <div className="row align-items-center">
-      <div className="col-3 version text-truncate">
+      <div className="col-6 version text-truncate">
         <Text className={theme.footer.text}>{version}</Text>
       </div>
-      <div className={`${theme.footer.progress} col-3`}>
+      <div className={`${theme.footer.progress} col-6`}>
         <Text className={theme.footer.text}>{progress.toFixed(2)}% synced</Text>
       </div>
-      {customChildren}
     </div>
   </div>
 );
@@ -21,8 +20,7 @@ const Footer = ({ progress, version, customChildren, theme }) => (
 Footer.propTypes = {
   theme: PropTypes.object,
   version: PropTypes.string,
-  progress: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  customChildren: PropTypes.node
+  progress: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 };
 
-export default connectTheme(Footer);
+export default widgetCreator(connectTheme(Footer));

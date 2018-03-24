@@ -23,17 +23,16 @@ var connectTheme = _bpanelUi.utils.connectTheme;
 var Footer = function Footer(_ref) {
   var progress = _ref.progress,
     version = _ref.version,
-    customChildren = _ref.customChildren,
     theme = _ref.theme;
   return _react2.default.createElement(
     'div',
-    { className: 'container' },
+    { className: 'col-6' },
     _react2.default.createElement(
       'div',
       { className: 'row align-items-center' },
       _react2.default.createElement(
         'div',
-        { className: 'col-3 version text-truncate' },
+        { className: 'col-6 version text-truncate' },
         _react2.default.createElement(
           _bpanelUi.Text,
           { className: theme.footer.text },
@@ -42,15 +41,14 @@ var Footer = function Footer(_ref) {
       ),
       _react2.default.createElement(
         'div',
-        { className: theme.footer.progress + ' col-3' },
+        { className: theme.footer.progress + ' col-6' },
         _react2.default.createElement(
           _bpanelUi.Text,
           { className: theme.footer.text },
           progress.toFixed(2),
           '% synced'
         )
-      ),
-      customChildren
+      )
     )
   );
 };
@@ -61,8 +59,8 @@ Footer.propTypes = {
   progress: _propTypes2.default.oneOfType([
     _propTypes2.default.number,
     _propTypes2.default.string
-  ]),
-  customChildren: _propTypes2.default.node
+  ])
 };
 
-exports.default = connectTheme(Footer);
+exports.default = (0, _bpanelUi.widgetCreator)(connectTheme(Footer));
+//# sourceMappingURL=Footer.js.map
