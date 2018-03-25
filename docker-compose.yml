@@ -62,5 +62,3 @@ services:
       - ./scripts:/code/scripts
       ## Uncomment to make bcoin chain and wallet database persistant
       - ~/.bcoin_bpanel:/code/.bcoin
-    # depends_on:
-    #   - app
