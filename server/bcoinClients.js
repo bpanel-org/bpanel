@@ -6,6 +6,7 @@ const { network, port, apiKey, host, walletPort } = config;
 const configs = {
   apiKey,
   network,
+  host,
   port: typeof port === 'number' ? port : parseInt(port)
 };
 

@@ -13,7 +13,7 @@ let configs = require('../configs/bcoin.config.json');
 if (require.main === module) {
   if (process.argv.indexOf('--no-save-config') < 0) {
     // Turn env into config and save
-    require('../scripts/saveConfig.js');
+    require('./saveConfig.js');
     // reset the configs
     configs = require('../configs/bcoin.config.json');
   }

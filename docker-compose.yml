@@ -19,9 +19,9 @@ services:
       # - ./dist:/usr/src/app/dist
       ## uncomment when developing packages locally
       # - /path/to/my_module:/usr/src/app/node_modules/my_module
-      # - ../@bpanel:/usr/src/app/node_modules/@bpanel/
+      # - ./node_modules/@bpanel:/usr/src/app/node_modules/@bpanel/
       ## uncomment for server dev
-      # - ./server:/usr/src/app/server
+      - ./server:/usr/src/app/server
       # - ./scripts:/usr/src/app/scripts
       ## uncomment for webapp dev
       - ./webapp:/usr/src/app/webapp

@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node server",
     "start:dev": "node server --dev",
-    "setsecrets": "node -r dotenv/config ./scripts/saveConfig.js dotenv_config_path=./secrets.env",
-    "setconfig": "node -r dotenv/config ./scripts/saveConfig.js dotenv_config_path=./bcoin.env",
-    "local:dev": "BCOIN_HOST=localhost npm run setsecrets && npm run setconfig && node server --dev --watch-poll",
+    "setsecrets": "node -r dotenv/config ./server/saveConfig.js dotenv_config_path=./secrets.env",
+    "setconfig": "node -r dotenv/config ./server/saveConfig.js dotenv_config_path=./bcoin.env",
+    "local:dev": "npm install && BCOIN_HOST=localhost npm run setsecrets && npm run setconfig && node server --dev --watch-poll",
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@git.purse.io:bcoin/bpanel.git"
+    "url": "git@github.com:bcoin-org/bpanel.git"
   },
   "keywords": [
     "bcoin",
@@ -33,15 +33,8 @@
   "author": "bcoin",
   "license": "MIT",
   "dependencies": {
-    "@bpanel/bpanel-footer": "0.0.1",
-    "@bpanel/bpanel-header": "0.0.1",
     "@bpanel/bpanel-ui": "^0.0.7",
     "@bpanel/bpanel-utils": "^0.0.5",
-    "@bpanel/chain-sockets": "0.0.1",
-    "@bpanel/dashboard": "0.0.1",
-    "@bpanel/mempool-widget": "0.0.1",
-    "@bpanel/peers-widget": "0.0.1",
-    "@bpanel/recent-blocks": "0.0.1",
     "aphrodite": "^1.2.5",
     "babel-runtime": "^6.26.0",
     "bclient": "0.0.1",
