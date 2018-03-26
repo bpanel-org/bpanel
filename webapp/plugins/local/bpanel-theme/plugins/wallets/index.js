@@ -65,7 +65,7 @@ export const reduceWallets = (state, action) => {
   switch (type) {
     case ADD_WALLET_TX: {
       const { id, tx } = payload;
-      if (id) {
+      if (id && state[id]) {
         const transactions = state[id].transactions
           ? state[id].transactions.asMutable()
           : [];

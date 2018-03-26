@@ -7,17 +7,27 @@ const { connectTheme } = utils;
 class Header extends PureComponent {
   static get propTypes() {
     return {
-      customChildren: PropTypes.node,
+      headerWidgets: PropTypes.oneOfType([
+        PropTypes.arrayOf(PropTypes.func),
+        PropTypes.func
+      ]),
+      CustomChildren: PropTypes.node,
       theme: PropTypes.object
     };
   }
 
   render() {
-    const { customChildren, theme } = this.props;
-
+    const { headerWidgets, CustomChildren, theme } = this.props;
+    let HeaderWidget;
+    if (!Array.isArray(headerWidgets)) HeaderWidget = headerWidgets;
     return (
       <div className={`${theme.headerbar.container} navbar`}>
-        {customChildren}
+        {Array.isArray(headerWidgets) ? (
+          headerWidgets.map((Widget, index) => <Widget key={index} />)
+        ) : (
+          <HeaderWidget />
+        )}
+        {CustomChildren && <CustomChildren />}
       </div>
     );
   }

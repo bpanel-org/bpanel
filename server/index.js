@@ -7,16 +7,19 @@
 
 let poll = false;
 const webpackArgs = [];
+let configs = require('../configs/bcoin.config.json');
 
 // If run from command line, parse args
 if (require.main === module) {
   if (process.argv.indexOf('--no-save-config') < 0) {
     // Turn env into config and save
     require('./saveConfig.js');
+    // reset the configs
+    configs = require('../configs/bcoin.config.json');
   }
   if (process.argv.indexOf('--watch-poll') >= 0) {
     poll = true;
-    webpackArgs.push('--watch-poll', '--watch');
+    webpackArgs.push('--watch');
   } else if (process.argv.indexOf('--watch') >= 0) {
     webpackArgs.push('--watch');
   }
@@ -115,15 +118,15 @@ app.ready = (async function() {
 
   // route to get server info
   app.get('/server', (req, res) =>
-    res.status(200).send({ bcoinUri: process.env.BCOIN_URI })
+    res.status(200).send({ bcoinUri: configs.uri })
   );
 
   // Path to route calls to bcoin node
+  if (nodeClient) {
+    app.use('/node', bcoinRouter(nodeClient, 'test'));
+  }
   if (walletClient) {
     app.use('/node/wallet', bcoinRouter(walletClient));
-  }
-  if (nodeClient) {
-    app.use('/node', bcoinRouter(nodeClient));
   }
   app.get('/*', resolveIndex);
 

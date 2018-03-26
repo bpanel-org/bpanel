@@ -3,10 +3,6 @@ const fs = require('fs');
 const path = require('path');
 
 const configPath = path.resolve(__dirname, '../configs/bcoin.config.json');
-
-// We are going to clear the configs every time to make sure old
-// configs don't conflict
-fs.writeFileSync(configPath, JSON.stringify({}));
 const configs = require(configPath);
 
 // Reads ENV vars that start with "BCOIN_"

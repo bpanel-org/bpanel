@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node server",
     "start:dev": "node server --dev",
+    "setsecrets": "node -r dotenv/config ./server/saveConfig.js dotenv_config_path=./secrets.env",
+    "setconfig": "node -r dotenv/config ./server/saveConfig.js dotenv_config_path=./bcoin.env",
+    "local:dev": "npm install && BCOIN_HOST=localhost npm run setsecrets && npm run setconfig && node server --dev --watch-poll",
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
@@ -20,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@git.purse.io:bcoin/bpanel.git"
+    "url": "git@github.com:bcoin-org/bpanel.git"
   },
   "keywords": [
     "bcoin",
@@ -30,7 +33,7 @@
   "author": "bcoin",
   "license": "MIT",
   "dependencies": {
-    "@bpanel/bpanel-ui": "^0.0.2",
+    "@bpanel/bpanel-ui": "^0.0.7",
     "@bpanel/bpanel-utils": "^0.0.5",
     "aphrodite": "^1.2.5",
     "babel-runtime": "^6.26.0",
@@ -43,6 +46,7 @@
     "bweb": "0.0.1",
     "compression-webpack-plugin": "^1.1.11",
     "cors": "^2.8.4",
+    "dotenv": "^5.0.1",
     "effects-middleware": "^1.0.1",
     "express": "^4.16.2",
     "level-js": "^2.2.4",
@@ -55,6 +59,7 @@
     "redux-thunk": "^2.2.0",
     "seamless-immutable": "^7.1.2",
     "semver": "^5.5.0",
+    "underscore": "^1.8.3",
     "validate-npm-package-name": "^3.0.0",
     "winston": "^2.4.0"
   },

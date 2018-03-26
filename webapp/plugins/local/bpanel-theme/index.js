@@ -10,6 +10,5 @@ export const metadata = {
 };
 
 export const pluginConfig = {
-  plugins,
-  theme: {}
+  plugins
 };

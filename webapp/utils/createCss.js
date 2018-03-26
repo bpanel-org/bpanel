@@ -1,4 +1,4 @@
-import { css } from 'aphrodite';
+import { css } from 'aphrodite/no-important';
 
 // Search through the styleSheet object for aphrodite objects
 // that can be invoked with `css()`, then invoke css() on those objects

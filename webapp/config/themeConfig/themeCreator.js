@@ -1,5 +1,5 @@
 import Immutable from 'seamless-immutable';
-import { StyleSheet } from 'aphrodite';
+import { StyleSheet } from 'aphrodite/no-important';
 import { utils } from '@bpanel/bpanel-ui';
 
 import themeVariables from './themeVariables';
@@ -371,7 +371,7 @@ const themeCreator = (
 
     expandedRow: {
       container: {
-        backgroundColor: themeColors.darkBg,
+        height: '100%',
         ...makeGutter('padding', { all: 1 })
       },
       mainDataContainer: {
