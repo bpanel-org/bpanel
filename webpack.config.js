@@ -31,11 +31,12 @@ const loaders = {
   }
 };
 
-module.exports = function(env={}) {
+module.exports = function(env = {}) {
   const plugins = [];
   if (env.dev) {
     plugins.push(
       new webpack.optimize.UglifyJsPlugin({
+        safari10: true,
         minimize: true,
         sourceMap: true,
         compress: { warnings: false }

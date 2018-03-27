@@ -8,7 +8,7 @@
     "start:dev": "node server --dev",
     "setsecrets": "node -r dotenv/config ./server/saveConfig.js dotenv_config_path=./secrets.env",
     "setconfig": "node -r dotenv/config ./server/saveConfig.js dotenv_config_path=./bcoin.env",
-    "local:dev": "npm install && BCOIN_HOST=localhost npm run setsecrets && npm run setconfig && node server --dev --watch-poll",
+    "local:dev": "npm install && BCOIN_HOST=localhost npm run setsecrets && npm run setconfig && node server --dev",
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
