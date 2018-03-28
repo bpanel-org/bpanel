@@ -44,7 +44,6 @@ const prepareModules = (plugins = [], local = true) => {
           stdio: [0, 1, 2]
         }
       );
-      // execSync(`npm install`, { stdio: [0, 1, 2] });
       logger.info('Done installing plugins');
     } catch (e) {
       logger.error('Error installing plugins packages: ', e);

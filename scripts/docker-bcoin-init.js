@@ -5,37 +5,15 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const configs = require(path.resolve(
-  __dirname,
-  '../configs/bcoin.config.json'
-));
-const {
-  initScript,
-  apiKey,
-  httpHost,
-  logLevel,
-  workers,
-  prune,
-  network,
-  memory,
-  uri
-} = configs;
+let prefix = process.env.prefix
+  ? process.env.prefix
+  : `${os.homedir()}/.bcoin/`;
+const initScript = process.env.BCOIN_INIT_SCRIPT;
 
-let prefix = configs.prefix ? configs.prefix : `${os.homedir()}/.bcoin/`;
 prefix = prefix.replace('~', os.homedir());
 // create the node with our custom configs
-const node = new bcoin.FullNode({
-  apiKey,
-  httpHost,
-  logLevel,
-  workers,
-  network,
-  uri,
-  memory,
-  env: true,
-  prune,
-  prefix
-});
+const node = new bcoin.FullNode({ env: true });
+
 // checking if walletdb dir already exists (i.e. was mounted as volume)
 // need to do before using plugin because that will create the dir
 // if not already there
@@ -54,8 +32,8 @@ if (!node.config.bool('no-wallet') && !node.has('walletdb')) {
   node.startSync();
 })()
   .then(async () => {
-    // check if the walletdb exists before running script
     console.log('bcoin node is started');
+    // check if the walletdb exists before running script
     if (!hadWalletDB && !!initScript) {
       console.log('No walletdb detected.');
       console.log(`Running init script ${initScript} now to setup environment`);

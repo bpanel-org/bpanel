@@ -48,7 +48,7 @@ export default class Wallets extends Component {
   }
 
   render() {
-    const { addWallet, wallets } = this.props;
+    const { addWallet, wallets = [] } = this.props;
     const { id } = this.state;
 
     let walletTable;
@@ -70,14 +70,18 @@ export default class Wallets extends Component {
           <Button onClick={() => this.handleLeave()}>Leave Wallet</Button>
         </div>
         <Header type="h3">Wallets</Header>
-        {Object.keys(wallets).map(id => (
-          <Wallet
-            id={id}
-            balance={wallets[id].balance.confirmed}
-            address={wallets[id].receiveAddress}
-            key={id}
-          />
-        ))}
+        {wallets &&
+          Object.keys(wallets).map(
+            id =>
+              id && (
+                <Wallet
+                  id={id}
+                  balance={wallets[id].balance.confirmed}
+                  address={wallets[id].receiveAddress}
+                  key={id}
+                />
+              )
+          )}
         <SendForm id={id} />
         <Header type="h3">Wallet Transactions</Header>
         {walletTable}

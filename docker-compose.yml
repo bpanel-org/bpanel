@@ -39,7 +39,6 @@ services:
     restart: unless-stopped
     environment:
       BCOIN_WALLET_HTTP_HOST: 0.0.0.0
-      BLOCKS_2_MINE: 101
     env_file:
       - ./bcoin.env
       - ./secrets.env
