@@ -96,7 +96,7 @@ class Bui extends PureComponent {
               </Link>
             </Text>
           </div>
-          <Header type="h2">Headers</Header>
+          <Header type="h2">Headers!</Header>
           <div style={styles.componentContainer}>
             <Header type="h1">H1 tag</Header>
             <xmp style={styles.xmp}>{h1Code}</xmp>

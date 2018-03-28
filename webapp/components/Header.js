@@ -17,7 +17,7 @@ class Header extends PureComponent {
   }
 
   render() {
-    const { headerWidgets, CustomChildren, theme } = this.props;
+    const { headerWidgets = [], CustomChildren, theme } = this.props;
     let HeaderWidget;
     if (!Array.isArray(headerWidgets)) HeaderWidget = headerWidgets;
     return (

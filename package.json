@@ -13,7 +13,8 @@
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
     "postinstall": "node scripts/postinstall.js",
-    "build:plugins": "babel-node --presets=env server/build-plugins.js"
+    "build:plugins": "npm run clear:plugins && babel-node --presets=env server/build-plugins.js",
+    "clear:plugins": "babel-node --presets=env server/clear-plugins.js"
   },
   "lint-staged": {
     "*.{js,json,css,jsx,scss}": [
