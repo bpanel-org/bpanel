@@ -149,7 +149,6 @@ const themeCreator = (
       link: {
         minWidth: makeRem(9.375, fontSizeBase),
         textDecoration: 'none',
-        textTransform: 'capitalize',
         width: '100%',
         ':hover': {
           textDecoration: 'none'

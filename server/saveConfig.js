@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const configPath = path.resolve(__dirname, '../configs/bcoin.config.json');
-const configs = require(configPath);
+const configs = fs.existsSync(configPath) ? require(configPath) : {};
 
 // Reads ENV vars that start with "BCOIN_"
 const envVars = process.env;
