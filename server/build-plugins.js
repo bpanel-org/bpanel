@@ -1,8 +1,8 @@
 'use strict';
 
 import fs from 'fs';
-import { execSync } from 'child_process';
 import { resolve } from 'path';
+import { execSync } from 'child_process';
 import { format } from 'prettier';
 import logger from './logger';
 
@@ -38,9 +38,12 @@ const prepareModules = (plugins = [], local = true) => {
   if (installPackages.length) {
     try {
       logger.info('Installing plugin packages...');
-      execSync(`npm install --no-save ${installPackages.join(' ')}`, {
-        stdio: [0, 1, 2]
-      });
+      execSync(
+        `npm install --no-save ${installPackages.join(' ')} --production`,
+        {
+          stdio: [0, 1, 2]
+        }
+      );
       logger.info('Done installing plugins');
     } catch (e) {
       logger.error('Error installing plugins packages: ', e);
@@ -56,5 +59,7 @@ const prepareModules = (plugins = [], local = true) => {
   fs.writeFileSync(resolve(pluginsPath, pluginsIndexPath), pluginsIndex);
 };
 
-prepareModules(localPlugins);
-prepareModules(plugins, false);
+(async () => {
+  prepareModules(localPlugins);
+  await prepareModules(plugins, false);
+})();

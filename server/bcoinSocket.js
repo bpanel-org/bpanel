@@ -87,10 +87,10 @@ const socketHandler = (nodeClient, walletClient) => {
       } else {
         logger.debug(`Subscribing to "${event}" event on bcoin node`);
         nodeClient.bind(event, (...data) => {
-          logger.debug(
-            `Event "${event}" received from node.`,
-            `Firing "${responseEvent}" event`
-          );
+          // logger.debug(
+          //   `Event "${event}" received from node.`,
+          //   `Firing "${responseEvent}" event`
+          // );
           socket.fire(responseEvent, ...data);
         });
       }

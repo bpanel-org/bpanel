@@ -1,4 +1,5 @@
-FROM node:alpine AS base
+# FROM node:alpine AS base
+FROM mhart/alpine-node AS base
 
 EXPOSE 5000
 RUN mkdir -p /usr/src/app/dist
@@ -8,7 +9,8 @@ CMD [ "server" ]
 
 # Install updates
 RUN apk update && \
-    apk upgrade
+    apk upgrade && \
+    apk add git python make g++ bash
 
 COPY package.json \
      package-lock.json \
@@ -16,7 +18,6 @@ COPY package.json \
 
 # Install dependencies
 FROM base AS build
-RUN apk add git python make g++ bash
 RUN npm install
 
 # Bundle app

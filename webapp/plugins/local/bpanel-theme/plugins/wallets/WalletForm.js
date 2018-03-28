@@ -23,11 +23,21 @@ export default class WalletForm extends PureComponent {
   async handleSubmit(event) {
     event.preventDefault();
     const { walletId } = this.state;
-    const wallet = await walletClient.getInfo(walletId);
-    window.sessionStorage.setItem('walletToken', wallet.token);
-    window.sessionStorage.setItem('walletId', walletId);
-    this.props.addWallet(wallet);
-    this.setState({ walletId: '' });
+    if (walletId) {
+      try {
+        const wallet = await walletClient.getInfo(walletId);
+        window.sessionStorage.setItem('walletToken', wallet.token);
+        window.sessionStorage.setItem('walletId', walletId);
+        this.props.addWallet(wallet);
+        this.setState({ walletId: '' });
+      } catch (e) {
+        alert('Problem adding wallet. See console for more information');
+        // eslint-disable-next-line no-console
+        console.error('Wallet error: ', e);
+      }
+    } else {
+      alert('Please enter a wallet ID');
+    }
   }
 
   handleChange(event) {

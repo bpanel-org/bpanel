@@ -15,6 +15,7 @@ import {
 
 export const metadata = {
   name: 'wallets',
+  pathName: 'wallets',
   author: 'bcoin-org',
   order: 3,
   icon: 'hdd-o',

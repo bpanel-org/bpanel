@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
-import { Input } from '@bpanel/bpanel-ui';
 import { Amount } from 'bcoin';
+import { Input } from '@bpanel/bpanel-ui';
 
 import { bwalletClient } from '@bpanel/bpanel-utils';
 const walletClient = bwalletClient();

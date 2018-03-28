@@ -24,7 +24,9 @@ export default class Wallet extends Component {
         <Header type="h4">Balance</Header>
         <Text type="p">{balance}</Text>
         <Header type="h4">Address</Header>
-        <Text type="p">{address}</Text>
+        {(address && <Text type="p">{address}</Text>) || (
+          <Text type="p">(Must join wallet for address)</Text>
+        )}
       </div>
     );
   }
