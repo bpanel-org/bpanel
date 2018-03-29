@@ -44,7 +44,7 @@ require('nodemon')({
   })
   .on('quit', process.exit);
 
-// Load from ENV, bcoin.env, & secrets.env
+// Load from ENV, secrets.env, & bcoin.env
 const config = require('./loadConfig.js');
 
 // Import server dependencies
@@ -69,13 +69,14 @@ bsock.attach(socketHttpServer);
 
 // Init app express server
 const app = express.Router();
-const port = config.bpanelPort || 5000;
-const bsockPort = config.bsockPort || 8000;
+const port = process.env.PORT || 5000;
+const bsockPort = process.env.BSOCK_PORT || 8000;
 app.use(bodyParser.json());
 app.use(cors());
 
 // Export app and clients
 module.exports = app;
+app.logger = logger;
 app.nodeClient = nodeClient;
 app.walletClient = walletClient;
 

@@ -35,8 +35,6 @@ services:
         branch: wallet-rewrite
         # rebuild: 1
     restart: unless-stopped
-    environment:
-      BCOIN_WALLET_HTTP_HOST: 0.0.0.0
     env_file:
       - ./bcoin.env
       - ./secrets.env
