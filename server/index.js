@@ -7,16 +7,9 @@
 
 let poll = false;
 const webpackArgs = [];
-let configs = require('../configs/bcoin.config.json');
 
 // If run from command line, parse args
 if (require.main === module) {
-  if (process.argv.indexOf('--no-save-config') < 0) {
-    // Turn env into config and save
-    require('./saveConfig.js');
-    // reset the configs
-    configs = require('../configs/bcoin.config.json');
-  }
   if (process.argv.indexOf('--watch-poll') >= 0) {
     poll = true;
     webpackArgs.push('--watch', '--env.dev', '--env.poll');
@@ -52,6 +45,9 @@ require('nodemon')({
   })
   .on('quit', process.exit);
 
+// Load from ENV, bcoin.env, & secrets.env
+const config = require('./loadConfig.js');
+
 // Import server dependencies
 const path = require('path');
 const http = require('http');
@@ -66,7 +62,7 @@ const cors = require('cors');
 const logger = require('./logger');
 const bcoinRouter = require('./bcoinRouter');
 const socketHandler = require('./bcoinSocket');
-const { nodeClient, walletClient } = require('./bcoinClients');
+const { nodeClient, walletClient } = require('./bcoinClients')(config);
 
 // Init bsock socket server
 const socketHttpServer = http.createServer();
@@ -118,7 +114,7 @@ app.ready = (async function() {
 
   // route to get server info
   app.get('/server', (req, res) =>
-    res.status(200).send({ bcoinUri: configs.uri })
+    res.status(200).send({ bcoinUri: config.uri })
   );
 
   // Path to route calls to bcoin node

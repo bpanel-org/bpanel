@@ -6,12 +6,11 @@
   "scripts": {
     "start": "node server",
     "start:dev": "node server --dev",
-    "setsecrets": "node -r dotenv/config ./server/saveConfig.js dotenv_config_path=./secrets.env",
-    "setconfig": "node -r dotenv/config ./server/saveConfig.js dotenv_config_path=./bcoin.env",
-    "local:dev": "npm install && BCOIN_HOST=localhost npm run setsecrets && npm run setconfig && node server --dev --watch-poll",
+    "local:dev": "npm install && BCOIN_HOST=localhost node server --dev --watch-poll",
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
+    "version": "node scripts/version.js",
     "postinstall": "node scripts/postinstall.js",
     "build:plugins": "npm run clear:plugins && babel-node --presets=env server/build-plugins.js",
     "clear:plugins": "babel-node --presets=env server/clear-plugins.js"
