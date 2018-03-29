@@ -32,4 +32,8 @@ for (let key in temp) {
   }
 }
 
+// Set these manually
+config.bpanelPort = process.env.PORT;
+config.bsockPort = process.env.BSOCK_PORT;
+
 module.exports = config;

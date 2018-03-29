@@ -8,7 +8,7 @@ module.exports = config => {
     apiKey: config.apiKey,
     network: config.network
   };
-  if (config.port == '443' || (config.uri && config.uri.indexOf('https') > -1))
+  if (config.port == 443 || (config.uri && config.uri.indexOf('https') > -1))
     walletConfig.ssl = true;
 
   let walletClient, nodeClient;

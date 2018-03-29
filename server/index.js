@@ -1,9 +1,8 @@
 #!/usr/bin/env node
-// Bpanel server -- The bcoin UI
+// bPanel server -- The bcoin UI
 // --watch Watch webapp
 // --watch-poll Watch webapp in docker on a Mac
 // --dev Watch server and webapp
-// --no-save-config Don't turn ENV into config
 
 let poll = false;
 const webpackArgs = [];
@@ -22,7 +21,7 @@ if (require.main === module) {
     return require('nodemon')({
       script: 'server/index.js',
       watch: ['server'],
-      args: ['--no-save-config', poll ? '--watch-poll' : '--watch'],
+      args: [poll ? '--watch-poll' : '--watch'],
       legacyWatch: poll,
       ext: 'js'
     })
@@ -70,7 +69,8 @@ bsock.attach(socketHttpServer);
 
 // Init app express server
 const app = express.Router();
-const port = process.env.PORT || 5000;
+const port = config.bpanelPort || 5000;
+const bsockPort = config.bsockPort || 8000;
 app.use(bodyParser.json());
 app.use(cors());
 
@@ -133,16 +133,26 @@ app.ready = (async function() {
     });
   }
 
+  // Crash the process when a service does
+  const onError = service => {
+    return e => {
+      logger.error(`${service} error: ${e.message}`);
+      process.exit(1);
+    };
+  };
+
   // Start bsock server
-  socketHttpServer.listen(8000, () => {
-    logger.info('Socket server connected');
+  socketHttpServer.on('error', onError('bsock'));
+  socketHttpServer.listen(bsockPort, () => {
+    logger.info('bsock connected on port', bsockPort);
   });
 
   // If NOT required from another script...
   if (require.main === module) {
     // Start app server
-    express()
-      .use(app)
+    http
+      .createServer(express().use(app))
+      .on('error', onError('bpanel'))
       .listen(port, () => {
         logger.info('bpanel app is running on port', port);
       });

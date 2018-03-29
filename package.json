@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server",
     "start:dev": "node server --dev",
-    "local:dev": "npm install && BCOIN_HOST=localhost node server --dev --watch-poll",
+    "local:dev": "BCOIN_HOST=localhost node server --dev --watch-poll",
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
