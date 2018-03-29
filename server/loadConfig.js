@@ -8,7 +8,7 @@ const path = require('path');
 const dotenv = require('dotenv');
 
 const temp = {};
-const config = {};
+const config = { uri: 'http://localhost:8332' };
 const bcoinEnv = path.resolve(__dirname, '../bcoin.env');
 const secretsEnv = path.resolve(__dirname, '../secrets.env');
 
@@ -46,9 +46,9 @@ Object.assign(config, {
     protocol,
     hostname
   }),
-  port: port || '8332',
-  host: hostname || 'localhost',
-  protocol: protocol || 'http'
+  port: port,
+  host: hostname,
+  protocol: protocol
 });
 
 // console.debug({ config })
