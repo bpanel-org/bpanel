@@ -13,6 +13,8 @@ services:
       BCOIN_HOST: bcoin
     volumes:
       ## Mapping to local files- Handy for dev
+      # Mount local configs
+      - ./configs:/usr/src/app/configs
       ## uncomment for local webpack
       # - ./dist:/usr/src/app/dist
       ## uncomment when developing packages locally
