@@ -9,7 +9,7 @@ This is primarily a setup for development purposes
 
 To spin up your webapp, server, a bcoin node on regtest, and generate
 50 regtest BTC for your primary wallet, clone & navigate to this repo then:
-1. Run `npm run install` to create a secrets.env file.
+1. Run `npm install` to create a secrets.env file.
 2. Run `docker-compose up -d` (add `--build` if you install more dependencies)
 3. Navigate to http://localhost:5000 to see your webapp.
 Requests to `\node` will get get forwarded to your bcoin node.
@@ -39,9 +39,9 @@ or use the bcoin docker service to spin up a bcoin node that the webapp will con
 ## Configuration
 Configurations are shared between the two docker containers.
 
-Your bcoin node will expect an API key given to it. If you did not run `npm run postinstall` to generate one, or you are connecting to an existing node, you can set an API key by setting it in a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. This key can be any value you want (but if you are running a node with real Bitcoins, make sure it's secure!). __NOTE: DO NOT CHECK THIS FILE IN TO VERSION CONTROL.__
+Your bcoin node will expect an API key given to it. If you are connecting to an existing node, you can set an API key by adding it in a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. This key can be any value you want (but if you are running a node with real Bitcoins, make sure it's secure!). __NOTE: DO NOT CHECK THIS FILE IN TO VERSION CONTROL.__ If you run `npm install` and there is no `secrets.env` present, one will automatically be generated for you with a cryptographically secure api key.
 
-The configs are managed through environment variables set in a `bcoin.env` file (this is not ignored by git, so make sure to only put sensitive information in the `secrets.env` file). These get used by both the app and bcoin containers.
+The configs are managed through environment variables set in a `bcoin.env` file (this is not ignored by git, so make sure to only put sensitive information in the `secrets.env` file). These get used by both the app and bcoin containers. The `bcoin.env` configs will also overwrite any local environment variables set to avoid older configurations in your environment from sneaking in. To use local environment variables, comment out any you would like to customize from `bcoin.env` and either add to the `environment` config in docker-compose.yml for your target service, or simply add to your local environment for local dev.
 
 Make sure to comment out the environment variables according to the network
 you want your webapp to connect to and/or what kind of node you want to run if you're running the bcoin service.
@@ -54,9 +54,9 @@ docker-compose up app
 
 Otherwise, for local development, run
 ```bash
-npm run local:dev
+npm run start:poll
 ```
-
+(For Linux you can run `npm run start:dev` instead)
 
 ### Setup Scripts
 Setup scripts are also supported. This will allow you to run scripts on your
