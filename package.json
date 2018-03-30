@@ -23,14 +23,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:bcoin-org/bpanel.git"
+    "url": "git@github.com:bpanel-org/bpanel.git"
   },
   "keywords": [
     "bcoin",
+    "bpanel",
     "bitcoin",
     "GUI"
   ],
-  "author": "bcoin",
+  "author": "bpanel",
   "license": "MIT",
   "dependencies": {
     "@bpanel/bpanel-ui": "^0.0.7",

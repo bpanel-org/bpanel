@@ -91,8 +91,8 @@ class Bui extends PureComponent {
               {`PRs are welcome, if you have a component you'd like to add or
               modify, feel free to make a PR at`}
               <br />
-              <Link to="https://github.com/bcoin-org/bpanel-ui">
-                https://github.com/bcoin-org/bpanel-ui
+              <Link to="https://github.com/bpanel-org/bpanel-ui">
+                https://github.com/bpanel-org/bpanel-ui
               </Link>
             </Text>
           </div>
