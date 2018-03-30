@@ -2,9 +2,9 @@ const path = require('path');
 const webpack = require('webpack');
 
 const autoprefixer = require('autoprefixer');
-const WebpackShellPlugin = require('webpack-shell-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const WebpackShellPlugin = require('webpack-synchronizable-shell-plugin');
 
 const loaders = {
   css: {
@@ -110,7 +110,10 @@ module.exports = function(env = {}) {
     plugins: plugins.concat(
       new ExtractTextPlugin('[name].css'),
       new WebpackShellPlugin({
-        onBuildStart: ['echo "Webpack Start"', 'npm run -s build:plugins']
+        onBuildStart: {
+          scripts: ['npm run -s build:plugins'],
+          blocking: true,
+        }
       }),
       new webpack.DefinePlugin({
         NODE_ENV: `"${process.env.NODE_ENV}"`
