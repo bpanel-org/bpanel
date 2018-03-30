@@ -9,10 +9,20 @@ This is primarily a setup for development purposes
 
 To spin up your webapp, server, a bcoin node on regtest, and generate
 50 regtest BTC for your primary wallet, clone & navigate to this repo then:
-1. Run `npm run postinstall` to create a secrets.env file.
+1. Run `npm run install` to create a secrets.env file.
 2. Run `docker-compose up -d` (add `--build` if you install more dependencies)
 3. Navigate to http://localhost:5000 to see your webapp.
 Requests to `\node` will get get forwarded to your bcoin node.
+
+For local development, you can only run only the bcoin docker container (`docker-compose up -d bcoin`)
+and then `npm run start:dev` (or `npm run start:poll` for Mac since webpack's watch behaves strangely
+on mac sometimes).
+
+## Updating Plugins
+To install plugins, simply add the name as a string to the `plugins` array in `pluginsConfig.js`,
+make sure to match the name to the package name on npm (`localPlugins` can be
+used for plugins you are developing in the `plugins/local` directory). Once you save the file,
+bPanel will automatically install the plugins and rebuild.
 
 ## Customizing Your Docker Environment
 There are two docker services in the compose file: `app` and `bcoin`.
