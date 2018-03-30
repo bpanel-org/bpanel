@@ -14,9 +14,9 @@ To spin up your webapp, server, a bcoin node on regtest, and generate
 3. Navigate to http://localhost:5000 to see your webapp.
 Requests to `\node` will get get forwarded to your bcoin node.
 
-For local development, you can only run only the bcoin docker container (`docker-compose up -d bcoin`)
+For local development, you run just the bcoin docker container (`docker-compose up -d bcoin`)
 and then `npm run start:dev` (or `npm run start:poll` for Mac since webpack's watch behaves strangely
-on mac sometimes).
+on mac sometimes) to run the app and app server from your local box.
 
 ## Updating Plugins
 To install plugins, simply add the name as a string to the `plugins` array in `pluginsConfig.js`,
