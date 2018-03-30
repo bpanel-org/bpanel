@@ -1,25 +1,19 @@
-const path = require('path');
 const { NodeClient, WalletClient } = require('bclient');
 
-const config = require(path.resolve(__dirname, '../configs/bcoin.config.json'));
-const { network, port, apiKey, host, walletPort } = config;
-const configs = {
-  apiKey,
-  network,
-  host,
-  port: typeof port === 'number' ? port : parseInt(port)
+module.exports = config => {
+  config.port = parseInt(config.port);
+  const walletConfig = {
+    host: config.host,
+    apiKey: config.apiKey,
+    network: config.network,
+    port: parseInt(config.walletPort)
+  };
+  if (config.port == 443 || config.protocol.indexOf('https') == 0)
+    walletConfig.ssl = true;
+
+  let walletClient, nodeClient;
+  if (config.port) nodeClient = new NodeClient(config);
+  if (config.walletPort) walletClient = new WalletClient(walletConfig);
+
+  return { nodeClient, walletClient };
 };
-
-if (port == '443' || (config.uri && config.uri.indexOf('https') > -1))
-  configs.ssl = true;
-
-let walletClient, nodeClient;
-if (port) nodeClient = new NodeClient(configs);
-if (walletPort) {
-  walletClient = new WalletClient({
-    ...configs,
-    port: typeof walletPort === 'number' ? walletPort : parseInt(walletPort)
-  });
-}
-
-module.exports = { nodeClient, walletClient };

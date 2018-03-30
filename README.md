@@ -9,19 +9,32 @@ This is primarily a setup for development purposes
 
 To spin up your webapp, server, a bcoin node on regtest, and generate
 50 regtest BTC for your primary wallet, clone & navigate to this repo then:
-1. Run `npm run postinstall` to create a secrets.env file.
+1. Run `npm run install` to create a secrets.env file.
 2. Run `docker-compose up -d` (add `--build` if you install more dependencies)
 3. Navigate to http://localhost:5000 to see your webapp.
 Requests to `\node` will get get forwarded to your bcoin node.
 
-#### For Local Development
-If you have an existing node you want to connect to, [update the configuration](#configuration) and run:
 
-```bash
-npm run local:dev
-```
+For local development, you run just the bcoin docker container (`docker-compose up -d bcoin`)
+and then `npm run start:dev` (or `npm run start:poll` for Mac since webpack's watch behaves strangely
+on mac sometimes) to run the app and app server from your local box.
 
-Note that if you have some plugins or themes being loaded, webpack needs to build twice and there will be some errors between the two.
+## Updating Plugins
+To install plugins, simply add the name as a string to the `plugins` array in `pluginsConfig.js`,
+make sure to match the name to the package name on npm (`localPlugins` can be
+used for plugins you are developing in the `plugins/local` directory). Once you save the file,
+bPanel will automatically install the plugins and rebuild.
+
+Note that if you have some plugins or themes being loaded, this can take around 30 seconds as an
+`npm install` is run for you.
+
+## Customizing Your Docker Environment
+There are two docker services in the compose file: `app` and `bcoin`.
+The app service runs the web server which serves the static files
+for the front end and relays messages to a bcoin node.
+You can use custom configs to connect to an existing node,
+or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
+
 
 ## Configuration
 Configurations are shared between the two docker containers.

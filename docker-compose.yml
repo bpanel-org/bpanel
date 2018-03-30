@@ -12,8 +12,6 @@ services:
     environment:
       BCOIN_HOST: bcoin
     volumes:
-      ## Shared volume for configs with app service
-      - ./configs:/usr/src/app/configs
       ## Mapping to local files- Handy for dev
       ## uncomment for local webpack
       # - ./dist:/usr/src/app/dist
@@ -37,8 +35,6 @@ services:
         branch: wallet-rewrite
         # rebuild: 1
     restart: unless-stopped
-    environment:
-      BCOIN_WALLET_HTTP_HOST: 0.0.0.0
     env_file:
       - ./bcoin.env
       - ./secrets.env
@@ -57,7 +53,6 @@ services:
       - "48332:48332" # RPC
       - "48334:48334" # Wallet
     volumes:
-      - ./configs:/code/configs
       - ./scripts:/code/scripts
       ## Uncomment to make bcoin chain and wallet database persistant
       - ~/.bcoin_bpanel:/code/.bcoin

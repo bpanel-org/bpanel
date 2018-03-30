@@ -149,7 +149,6 @@ const themeCreator = (
       link: {
         minWidth: makeRem(9.375, fontSizeBase),
         textDecoration: 'none',
-        textTransform: 'capitalize',
         width: '100%',
         ':hover': {
           textDecoration: 'none'
@@ -207,7 +206,7 @@ const themeCreator = (
       icon: {
         color: themeColors.highlight1,
         fontSize: fontSizeLarge,
-        marginLeft: fontSizeNormal
+        marginLeft: fontSizeSmall
       },
       networkStatus: {
         fontSize: fontSizeSmall,
