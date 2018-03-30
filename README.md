@@ -109,4 +109,4 @@ app.listen();
 
 ## License
 
-- Copyright (c) 2017, The Bcoin Devs (MIT License).
+- Copyright (c) 2018, The bPanel Devs (MIT License).
