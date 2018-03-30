@@ -35,18 +35,26 @@ for the front end and relays messages to a bcoin node.
 You can use custom configs to connect to an existing node,
 or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
 
-
 ## Configuration
 Configurations are shared between the two docker containers.
 
-Your bcoin node will expect an API key given to it. If you are connecting to an existing node, you can set an API key by adding it in a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. This key can be any value you want (but if you are running a node with real Bitcoins, make sure it's secure!). __NOTE: DO NOT CHECK THIS FILE IN TO VERSION CONTROL.__ If you run `npm install` and there is no `secrets.env` present, one will automatically be generated for you with a cryptographically secure api key.
+Your bcoin node will expect an API key given to it.
+If you are connecting to an existing node, you can set an API key
+by adding it to the `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`.
+This key can be any value you want (but if you are running a node with real Bitcoins, make sure it's secure!).
+__NOTE: DO NOT CHECK THIS FILE IN TO VERSION CONTROL.__
 
-The configs are managed through environment variables set in a `bcoin.env` file (this is not ignored by git, so make sure to only put sensitive information in the `secrets.env` file). These get used by both the app and bcoin containers. The `bcoin.env` configs will also overwrite any local environment variables set to avoid older configurations in your environment from sneaking in. To use local environment variables, comment out any you would like to customize from `bcoin.env` and either add to the `environment` config in docker-compose.yml for your target service, or simply add to your local environment for local dev.
+If you run `npm install` and there is no `secrets.env` present,
+one will automatically be generated for you with a cryptographically secure api key.
 
-Make sure to comment out the environment variables according to the network
-you want your webapp to connect to and/or what kind of node you want to run if you're running the bcoin service.
+The configs are managed through environment variables set in a `bcoin.env` file
+(this is not ignored by git, so make sure to only put sensitive information in the `secrets.env` file).
+These get used by both the app and bcoin containers.
+NOTE: runtime environment vars will override the values set in the env files.
 
-If you want to connect to an existing node on a remote server, update the environment configs to point to your remote node. To deploy in a docker container run:
+If you want to connect to an existing node on a remote server,
+update the environment configs to point to your remote node.
+To deploy in a docker container run:
 
 ```bash
 docker-compose up app
@@ -79,15 +87,6 @@ To persist your bcoin node information (and skip the setup if the walletdb is pe
 uncomment and edit the volumes in the bcoin service.
 This could be useful if you're working on testnet or mainnet and don't want
 to wait for a full sync to happen every time you create a new container.
-
-## Setup without Docker
-If you'd rather not use docker to run your environment,
-you need to add a `./configs/bcoin.config.json` file with the
-configuration setup for the bcoin node you'd like to connect to
-(you can use the docker-compose.yml environment variables
-that are prefaced with `BCOIN_` for a template.
-
-Then, run `npm run start` to start the server.
 
 ## License
 
