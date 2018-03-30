@@ -145,17 +145,16 @@ app.ready = (async function() {
   // Start bsock server
   socketHttpServer.on('error', onError('bsock'));
   socketHttpServer.listen(bsockPort, () => {
-    logger.info('bsock connected on port', bsockPort);
+    logger.info('bsock running on port', bsockPort);
   });
 
   // If NOT required from another script...
   if (require.main === module) {
-    // Start app server
-    http
+    http // Start app server
       .createServer(express().use(app))
       .on('error', onError('bpanel'))
       .listen(port, () => {
-        logger.info('bpanel app is running on port', port);
+        logger.info('bpanel app running on port', port);
       });
   }
 
