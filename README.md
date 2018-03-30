@@ -14,6 +14,7 @@ To spin up your webapp, server, a bcoin node on regtest, and generate
 3. Navigate to http://localhost:5000 to see your webapp.
 Requests to `\node` will get get forwarded to your bcoin node.
 
+
 For local development, you run just the bcoin docker container (`docker-compose up -d bcoin`)
 and then `npm run start:dev` (or `npm run start:poll` for Mac since webpack's watch behaves strangely
 on mac sometimes) to run the app and app server from your local box.
@@ -24,6 +25,9 @@ make sure to match the name to the package name on npm (`localPlugins` can be
 used for plugins you are developing in the `plugins/local` directory). Once you save the file,
 bPanel will automatically install the plugins and rebuild.
 
+Note that if you have some plugins or themes being loaded, this can take around 30 seconds as an
+`npm install` is run for you.
+
 ## Customizing Your Docker Environment
 There are two docker services in the compose file: `app` and `bcoin`.
 The app service runs the web server which serves the static files
@@ -31,16 +35,28 @@ for the front end and relays messages to a bcoin node.
 You can use custom configs to connect to an existing node,
 or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
 
-### Configuration
-The configs are managed through environment variables.
-A config file is created and placed in the`./configs` directory mounted as a shared volume
+
+## Configuration
+Configurations are shared between the two docker containers.
+
+Your bcoin node will expect an API key given to it. If you did not run `npm run postinstall` to generate one, or you are connecting to an existing node, you can set an API key by setting it in a `secrets.env` file and set `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`. This key can be any value you want (but if you are running a node with real Bitcoins, make sure it's secure!). __NOTE: DO NOT CHECK THIS FILE IN TO VERSION CONTROL.__
+
+The configs are managed through environment variables set in a `bcoin.env` file (this is not ignored by git, so make sure to only put sensitive information in the `secrets.env` file). These get used by both the app and bcoin containers.
 
 Make sure to comment out the environment variables according to the network
 you want your webapp to connect to and/or what kind of node you want to run if you're running the bcoin service.
 
-### Connecting your real bcoin node
-You can set your API key in `secrets.env` like `BCOIN_API_KEY=[YOUR-AWESOME-KEY]`.
-This key can be any value you want. __DO NOT CHECK THIS FILE IN TO VERSION CONTROL.__
+If you want to connect to an existing node on a remote server, update the environment configs to point to your remote node. To deploy in a docker container run:
+
+```bash
+docker-compose up app
+```
+
+Otherwise, for local development, run
+```bash
+npm run local:dev
+```
+
 
 ### Setup Scripts
 Setup scripts are also supported. This will allow you to run scripts on your
