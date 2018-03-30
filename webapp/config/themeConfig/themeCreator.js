@@ -206,7 +206,7 @@ const themeCreator = (
       icon: {
         color: themeColors.highlight1,
         fontSize: fontSizeLarge,
-        marginLeft: fontSizeNormal
+        marginLeft: fontSizeSmall
       },
       networkStatus: {
         fontSize: fontSizeSmall,

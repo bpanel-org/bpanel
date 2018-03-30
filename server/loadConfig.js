@@ -12,19 +12,23 @@ const config = { uri: 'http://localhost:8332' };
 const bcoinEnv = path.resolve(__dirname, '../bcoin.env');
 const secretsEnv = path.resolve(__dirname, '../secrets.env');
 
+// env files should overwrite process.env values
+Object.assign(temp, process.env);
+
 // Load env files into temp
-for (const f of [bcoinEnv, secretsEnv]) {
+[bcoinEnv, secretsEnv].forEach(f => {
   if (fs.existsSync(f)) {
     Object.assign(temp, dotenv.parse(fs.readFileSync(f)));
   }
-}
+});
 
 // Convert temp ENV vars that start with "BCOIN_"
-Object.assign(temp, process.env);
 for (let key in temp) {
   if (key.indexOf('BCOIN_') > -1) {
     const separatorIndex = key.indexOf('_');
-    const value = temp[key];
+    let value = temp[key];
+    // convert boolean strings to booleans
+    value = value === 'true' || value === 'false' ? JSON.parse(value) : value;
     let configKey = key.slice(separatorIndex + 1).toLowerCase();
     // change underscore to camelcase for config file
     configKey = configKey.replace(/_([a-z])/gi, (match, p1) =>
@@ -39,6 +43,11 @@ let { port, hostname, protocol } = url.parse(config.uri);
 if (config.port) port = config.port;
 if (config.host) hostname = config.host;
 if (config.protocol) protocol = config.protocol;
+// set ssl if protocol is https but no ssl option was set
+// otherwise set false
+const ssl = config.ssl
+  ? config.ssl
+  : config.uri.indexOf('https') > -1 ? true : false;
 
 Object.assign(config, {
   uri: url.format({
@@ -48,8 +57,9 @@ Object.assign(config, {
   }),
   port: port,
   host: hostname,
-  protocol: protocol
+  protocol: protocol,
+  ssl
 });
 
-// console.debug({ config })
+// console.debug({ config });
 module.exports = config;

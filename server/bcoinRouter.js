@@ -14,9 +14,7 @@ const routerWithClient = client =>
       next();
     } catch (error) {
       logger.error('Error querying bcoin node:', error);
-      const err = new Error('There was a problem querying the bcoin node');
-      err.status = 400;
-      return next(err);
+      return next(error);
     }
   });
 
