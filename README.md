@@ -103,7 +103,7 @@ const bpanel = require('./index.js')({
 });
 const app = require('express')();
 app.use( /* Put your own middleware here */ );
-app.use( bpanel );
+app.use( bpanel.app );
 app.listen();
 ```
 
