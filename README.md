@@ -1,6 +1,6 @@
 # Welcome to bPanel!
 
-This is the official repo for the [bPanel project](http://bcoin.io/bpanel-docs/),
+This is the official repo for the [bPanel project](http://bpanel.org),
 a full featured, enterprise level GUI for your Bcoin Bitcoin node.
 
 ## Setup Your Environment With Docker
@@ -93,7 +93,7 @@ The bPanel UI is built entirely around plugins.
 All visual elements can be extended or overridden via the plugin system
 including the header, footer, sidebar, and main panel/view element.
 To get started making your own plugin, use the
-[bPanel-cli](http://bcoin.io/bpanel-docs/docs/plugin-started.html)
+[bPanel-cli](http://bpanel.org/docs/plugin-started.html)
 
 ### Server extensions
 The simplest thing to do, is to create your own server file that includes `server/index.js`.

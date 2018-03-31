@@ -26,9 +26,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-bcoin
-      args:
-        branch: wallet-rewrite
-        # rebuild: 1
+      # args:
+      #   branch: wallet-rewrite
+      #   rebuild: 1
     restart: unless-stopped
     env_file:
       - ./bcoin.env
