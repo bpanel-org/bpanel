@@ -13,11 +13,6 @@ services:
       BCOIN_HOST: bcoin
     volumes:
       ## Mapping to local files- Handy for dev
-      ## uncomment for local webpack
-      # - ./dist:/usr/src/app/dist
-      ## uncomment when developing packages locally
-      # - /path/to/my_module:/usr/src/app/node_modules/my_module
-      # - ./node_modules/@bpanel:/usr/src/app/node_modules/@bpanel/
       ## uncomment for server dev
       - ./server:/usr/src/app/server
       # - ./scripts:/usr/src/app/scripts
@@ -31,9 +26,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-bcoin
-      args:
-        branch: wallet-rewrite
-        # rebuild: 1
+      # args:
+      #   branch: wallet-rewrite
+      #   rebuild: 1
     restart: unless-stopped
     env_file:
       - ./bcoin.env

@@ -1,6 +1,6 @@
 # Welcome to bPanel!
 
-This is the official repo for the bPanel project,
+This is the official repo for the [bPanel project](http://bpanel.org),
 a full featured, enterprise level GUI for your Bcoin Bitcoin node.
 
 ## Setup Your Environment With Docker
@@ -20,10 +20,10 @@ and then `npm run start:dev` (or `npm run start:poll` for Mac since webpack's wa
 on mac sometimes) to run the app and app server from your local box.
 
 ## Updating Plugins
-To install plugins, simply add the name as a string to the `plugins` array in `pluginsConfig.js`,
-make sure to match the name to the package name on npm (`localPlugins` can be
-used for plugins you are developing in the `plugins/local` directory). Once you save the file,
-bPanel will automatically install the plugins and rebuild.
+To install plugins, simply add the name as a string to the `plugins` array in `pluginsConfig.js`.
+Make sure to match the name to the package name on npm
+(`localPlugins` can be used for plugins you are developing in the `plugins/local` directory).
+Once you save the file, bPanel will automatically install the plugins and rebuild.
 
 Note that if you have some plugins or themes being loaded, this can take around 30 seconds as an
 `npm install` is run for you.
@@ -66,7 +66,7 @@ npm run start:poll
 ```
 (For Linux you can run `npm run start:dev` instead)
 
-### Setup Scripts
+### Bcoin Setup Scripts
 Setup scripts are also supported. This will allow you to run scripts on your
 node for a repeatable and predictable environment for testing or development.
 
@@ -88,6 +88,25 @@ uncomment and edit the volumes in the bcoin service.
 This could be useful if you're working on testnet or mainnet and don't want
 to wait for a full sync to happen every time you create a new container.
 
+## Extending bPanel
+The bPanel UI is built entirely around plugins.
+All visual elements can be extended or overridden via the plugin system
+including the header, footer, sidebar, and main panel/view element.
+To get started making your own plugin, use the
+[bPanel-cli](http://bpanel.org/docs/plugin-started.html)
+
+### Server extensions
+The simplest thing to do, is to create your own server file that includes `server/index.js`.
+```
+const bpanel = require('./index.js')({
+	network: 'main', // Put bPanel configs here (optional)
+});
+const app = require('express')();
+app.use( /* Put your own middleware here */ );
+app.use( bpanel.app );
+app.listen();
+```
+
 ## License
 
-- Copyright (c) 2017, The Bcoin Devs (MIT License).
+- Copyright (c) 2018, The bPanel Devs (MIT License).

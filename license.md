@@ -1,6 +1,6 @@
 This software is licensed under the MIT License.
 
-Copyright (c) 2018, Bcoin Devs (https://github.com/bcoin-org)
+Copyright (c) 2018, The bPanel Devs (https://github.com/bpanel-org)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

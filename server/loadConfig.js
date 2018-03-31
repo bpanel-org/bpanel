@@ -53,7 +53,7 @@ Object.assign(config, {
   ssl,
   port,
   protocol,
-  host: hostname,
+  host: hostname
 });
 
 // console.debug({ config });

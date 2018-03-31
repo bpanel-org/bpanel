@@ -1,6 +1,7 @@
 {
   "name": "bpanel",
   "version": "0.1.0-beta",
+  "homepage": "https://bpanel.org",
   "description": "GUI application to interact with a Bcoin Bitcoin node",
   "main": "server/index.js",
   "scripts": {
@@ -23,14 +24,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:bcoin-org/bpanel.git"
+    "url": "git@github.com:bpanel-org/bpanel.git"
   },
   "keywords": [
     "bcoin",
+    "bpanel",
     "bitcoin",
     "GUI"
   ],
-  "author": "bcoin",
+  "author": "bpanel",
   "license": "MIT",
   "dependencies": {
     "@bpanel/bpanel-ui": "^0.0.7",
@@ -38,7 +40,7 @@
     "aphrodite": "^1.2.5",
     "babel-runtime": "^6.26.0",
     "bclient": "0.0.1",
-    "bcoin": "git+https://github.com/bcoin-org/bcoin.git#wallet-rewrite",
+    "bcoin": "git+https://github.com/bcoin-org/bcoin.git",
     "body-parser": "^1.18.2",
     "brq": "git+https://github.com/bucko13/brq.git#body-bug",
     "bsock": "git+https://github.com/bcoin-org/bsock",
