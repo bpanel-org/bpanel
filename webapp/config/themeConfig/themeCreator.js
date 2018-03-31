@@ -392,7 +392,7 @@ const themeCreator = (
       },
       borderedCol: {
         border: border2,
-        overflow: 'scroll',
+        overflow: 'auto',
         width: '80%',
         ...makeGutter('padding', { all: 0.2 })
       },
