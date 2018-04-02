@@ -7,8 +7,6 @@ fs.writeFileSync(
   'webapp/version.json',
   JSON.stringify({
     commit: execSync('git rev-parse HEAD').toString(),
-    version: execSync(
-      'git describe --tags $(git rev-list --tags --max-count=1)'
-    ).toString()
+    version: require('../package.json').version
   })
 );
