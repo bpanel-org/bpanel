@@ -12,7 +12,7 @@ To spin up your webapp, server, a bcoin node on regtest, and generate
 1. Run `npm install` to create a secrets.env file.
 2. Run `docker-compose up -d` (add `--build` if you install more dependencies)
 3. Navigate to [localhost:5000](http://localhost:5000) to see your webapp.
-Requests to `/node` will get get forwarded to your bcoin node.
+Requests to `/node` will get forwarded to your bcoin node.
 
 For local development, you run just the bcoin docker container (`docker-compose up -d bcoin`)
 and then `npm run start:dev` (or `npm run start:poll` for Mac since webpack's watch behaves strangely
