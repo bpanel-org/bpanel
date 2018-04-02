@@ -17,13 +17,21 @@
     "clear:plugins": "babel-node --presets=env server/clear-plugins.js"
   },
   "lint-staged": {
-    "*.{js,json,css,jsx,scss}": ["prettier --write", "git add"]
+    "*.{js,json,css,jsx,scss}": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:bpanel-org/bpanel.git"
   },
-  "keywords": ["bcoin", "bpanel", "bitcoin", "GUI"],
+  "keywords": [
+    "bcoin",
+    "bpanel",
+    "bitcoin",
+    "GUI"
+  ],
   "author": "bpanel",
   "license": "MIT",
   "dependencies": {

@@ -90,12 +90,12 @@ class Sidebar extends PureComponent {
     const commitHash = (commit || '').slice(0, 7);
     return (
       <div className={`${theme.sidebar.footer} mt-auto text-center`}>
-        <Header type="h5">bpanel</Header>
+        <Header type="h5">bPanel</Header>
         <Text
           type="p"
           className={`${theme.sidebar.footerText} version text-truncate`}
         >
-          bcoin: {version}
+          bpanel: {version}
         </Text>
         <Text
           type="p"
