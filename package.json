@@ -11,10 +11,9 @@
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
-    "version": "node scripts/version.js",
+    "version": "npm version from-git && node scripts/version.js",
     "postinstall": "node scripts/postinstall.js",
-    "build:plugins":
-      "npm run clear:plugins && babel-node --presets=env server/build-plugins.js",
+    "build:plugins": "npm run clear:plugins && babel-node --presets=env server/build-plugins.js",
     "clear:plugins": "babel-node --presets=env server/clear-plugins.js"
   },
   "lint-staged": {
