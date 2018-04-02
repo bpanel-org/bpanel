@@ -49,5 +49,5 @@ services:
       - "48334:48334" # Wallet
     volumes:
       - ./scripts:/code/scripts
-      ## Uncomment to make bcoin chain and wallet database persistant
+      ## Comment to make bcoin chain and wallet database NOT persistant
       - ~/.bcoin_bpanel:/code/.bcoin

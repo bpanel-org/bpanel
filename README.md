@@ -11,9 +11,8 @@ To spin up your webapp, server, a bcoin node on regtest, and generate
 50 regtest BTC for your primary wallet, clone & navigate to this repo then:
 1. Run `npm install` to create a secrets.env file.
 2. Run `docker-compose up -d` (add `--build` if you install more dependencies)
-3. Navigate to http://localhost:5000 to see your webapp.
-Requests to `\node` will get get forwarded to your bcoin node.
-
+3. Navigate to [localhost:5000](http://localhost:5000) to see your webapp.
+Requests to `/node` will get get forwarded to your bcoin node.
 
 For local development, you run just the bcoin docker container (`docker-compose up -d bcoin`)
 and then `npm run start:dev` (or `npm run start:poll` for Mac since webpack's watch behaves strangely
@@ -25,8 +24,8 @@ Make sure to match the name to the package name on npm
 (`localPlugins` can be used for plugins you are developing in the `plugins/local` directory).
 Once you save the file, bPanel will automatically install the plugins and rebuild.
 
-Note that if you have some plugins or themes being loaded, this can take around 30 seconds as an
-`npm install` is run for you.
+Note that if you have some plugins or themes being loaded,
+this can take around 30 seconds as `npm install` is run for you.
 
 ## Customizing Your Docker Environment
 There are two docker services in the compose file: `app` and `bcoin`.
@@ -35,8 +34,8 @@ for the front end and relays messages to a bcoin node.
 You can use custom configs to connect to an existing node,
 or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
 
-## Configuration
-Configurations are shared between the two docker containers.
+### Configuration
+Configurations are shared between the two docker containers using ENV files.
 
 Your bcoin node will expect an API key given to it.
 If you are connecting to an existing node, you can set an API key
@@ -83,10 +82,9 @@ based on the configs described above.
 Setup scripts will also be passed the bcoin node object that has been created.
 
 ### Persistent DBs
-To persist your bcoin node information (and skip the setup if the walletdb is persisted),
-uncomment and edit the volumes in the bcoin service.
-This could be useful if you're working on testnet or mainnet and don't want
-to wait for a full sync to happen every time you create a new container.
+By default, the bcoin and wallet DBs persist in `~/.bcoin_bpanel`.
+If you want docker to start bcoin with a fresh DB, comment out the `.bcoin`
+volume in `docker-compose.yml` then run `docker-compose up -d`.
 
 ## Extending bPanel
 The bPanel UI is built entirely around plugins.
@@ -97,7 +95,7 @@ To get started making your own plugin, use the
 
 ### Server extensions
 The simplest thing to do, is to create your own server file that includes `server/index.js`.
-```
+```javascript
 const bpanel = require('./index.js')({
 	network: 'main', // Put bPanel configs here (optional)
 });
