@@ -124,6 +124,9 @@
       "post-commit": "node scripts/version.js"
     }
   },
+  "prettier": {
+    "singleQuote": true
+  },
   "eslintIgnore": [
     "**/*.js",
     "!server/**/*",
