@@ -19,6 +19,12 @@ and then `npm run start:dev` (or `npm run start:poll` for Mac since webpack's wa
 on mac sometimes) to run the app and app server from your local box.
 
 ## Updating Plugins
+bPanel comes pre-installed with a default theme called [`Genesis Theme`](https://github.com/bpanel-org/genesis-theme),
+that bundles together a set of useful starter plugins and a custom theme called bMenace.
+If you want, you can disable the Genesis Theme by removing it from the list in `pluginsConfig.js`,
+but if you want to keep using _some_ of the plugins from the theme, feel free to add
+them individually to your config!
+
 To install plugins, simply add the name as a string to the `plugins` array in `pluginsConfig.js`.
 Make sure to match the name to the package name on npm
 (`localPlugins` can be used for plugins you are developing in the `plugins/local` directory).
