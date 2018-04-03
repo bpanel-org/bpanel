@@ -5,12 +5,12 @@ a full featured, enterprise level GUI for your Bcoin Bitcoin node.
 
 ## Dependencies
 
-- npm 5.8.0
-- node 8.x
+- npm >5.7.1
+- node >8.x
 
 NOTE: It is important to be using at least this version of `npm`
 because of a bug that removes `node_modules` that are installed from
-Github and doesn't reinstall them which breaks the build
+GitHub and doesn't reinstall them which breaks the build
 
 ## Setup Your Environment With Docker
 This is primarily a setup for development purposes
