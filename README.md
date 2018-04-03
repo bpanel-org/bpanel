@@ -10,7 +10,7 @@ This is primarily a setup for development purposes
 To spin up your webapp, server, a bcoin node on regtest, and generate
 50 regtest BTC for your primary wallet, clone & navigate to this repo then:
 1. Run `npm install` to create a secrets.env file.
-2. Run `docker-compose up -d` (add `--build` if you install more dependencies)
+2. Run `docker-compose up -d` to start everything.
 3. Navigate to [localhost:5000](http://localhost:5000) to see your webapp.
 Requests to `/node` will get forwarded to your bcoin node.
 
@@ -85,6 +85,10 @@ Setup scripts will also be passed the bcoin node object that has been created.
 By default, the bcoin and wallet DBs persist in `~/.bcoin_bpanel`.
 If you want docker to start bcoin with a fresh DB, comment out the `.bcoin`
 volume in `docker-compose.yml` then run `docker-compose up -d`.
+
+### Building images
+Uncomment the relevant `build:` sections in `docker-compose.yml`
+for the services you want to build, then run `docker-compose build`
 
 ## Extending bPanel
 The bPanel UI is built entirely around plugins.

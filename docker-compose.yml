@@ -1,7 +1,7 @@
 version: '3'
 services:
   app:
-    build: .
+    image: bpanel/bpanel
     restart: unless-stopped
     ports:
       - "5000:5000"
@@ -11,28 +11,32 @@ services:
       - ./secrets.env
     environment:
       BCOIN_HOST: bcoin
+    ## Uncomment to build
+    # build: .
     volumes:
       ## Mapping to local files- Handy for dev
-      ## uncomment for server dev
+      ## Uncomment for server dev
       - ./server:/usr/src/app/server
       # - ./scripts:/usr/src/app/scripts
-      ## uncomment for webapp dev
+      ## Uncomment for webapp dev
       - ./webapp:/usr/src/app/webapp
     ## Only MacOSX users need --watch-poll
     command: server --dev --watch-poll
 
   bcoin:
-    container_name: bcoin
-    build:
-      context: .
-      dockerfile: Dockerfile-bcoin
-      # args:
-      #   branch: wallet-rewrite
-      #   rebuild: 1
+    image: bpanel/bcoin
     restart: unless-stopped
     env_file:
       - ./bcoin.env
       - ./secrets.env
+    ## Uncomment to build
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile-bcoin
+    #   # args:
+    #   #   repo: https://github.com/bcoin-org/bcoin.git
+    #   #   branch: master
+    #   #   rebuild: 0
     ports:
       ## Comment these if they conflict with something else you're running.
       #-- Mainnet
