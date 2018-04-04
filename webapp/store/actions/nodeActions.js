@@ -38,7 +38,7 @@ export function getNodeInfo() {
       dispatch(setChainInfo(nodeInfo.chain));
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error(e => e);
+      console.error(e);
     }
   };
 }
