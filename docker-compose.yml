@@ -51,6 +51,10 @@ services:
       - "48444:48444"
       - "48332:48332" # RPC
       - "48334:48334" # Wallet
+      #-- Simnet
+      - "18555:18555"
+      - "18556:18556" # RPC
+      - "18558:18558" # Wallet
     volumes:
       - ./scripts:/code/scripts
       ## Comment to make bcoin chain and wallet database NOT persistant
