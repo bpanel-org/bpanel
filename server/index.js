@@ -107,6 +107,7 @@ module.exports = config => {
     );
 
     const resolveIndex = (req, res) => {
+      logger.debug(`Caught request in resolveIndex: ${req.path}`);
       res.sendFile(path.resolve(__dirname, '../webapp/index.html'));
     };
     app.get('/', resolveIndex);
@@ -116,13 +117,19 @@ module.exports = config => {
       res.status(200).send({ bcoinUri: config.uri })
     );
 
-    // Path to route calls to bcoin node
     if (nodeClient) {
-      app.use('/node', bcoinRouter(nodeClient, 'test'));
+      app.use('/bcoin', bcoinRouter(nodeClient));
     }
+
     if (walletClient) {
-      app.use('/node/wallet', bcoinRouter(walletClient));
+      app.use('/bwallet', bcoinRouter(walletClient));
     }
+
+    // TODO: add favicon.ico file
+    app.get('/favicon.ico', (req, res) => {
+      res.send();
+    });
+
     app.get('/*', resolveIndex);
 
     // Handle the unhandled

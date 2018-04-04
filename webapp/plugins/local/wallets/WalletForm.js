@@ -29,6 +29,7 @@ export default class WalletForm extends PureComponent {
         window.sessionStorage.setItem('walletToken', wallet.token);
         window.sessionStorage.setItem('walletId', walletId);
         this.props.addWallet(wallet);
+        // clear the search bar
         this.setState({ walletId: '' });
       } catch (e) {
         alert('Problem adding wallet. See console for more information');
