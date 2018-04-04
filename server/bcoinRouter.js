@@ -9,7 +9,6 @@ const routerWithClient = client => {
   bcoinRouter.all('*', async (req, res, next) => {
     const { method, path, body } = req;
     try {
-      logger.debug(client.prototype);
       logger.debug(
         `client: ${client.constructor.name}, method: ${method}, path: ${path}`
       );
