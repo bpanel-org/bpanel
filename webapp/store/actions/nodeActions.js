@@ -1,5 +1,9 @@
+import { bpanelClient } from '@bpanel/bpanel-utils';
+
 import * as types from '../constants/node';
 import { setChainInfo, getGenesisBlock } from './chainActions';
+
+const client = bpanelClient();
 
 export function setNodeInfo(info) {
   return {
@@ -23,18 +27,19 @@ export function setBcoinUri(uri) {
 }
 
 export function getNodeInfo() {
-  return dispatch => {
+  return async dispatch => {
     dispatch(requestingNode(true));
     dispatch(getServerInfo());
     dispatch(getGenesisBlock());
-    return fetch('/node')
-      .then(response => response.json())
-      .then(nodeInfo => {
-        dispatch(requestingNode(false));
-        dispatch(setNodeInfo(nodeInfo));
-        dispatch(setChainInfo(nodeInfo.chain));
-      })
-      .catch(e => e);
+    try {
+      const nodeInfo = await client.getInfo();
+      dispatch(requestingNode(false));
+      dispatch(setNodeInfo(nodeInfo));
+      dispatch(setChainInfo(nodeInfo.chain));
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e => e);
+    }
   };
 }
 
