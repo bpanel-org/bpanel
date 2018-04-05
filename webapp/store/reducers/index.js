@@ -3,3 +3,4 @@ export { default as pluginMetadata } from './pluginMetadata';
 export { default as chain } from './chain';
 export { default as theme } from './theme';
 export { default as wallets } from './wallets';
+export { default as plugins } from './plugins';
