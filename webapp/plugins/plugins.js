@@ -29,6 +29,7 @@ let propsDecorators = {};
 let chainReducers;
 let nodeReducers;
 let walletsReducers;
+let pluginsReducers;
 let reducersDecorators = {};
 
 // miscellaneous decorators
@@ -61,10 +62,12 @@ export const loadPlugins = async config => {
   chainReducers = [];
   nodeReducers = [];
   walletsReducers = [];
+  pluginsReducers = [];
   reducersDecorators = {
     chainReducer: chainReducers,
     nodeReducer: nodeReducers,
-    walletsReducer: walletsReducers
+    walletsReducer: walletsReducers,
+    pluginsReducer: pluginsReducers
   };
 
   middlewares = [];
@@ -157,6 +160,10 @@ export const loadPlugins = async config => {
 
       if (plugin.reduceWallets) {
         reducersDecorators.walletsReducer.push(plugin.reduceWallets);
+      }
+
+      if (plugin.reducePlugins) {
+        reducersDecorators.pluginsReducer.push(plugin.reducePlugins);
       }
 
       // other miscellaneous decorators
