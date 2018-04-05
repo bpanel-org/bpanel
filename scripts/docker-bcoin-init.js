@@ -25,6 +25,8 @@ if (!node.config.bool('no-wallet') && !node.has('walletdb')) {
   node.use(walletPlugin);
 }
 
+node.on('error', e => console.error('There was an error: ', e));
+
 (async () => {
   await node.ensure();
   await node.open();

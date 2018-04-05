@@ -62,7 +62,7 @@ module.exports = function(env = {}) {
       extensions: ['-browser.js', '.js', '.json', '.jsx'],
       alias: {
         bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
-        bpanel: path.resolve(__dirname, 'webapp/'),
+        '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
         tinycolor: 'tinycolor2'
       }
     },
@@ -112,7 +112,7 @@ module.exports = function(env = {}) {
       new WebpackShellPlugin({
         onBuildStart: {
           scripts: ['npm run -s build:plugins'],
-          blocking: true,
+          blocking: true
         }
       }),
       new webpack.DefinePlugin({
