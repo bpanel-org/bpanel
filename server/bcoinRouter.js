@@ -20,7 +20,7 @@ const routerWithClient = client => {
       return res.status(404).json({ message: 'not found' });
     } catch (error) {
       logger.error('Error querying bcoin node:', error);
-      return next(error);
+      return res.status(200).json({ error: { message: error.message } });
     }
   });
 

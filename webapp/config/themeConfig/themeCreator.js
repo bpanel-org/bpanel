@@ -429,7 +429,10 @@ const themeCreator = (
         backgroundColor: themeColors.darkBg,
         border: borderTransparent,
         borderBottomColor: themeColors.transparent,
-        zIndex: '0'
+        zIndex: '0',
+        ':hover': {
+          cursor: 'pointer'
+        }
       },
       bodyContainer: {
         ...makeGutter('padding', { all: 1.25 })
