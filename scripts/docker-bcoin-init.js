@@ -25,6 +25,23 @@ if (!node.config.bool('no-wallet') && !node.has('walletdb')) {
   node.use(walletPlugin);
 }
 
+// enable filtering if config is passed in
+if (
+  node.config.bool('index-tx') ||
+  node.config.bool('index-address') ||
+  node.config.bool('index-filters') ||
+  node.config.bool('bip157')
+) {
+  const plugin = bcoin.index.plugin;
+  node.use(plugin);
+  node.index = node.require(plugin.id);
+
+  // FIXME
+  node.http.index = node.index;
+  node.rpc.index = node.index;
+  node.pool.index = node.index;
+}
+
 node.on('error', e => console.error('There was an error: ', e));
 
 (async () => {
