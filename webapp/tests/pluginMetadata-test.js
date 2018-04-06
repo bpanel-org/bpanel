@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Immutable from 'seamless-immutable';
 
 import pluginMetadata from '../store/reducers/pluginMetadata';
-import { ADD_PLUGIN } from '../store/constants/plugins';
+import { ADD_PLUGIN_META } from '../store/constants/plugins';
 
 describe('pluginMetadata reducer', () => {
   let state;
@@ -23,10 +23,10 @@ describe('pluginMetadata reducer', () => {
     });
   });
 
-  describe('ADD_PLUGIN', () => {
+  describe('ADD_PLUGIN_META', () => {
     it('should throw error if plugin name already exists', () => {
       const action = {
-        type: ADD_PLUGIN,
+        type: ADD_PLUGIN_META,
         payload: {
           name: 'dashboard'
         }
@@ -38,7 +38,7 @@ describe('pluginMetadata reducer', () => {
 
     it('should add new plugin to store if not a duplicate', () => {
       const action = {
-        type: ADD_PLUGIN,
+        type: ADD_PLUGIN_META,
         payload: {
           name: 'newPlugin'
         }
