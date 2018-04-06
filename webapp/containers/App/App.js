@@ -41,7 +41,8 @@ class App extends PureComponent {
       connectSocket: PropTypes.func.isRequired,
       disconnectSocket: PropTypes.func.isRequired,
       getNodeInfo: PropTypes.func.isRequired,
-      updateTheme: PropTypes.func.isRequired
+      updateTheme: PropTypes.func.isRequired,
+      appLoaded: PropTypes.func.isRequired
     };
   }
 
@@ -52,8 +53,9 @@ class App extends PureComponent {
   }
 
   componentWillMount() {
-    const { updateTheme } = this.props;
+    const { updateTheme, appLoaded } = this.props;
     updateTheme();
+    appLoaded();
   }
 
   componentWillUnmount() {
@@ -113,8 +115,12 @@ const mapDispatchToProps = dispatch => {
   const { getNodeInfo } = nodeActions;
   const { connectSocket, disconnectSocket } = socketActions;
   const { updateTheme } = themeActions;
+  const appLoaded = () => {
+    return { type: 'APP_LOADED' };
+  };
   return bindActionCreators(
     {
+      appLoaded,
       getNodeInfo,
       connectSocket,
       disconnectSocket,
