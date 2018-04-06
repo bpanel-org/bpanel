@@ -1,7 +1,8 @@
 version: '3'
 services:
   app:
-    image: bpanel/bpanel
+    # build: .
+    image: bpanel/c4yt-bpanel
     restart: unless-stopped
     ports:
       - "5000:5000"
@@ -24,7 +25,7 @@ services:
     command: server --dev --watch-poll
 
   bcoin:
-    image: bpanel/bcoin
+    image: bpanel/bcoin-neutrino
     restart: unless-stopped
     env_file:
       - ./bcoin.env
@@ -34,7 +35,7 @@ services:
     #   context: .
     #   dockerfile: Dockerfile-bcoin
     #   # args:
-    #   #   repo: https://github.com/bcoin-org/bcoin.git
+    #   #   repo: https://github.com/c4yt/bcoin.git
     #   #   branch: master
     #   #   rebuild: 0
     ports:
