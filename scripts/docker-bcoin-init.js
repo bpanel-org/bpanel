@@ -35,6 +35,14 @@ node.on('error', e => console.error('There was an error: ', e));
 })()
   .then(async () => {
     console.log('bcoin node is started');
+    // want to set a coinbase address in case of mining
+    const wdb = node.require('walletdb').wdb;
+    const primary = wdb.primary;
+    const coinbase1 = await primary.receiveAddress();
+    const coinbase2 = await primary.receiveAddress();
+    await node.miner.addAddress(coinbase1);
+    await node.miner.addAddress(coinbase2);
+
     // check if the walletdb exists before running script
     if (!hadWalletDB && !!initScript) {
       console.log('No walletdb detected.');
