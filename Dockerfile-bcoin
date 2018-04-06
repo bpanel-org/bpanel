@@ -15,7 +15,7 @@ RUN pacman -Syu --noconfirm base-devel unrar git python2
 #HACK: Node-gyp needs python
 RUN ln -s /usr/bin/python2 /usr/bin/python
 
-ARG repo=https://github.com/bcoin-org/bcoin.git
+ARG repo=https://github.com/c4yt/bcoin.git
 ARG branch=master
 #HACK: Dingle this to trigger rebuilds
 ARG rebuild=0
