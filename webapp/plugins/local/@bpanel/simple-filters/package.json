@@ -1,0 +1,47 @@
+{
+  "name": "@bpanel/simple-filters",
+  "version": "0.0.1",
+  "description": "A simple widget for retrieving block filter information",
+  "main": "dist/index.js",
+  "scripts": {
+    "babel": "babel --presets=env,stage-3 lib -d dist",
+    "watch": "babel --presets=env,stage-3 lib -d dist --watch",
+    "clean": "rm -f ./dist/*.js",
+    "lint": "eslint lib/ test/ || exit 0",
+    "prepublish": "make babel",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bpanel",
+    "bcoin",
+    "neutrino",
+    "lightning",
+    "filters"
+  ],
+  "author": "bpanel-org",
+  "license": "MIT",
+  "dependencies": {
+    "@bpanel/dashboard": "0.0.1",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "eslint": "^4.9.0",
+    "eslint-config-prettier": "^2.6.0",
+    "eslint-import-resolver-webpack": "^0.8.3",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-prettier": "^2.3.1",
+    "eslint-plugin-react": "^7.4.0",
+    "prettier": "^1.11.1"
+  },
+  "peerDependencies": {
+    "@bpanel/bpanel-ui": "*",
+    "@bpanel/bpanel-utils": "*",
+    "react": "^16.3.0"
+  }
+}
