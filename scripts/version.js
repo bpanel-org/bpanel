@@ -5,7 +5,7 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 try {
   commit = execSync('git rev-parse HEAD').toString();
-} catch(e) { }
+} catch (e) {}
 
 fs.writeFileSync(
   'webapp/version.json',
