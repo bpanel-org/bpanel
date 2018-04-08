@@ -1,6 +1,6 @@
 import React from 'react';
 import { bpanelClient } from '@bpanel/bpanel-utils';
-import { Text } from '@bpanel/bpanel-ui';
+import { Text, Input } from '@bpanel/bpanel-ui';
 
 export default class extends React.PureComponent {
   constructor(props) {
@@ -37,19 +37,21 @@ export default class extends React.PureComponent {
     const { hash, filter } = this.state;
 
     return (
-      <div className="col-4">
+      <div>
         <form onSubmit={e => this.onSubmit(e)}>
-          <input
-            className="form-control"
-            type="text"
-            value={hash}
-            placeholder="Block Hash"
-            onChange={e => this.onChange(e)}
-            required
-            minLength="64"
-            maxLength="64"
-          />
-          <input type="submit" name="submit" className="form-control" />
+          <div className="input-group">
+            <input
+              className="form-control"
+              type="text"
+              value={hash}
+              placeholder="Block Hash"
+              onChange={e => this.onChange(e)}
+              required
+              minLength="64"
+              maxLength="64"
+            />
+            <Input type="submit" name="submit" className="form-control" />
+          </div>
         </form>
         {filter && <Text>Filter: {filter}</Text>}
       </div>
