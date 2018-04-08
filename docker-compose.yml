@@ -1,8 +1,8 @@
 version: '3'
 services:
   app:
-    # build: .
-    image: bpanel/c4yt-bpanel
+    build: .
+    # image: bpanel/bpanel
     restart: unless-stopped
     ports:
       - "5000:5000"

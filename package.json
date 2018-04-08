@@ -2,7 +2,7 @@
   "name": "bpanel",
   "version": "0.0.1-rc1",
   "homepage": "https://bpanel.org",
-  "description": "GUI application to interact with a Bcoin Bitcoin node",
+  "description": "GUI application to interact with a bcoin Bitcoin node",
   "main": "server/index.js",
   "scripts": {
     "start": "node server",
@@ -40,7 +40,7 @@
     "aphrodite": "^1.2.5",
     "babel-runtime": "^6.26.0",
     "bclient": "0.0.1",
-    "bcoin": "git+https://github.com/c4yt/bcoin.git",
+    "bcoin": "git+https://github.com/c4yt/bcoin.git#e3fab19",
     "body-parser": "^1.18.2",
     "brq": "git+https://github.com/bucko13/brq.git#body-bug",
     "bsock": "git+https://github.com/bcoin-org/bsock",
