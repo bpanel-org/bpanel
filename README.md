@@ -5,8 +5,8 @@ a full featured, enterprise level GUI for your Bcoin Bitcoin node.
 
 ## Dependencies
 
-- npm >5.7.1
-- node >8.x
+- npm >=5.7.1
+- node >=8.9.4
 
 NOTE: It is important to be using at least this version of `npm`
 because of a bug that removes `node_modules` that are installed from

@@ -34,6 +34,10 @@
   ],
   "author": "bpanel",
   "license": "MIT",
+  "engines": {
+    "node": ">=8.9.4",
+    "npm": ">=5.7.1"
+  },
   "dependencies": {
     "@bpanel/bpanel-ui": "^0.0.7",
     "@bpanel/bpanel-utils": "0.0.7",
