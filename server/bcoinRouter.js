@@ -18,7 +18,19 @@ const routerWithClient = client => {
       logger.debug('query:', query);
       logger.debug('body:', body);
       const response = await client.request(method, path, payload);
-      logger.debug('server response:', response ? response : 'null');
+      // prevent logging of potentially huge responses
+      if (
+        path.includes('tx/history') ||
+        (path.includes('tx/last') && Array.isArray(response))
+      ) {
+        logger.debug(
+          `server response (truncated): ${JSON.stringify(
+            response.slice(0, 1)
+          )}, ${response.length} txns total`
+        );
+      } else {
+        logger.debug('server response:', response ? response : 'null');
+      }
       if (response) return res.status(200).json(response);
       // return 404 when response is null due to
       // resource not being found on server
