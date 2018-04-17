@@ -23,6 +23,18 @@ services:
     ## Only MacOSX users need --watch-poll
     command: server --dev --watch-poll
 
+  securityc:
+    image: bpanel/securityc:0.0.2
+    restart: on-failure
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - ./securityc.env
+    volumes:
+      # mount local cert directory into container
+      - ./certs:/etc/ssl/nginx
+
   bcoin:
     image: bpanel/bcoin
     restart: unless-stopped
