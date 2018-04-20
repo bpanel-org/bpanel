@@ -56,5 +56,4 @@ Object.assign(config, {
   host: hostname
 });
 
-// console.debug({ config });
 module.exports = config;
