@@ -24,8 +24,8 @@ const routerWithClient = client => {
       // resource not being found on server
       return res.status(404).json({ message: 'not found' });
     } catch (error) {
-      logger.error('Error querying bcoin node:', error);
-      return res.status(200).json({ error: { message: error.message } });
+      logger.error(`Error querying ${client.constructor.name}:`, error);
+      return res.status(502).json({ error: { message: error.message } });
     }
   });
 
