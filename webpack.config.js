@@ -23,7 +23,8 @@ const loaders = {
 
 module.exports = function(env = {}) {
   const plugins = [];
-  if (env.dev) {
+
+  if (!env.dev) {
     plugins.push(
       new webpack.optimize.UglifyJsPlugin({
         safari10: true,
@@ -36,6 +37,23 @@ module.exports = function(env = {}) {
 
   const nodeModsDir = path.resolve(__dirname, 'node_modules');
   const outputPath = path.resolve(__dirname, 'dist');
+
+  if (env.dev) {
+    const vendorManifest = path.join(
+      __dirname,
+      './dist',
+      'vendor-manifest.json'
+    );
+
+    plugins.push(
+      new webpack.DllReferencePlugin({
+        manifest: require(vendorManifest),
+        name: 'vendor_lib',
+        scope: 'mapped'
+      })
+    );
+  }
+
   return {
     context: __dirname,
     entry: ['whatwg-fetch', './webapp/index'],
@@ -44,7 +62,8 @@ module.exports = function(env = {}) {
     devtool: 'eval-source-map',
     output: {
       filename: '[name].bundle.js',
-      path: outputPath
+      path: outputPath,
+      libraryTarget: 'umd'
     },
     watchOptions: {
       poll: env.poll && (parseInt(env.poll) || 1000),
