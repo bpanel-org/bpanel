@@ -33,13 +33,30 @@ const loaders = {
 
 module.exports = function(env = {}) {
   const plugins = [];
-  if (env.dev) {
+
+  if (!env.dev) {
     plugins.push(
       new webpack.optimize.UglifyJsPlugin({
         safari10: true,
         minimize: true,
         sourceMap: true,
         compress: { warnings: false }
+      })
+    );
+  }
+
+  if (env.dev) {
+    const vendorManifest = path.join(
+      __dirname,
+      './dist',
+      'vendor-manifest.json'
+    );
+
+    plugins.push(
+      new webpack.DllReferencePlugin({
+        manifest: require(vendorManifest),
+        name: 'vendor_lib',
+        scope: 'mapped'
       })
     );
   }
@@ -51,7 +68,8 @@ module.exports = function(env = {}) {
     devtool: 'eval-source-map',
     output: {
       filename: '[name].bundle.js',
-      path: path.resolve(__dirname, 'dist')
+      path: path.resolve(__dirname, 'dist'),
+      libraryTarget: 'umd'
     },
     watchOptions: {
       poll: env.poll && (parseInt(env.poll) || 1000),
