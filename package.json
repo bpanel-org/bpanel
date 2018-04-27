@@ -14,7 +14,8 @@
     "version": "node scripts/version.js",
     "preinstall": "node scripts/preinstall.js",
     "clear:plugins": "node server/clear-plugins.js",
-    "build:plugins": "npm run clear:plugins && node server/build-plugins.js"
+    "build:plugins": "npm run clear:plugins && node server/build-plugins.js",
+    "build:dll": "webpack --config webpack.dll.config.js"
   },
   "lint-staged": {
     "*.{js,json,css,jsx,scss}": [
