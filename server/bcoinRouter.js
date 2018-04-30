@@ -27,7 +27,7 @@ const routerWithClient = client => {
       logger.error(`Error querying ${client.constructor.name}:`, e);
       return res
         .status(502)
-        .send({ error: { message: e.message, code: e.code } });
+        .send({ error: { message: e.message, code: e.code, type: e.type } });
     }
   });
 
