@@ -22,10 +22,12 @@ const routerWithClient = client => {
       if (response) return res.status(200).json(response);
       // return 404 when response is null due to
       // resource not being found on server
-      return res.status(404).json({ message: 'not found' });
-    } catch (error) {
-      logger.error(`Error querying ${client.constructor.name}:`, error);
-      return res.status(502).json({ error: { message: error.message } });
+      return res.status(404).json({ error: { message: 'resource not found' } });
+    } catch (e) {
+      logger.error(`Error querying ${client.constructor.name}:`, e);
+      return res
+        .status(502)
+        .send({ error: { message: e.message, code: e.code } });
     }
   });
 
