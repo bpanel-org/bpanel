@@ -25,7 +25,7 @@ services:
 
   securityc:
     image: bpanel/securityc
-    restart: on-failure
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
@@ -33,7 +33,7 @@ services:
       - ./securityc.env
     volumes:
       # mount local cert directory into container
-      - ./certs:/etc/ssl/nginx
+      - certs:/etc/ssl/nginx
 
   bcoin:
     image: bpanel/bcoin
@@ -71,3 +71,7 @@ services:
       - ./scripts:/code/scripts
       ## Comment to make bcoin chain and wallet database NOT persistant
       - ~/.bcoin_bpanel:/code/.bcoin
+
+
+volumes:
+  certs:
