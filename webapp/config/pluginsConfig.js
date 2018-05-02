@@ -1,4 +1,4 @@
-export const localPlugins = ['footer-address', 'wallets'];
+export const localPlugins = ['footer-address'];
 
 export const plugins = ['@bpanel/genesis-theme'];
 

@@ -22,6 +22,15 @@ const camelize = str =>
     })
     .replace(/[^\w]/gi, '');
 
+const getPackageName = name => {
+  if (name.indexOf('/') !== -1 && name[0] !== '@') {
+    // this is a GitHub repo
+    return name.split('/')[1];
+  } else {
+    return name;
+  }
+};
+
 const prepareModules = (plugins = [], local = true) => {
   const pluginsPath = resolve(__dirname, '../webapp/plugins');
   let pluginsIndex = local
@@ -32,8 +41,9 @@ const prepareModules = (plugins = [], local = true) => {
   let installPackages = [];
 
   plugins.forEach(name => {
-    const camelized = camelize(name);
-    const modulePath = local ? `./${name}` : name;
+    const packageName = getPackageName(name);
+    const camelized = camelize(packageName);
+    const modulePath = local ? `./${packageName}` : packageName;
     if (!local) installPackages.push(name);
     importsText += `import * as ${camelized} from '${modulePath}';\n`;
     exportsText += `${camelized},`;

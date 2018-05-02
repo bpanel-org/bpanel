@@ -1,5 +1,5 @@
 # FROM node:alpine AS base
-FROM mhart/alpine-node AS base
+FROM mhart/alpine-node:latest AS base
 
 EXPOSE 5000
 RUN mkdir -p /usr/src/app/dist
