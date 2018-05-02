@@ -77,3 +77,7 @@ secrets.env
 
 # Mac OS X
 .DS_Store
+
+# tls keys and certs
+**/*.crt
+**/*.key
