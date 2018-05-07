@@ -18,7 +18,7 @@ const camelize = str =>
     })
     .replace(/[^\w]/gi, '');
 
-const prepareModules = (plugins = [], local = true) => {
+const prepareModules = async (plugins = [], local = true) => {
   const pluginsPath = resolve(__dirname, '../webapp/plugins');
   let pluginsIndex = local
     ? '// exports for all local plugin modules\n\n'
@@ -38,12 +38,22 @@ const prepareModules = (plugins = [], local = true) => {
   if (installPackages.length) {
     try {
       logger.info('Installing plugin packages...');
-      execSync(
-        `npm install --no-save ${installPackages.join(' ')} --production`,
-        {
-          stdio: [0, 1, 2]
-        }
-      );
+      if (!local) {
+        // check if connected to internet
+        // if not, skip npm install
+        await require('dns').lookup('https://purse.io', err => {
+          if (err && err.code === 'ENOTFOUND')
+            logger.error('Internet not connected. Skipping npm install');
+          else {
+            execSync(
+              `npm install --no-save ${installPackages.join(' ')} --production`,
+              {
+                stdio: [0, 1, 2]
+              }
+            );
+          }
+        });
+      }
       logger.info('Done installing plugins');
     } catch (e) {
       logger.error('Error installing plugins packages: ', e);
@@ -60,6 +70,10 @@ const prepareModules = (plugins = [], local = true) => {
 };
 
 (async () => {
-  prepareModules(localPlugins);
-  await prepareModules(plugins, false);
+  try {
+    prepareModules(localPlugins);
+    await prepareModules(plugins, false);
+  } catch (err) {
+    logger.error('There was an error preparing modules: ', err);
+  }
 })();
