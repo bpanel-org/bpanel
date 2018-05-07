@@ -132,10 +132,15 @@ module.exports = config => {
 
     app.get('/*', resolveIndex);
 
-    // Handle the unhandled
+    // handle the unhandled rejections and exceptions
     if (process.listenerCount('unhandledRejection') === 0) {
-      process.on('unhandledRejection', function(err) {
-        throw err;
+      process.on('unhandledRejection', err => {
+        logger.error('Unhandled Rejection\n', err);
+      });
+    }
+    if (process.listenerCount('uncaughtException') === 0) {
+      process.on('uncaughtException', err => {
+        logger.error('Uncaught Exception\n', err);
       });
     }
 
