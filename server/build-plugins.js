@@ -1,12 +1,16 @@
 'use strict';
 
-import fs from 'fs';
-import { resolve } from 'path';
-import { execSync } from 'child_process';
-import { format } from 'prettier';
-import logger from './logger';
+const fs = require('fs');
+const logger = require('./logger');
+const { resolve } = require('path');
+const { format } = require('prettier');
+const { execSync } = require('child_process');
+const { transformFileSync } = require('babel-core');
 
-import { localPlugins, plugins } from '../webapp/config/pluginsConfig';
+const pluginsConfig = resolve(__dirname, '../webapp/config/pluginsConfig.js');
+const { localPlugins, plugins } = eval(
+  transformFileSync(pluginsConfig, { presets: 'env' }).code
+);
 
 const camelize = str =>
   str
@@ -47,11 +51,20 @@ const prepareModules = (plugins = [], local = true) => {
 
   if (installPackages.length) {
     try {
+      if (resolve(process.cwd(), 'server') != __dirname) {
+        // HACK: When required, we need to install the plugin peer-dependencies
+        logger.info('Installing base packages...');
+        execSync('npm install --production', {
+          stdio: [0, 1, 2],
+          cwd: resolve(__dirname, '..')
+        });
+      }
       logger.info('Installing plugin packages...');
       execSync(
         `npm install --no-save ${installPackages.join(' ')} --production`,
         {
-          stdio: [0, 1, 2]
+          stdio: [0, 1, 2],
+          cwd: resolve(__dirname, '..')
         }
       );
       logger.info('Done installing plugins');
