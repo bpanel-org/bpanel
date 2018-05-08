@@ -41,7 +41,7 @@ const prepareModules = async (plugins = [], local = true) => {
       if (!local) {
         // check if connected to internet
         // if not, skip npm install
-        await require('dns').lookup('https://purse.io', err => {
+        await require('dns').lookup('https://npmjs.com', err => {
           if (err && err.code === 'ENOTFOUND')
             logger.error('Internet not connected. Skipping npm install');
           else {
