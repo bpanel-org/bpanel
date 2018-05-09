@@ -8,12 +8,10 @@ plugin's reducer you want add. If ID already exists,
 it will be skipped.
 **/
 
-import Immutable from 'seamless-immutable';
-
 import { decorateReducer } from '../../plugins/plugins';
 import { ADD_PLUGIN } from '../constants/plugins';
 
-const initialState = Immutable({});
+const initialState = {};
 
 const plugins = (state = initialState, action) => {
   switch (action.type) {
@@ -24,7 +22,8 @@ const plugins = (state = initialState, action) => {
         // return state without adding reducer
         // TODO: better reporting of duplicate reducer
         return state;
-      return state.set(id, { ...rest });
+      // TODO: not sure if correct...
+      return Object.assign({}, state, { id: { ...rest } });
     }
 
     default:

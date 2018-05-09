@@ -2,7 +2,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
-import Immutable from 'seamless-immutable';
 
 import { propsReducerCallback, loadConnectors, moduleLoader } from './utils';
 import constants from '../store/constants';
@@ -244,7 +243,7 @@ export const decorateTheme = themeCreator => {
 export const decorateReducer = (reducer, name) => (state, action) =>
   reducersDecorators[name].reduce((state_, reducer_) => {
     return reducer_(state_, action);
-  }, Immutable(reducer(state, action)));
+  }, reducer(state, action));
 
 // connects + decorates a class
 // plugins can override mapToState, dispatchToProps
@@ -272,7 +271,9 @@ export function connect(
               } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error(
-                  `Plugin error: Problem with \`map${name}State\` for ${mapper._pluginName}: `,
+                  `Plugin error: Problem with \`map${name}State\` for ${
+                    mapper._pluginName
+                  }: `,
                   err.stack
                 );
               }
@@ -280,7 +281,9 @@ export function connect(
                 // eslint-disable-next-line no-console
                 console.error(
                   'Plugin error ',
-                  `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
+                  `${
+                    mapper._pluginName
+                  }: Invalid return value of \`map${name}State\` (object expected).`
                 );
                 return;
               }
@@ -297,7 +300,9 @@ export function connect(
               } catch (err) {
                 // eslint-disable-next-line no-console
                 console.error(
-                  `Plugin error: Problem with \`map${name}Dispatch\` for ${mapper._pluginName}: `,
+                  `Plugin error: Problem with \`map${name}Dispatch\` for ${
+                    mapper._pluginName
+                  }: `,
                   err.stack
                 );
               }
@@ -305,7 +310,9 @@ export function connect(
                 // eslint-disable-next-line no-console
                 console.error(
                   'Plugin error ',
-                  `${mapper._pluginName}: Invalid return value of \`map${name}State\` (object expected).`
+                  `${
+                    mapper._pluginName
+                  }: Invalid return value of \`map${name}State\` (object expected).`
                 );
                 return;
               }

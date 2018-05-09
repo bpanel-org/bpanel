@@ -1,4 +1,3 @@
-import Immutable from 'seamless-immutable';
 import { StyleSheet } from 'aphrodite/no-important';
 import { utils } from '@bpanel/bpanel-ui';
 
@@ -7,10 +6,7 @@ import { createCss } from '../../utils/createCss';
 
 const { makeRem, makeGutter } = utils;
 
-const themeCreator = (
-  _themeVariables = Immutable({}),
-  _themeConfig = Immutable({})
-) => {
+const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   /* This if statement gives you access to default themeVariables in your custom theme.
   ** Declaring your themeVariables as a function gives you access to the default themeVariables as
   ** an argument to that function.
@@ -18,10 +14,7 @@ const themeCreator = (
   if (typeof _themeVariables === 'function')
     _themeVariables = _themeVariables(themeVariables);
 
-  const mergedThemeVariables = Immutable(themeVariables).merge(
-    _themeVariables,
-    { deep: true }
-  );
+  const mergedThemeVariables = Object.assign(themeVariables, _themeVariables);
   const {
     // rawRem holds all the values that will be converted to a stringified rem value
     rawRem,
@@ -89,7 +82,9 @@ const themeCreator = (
   const appHeight = `calc(100vh - ${footerHeight})`;
   const lowlightGradient =
     themeColors.lowlightGradient ||
-    `linear-gradient(to left, ${themeColors.lowlight1}, ${themeColors.lowlight2})`;
+    `linear-gradient(to left, ${themeColors.lowlight1}, ${
+      themeColors.lowlight2
+    })`;
 
   /// ******
   /// THEME CONFIG
@@ -112,7 +107,7 @@ const themeCreator = (
     transition: smoothTransition
   };
 
-  const themeConfig = Immutable({
+  const themeConfig = {
     // MAIN APP COMPONENTS
 
     // App
@@ -459,7 +454,7 @@ const themeCreator = (
         fontWeight: fontWeights.semiBold
       }
     }
-  });
+  };
 
   /* This if statement gives you access to default themeConfig in your custom theme.
   ** Declaring your themeConfig as a function gives you access to the default theme config as
@@ -468,7 +463,7 @@ const themeCreator = (
   if (typeof _themeConfig === 'function')
     _themeConfig = _themeConfig(themeVariables, themeConfig);
 
-  const mergedThemeConfig = themeConfig.merge(_themeConfig, { deep: true });
+  const mergedThemeConfig = Object.assign(themeConfig, _themeConfig);
 
   const {
     app,
