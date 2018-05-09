@@ -24,7 +24,9 @@ export const propsReducerCallback = (name, parentProps, ...fnArgs) => (
     // eslint-disable-next-line no-console
     console.error(
       'Plugin error',
-      `${decorator._pluginName}: Invalid return value of \`${name}\` (object expected).`
+      `${
+        decorator._pluginName
+      }: Invalid return value of \`${name}\` (object expected).`
     );
     return;
   }
