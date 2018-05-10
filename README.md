@@ -5,22 +5,33 @@ a full featured, enterprise level GUI for your Bcoin Bitcoin node.
 
 ## Dependencies
 
-- npm >=5.7.1
-- node >=8.9.4
+- npm >= 5.7.1
+- node >= 8.9.4
 
 NOTE: It is important to be using at least this version of `npm`
 because of a bug that removes `node_modules` that are installed from
 GitHub and doesn't reinstall them which breaks the build
 
+## Application Architecture
+The standard `docker-compose.yml` file brings up multiple containers
+
+- bPanel routing + static file server
+- bcoin bitcoin node/wallet
+- TLS terminating reverse proxy
+
+Some plugins require TLS to function properly
+
 ## Setup Your Environment With Docker
 This is primarily a setup for development purposes
 (though it could be used in production with some modification).
 
-To spin up your webapp, server, a bcoin node on regtest, and generate
+To spin up your webapp, reverse-proxy, server, a bcoin node on regtest, and generate
 50 regtest BTC for your primary wallet, clone & navigate to this repo then:
 1. Run `npm install` to create a secrets.env file.
-2. Run `docker-compose up -d` to start everything.
-3. Navigate to [localhost:5000](http://localhost:5000) to see your webapp.
+1. Run `docker-compose up -d` to start everything.
+1. Navigate to [localhost:5000](http://localhost:5000) to see your webapp.
+1. Or navigate to [https://localhost](https://localhost) to use TLS - you will have to choose to trust the certificate
+
 Requests to `/node` will get forwarded to your bcoin node.
 
 For local development, you run just the bcoin docker container (`docker-compose up -d bcoin`)
@@ -43,9 +54,10 @@ Note that if you have some plugins or themes being loaded,
 this can take around 30 seconds as `npm install` is run for you.
 
 ## Customizing Your Docker Environment
-There are two docker services in the compose file: `app` and `bcoin`.
-The app service runs the web server which serves the static files
-for the front end and relays messages to a bcoin node.
+There are three docker services in the compose file: `app`, `bcoin` and `securityc`.
+The `app` service acts as a static file server and as a request router to backend services.
+The `bcoin` service is an instance of `bcoin` that supports an http server, a wallet server and a bitcoin p2p server.
+The `securityc` service generates TLS keys and certs and runs a TLS terminating reverse proxy.
 You can use custom configs to connect to an existing node,
 or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
 
@@ -71,14 +83,22 @@ update the environment configs to point to your remote node.
 To deploy in a docker container run:
 
 ```bash
-docker-compose up app
+$ docker-compose up app
 ```
 
 Otherwise, for local development, run
 ```bash
-npm run start:poll
+$ npm run start:poll
 ```
 (For Linux you can run `npm run start:dev` instead)
+
+If you want to stop any of the containers, you can run the command:
+
+```bash
+$ docker-compose stop [SERVICE_NAME]
+```
+
+This is useful if you do not want to develop with all of the services running.
 
 ### Bcoin Setup Scripts
 Setup scripts are also supported. This will allow you to run scripts on your
@@ -115,13 +135,13 @@ To get started making your own plugin, use the
 ### Server extensions
 The simplest thing to do, is to create your own server file that includes `server/index.js`.
 ```javascript
-const bpanel = require('./index.js')({
-	network: 'main', // Put bPanel configs here (optional)
+const bpanel = require('bpanel')({
+  network: 'main', // Put bPanel configs here (optional)
 });
 const app = require('express')();
 app.use( /* Put your own middleware here */ );
 app.use( bpanel.app );
-app.listen();
+app.listen( 5000 );
 ```
 
 ## License

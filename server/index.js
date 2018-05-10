@@ -5,7 +5,11 @@
 // --dev Watch server and webapp
 
 let poll = false;
-const webpackArgs = [];
+const path = require('path');
+const webpackArgs = [
+  '--config',
+  path.resolve(__dirname, '../webpack.config.js')
+];
 
 // If run from command line, parse args
 if (require.main === module) {
@@ -96,7 +100,7 @@ module.exports = config => {
 
     // Setup app server
     app.use(
-      express.static('dist', {
+      express.static(path.resolve(__dirname, '../dist'), {
         setHeaders: function(res, path) {
           if (path.endsWith('/main.bundle.js.gz')) {
             res.setHeader('Content-Encoding', 'gzip');
@@ -132,10 +136,15 @@ module.exports = config => {
 
     app.get('/*', resolveIndex);
 
-    // Handle the unhandled
+    // handle the unhandled rejections and exceptions
     if (process.listenerCount('unhandledRejection') === 0) {
-      process.on('unhandledRejection', function(err) {
-        throw err;
+      process.on('unhandledRejection', err => {
+        logger.error('Unhandled Rejection\n', err);
+      });
+    }
+    if (process.listenerCount('uncaughtException') === 0) {
+      process.on('uncaughtException', err => {
+        logger.error('Uncaught Exception\n', err);
       });
     }
 

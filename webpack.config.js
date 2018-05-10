@@ -45,6 +45,7 @@ module.exports = function(env = {}) {
   }
 
   return {
+    context: __dirname,
     entry: ['whatwg-fetch', './webapp/index'],
     node: { __dirname: true },
     target: 'web',
@@ -70,7 +71,7 @@ module.exports = function(env = {}) {
       loaders: [
         {
           test: /\.jsx?$/,
-          exclude: /node_modules/,
+          exclude: path.resolve(__dirname, 'node_modules'),
           loader: 'babel-loader',
           query: {
             presets: ['env', 'react', 'stage-3'],
@@ -111,7 +112,10 @@ module.exports = function(env = {}) {
       new ExtractTextPlugin('[name].css'),
       new WebpackShellPlugin({
         onBuildStart: {
-          scripts: ['npm run -s build:plugins'],
+          scripts: [
+            `node ${path.resolve(__dirname, 'server/clear-plugins')}`,
+            `node ${path.resolve(__dirname, 'server/build-plugins')}`
+          ],
           blocking: true
         }
       }),

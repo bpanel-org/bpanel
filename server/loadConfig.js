@@ -9,8 +9,8 @@ const dotenv = require('dotenv');
 
 const temp = {};
 const config = { uri: 'http://localhost:8332' };
-const bcoinEnv = path.resolve(__dirname, '../bcoin.env');
-const secretsEnv = path.resolve(__dirname, '../secrets.env');
+const bcoinEnv = path.resolve(process.cwd(), 'bcoin.env');
+const secretsEnv = path.resolve(process.cwd(), 'secrets.env');
 
 // Load env files into temp
 [bcoinEnv, secretsEnv].forEach(f => {
@@ -56,5 +56,4 @@ Object.assign(config, {
   host: hostname
 });
 
-// console.debug({ config });
 module.exports = config;
