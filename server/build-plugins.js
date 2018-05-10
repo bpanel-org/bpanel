@@ -59,25 +59,26 @@ const prepareModules = async (plugins = [], local = true) => {
           cwd: resolve(__dirname, '..')
         });
       }
-      logger.info('Installing plugin packages...');
       if (!local) {
         // check if connected to internet
         // if not, skip npm install
-        await require('dns').lookup('https://npmjs.com', err => {
+        const EXTERNAL_URI = process.env.EXTERNAL_URI || 'npmjs.com';
+        await require('dns').lookup(EXTERNAL_URI, async err => {
           if (err && err.code === 'ENOTFOUND')
-            logger.error('Internet not connected. Skipping npm install');
+            logger.error("Can't reach npm servers. Skipping npm install");
           else {
-            execSync(
+            logger.info('Installing plugin packages...');
+            await execSync(
               `npm install --no-save ${installPackages.join(' ')} --production`,
               {
                 stdio: [0, 1, 2],
                 cwd: resolve(__dirname, '..')
               }
             );
+            logger.info('Done installing plugins');
           }
         });
       }
-      logger.info('Done installing plugins');
     } catch (e) {
       logger.error('Error installing plugins packages: ', e);
     }
