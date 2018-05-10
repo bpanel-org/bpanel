@@ -31,7 +31,7 @@ const getPackageName = name => {
   }
 };
 
-const prepareModules = (plugins = [], local = true) => {
+const prepareModules = async (plugins = [], local = true) => {
   const pluginsPath = resolve(__dirname, '../webapp/plugins');
   let pluginsIndex = local
     ? '// exports for all local plugin modules\n\n'
@@ -59,15 +59,26 @@ const prepareModules = (plugins = [], local = true) => {
           cwd: resolve(__dirname, '..')
         });
       }
-      logger.info('Installing plugin packages...');
-      execSync(
-        `npm install --no-save ${installPackages.join(' ')} --production`,
-        {
-          stdio: [0, 1, 2],
-          cwd: resolve(__dirname, '..')
-        }
-      );
-      logger.info('Done installing plugins');
+      if (!local) {
+        // check if connected to internet
+        // if not, skip npm install
+        const EXTERNAL_URI = process.env.EXTERNAL_URI || 'npmjs.com';
+        await require('dns').lookup(EXTERNAL_URI, async err => {
+          if (err && err.code === 'ENOTFOUND')
+            logger.error("Can't reach npm servers. Skipping npm install");
+          else {
+            logger.info('Installing plugin packages...');
+            await execSync(
+              `npm install --no-save ${installPackages.join(' ')} --production`,
+              {
+                stdio: [0, 1, 2],
+                cwd: resolve(__dirname, '..')
+              }
+            );
+            logger.info('Done installing plugins');
+          }
+        });
+      }
     } catch (e) {
       logger.error('Error installing plugins packages: ', e);
     }
@@ -83,6 +94,10 @@ const prepareModules = (plugins = [], local = true) => {
 };
 
 (async () => {
-  prepareModules(localPlugins);
-  await prepareModules(plugins, false);
+  try {
+    prepareModules(localPlugins);
+    await prepareModules(plugins, false);
+  } catch (err) {
+    logger.error('There was an error preparing modules: ', err);
+  }
 })();

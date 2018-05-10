@@ -11,7 +11,4 @@ try {
   version = require('../package.json').version;
 } catch (e) {}
 
-fs.writeFileSync(
-  'webapp/version.json',
-  JSON.stringify({ commit, version })
-);
+fs.writeFileSync('webapp/version.json', JSON.stringify({ commit, version }));
