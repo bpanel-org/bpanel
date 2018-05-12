@@ -1,12 +1,16 @@
 'use strict';
 
-import fs from 'fs';
-import { resolve } from 'path';
-import { execSync } from 'child_process';
-import { format } from 'prettier';
-import logger from './logger';
+const fs = require('fs');
+const logger = require('./logger');
+const { resolve } = require('path');
+const { format } = require('prettier');
+const { execSync } = require('child_process');
+const { transformFileSync } = require('babel-core');
 
-import { localPlugins, plugins } from '../webapp/config/pluginsConfig';
+const pluginsConfig = resolve(__dirname, '../webapp/config/pluginsConfig.js');
+const { localPlugins, plugins } = eval(
+  transformFileSync(pluginsConfig, { presets: 'env' }).code
+);
 
 const camelize = str =>
   str
@@ -27,7 +31,7 @@ const getPackageName = name => {
   }
 };
 
-const prepareModules = (plugins = [], local = true) => {
+const prepareModules = async (plugins = [], local = true) => {
   const pluginsPath = resolve(__dirname, '../webapp/plugins');
   let pluginsIndex = local
     ? '// exports for all local plugin modules\n\n'
@@ -47,14 +51,34 @@ const prepareModules = (plugins = [], local = true) => {
 
   if (installPackages.length) {
     try {
-      logger.info('Installing plugin packages...');
-      execSync(
-        `npm install --no-save ${installPackages.join(' ')} --production`,
-        {
-          stdio: [0, 1, 2]
-        }
-      );
-      logger.info('Done installing plugins');
+      if (resolve(process.cwd(), 'server') != __dirname) {
+        // HACK: When required, we need to install the plugin peer-dependencies
+        logger.info('Installing base packages...');
+        execSync('npm install --production', {
+          stdio: [0, 1, 2],
+          cwd: resolve(__dirname, '..')
+        });
+      }
+      if (!local) {
+        // check if connected to internet
+        // if not, skip npm install
+        const EXTERNAL_URI = process.env.EXTERNAL_URI || 'npmjs.com';
+        await require('dns').lookup(EXTERNAL_URI, async err => {
+          if (err && err.code === 'ENOTFOUND')
+            logger.error("Can't reach npm servers. Skipping npm install");
+          else {
+            logger.info('Installing plugin packages...');
+            await execSync(
+              `npm install --no-save ${installPackages.join(' ')} --production`,
+              {
+                stdio: [0, 1, 2],
+                cwd: resolve(__dirname, '..')
+              }
+            );
+            logger.info('Done installing plugins');
+          }
+        });
+      }
     } catch (e) {
       logger.error('Error installing plugins packages: ', e);
     }
@@ -70,6 +94,10 @@ const prepareModules = (plugins = [], local = true) => {
 };
 
 (async () => {
-  prepareModules(localPlugins);
-  await prepareModules(plugins, false);
+  try {
+    prepareModules(localPlugins);
+    await prepareModules(plugins, false);
+  } catch (err) {
+    logger.error('There was an error preparing modules: ', err);
+  }
 })();

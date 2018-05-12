@@ -1,10 +1,10 @@
 'use strict';
 
-import fs from 'fs';
-import { resolve } from 'path';
-import logger from './logger';
+const fs = require('fs');
+const logger = require('./logger');
+const { resolve } = require('path');
 
-const clearPlugins = async () => {
+module.exports = () => {
   const indexText = 'export default {};';
   const pluginsPath = resolve(__dirname, '../webapp/plugins');
   try {
@@ -15,4 +15,6 @@ const clearPlugins = async () => {
   }
 };
 
-(async () => await clearPlugins())();
+if (require.main === module) {
+  module.exports();
+}

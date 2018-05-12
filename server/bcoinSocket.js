@@ -1,8 +1,13 @@
 const logger = require('./logger');
 
 const socketHandler = (nodeClient, walletClient) => {
+  // setup error handling
+  nodeClient.on('error', err => logger.error('Socket error (node): ', err));
+  walletClient.on('error', err => logger.error('Socket error (wallet): ', err));
+
   const walletPrefix = 'wallet ';
   const subscriptions = {}; // cache to manage subscriptions made by clients
+
   return async socket => {
     // broadcasts only send messages to the bcoin node
     // but originating socket does not expect a response
@@ -87,20 +92,13 @@ const socketHandler = (nodeClient, walletClient) => {
       } else {
         logger.debug(`Subscribing to "${event}" event on bcoin node`);
         nodeClient.bind(event, (...data) => {
-          // logger.debug(
-          //   `Event "${event}" received from node.`,
-          //   `Firing "${responseEvent}" event`
-          // );
+          logger.debug(
+            `Event "${event}" received from node.`,
+            `Firing "${responseEvent}" event`
+          );
           socket.fire(responseEvent, ...data);
         });
       }
-    });
-
-    nodeClient.on('error', err => {
-      logger.error('Socket error (node): ', err);
-    });
-    walletClient.on('error', err => {
-      logger.error('Socket error (wallet): ', err);
     });
   };
 };
