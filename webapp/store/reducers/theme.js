@@ -3,9 +3,11 @@ import themeConfig from '../../config/themeConfig/';
 const { themeCreator } = themeConfig;
 
 const themeReducer = (state = themeCreator(), action) => {
+  let newState = { ...state };
   switch (action.type) {
     case UPDATE_THEME: {
-      return Object.assign({}, action.payload);
+      newState = action.payload;
+      return newState;
     }
 
     default:

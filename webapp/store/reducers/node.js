@@ -13,20 +13,29 @@ const initialState = {
 };
 
 const nodeState = (state = initialState, action) => {
+  let newState = { ...state };
   switch (action.type) {
     case SET_NODE: {
       const { version, network, memory, mempool, time } = action.payload;
       const node = { version, network };
-      return Object.assign({}, state, { node, memory, mempool, time });
+      newState.node = node;
+      newState.memory = memory;
+      newState.mempool = mempool;
+      newState.time = time;
+      return newState;
     }
 
     case SET_LOADING:
-      return Object.assign({}, state, { loading: action.payload });
+      newState.loading = action.payload;
+      return newState;
 
     case SET_BCOIN_URI:
-      return Object.assign({}, state, {
-        serverInfo: { bcoinUri: action.payload }
-      });
+      // TODO: use safeSet
+      if (!(serverInfo in newState)) {
+        newState.serverInfo = {};
+      }
+      newState.serverInfo.bcoinUri = action.payload;
+      return newState;
 
     default:
       return state;

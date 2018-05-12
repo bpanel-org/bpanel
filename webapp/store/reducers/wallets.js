@@ -18,22 +18,34 @@ import { ADD_ACCOUNTS, ADD_WALLET, REMOVE_WALLET } from '../constants/wallets';
 const initialState = {};
 
 const walletsState = (state = initialState, action) => {
+  let newState = { ...state };
   switch (action.type) {
     case ADD_WALLET: {
       const { id, ...rest } = action.payload;
-      return Object.assign({}, state, { [id]: { ...rest } });
+
+      if (!(id in newState)) {
+        newState[id] = {};
+      }
+
+      // don't overwrite old data
+      newState[id] = { ...newState[id], ...rest };
+      return newState;
     }
 
     case REMOVE_WALLET: {
       const { id } = action.payload;
-      const _return = Object.assign({}, state);
-      delete _return[id];
-      return _return;
+      delete newState[id];
+      return newState;
     }
 
     case ADD_ACCOUNTS: {
       const { id, accounts } = action.payload;
-      return Object.assign({}, state, { [id]: { accounts } });
+
+      if (!(id in newState)) {
+        newState[id] = {};
+      }
+      newState[id].accounts = accounts;
+      return newState;
     }
 
     default:

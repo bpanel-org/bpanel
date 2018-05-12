@@ -14,6 +14,7 @@ import { ADD_PLUGIN } from '../constants/plugins';
 const initialState = {};
 
 const plugins = (state = initialState, action) => {
+  let newState = { ...state };
   switch (action.type) {
     case ADD_PLUGIN: {
       const { id, ...rest } = action.payload;
@@ -23,7 +24,8 @@ const plugins = (state = initialState, action) => {
         // TODO: better reporting of duplicate reducer
         return state;
       // TODO: not sure if correct...
-      return Object.assign({}, state, { id: { ...rest } });
+      newState[id] = { ...rest };
+      return newState;
     }
 
     default:

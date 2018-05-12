@@ -7,13 +7,16 @@ const initialState = {
 };
 
 const chainState = (state = initialState, action) => {
+  let newState = { ...state };
   switch (action.type) {
     case SET_CHAIN_INFO: {
-      return Object.assign({}, state, action.payload);
+      newState = action.payload;
+      return newState;
     }
 
     case SET_GENESIS: {
-      return Object.assign({}, state, { genesis: action.payload });
+      newState.genesis = action.payload;
+      return newState;
     }
 
     default:
