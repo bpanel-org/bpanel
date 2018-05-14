@@ -6,7 +6,7 @@ const themeReducer = (state = themeCreator(), action) => {
   let newState = { ...state };
   switch (action.type) {
     case UPDATE_THEME: {
-      newState = action.payload;
+      newState = { ...newState, ...action.payload };
       return newState;
     }
 

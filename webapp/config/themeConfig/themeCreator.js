@@ -4,6 +4,8 @@ import { utils } from '@bpanel/bpanel-ui';
 import themeVariables from './themeVariables';
 import { createCss } from '../../utils/createCss';
 
+import _ from 'lodash';
+
 const { makeRem, makeGutter } = utils;
 
 const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
@@ -14,7 +16,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   if (typeof _themeVariables === 'function')
     _themeVariables = _themeVariables(themeVariables);
 
-  const mergedThemeVariables = Object.assign(themeVariables, _themeVariables);
+  const mergedThemeVariables = _.merge({}, themeVariables, _themeVariables);
   const {
     // rawRem holds all the values that will be converted to a stringified rem value
     rawRem,
@@ -463,7 +465,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   if (typeof _themeConfig === 'function')
     _themeConfig = _themeConfig(themeVariables, themeConfig);
 
-  const mergedThemeConfig = Object.assign(themeConfig, _themeConfig);
+  const mergedThemeConfig = _.merge({}, themeConfig, _themeConfig);
 
   const {
     app,
