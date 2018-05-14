@@ -31,7 +31,7 @@ const nodeState = (state = initialState, action) => {
 
     case SET_BCOIN_URI:
       // TODO: use safeSet
-      if (!(serverInfo in newState)) {
+      if (!('serverInfo' in newState)) {
         newState.serverInfo = {};
       }
       newState.serverInfo.bcoinUri = action.payload;

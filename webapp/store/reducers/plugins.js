@@ -23,7 +23,6 @@ const plugins = (state = initialState, action) => {
         // return state without adding reducer
         // TODO: better reporting of duplicate reducer
         return state;
-      // TODO: not sure if correct...
       newState[id] = { ...rest };
       return newState;
     }
