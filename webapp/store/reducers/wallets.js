@@ -1,5 +1,3 @@
-import Immutable from 'seamless-immutable';
-
 import { decorateReducer } from '../../plugins/plugins';
 import { ADD_ACCOUNTS, ADD_WALLET, REMOVE_WALLET } from '../constants/wallets';
 
@@ -17,23 +15,37 @@ import { ADD_ACCOUNTS, ADD_WALLET, REMOVE_WALLET } from '../constants/wallets';
   }
 */
 
-const initialState = Immutable({});
+const initialState = {};
 
 const walletsState = (state = initialState, action) => {
+  let newState = { ...state };
   switch (action.type) {
     case ADD_WALLET: {
       const { id, ...rest } = action.payload;
-      return state.set(id, { ...rest });
+
+      if (!(id in newState)) {
+        newState[id] = {};
+      }
+
+      // don't overwrite old data
+      newState[id] = { ...newState[id], ...rest };
+      return newState;
     }
 
     case REMOVE_WALLET: {
       const { id } = action.payload;
-      return state.without(id);
+      delete newState[id];
+      return newState;
     }
 
     case ADD_ACCOUNTS: {
       const { id, accounts } = action.payload;
-      return state.setIn([id, 'accounts'], accounts);
+
+      if (!(id in newState)) {
+        newState[id] = {};
+      }
+      newState[id].accounts = accounts;
+      return newState;
     }
 
     default:

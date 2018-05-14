@@ -117,8 +117,9 @@ class Sidebar extends PureComponent {
     } = this.props;
     return (
       <nav
-        className={`${theme.sidebar
-          .container} d-flex flex-column navbar navbar-default navbar-fixed-side`}
+        className={`${
+          theme.sidebar.container
+        } d-flex flex-column navbar navbar-default navbar-fixed-side`}
       >
         {customSidebarHeader ? customSidebarHeader : this.renderLogo()}
         {beforeNav}
