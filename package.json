@@ -1,5 +1,5 @@
 {
-  "name": "bpanel",
+  "name": "@bpanel/bpanel",
   "version": "0.1.0-rc1",
   "homepage": "https://bpanel.org",
   "description": "GUI application to interact with a Bcoin Bitcoin node",
