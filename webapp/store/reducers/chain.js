@@ -10,7 +10,7 @@ const chainState = (state = initialState, action) => {
   let newState = { ...state };
   switch (action.type) {
     case SET_CHAIN_INFO: {
-      newState = action.payload;
+      newState = { ...state, ...action.payload };
       return newState;
     }
 
