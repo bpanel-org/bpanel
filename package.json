@@ -57,6 +57,7 @@
     "bclient": "^0.0.1",
     "bcoin": "git+https://github.com/bcoin-org/bcoin.git",
     "bcurl": "git+https://github.com/bucko13/bcurl.git#update-brq",
+    "blgr": "0.0.2",
     "body-parser": "^1.18.2",
     "bootstrap": "^4.1.1",
     "brq": "git+https://github.com/bcoin-org/brq.git",
