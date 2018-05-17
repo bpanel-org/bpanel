@@ -1,5 +1,7 @@
-# FROM node:alpine AS base
 FROM mhart/alpine-node:latest AS base
+
+# update to latest version of npm
+RUN npm install -g npm
 
 EXPOSE 5000
 RUN mkdir -p /usr/src/app/dist
@@ -22,6 +24,7 @@ RUN npm install
 
 # Bundle app
 FROM base
+
 COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
 COPY webpack.config.js /usr/src/app/webpack.config.js
 COPY scripts /usr/src/app/scripts
