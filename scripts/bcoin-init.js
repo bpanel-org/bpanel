@@ -13,7 +13,7 @@ let node;
 (async () => {
   try {
     logger = new blgr({
-      level: 'debug'
+      level: 'info'
     });
     await logger.open();
     logger.info('LOGGER OPEN');
@@ -36,9 +36,13 @@ let node;
     node.startSync();
     logger.info('Starting node sync');
 
-    if (!!initScript) {
-      logger.info(`Running init script ${initScript} now to setup environment`);
-      await require(path.resolve(__dirname, initScript))(node);
+    const initScriptFilePath = path.resolve(__dirname, initScript);
+    const initScriptExists = fs.existsSync(initScriptFilePath);
+    if (!!initScript && initScriptExists) {
+      logger.info(
+        `Running init script ${initScriptFilePath} now to setup environment`
+      );
+      await require(initScriptFilePath)(node);
     }
   } catch (e) {
     logger.error(e.stack);
