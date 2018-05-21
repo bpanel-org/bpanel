@@ -4,6 +4,7 @@ const socketHandler = (nodeClient, walletClient) => {
   // setup error handling
   nodeClient.on('error', err => logger.error('Socket error (node): ', err));
   walletClient.on('error', err => logger.error('Socket error (wallet): ', err));
+  logger.info('Set up socker error handlers');
 
   const walletPrefix = 'wallet ';
   const subscriptions = {}; // cache to manage subscriptions made by clients
