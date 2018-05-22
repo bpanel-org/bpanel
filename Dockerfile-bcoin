@@ -35,6 +35,12 @@ RUN git clone --branch $branch \
     && npm install --production \
     && popd
 
+RUN git clone --branch $branch \
+    https://github.com/bcoin-org/bclient.git /code/node_modules/bclient \
+    && pushd /code/node_modules/bclient \
+    && npm install --production \
+    && popd
+
 #TODO: Inherit from official image
 FROM base
 
@@ -43,6 +49,7 @@ RUN mkdir -p /code/node_modules/bcoin /data
 COPY --from=build /code/node_modules/bcoin /code/node_modules/bcoin
 COPY --from=build /code/node_modules/bmultisig /code/node_modules/bmultisig
 COPY --from=build /code/node_modules/blgr /code/node_modules/blgr
+COPY --from=build /code/node_modules/bclient /code/node_modules/bclient
 COPY ./scripts/ /code/scripts
 
 CMD ["/code/scripts/entrypoint.sh"]
