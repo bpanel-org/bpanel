@@ -1,12 +1,21 @@
+# FROM node:alpine AS base
 FROM mhart/alpine-node:latest AS base
 
-# update npm
+# temporarily use this fork of node:alpine
+# because it has a newer version of npm
+# temporarily update npm manually
+# because of bug introduced in npm 6.0.0
+
 ARG NPM_VERSION=6.0.1
 RUN npm install -g npm@$NPM_VERSION
 
 WORKDIR /usr/src/app
 
-# install updates
+ENTRYPOINT [ "node" ]
+CMD [ "server" ]
+EXPOSE 5000
+
+# Install updates
 RUN apk update && \
     apk upgrade && \
     apk add git python make g++ bash
@@ -15,11 +24,11 @@ COPY package.json \
      package-lock.json \
      /usr/src/app/
 
-# install dependencies
+# Install dependencies
 FROM base AS build
 RUN npm install
 
-# bundle app
+# Bundle app
 FROM base
 
 RUN mkdir -p /usr/src/app/dist
@@ -30,6 +39,3 @@ COPY scripts /usr/src/app/scripts
 COPY server /usr/src/app/server
 COPY webapp /usr/src/app/webapp
 
-ENTRYPOINT [ "node" ]
-CMD [ "server" ]
-EXPOSE 5000
