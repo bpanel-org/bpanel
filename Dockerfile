@@ -6,14 +6,16 @@ FROM mhart/alpine-node:latest AS base
 # temporarily update npm manually
 # because of bug introduced in npm 6.0.0
 
-ARG NPM_VERSION=6.0.1
-RUN npm install -g npm@$NPM_VERSION
+EXPOSE 5000
+RUN mkdir -p /usr/src/app/dist
 
 WORKDIR /usr/src/app
 
 ENTRYPOINT [ "node" ]
 CMD [ "server" ]
-EXPOSE 5000
+
+ARG NPM_VERSION=6.0.1
+RUN npm install -g npm@$NPM_VERSION
 
 # Install updates
 RUN apk update && \
@@ -30,8 +32,6 @@ RUN npm install
 
 # Bundle app
 FROM base
-
-RUN mkdir -p /usr/src/app/dist
 
 COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
 COPY webpack.config.js /usr/src/app/webpack.config.js
