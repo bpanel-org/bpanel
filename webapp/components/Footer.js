@@ -27,16 +27,16 @@ class Footer extends PureComponent {
     let FooterWidget;
     if (!Array.isArray(footerWidgets)) FooterWidget = footerWidgets;
     return (
-      <div className="container-fluid">
-        <footer className={`${theme.footer.container} row align-items-center`}>
+      <footer className="fixed-bottom">
+        <div className={`${theme.footer.container} d-flex align-items-center`}>
           {Array.isArray(footerWidgets) ? (
             footerWidgets.map((Widget, index) => <Widget key={index} />)
           ) : (
             <FooterWidget />
           )}
           {CustomChildren && <CustomChildren />}
-        </footer>
-      </div>
+        </div>
+      </footer>
     );
   }
 }

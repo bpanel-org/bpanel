@@ -116,7 +116,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     app: {
       container: {
         height: appHeight,
-        overflowY: 'overlay'
+        overflowY: 'auto'
       },
       body: {
         color: themeColors.primary,
@@ -128,7 +128,6 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         fontFamily
       },
       content: {
-        height: `calc(100vh - ${footerHeight} - ${headerHeight})`,
         ...makeGutter('padding', { left: 1.25, right: 2.5 })
       },
       sidebarContainer: {
@@ -139,7 +138,6 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     // Sidebar
     sidebar: {
       container: {
-        height: appHeight,
         minHeight: '50vh',
         ...makeGutter('padding', { left: 0 })
       },
@@ -185,7 +183,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         width: makeRem(3.75, fontSizeBase)
       },
       footer: {
-        ...makeGutter('padding', { bottom: 3.125 })
+        // ...makeGutter('padding', { bottom: 3.125 })
       },
       footerText: {
         fontSize: fontSizeSmall,

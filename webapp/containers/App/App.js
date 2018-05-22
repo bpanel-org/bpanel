@@ -80,26 +80,30 @@ class App extends PureComponent {
     const { sortedPluginMeta, location, theme } = this.props;
     return (
       <ThemeProvider theme={theme}>
-        <div className={`${theme.app.container} container-fluid`} role="main">
-          <div className="row">
-            <div className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}>
-              <Sidebar
-                sidebarNavItems={sortedPluginMeta}
-                location={location}
-                theme={theme}
-              />
+        <div>
+          <div className={`${theme.app.container} container-fluid`} role="main">
+            <div className="row">
+              <div
+                className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}
+              >
+                <Sidebar
+                  sidebarNavItems={sortedPluginMeta}
+                  location={location}
+                  theme={theme}
+                />
+              </div>
+              <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
+                <Header />
+                <Route
+                  exact
+                  path="/"
+                  render={() => <Redirect to={`/${this.getHomePath()}`} />}
+                />
+                <Panel />
+              </div>
             </div>
-            <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
-              <Header />
-              <Route
-                exact
-                path="/"
-                render={() => <Redirect to={`/${this.getHomePath()}`} />}
-              />
-              <Panel />
-            </div>
-            <Footer />
           </div>
+          <Footer />
         </div>
       </ThemeProvider>
     );
