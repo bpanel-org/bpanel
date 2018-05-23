@@ -26,7 +26,11 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
     render() {
       const { wallets, footerWidgets = [] } = this.props;
 
-      const address = wallets.primary ? wallets.primary.receiveAddress : '...';
+      const address = wallets.accountInfo
+        ? wallets.accountInfo.primary
+          ? wallets.accountInfo.primary.default.receiveAddress
+          : '...'
+        : '...';
       if (address) {
         const FooterAddress = ({ address }) => (
           <div className="col-6 text-truncate">
