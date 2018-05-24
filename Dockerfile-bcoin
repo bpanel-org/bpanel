@@ -1,10 +1,14 @@
 FROM nfnty/arch-mini:latest AS base
 
+RUN mkdir -p /code/node_modules/bcoin /data
+WORKDIR /code/node_modules/bcoin
+
 RUN pacman -Sy --noconfirm archlinux-keyring && \
     pacman -Syu --noconfirm nodejs npm && \
     rm /var/cache/pacman/pkg/*
 
 FROM base AS build
+
 # Install build dependencies
 # Note: node-gyp needs python
 RUN pacman -Syu --noconfirm base-devel unrar git python2 \
@@ -29,22 +33,22 @@ RUN git clone --branch $branch \
     && npm install --production \
     && popd
 
+# Install blgr
 RUN git clone --branch $branch \
     https://github.com/bcoin-org/blgr /code/node_modules/blgr \
     && pushd /code/node_modules/blgr \
     && npm install --production \
     && popd
 
+# Install bclient
 RUN git clone --branch $branch \
     https://github.com/bcoin-org/bclient.git /code/node_modules/bclient \
     && pushd /code/node_modules/bclient \
     && npm install --production \
     && popd
 
-#TODO: Inherit from official image
+# TODO: Inherit from official image
 FROM base
-
-RUN mkdir -p /code/node_modules/bcoin /data
 
 COPY --from=build /code/node_modules/bcoin /code/node_modules/bcoin
 COPY --from=build /code/node_modules/bmultisig /code/node_modules/bmultisig
