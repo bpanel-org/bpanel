@@ -12,6 +12,10 @@ export const mapComponentState = {
 
 export const decorateFooter = (Footer, { React, PropTypes }) => {
   return class extends React.PureComponent {
+    constructor(props) {
+      super(props);
+      this.address = '...';
+    }
     static displayName() {
       return 'bpanelAddressFooter';
     }
@@ -26,15 +30,19 @@ export const decorateFooter = (Footer, { React, PropTypes }) => {
     render() {
       const { wallets, footerWidgets = [] } = this.props;
 
-      const address = wallets.primary ? wallets.primary.receiveAddress : '...';
-      if (address) {
-        const FooterAddress = ({ address }) => (
-          <div className="col-6 text-truncate">
-            <Text type="span">Receive Address: {address}</Text>
-          </div>
-        );
-        footerWidgets.push(widgetCreator(FooterAddress)({ address }));
+      if (wallets.accountInfo && wallets.accountInfo.primary) {
+        this.address = wallets.accountInfo.primary.default.receiveAddress;
       }
+
+      const FooterAddress = ({ address }) => (
+        <div className="col-6 text-truncate">
+          <Text type="span">Receive Address: {address}</Text>
+        </div>
+      );
+      footerWidgets.push(
+        widgetCreator(FooterAddress)({ address: this.address })
+      );
+
       return <Footer {...this.props} footerWidgets={footerWidgets} />;
     }
   };
