@@ -1,10 +1,10 @@
 FROM nfnty/arch-mini:latest AS base
 
 RUN mkdir -p /code/node_modules/bcoin /data
-WORKDIR /code/node_modules/bcoin
+WORKDIR /code
 
 RUN pacman -Sy --noconfirm archlinux-keyring && \
-    pacman -Syu --noconfirm nodejs npm && \
+    pacman -Syu --noconfirm nodejs-lts-carbon npm && \
     rm /var/cache/pacman/pkg/*
 
 FROM base AS build
