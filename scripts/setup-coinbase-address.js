@@ -25,8 +25,10 @@ module.exports = async node => {
 
   // allow for runtime configuration of which
   // address to use for coinbase transactions
-  const COINBASE_WALLET_ID = process.env.COINBASE_WALLET_ID || 'primary';
-  const COINBASE_ACCOUNT_ID = process.env.COINBASE_ACCOUNT_ID || 'default';
+  // TODO: come up with generalized way to pass args to runtime scripts
+  const COINBASE_WALLET_ID = process.env.BPANEL_COINBASE_WALLET_ID || 'primary';
+  const COINBASE_ACCOUNT_ID =
+    process.env.BPANEL_COINBASE_ACCOUNT_ID || 'default';
 
   const wallet = walletClient.wallet(COINBASE_WALLET_ID);
   logger.info('Fetching coinbase address');
