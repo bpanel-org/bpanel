@@ -1,30 +1,36 @@
 FROM nfnty/arch-mini:latest AS base
 
 RUN mkdir -p /code/node_modules/bcoin /data
-WORKDIR /code/node_modules/bcoin
-ENTRYPOINT ["node"]
-CMD ["/code/scripts/docker-bcoin-init.js"]
+WORKDIR /code
 
 RUN pacman -Sy --noconfirm archlinux-keyring && \
-    pacman -Syu --noconfirm nodejs npm && \
+    pacman -Syu --noconfirm nodejs-lts-carbon npm && \
     rm /var/cache/pacman/pkg/*
 
 FROM base AS build
-# Install build dependencies
-RUN pacman -Syu --noconfirm base-devel unrar git python2
-#HACK: Node-gyp needs python
-RUN ln -s /usr/bin/python2 /usr/bin/python
 
-ARG repo=https://github.com/bcoin-org/bcoin.git
+# Install build dependencies
+# Note: node-gyp needs python
+RUN pacman -Syu --noconfirm base-devel unrar git python2 \
+    && ln -s /usr/bin/python2 /usr/bin/python
+
 ARG branch=master
-#HACK: Dingle this to trigger rebuilds
+
+# use this to bust the build cache
 ARG rebuild=0
 
-# Install bcoin
-RUN git clone --branch $branch $repo /code/node_modules/bcoin
-RUN npm install --production
+# Install bcoin, bmultisig, blgr, bclient
+RUN npm init -y &>/dev/null \
+  && npm install bcoin-org/bcoin \
+  bcoin-org/bmultisig \
+  bcoin-org/blgr \
+  bcoin-org/bclient
 
-#TODO: Inherit from official image
+
+# TODO: Inherit from official image
 FROM base
-COPY --from=build /code/node_modules/bcoin /code/node_modules/bcoin
+
+COPY --from=build /code/node_modules /code/node_modules
 COPY ./scripts/ /code/scripts
+
+CMD ["/code/scripts/entrypoint.sh"]

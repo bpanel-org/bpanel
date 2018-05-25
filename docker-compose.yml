@@ -72,6 +72,5 @@ services:
       ## Comment to make bcoin chain and wallet database NOT persistant
       - ~/.bcoin_bpanel:/code/.bcoin
 
-
 volumes:
   certs:
