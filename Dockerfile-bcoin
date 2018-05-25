@@ -19,41 +19,18 @@ ARG branch=master
 # use this to bust the build cache
 ARG rebuild=0
 
-# Install bcoin
-RUN git clone --branch $branch \
-    https://github.com/bcoin-org/bcoin.git /code/node_modules/bcoin \
-    && pushd /code/node_modules/bcoin \
-    && npm install --production \
-    && popd
+# Install bcoin, bmultisig, blgr, bclient
+RUN npm init -y &>/dev/null \
+  && npm install bcoin-org/bcoin \
+  bcoin-org/bmultisig \
+  bcoin-org/blgr \
+  bcoin-org/bclient
 
-# Install bmultisig
-RUN git clone --branch $branch \
-    https://github.com/bcoin-org/bmultisig.git /code/node_modules/bmultisig \
-    && pushd /code/node_modules/bmultisig \
-    && npm install --production \
-    && popd
-
-# Install blgr
-RUN git clone --branch $branch \
-    https://github.com/bcoin-org/blgr /code/node_modules/blgr \
-    && pushd /code/node_modules/blgr \
-    && npm install --production \
-    && popd
-
-# Install bclient
-RUN git clone --branch $branch \
-    https://github.com/bcoin-org/bclient.git /code/node_modules/bclient \
-    && pushd /code/node_modules/bclient \
-    && npm install --production \
-    && popd
 
 # TODO: Inherit from official image
 FROM base
 
-COPY --from=build /code/node_modules/bcoin /code/node_modules/bcoin
-COPY --from=build /code/node_modules/bmultisig /code/node_modules/bmultisig
-COPY --from=build /code/node_modules/blgr /code/node_modules/blgr
-COPY --from=build /code/node_modules/bclient /code/node_modules/bclient
+COPY --from=build /code/node_modules /code/node_modules
 COPY ./scripts/ /code/scripts
 
 CMD ["/code/scripts/entrypoint.sh"]
