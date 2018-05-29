@@ -1,10 +1,12 @@
 import { CONNECT_SOCKET, DISCONNECT_SOCKET } from '../constants/sockets';
+import { bpanelClient } from '@bpanel/bpanel-utils';
 
 export function connectSocket() {
+  const client = bpanelClient();
   return {
     type: CONNECT_SOCKET,
     bsock: {
-      host: 'localhost',
+      host: client.host ? client.host : 'localhost',
       port: 8000
     }
   };
