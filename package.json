@@ -6,13 +6,16 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server",
+    "prestart": "node scripts/validateSecrets.js",
     "start:dev": "node server --dev",
+    "prestart:dev": "node scripts/validateSecrets.js",
     "start:poll": "node server --dev --watch-poll",
+    "prestart:poll": "node scripts/validateSecrets.js",
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
     "version": "node scripts/version.js",
-    "postinstall": "node scripts/postinstall.js",
+    "postinstall": "node scripts/createSecrets.js && node scripts/version.js",
     "clear:plugins": "node server/clear-plugins.js",
     "build:plugins": "npm run clear:plugins && node server/build-plugins.js"
   },

@@ -1,3 +1,4 @@
+// create webapp/version.json file
 // Looks at the git tags and sha to output the version.
 
 let commit, version;
