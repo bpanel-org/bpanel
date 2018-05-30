@@ -3,7 +3,6 @@
 const bcoin = require('bcoin');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
 const blgr = require('blgr');
 
 // global variables
@@ -18,14 +17,11 @@ let node;
     await logger.open();
     logger.info('LOGGER OPEN');
 
-    let prefix = process.env.prefix
-      ? process.env.prefix
-      : `${os.homedir()}/.bcoin/`;
-    const initScript = process.env.BCOIN_INIT_SCRIPT;
-
-    prefix = prefix.replace('~', os.homedir());
     // create the node with our custom configs
+    // the env option will pull options from the environment
+    // which is set in docker-compose.yml
     node = new bcoin.FullNode({ env: true });
+    logger.info('node:', node.config);
     logger.info('Starting bcoin.FullNode({ env: true })');
 
     node.on('error', e => logger.error('There was an error: ', e));
@@ -36,6 +32,7 @@ let node;
     node.startSync();
     logger.info('Starting node sync');
 
+    const initScript = process.env.BCOIN_INIT_SCRIPT;
     const initScriptFilePath = path.resolve(__dirname, initScript);
     const initScriptExists = fs.existsSync(initScriptFilePath);
     if (!!initScript && initScriptExists) {

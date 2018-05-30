@@ -4,13 +4,15 @@
 // --watch-poll Watch webapp in docker on a Mac
 // --dev Watch server and webapp
 
-let poll = false;
 const path = require('path');
+const Config = require('bcfg');
+
 const webpackArgs = [
   '--config',
   path.resolve(__dirname, '../webpack.config.js')
 ];
 
+let poll = false;
 // If run from command line, parse args
 if (require.main === module) {
   if (process.argv.indexOf('--watch-poll') >= 0) {
@@ -37,7 +39,7 @@ if (require.main === module) {
 }
 
 // Init bPanel
-module.exports = config => {
+module.exports = (config = {}) => {
   // Always start webpack
   require('nodemon')({
     script: './node_modules/.bin/webpack',
@@ -50,10 +52,16 @@ module.exports = config => {
     })
     .on('quit', process.exit);
 
-  if (!config) {
-    // Load from ENV, secrets.env, & bcoin.env
-    config = require('./loadConfig.js');
-  }
+  // Setup configs
+  // bcoin specific configs, will be prefixed with `BCOIN_` in env
+  const bcoinConfig = new Config('bcoin');
+  bcoinConfig.load({ env: true, argv: true });
+
+  // bcoin specific configs, will be prefixed with `BPANEL_` in env
+  // if using server as middleware, can also pass in custom configs
+  const bpanelConfig = new Config('bpanel');
+  bpanelConfig.load({ env: true, argv: true });
+  bpanelConfig.inject(config);
 
   // Import server dependencies
   const path = require('path');
@@ -69,7 +77,9 @@ module.exports = config => {
   const logger = require('./logger');
   const bcoinRouter = require('./bcoinRouter');
   const socketHandler = require('./bcoinSocket');
-  const { nodeClient, walletClient } = require('./bcoinClients')(config);
+  const { nodeClient, walletClient } = require('./bcoinClients')(
+    bcoinConfig.env
+  );
 
   // Init bsock socket server
   const socketHttpServer = http.createServer();
@@ -118,7 +128,7 @@ module.exports = config => {
 
     // route to get server info
     app.get('/server', (req, res) =>
-      res.status(200).send({ bcoinUri: config.uri })
+      res.status(200).send({ bcoinUri: bcoinConfig.str('node-uri') })
     );
 
     if (nodeClient) {

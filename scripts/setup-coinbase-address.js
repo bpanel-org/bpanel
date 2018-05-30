@@ -1,4 +1,3 @@
-const bcoin = require('bcoin');
 const { WalletClient } = require('bclient');
 const blgr = require('blgr');
 const assert = require('assert');

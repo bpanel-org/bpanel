@@ -1,34 +1,77 @@
+const url = require('url');
+const { Network } = require('bcoin');
 const { NodeClient, WalletClient } = require('bclient');
+const Config = require('bcfg');
 const logger = require('./logger');
 
-module.exports = config => {
-  config.port = parseInt(config.port);
-  const walletConfig = {
-    host: config.host,
-    apiKey: config.apiKey,
-    network: config.network,
-    port: parseInt(config.walletPort)
-  };
-  if (config.port == 443 || config.protocol.indexOf('https') == 0) {
-    walletConfig.ssl = true;
-    logger.info('wallet client using ssl');
+module.exports = defaultConfigs => {
+  const config = new Config('bpanel/clients');
+  config.load({
+    argv: true,
+    env: true
+  });
+
+  config.inject(defaultConfigs);
+  config.open('bpanel.conf');
+
+  // use network fallbacks
+  const network = Network.get(config.str('network', 'main'));
+
+  // set fallback network configs from `uri` config if set
+  let port = network.rpcPort,
+    hostname = '127.0.0.1',
+    protocol;
+
+  const uri = config.str('node-uri');
+  if (uri) {
+    const nodeUrl = url.parse(uri);
+    port = nodeUrl.port;
+    hostname = nodeUrl.hostname;
+    protocol = nodeUrl.hostname;
   }
 
+  const ssl = config.bool('ssl') || protocol.indexOf('https') > -1;
+  config.inject({ port, hostname, protocol, ssl });
+
+  const nodeOptions = {
+    uri: config.str('node-uri'),
+    host: config.str('host', hostname),
+    apiKey: config.str('api-key'),
+    network: config.str('network', 'main'),
+    port: config.uint('port'),
+    ssl: config.bool('ssl'),
+    protocol: config.str('protocol')
+  };
+
+  const walletOptions = {
+    ...nodeOptions,
+    uri: config.str('wallet-uri'),
+    apiKey: config.str('wallet-api-key', nodeOptions.apiKey),
+    port: config.uint('wallet-port', network.walletPort),
+    ssl: config.bool('wallet-ssl', nodeOptions.ssl),
+    token: config.str('wallet-token')
+  };
+
   let walletClient, nodeClient;
-  if (config.port) {
-    nodeClient = new NodeClient(config);
+  // check if config explicitly sets node config to `false`
+  // if false, do not instantiate new node client
+  if (config.bool('node', true)) {
+    nodeClient = new NodeClient(nodeOptions);
     logger.info(
-      `Configuring node client with uri: ${config.host}:${
-        config.port
-      }, network: ${config.network}`
+      `Configuring node client with uri: ${nodeOptions.host}:${
+        nodeOptions.port
+      }, network: ${nodeOptions.network}`
     );
   }
-  if (config.walletPort) {
-    walletClient = new WalletClient(walletConfig);
+
+  // check if config explicitly sets wallet config to `false`
+  // if false, do not instantiate new wallet client
+  if (config.bool('wallet', true)) {
+    walletClient = new WalletClient(walletOptions);
     logger.info(
-      `Configuring wallet client with uri: ${walletConfig.host}:${
-        walletConfig.port
-      }, network: ${walletConfig.network}`
+      `Configuring wallet client with uri: ${walletOptions.host}:${
+        walletOptions.port
+      }, network: ${walletOptions.network}`
     );
   }
 
