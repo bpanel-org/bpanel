@@ -19,6 +19,7 @@ services:
       # - ./scripts:/usr/src/app/scripts
       ## Uncomment for webapp dev
       - ./webapp:/usr/src/app/webapp
+      - ~/.bpanel:/root/.bpanel
     ## Only MacOSX users need --watch-poll
     command: server --dev --watch-poll
 
@@ -70,8 +71,11 @@ services:
       - "18558:18558" # Wallet
     volumes:
       - ./scripts:/code/scripts
-      ## Comment to make bcoin chain and wallet database NOT persistant
+      # Use below config to persist bcoin data in docker volume
+      # - bcoin:/root/.bcoin
+      # Use below config instead to use bcoin data from local home dir
       - ~/.bcoin:/root/.bcoin
 
 volumes:
   certs:
+  bcoin:

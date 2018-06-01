@@ -12,23 +12,6 @@ const webpackArgs = [
   path.resolve(__dirname, '../webpack.config.js')
 ];
 
-// Setup config object
-// bPanel specific configs, will be prefixed with `BPANEL_` in env
-// dataDir defaults to `~/.[MODULE_NAME]`, where MODULE_NAME
-// is the first argument passed to the Config constructor
-// (i.e. 'bpanel' below)
-const config = new Config('bpanel');
-config.load({
-  argv: true,
-  env: true
-});
-
-// inject client configs from a config in the client dir
-// pass `client-id` as a command line arg
-// or as env var BPANEL_CLIENT_ID
-const clientId = config.str('client-id', 'default');
-config.open(`clients/${clientId}.conf`);
-
 let poll = false;
 // If run from command line, parse args
 if (require.main === module) {
@@ -40,11 +23,15 @@ if (require.main === module) {
   }
   if (process.argv.indexOf('--dev') >= 0) {
     if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
+
+    // pass args to nodemon process except `--dev`
+    const args = process.argv.slice(2).filter(arg => arg !== '--dev');
+
     // Watch this server
     return require('nodemon')({
       script: 'server/index.js',
       watch: ['server'],
-      args: [poll ? '--watch-poll' : '--watch'],
+      args,
       legacyWatch: poll,
       ext: 'js'
     })
@@ -56,7 +43,7 @@ if (require.main === module) {
 }
 
 // Init bPanel
-module.exports = (config = {}) => {
+module.exports = (config_ = {}) => {
   // Always start webpack
   require('nodemon')({
     script: './node_modules/.bin/webpack',
@@ -84,8 +71,10 @@ module.exports = (config = {}) => {
   const bcoinRouter = require('./bcoinRouter');
   const socketHandler = require('./bcoinSocket');
 
-  // pass in any other configs that were passed via middleware
-  config.inject(config);
+  let config = config_;
+  if (!(config_ instanceof Config)) {
+    config = require('./loadConfigs')(config_);
+  }
 
   // create clients
   const { nodeClient, walletClient } = require('./bcoinClients')(config);
@@ -206,5 +195,5 @@ module.exports = (config = {}) => {
 
 // Start server when ran from command line
 if (require.main === module) {
-  module.exports(config);
+  module.exports();
 }
