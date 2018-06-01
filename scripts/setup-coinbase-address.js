@@ -5,15 +5,14 @@ const assert = require('assert');
 // setup coinbase addresses for miner
 // must be done at runtime, otherwise a
 // potential security problem
-module.exports = async node => {
+module.exports = async (node, config) => {
   const logger = new blgr({
     level: 'info'
   });
   await logger.open();
-  const port = parseInt(process.env.BCOIN_WALLET_PORT, 10);
-  const apiKey = process.env.BCOIN_API_KEY;
+  const port = config.int('wallet-port');
+  const apiKey = config.str('api-key');
 
-  // port will be NaN if it was undefined
   assert(!!port, `${process.argv[0]} requires BCOIN_WALLET_PORT to be set`);
   assert(
     apiKey !== undefined,
@@ -25,9 +24,8 @@ module.exports = async node => {
   // allow for runtime configuration of which
   // address to use for coinbase transactions
   // TODO: come up with generalized way to pass args to runtime scripts
-  const COINBASE_WALLET_ID = process.env.BPANEL_COINBASE_WALLET_ID || 'primary';
-  const COINBASE_ACCOUNT_ID =
-    process.env.BPANEL_COINBASE_ACCOUNT_ID || 'default';
+  const COINBASE_WALLET_ID = config.str('coinbase-wallet-id', 'primary');
+  const COINBASE_ACCOUNT_ID = config.str('coinbase-account-id', 'default');
 
   const wallet = walletClient.wallet(COINBASE_WALLET_ID);
   logger.info('Fetching coinbase address');

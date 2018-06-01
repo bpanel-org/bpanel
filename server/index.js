@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// bPanel server -- The bcoin UI
+// bPanel server -- A Blockchain Management System
 // --watch Watch webapp
 // --watch-poll Watch webapp in docker on a Mac
 // --dev Watch server and webapp
@@ -11,6 +11,23 @@ const webpackArgs = [
   '--config',
   path.resolve(__dirname, '../webpack.config.js')
 ];
+
+// Setup config object
+// bPanel specific configs, will be prefixed with `BPANEL_` in env
+// dataDir defaults to `~/.[MODULE_NAME]`, where MODULE_NAME
+// is the first argument passed to the Config constructor
+// (i.e. 'bpanel' below)
+const config = new Config('bpanel');
+config.load({
+  argv: true,
+  env: true
+});
+
+// inject client configs from a config in the client dir
+// pass `client-id` as a command line arg
+// or as env var BPANEL_CLIENT_ID
+const clientId = config.str('client-id', 'default');
+config.open(`clients/${clientId}.conf`);
 
 let poll = false;
 // If run from command line, parse args
@@ -52,17 +69,6 @@ module.exports = (config = {}) => {
     })
     .on('quit', process.exit);
 
-  // Setup configs
-  // bcoin specific configs, will be prefixed with `BCOIN_` in env
-  const bcoinConfig = new Config('bcoin');
-  bcoinConfig.load({ env: true, argv: true });
-
-  // bcoin specific configs, will be prefixed with `BPANEL_` in env
-  // if using server as middleware, can also pass in custom configs
-  const bpanelConfig = new Config('bpanel');
-  bpanelConfig.load({ env: true, argv: true });
-  bpanelConfig.inject(config);
-
   // Import server dependencies
   const path = require('path');
   const http = require('http');
@@ -77,9 +83,12 @@ module.exports = (config = {}) => {
   const logger = require('./logger');
   const bcoinRouter = require('./bcoinRouter');
   const socketHandler = require('./bcoinSocket');
-  const { nodeClient, walletClient } = require('./bcoinClients')(
-    bcoinConfig.env
-  );
+
+  // pass in any other configs that were passed via middleware
+  config.inject(config);
+
+  // create clients
+  const { nodeClient, walletClient } = require('./bcoinClients')(config);
 
   // Init bsock socket server
   const socketHttpServer = http.createServer();
@@ -128,7 +137,7 @@ module.exports = (config = {}) => {
 
     // route to get server info
     app.get('/server', (req, res) =>
-      res.status(200).send({ bcoinUri: bcoinConfig.str('node-uri') })
+      res.status(200).send({ bcoinUri: config.str('node-uri', '0.0.0.0') })
     );
 
     if (nodeClient) {
@@ -197,5 +206,5 @@ module.exports = (config = {}) => {
 
 // Start server when ran from command line
 if (require.main === module) {
-  module.exports();
+  module.exports(config);
 }

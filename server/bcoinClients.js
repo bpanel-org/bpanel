@@ -1,18 +1,15 @@
 const url = require('url');
 const { Network } = require('bcoin');
 const { NodeClient, WalletClient } = require('bclient');
-const Config = require('bcfg');
 const logger = require('./logger');
+const assert = require('assert');
+const Config = require('bcfg');
 
-module.exports = defaultConfigs => {
-  const config = new Config('bpanel/clients');
-  config.load({
-    argv: true,
-    env: true
-  });
-
-  config.inject(defaultConfigs);
-  config.open('bpanel.conf');
+module.exports = config => {
+  assert(
+    config instanceof Config,
+    'Must pass instance of Config class to client composer'
+  );
 
   // use network fallbacks
   const network = Network.get(config.str('network', 'main'));
@@ -27,7 +24,7 @@ module.exports = defaultConfigs => {
     const nodeUrl = url.parse(uri);
     port = nodeUrl.port;
     hostname = nodeUrl.hostname;
-    protocol = nodeUrl.hostname;
+    protocol = nodeUrl.protocol;
   }
 
   const ssl = config.bool('ssl') || protocol.indexOf('https') > -1;

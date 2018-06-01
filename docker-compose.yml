@@ -1,18 +1,17 @@
 version: '3'
 services:
   app:
+    ## Uncomment to build
+    # build: .
     image: bpanel/bpanel
     restart: unless-stopped
     ports:
       - "5000:5000"
       - "8000:8000"
     env_file:
-      - ./bcoin.env
       - ./secrets.env
     environment:
       BCOIN_HOST: bcoin
-    ## Uncomment to build
-    # build: .
     volumes:
       ## Mapping to local files- Handy for dev
       ## Uncomment for server dev
@@ -39,8 +38,10 @@ services:
     image: bpanel/bcoin
     restart: unless-stopped
     env_file:
-      - ./bcoin.env
+    #   - ./bcoin.env
       - ./secrets.env
+    environment:
+      BCOIN_NETWORK: regtest
     ## Uncomment to build
     # build:
     #   context: .
@@ -70,7 +71,7 @@ services:
     volumes:
       - ./scripts:/code/scripts
       ## Comment to make bcoin chain and wallet database NOT persistant
-      - ~/.bpanel:/code/.bpanel
+      - ~/.bcoin:/root/.bcoin
 
 volumes:
   certs:
