@@ -92,7 +92,11 @@ module.exports = (_config = {}) => {
   }
 
   // create clients
-  const { nodeClient, walletClient } = require('./bcoinClients')(config);
+  const {
+    nodeClient,
+    walletClient,
+    multisigWalletClient
+  } = require('./bcoinClients')(config);
 
   // Init bsock socket server
   const socketHttpServer = http.createServer();
@@ -115,11 +119,19 @@ module.exports = (_config = {}) => {
       if (walletClient) {
         await walletClient.open();
       }
+      if (multisigWalletClient) {
+        await multisigWalletClient.open();
+      }
     } catch (err) {
       logger.error('Error connecting sockets: ', err);
     }
 
-    bsock.on('socket', socketHandler(nodeClient, walletClient));
+    // TODO: figure out if duplicating some events between
+    // the two different wallet clients
+    bsock.on(
+      'socket',
+      socketHandler(nodeClient, walletClient, multisigWalletClient)
+    );
 
     // Setup app server
     app.use(
@@ -155,6 +167,10 @@ module.exports = (_config = {}) => {
 
     if (walletClient) {
       app.use('/bwallet', bcoinRouter(walletClient));
+    }
+
+    if (multisigWalletClient) {
+      app.use('/multisig', bcoinRouter(multisigWalletClient));
     }
 
     // TODO: add favicon.ico file
