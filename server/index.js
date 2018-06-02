@@ -71,6 +71,11 @@ module.exports = (config_ = {}) => {
   const bcoinRouter = require('./bcoinRouter');
   const socketHandler = require('./bcoinSocket');
 
+  // Setting up configs
+  // If passed a bcfg object we can just use that
+  // Otherwise if passed an object we will inject that
+  // into a config object along with command line args,
+  // env vars and config files using bcfg utilities in loadConfigs.js
   let config = config_;
   if (!(config_ instanceof Config)) {
     config = require('./loadConfigs')(config_);
