@@ -2,11 +2,12 @@ const fs = require('fs');
 const crypto = require('crypto');
 const fname = 'secrets.env';
 
-// two different clients need to
-// use the same api key, they
+// three different clients need to
+// use the same api key when bootstrapping
+// a docker environment, they
 // use different env variables
 // to read the value so
-// write the randomValue to two
+// write the randomValue to three
 // different env vars
 const randomValue = crypto.randomBytes(40).toString('hex');
 
@@ -15,7 +16,8 @@ if (!fs.existsSync(fname)) {
   fs.writeFileSync(
     fname,
     `BCOIN_API_KEY=${randomValue}
-    BCOIN_NODE_API_KEY=${randomValue}`,
+    BCOIN_NODE_API_KEY=${randomValue}
+    BPANEL_API_KEY=${randomValue}`,
     { mode: 0o600 }
   );
 }

@@ -16,7 +16,7 @@ module.exports = config => {
 
   // set fallback network configs from `uri` config if set
   let port = network.rpcPort,
-    hostname = '127.0.0.1',
+    hostname,
     protocol;
 
   const uri = config.str('node-uri');
@@ -27,7 +27,8 @@ module.exports = config => {
     protocol = nodeUrl.protocol;
   }
 
-  const ssl = config.bool('ssl') || protocol.indexOf('https') > -1;
+  const ssl =
+    config.bool('ssl') || (protocol && protocol.indexOf('https') > -1);
   config.inject({ port, hostname, protocol, ssl });
 
   const nodeOptions = {

@@ -2,8 +2,8 @@ version: '3'
 services:
   app:
     ## Uncomment to build
-    # build: .
-    image: bpanel/bpanel
+    build: .
+    # image: bpanel/bpanel
     restart: unless-stopped
     ports:
       - "5000:5000"
@@ -11,14 +11,14 @@ services:
     env_file:
       - ./secrets.env
     environment:
-      BCOIN_HOST: bcoin
+      BPANEL_HOST: bcoin
+      BPANEL_NETWORK: regtest
     volumes:
       ## Mapping to local files- Handy for dev
-      ## Uncomment for server dev
+      - ./webapp:/usr/src/app/webapp
       - ./server:/usr/src/app/server
       # - ./scripts:/usr/src/app/scripts
-      ## Uncomment for webapp dev
-      - ./webapp:/usr/src/app/webapp
+      # Use below to copy local bpanel config files
       - ~/.bpanel:/root/.bpanel
     ## Only MacOSX users need --watch-poll
     command: server --dev --watch-poll
@@ -42,7 +42,13 @@ services:
     #   - ./bcoin.env
       - ./secrets.env
     environment:
+      # can change these based on the node you want to run
+      # also can be done via a bcoin.conf file
       BCOIN_NETWORK: regtest
+      BCOIN_HTTP_HOST: 0.0.0.0
+      # no wallet because default loads bmultisig separately
+      BCOIN_NO_WALLET: 'true'
+      BCOIN_MEMORY: 'false'
     ## Uncomment to build
     # build:
     #   context: .
