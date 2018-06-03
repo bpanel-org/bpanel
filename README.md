@@ -19,7 +19,15 @@ to a configuration file `~/.bpanel/clients/default.conf` and run:
 
 ```bash
 npm install
-npm run start
+npm start
+```
+
+You can save as many confs for as many compatible nodes as you want and use
+the argument `client-id` to connect to them. For example, save another set
+of configurations to a file `~/.bpanel/clients/main.conf` and run:
+
+```bash
+npm start -- --client-id=main
 ```
 
 Configurations can also be passed via the command line or environment variables prefaced
@@ -79,32 +87,23 @@ this can take around 30 seconds as `npm install` is run for you.
 
 Discover all the plugins available by running `npm search bpanel` in your console.
 
-## About the Docker Environment
-There are three docker services in the compose file: `app`, `bcoin` and `securityc`.
-The `app` service acts as a static file server and as a request router to backend services.
-The `bcoin` service is an instance of `bcoin` that supports an http server, a wallet server
-and a bitcoin p2p server.
-
-The `securityc` service generates TLS keys and certs and runs a TLS terminating reverse proxy.
-You can use custom configs to connect to an existing node,
-or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
-
-### Configuration
+## Configuration
 bPanel can be configured to connect to any bcoin-API compatible node you want to point it to,
 not just the docker container created by the default `docker-compose.yml` configurations.
 
 Since bPanel just uses [`bclient`](https://github.com/bcoin-org/bclient) to connect
 to and query nodes, all you need to do is pass the appropriate congifurations when starting up
-bPanel. This can be done via command line, environment variables (prefaced with `BPANEL_`), or
-through a configuration file.
+bPanel. This can be done via the command line, environment variables (prefaced with `BPANEL_`),
+or through a configuration file.
 
-bPanel looks for configuration files in your home directory in a `.bpanel` directory
-(`~/.bpanel`). This can be changed by passing a `prefix` argument. Client configurations for connecting
-to different nodes are loaded from the `clients` directory, `~/.bpanel/clients/[CLIENT-ID].conf`.
+bPanel looks for configuration files in your home directory in a `.bpanel` folder
+(`~/.bpanel`). This can be changed by passing a `prefix` argument at runtime.
+Client configurations for connecting to different nodes are loaded from the `clients`
+directory, `~/.bpanel/clients/[CLIENT-ID].conf`.
 
 You can have as many different configurations as you want. bPanel will default to a `default.conf`
 configuration. To use different configurations, just pass in a `client-id` argument at runtime.
-e.g. `npm run start:dev -- --client-id=test` (or as an env variable `BPANEL_CLIENT_ID=test`) which
+e.g. `npm start -- --client-id=test` (or as an env variable `BPANEL_CLIENT_ID=test`) which
 will load configs from `~/.bpanel/clients/test.conf`.
 
 The clients directory can also be customized with the `clients-dir` argument.
@@ -112,10 +111,20 @@ The clients directory can also be customized with the `clients-dir` argument.
 Sample conf files for the client can be found
 [here](https://github.com/bpanel-org/bpanel/tree/master/etc/sample.client.conf)
 
-Since there a node and wallet services are run on different servers,
-you will likely need different configurations for your wallet client. These
-should be in the same conf file, prefaced with `wallet-`. See the sample conf file for
-an example.
+Since node and wallet services are run on different servers,
+you will likely need different configurations to connect to the wallet. These
+should be in the same client conf file, prefaced with `wallet-` (note that bcoin looks for these
+in separate config files). See the sample conf file for an example.
+
+## About the Docker Environment
+There are three docker services in the compose file: `app`, `bcoin` and `securityc`.
+The `app` service is bPanel and acts as a static file server and as a request router
+to backend services. The `bcoin` service is an instance of `bcoin` that supports an http
+server, a wallet server and a bitcoin p2p server.
+
+The `securityc` service generates TLS keys and certs and runs a TLS terminating reverse proxy.
+You can use custom configs to connect to an existing node,
+or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
 
 #### Configuration between Docker services
 These instructions are for if you want to run bPanel within the `app` service and have it talk to
