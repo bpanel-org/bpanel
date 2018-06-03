@@ -130,7 +130,7 @@ module.exports = (config_ = {}) => {
     app.get('/', resolveIndex);
 
     // route to get server info
-    const uri = `${nodeClient.host}:${nodeClient.port}`;
+    const uri = config.str('node-uri', `${nodeClient.host}:${nodeClient.port}`);
     app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
 
     if (nodeClient) {
