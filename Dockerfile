@@ -28,12 +28,10 @@ COPY package.json \
 
 # Install dependencies
 FROM base AS build
-RUN echo npm version $(npm --version)
 RUN npm install
 
 # Bundle app
 FROM base
-RUN echo npm version $(npm --version)
 COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
 COPY webpack.config.js /usr/src/app/webpack.config.js
 COPY scripts /usr/src/app/scripts
