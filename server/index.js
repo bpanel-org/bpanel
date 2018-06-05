@@ -43,7 +43,7 @@ if (require.main === module) {
 }
 
 // Init bPanel
-module.exports = (config_ = {}) => {
+module.exports = (_config = {}) => {
   // Always start webpack
   require('nodemon')({
     script: './node_modules/.bin/webpack',
@@ -76,9 +76,9 @@ module.exports = (config_ = {}) => {
   // Otherwise if passed an object we will inject that
   // into a config object along with command line args,
   // env vars and config files using bcfg utilities in loadConfigs.js
-  let config = config_;
-  if (!(config_ instanceof Config)) {
-    config = require('./loadConfigs')(config_);
+  let config = _config;
+  if (!(_config instanceof Config)) {
+    config = require('./loadConfigs')(_config);
   }
 
   // create clients
