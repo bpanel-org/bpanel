@@ -17,7 +17,15 @@ const routerWithClient = client => {
       );
       logger.debug('query:', query);
       logger.debug('body:', body);
+
+      // proxy the token
+      const token = client.token;
+      if ('token' in payload) {
+        client.token = payload.token;
+        logger.debug('Using custom client token');
+      }
       const response = await client.request(method, path, payload);
+      client.token = token;
       logger.debug('server response:', response ? response : 'null');
       if (response) return res.status(200).json(response);
       // return 404 when response is null due to
