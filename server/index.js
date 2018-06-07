@@ -214,6 +214,31 @@ module.exports = (_config = {}) => {
         .listen(port, () => {
           logger.info('bpanel app running on port', port);
         });
+
+      if (process.env.BPANEL_SERVE_HTTPS) {
+        const fs = require('fs');
+        const https = require('https');
+        const httpsPort = parseInt(process.env.BPANEL_HTTPS_PORT, 10) || 5001;
+        const keyPath = process.env.BPANEL_TLS_KEY_PATH;
+        const certPath = process.env.BPANEL_TLS_CERT_PATH;
+
+        let opts = {};
+        try {
+          opts.key = fs.readFileSync(keyPath);
+          opts.cert = fs.readFileSync(certPath);
+        } catch (e) {
+          logger.error(e);
+          logger.error('Error reading cert/key pair');
+          process.exit(1);
+        }
+
+        https
+          .createServer(opts, express().use(app))
+          .on('error', onError('bpanel'))
+          .listen(httpsPort, () => {
+            logger.info('bpanel https app running on port', httpsPort);
+          });
+      }
     }
 
     return app;
