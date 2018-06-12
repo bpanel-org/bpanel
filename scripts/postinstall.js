@@ -7,8 +7,9 @@ const fname = 'secrets.env';
 // a docker environment, they
 // use different env variables
 // to read the value so
-// write the randomValue to three
-// different env vars
+// write the randomValue to
+// different env vars which require different prefixes
+// for different environments
 const randomValue = crypto.randomBytes(40).toString('hex');
 
 // Init secrets.env

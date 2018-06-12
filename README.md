@@ -53,8 +53,8 @@ The following will generally just be used for quick start, testing,
 and development purposes (though it could be used in production
 with some modification).
 
-To spin up your webapp, reverse-proxy, server, a bcoin node on regtest, a
-separate wallet with [multisig support](https://github.com/bcoin-org/bmultisig),
+To spin up a webapp, reverse-proxy, server, a bcoin node on regtest and a wallet server
+with [multisig support](https://github.com/bcoin-org/bmultisig),
 clone this repo and from the cloned directory do the following:
 
 1. Run `npm install` to create a secrets.env file.
@@ -133,7 +133,9 @@ out of the box if you simply run `docker-compose up -d`.
 
 Configurations are shared between the two docker containers using ENV files
 and the `environment` settings in the `docker-compose.yml`. If you are mounting
-a local bcoin data dir (`~/.bcoin`) or persisting using docker volumes, you can also pass settings to your bcoin docker container with a `bcoin.conf` file (read more about bcoin configurations [here](https://github.com/bcoin-org/bcoin/blob/master/docs/Configuration.md)).
+a local bcoin data dir (`~/.bcoin`) or persisting using docker volumes, you can also
+pass settings to your bcoin docker container with a `bcoin.conf` file (read more about
+bcoin configurations [here](https://github.com/bcoin-org/bcoin/blob/master/docs/Configuration.md)).
 
 API keys can be shared through the `secrets.env` file. If you run `npm install` and
 there is no `secrets.env` present, one will automatically be generated for you with
@@ -158,8 +160,12 @@ if you're mapping volumes or if you restart a container.
 
 These checks are done in `bcoin-init.js` which is run by the bpanel/bcoin image
 that is used to create the `bcoin` container and sets up a node based on the configs
-described above. Setup scripts will also be passed the bcoin node object that has been
-created so the scripts have access to the node being started at run time.
+described above. Setup scripts are passed the bcoin node object that has been
+created so the scripts have access to the node being started at run time as well as the relevant
+configs.
+
+Example setup scripts can be found in the `/scripts` directory (`funded-dummy-wallets.js`
+and `setup-coinbase-address.js`).
 
 ### Persistent DBs
 By default, the bcoin and wallet DBs persist in `~/.bcoin`.
