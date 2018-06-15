@@ -25,7 +25,9 @@ services:
       # Use below to copy local bpanel config files
       # - ~/.bpanel:/root/.bpanel
     ## Only MacOSX users need --watch-poll
-    command: server --dev --client-id=_docker
+    ## the client-id says to use the config created by the
+    ## bcoin docker services
+    command: server --dev --watch-poll --client-id=_docker
 
   securityc:
     image: bpanel/securityc

@@ -47,8 +47,12 @@ at `localhost:5000`.
 Read more about using Docker with bPanel below.
 
 ## Application Architecture
+
+
+## Setup Your Environment With Docker
+### Architecture
 The default configs in the standard `docker-compose.yml` file
-brings up multiple containers
+bring up multiple containers
 
 - bcoin bitcoin node/wallet (running a regtest node)
 - bPanel routing + static file server (connecting to the regtest node)
@@ -57,8 +61,7 @@ brings up multiple containers
 Some plugins require TLS to function properly (such as hardware signing
 support).
 
-
-## Setup Your Environment With Docker
+### About Docker Environment
 (To learn how to use bpanel for existing bcoin nodes on any network,
 read about [configuring bPanel](#configuration) below).
 
@@ -70,18 +73,25 @@ To spin up a webapp, reverse-proxy, server, a bcoin node on regtest and a wallet
 with [multisig support](https://github.com/bcoin-org/bmultisig),
 clone this repo and from the cloned directory do the following:
 
-1. Run `npm install` to create a secrets.env file.
+1. Run `npm install` to install dependencies and generate
+necessary constants.
 1. Run `docker-compose up -d` to start everything.
 1. Navigate to [localhost:5000](http://localhost:5000) to see your webapp.
 1. Or navigate to [https://localhost](https://localhost) to use TLS - you will have to
 choose to trust the certificate
 
-Requests to `/bcoin` will get forwarded to your bcoin node.
+Requests to the `/bcoin` will get forwarded to your bcoin node.
+Requests to the '/bwallet' endpoint will get forwarded to the wallet server
 
 For local development, you run just the bcoin docker container (`docker-compose
-up -d bcoin`) and then `npm run start:dev` (or `npm run start:poll` for Mac since
+up -d bcoin`) and then `npm run start:dev -- --client-id=_docker`
+(or `npm run start:poll -- --client-id=_docker` for Mac since
 webpack's watch can behave strangely on macOS) to run the app and app server
 from your local box.
+
+Note that the `--client-id` argument tells bPanel which client config
+you want to use. `_docker` is the name of the config created by the bcoin
+service.
 
 ## Updating Plugins
 bPanel comes pre-installed with a default theme called [`Genesis Theme`](https://github.com/bpanel-org/genesis-theme),
@@ -101,8 +111,9 @@ this can take around 30 seconds as `npm install` is run for you.
 Discover all the plugins available by running `npm search bpanel` in your console.
 
 ## Configuration
-bPanel can be configured to connect to any bcoin-API compatible node you want to point it to,
-not just the docker container created by the default `docker-compose.yml` configurations.
+bPanel can be configured to connect to any bcoin-API compatible node you want to
+point it to, not just the docker container created by the default
+`docker-compose.yml` configurations.
 
 Since bPanel just uses [`bclient`](https://github.com/bcoin-org/bclient) to connect
 to and query nodes, all you need to do is pass the appropriate congifurations when starting up
@@ -159,39 +170,40 @@ version of bPanel to it by pointing the `client-id` config at `_docker` and it w
 use the appropriate configs.
 
 If you are mounting a local bcoin data dir (`~/.bcoin`) or persisting using docker volumes,
-you can also pass settings to your bcoin docker container with a `bcoin.conf` file (read more about bcoin configurations
+you can also pass settings to your bcoin docker container with a `bcoin.conf`
+file (read more about bcoin configurations
 [here](https://github.com/bcoin-org/bcoin/blob/master/docs/Configuration.md)).
 
 ### Bcoin Setup Scripts
-This section is only relevant if you will be running a bcoin node in a docker container
-using the `bcoin` service.
+(This section is only relevant if you will be running a bcoin node in a docker container
+using the `bcoin` service, or using the `bcoin-init.js` script to start a node.)
 
-This setup supports setup scripts. This will allow you to run scripts on your
-node for a repeatable and predictable environment for testing or development.
+This setup supports setup scripts for your bcoin node. This will allow you to run
+scripts on your node for a repeatable and predictable environment for testing or development.
 
 Three circumstances need to be met to run a script:
-1. There needs to be a js file to run in the `scripts` directory that exports a function to run
-2. You need to pass the name of this file (including the extension)
-as an environment variable named `BCOIN_INIT_SCRIPT` in the docker-compose or as a `init-script`
-setting in your `bcoin.conf` file
-3. There should be no walletdb in the container.
+1. There needs to be a js file to run in the `scripts` directory that exports a function
+1. You need to pass the name of this file (including the extension)
+as an environment variable named `BCOIN_INIT_SCRIPT` in the docker-compose or as a
+`init-script` setting in your `bcoin.conf` file
+1. There should be no walletdb in the container.
 This last requirement makes sure that a setup script doesn't overwrite your data
 if you're mapping volumes or if you restart a container.
 
 These checks are done in `bcoin-init.js` which is run by the bpanel/bcoin image
 that is used to create the `bcoin` container and sets up a node based on the configs
 described above. Setup scripts are passed the bcoin node object that has been
-created so the scripts have access to the node being started at run time as well as the relevant
-configs.
+created so the scripts have access to the node being started at run time as
+well as the relevant configs.
 
 Example setup scripts can be found in the `/scripts` directory (`funded-dummy-wallets.js`
 and `setup-coinbase-address.js`).
 
 ### Persistent DBs
 By default, the bcoin and wallet DBs persist in `~/.bcoin`.
-If you want docker to start bcoin with a fresh DB, comment out the `.bcoin`
+If you want docker to start bcoin with a fresh DB, comment out the `bcoin`
 volume in `docker-compose.yml` then run `docker-compose up -d`. Alternatively, you
-can also persist your bcoin data within the named `bcoin` volume.
+can also persist your bcoin data within the named `bcoin` volume or on the host machine.
 
 ### Building images
 Uncomment the relevant `build:` sections in `docker-compose.yml`

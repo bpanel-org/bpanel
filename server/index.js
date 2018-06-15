@@ -27,7 +27,6 @@ if (require.main === module) {
 
     // pass args to nodemon process except `--dev`
     const args = process.argv.slice(2).filter(arg => arg !== '--dev');
-    const clientsDir = path.resolve(os.homedir(), '.bpanel/clients');
     // Watch this server
     const nodemon = require('nodemon')({
       script: 'server/index.js',
@@ -41,6 +40,9 @@ if (require.main === module) {
       })
       .on('quit', process.exit);
 
+    // need to use chokidar to watch for changes outside the working
+    // directory. Will restart if configs get updated
+    const clientsDir = path.resolve(os.homedir(), '.bpanel/clients');
     require('chokidar')
       .watch(clientsDir, { usePolling: poll, useFsEvents: poll })
       .on('all', () => {
