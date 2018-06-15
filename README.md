@@ -94,7 +94,8 @@ not just the docker container created by the default `docker-compose.yml` config
 Since bPanel just uses [`bclient`](https://github.com/bcoin-org/bclient) to connect
 to and query nodes, all you need to do is pass the appropriate congifurations when starting up
 bPanel. This can be done via the command line, environment variables (prefaced with `BPANEL_`),
-or through a configuration file.
+or through a configuration file. Under the hood, bPanel uses the `bcfg` module
+to accomplish this. Learn more about `bcfg` [here](https://github.com/bcoin-org/bcfg).
 
 bPanel looks for configuration files in your home directory in a `.bpanel` folder
 (`~/.bpanel`). This can be changed by passing a `prefix` argument at runtime.
@@ -131,16 +132,22 @@ These instructions are for if you want to run bPanel within the `app` service an
 a bcoin node running in a container from the `bcoin` service. For example, this is how bPanel works
 out of the box if you simply run `docker-compose up -d`.
 
-Configurations are shared between the two docker containers using ENV files
-and the `environment` settings in the `docker-compose.yml`. If you are mounting
-a local bcoin data dir (`~/.bcoin`) or persisting using docker volumes, you can also
-pass settings to your bcoin docker container with a `bcoin.conf` file (read more about
-bcoin configurations [here](https://github.com/bcoin-org/bcoin/blob/master/docs/Configuration.md)).
+Configurations are shared between the two docker containers using a shared
+docker volume called `configs`. Settings for the bcoin nodes in docker
+are set using environment variables, either in docker-compose.yml or
+an env file (by default in `/etc/bcoin.env` but you can point to whichever and
+as many env files as you want using the `env_file` configuration in the bcoin
+service). The bcoin node is started with the `bcoin-init.js` script. During this
+process, api keys are generated and all required configurations are saved in a config
+file called `_docker.conf` in the shared volume.
 
-API keys can be shared through the `secrets.env` file. If you run `npm install` and
-there is no `secrets.env` present, one will automatically be generated for you with
-a cryptographically secure api key. The docker container environments will automaticaly set
-these variables via the `env_file` setting in `docker-compose`.
+If the configs volume is mounted to your host machine, you can connect a local
+version of bPanel to it by pointing the `client-id` config at `_docker` and it will
+use the appropriate configs.
+
+If you are mounting a local bcoin data dir (`~/.bcoin`) or persisting using docker volumes,
+you can also pass settings to your bcoin docker container with a `bcoin.conf` file (read more about bcoin configurations
+[here](https://github.com/bcoin-org/bcoin/blob/master/docs/Configuration.md)).
 
 ### Bcoin Setup Scripts
 This section is only relevant if you will be running a bcoin node in a docker container

@@ -58,7 +58,11 @@ class Sidebar extends PureComponent {
   }
 
   renderSidebarItems() {
-    const { sidebarNavItems, location: { pathname = '' }, theme } = this.props;
+    const {
+      sidebarNavItems,
+      location: { pathname = '' },
+      theme
+    } = this.props;
     return sidebarNavItems
       .filter(plugin => plugin.sidebar || React.isValidElement(plugin))
       .map((plugin, index) => {

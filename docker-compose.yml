@@ -1,28 +1,31 @@
 version: '3'
 services:
-  app:
-    ## Build to use locak Dockerfile
-    # build: .
-    ## Use image to to pull from docker
-    image: bpanel/bpanel
+  bpanel:
+    ## Build to use local Dockerfile
+    build: .
+    ## Build from image from docker hub
+    # image: bpanel/bpanel
     restart: unless-stopped
+    environment:
+      # Need this to tell the bpanel client
+      # how to communicate with the bcoin node
+      # in docker
+      BPANEL_NODE_HOST: bcoin
     ports:
       - "5000:5000"
       - "8000:8000"
-    env_file:
-      - ./secrets.env
-    environment:
-      BPANEL_HOST: bcoin
-      BPANEL_NETWORK: regtest
     volumes:
       ## Mapping to local files- Handy for dev
       - ./webapp:/usr/src/app/webapp
       - ./server:/usr/src/app/server
-      # - ./scripts:/usr/src/app/scripts
+      - ./scripts:/usr/src/app/scripts
+      - ./package.json:/usr/src/app/package.json
+      # Use below to get configs written by bcoin service
+      - configs:/root/.bpanel
       # Use below to copy local bpanel config files
-      - ~/.bpanel:/root/.bpanel
+      # - ~/.bpanel:/root/.bpanel
     ## Only MacOSX users need --watch-poll
-    command: server --dev --watch-poll
+    command: server --dev --client-id=_docker
 
   securityc:
     image: bpanel/securityc
@@ -38,27 +41,19 @@ services:
 
   bcoin:
     ## Use image to to pull from docker hub
-    image: bpanel/bcoin
+    # image: bpanel/bcoin
     ## Build to use locak Dockerfile-bcoin
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile-bcoin
+    build:
+      context: .
+      dockerfile: Dockerfile-bcoin
     #   # args:
     #   #   repo: https://github.com/bcoin-org/bcoin.git
     #   #   branch: master
     #   #   rebuild: 0
     restart: unless-stopped
     env_file:
-    #   - ./bcoin.env
-      - ./secrets.env
-    environment:
-      # can change these based on the node you want to run
-      # also can be done via a bcoin.conf file
-      BCOIN_NETWORK: regtest
-      BCOIN_HTTP_HOST: 0.0.0.0
-      # no wallet because default loads bmultisig separately
-      BCOIN_NO_WALLET: 'true'
-      BCOIN_MEMORY: 'false'
+      # Set arguments to use in bcoin-init.js
+      - ./etc/bcoin.env
     ports:
       ## Comment these if they conflict with something else you're running.
       #-- Mainnet
@@ -79,11 +74,18 @@ services:
       - "18558:18558" # Wallet
     volumes:
       - ./scripts:/code/scripts
-      # Use below config to persist bcoin data in docker volume
-      # - bcoin:/root/.bcoin
-      # Use below config instead to use bcoin data from local home dir
-      - ~/.bcoin:/root/.bcoin
+      # # Use below config to persist bcoin data in docker volume
+      - bcoin:/root/.bcoin
+      # # Use below config to write bcoin configs to a bpanel client
+      - configs:/root/.bpanel
+      # # Use below config instead to use bcoin data from local home dir
+      # - ~/.bcoin:/root/.bcoin
 
 volumes:
   certs:
   bcoin:
+  configs:
+    driver_opts:
+      type: none
+      device: $HOME/.bpanel
+      o: bind

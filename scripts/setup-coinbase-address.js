@@ -1,5 +1,6 @@
 const { WalletClient } = require('bclient');
 const blgr = require('blgr');
+const { Network } = require('bcoin');
 const assert = require('assert');
 
 // setup coinbase addresses for miner
@@ -10,16 +11,12 @@ module.exports = async (node, config) => {
     level: 'info'
   });
   await logger.open();
-  const port = config.int('wallet-port');
-  const apiKey = config.str('api-key');
-
-  assert(!!port, `${process.argv[0]} requires BCOIN_WALLET_PORT to be set`);
-  assert(
-    apiKey !== undefined,
-    `${process.argv[0]} requires BCOIN_API_KEY to be set`
-  );
-
-  const walletClient = new WalletClient({ port, apiKey });
+  const network = Network.get(config.str('network', 'main'));
+  const walletClient = new WalletClient({
+    port: config.int('wallet-port', network.walletPort),
+    apiKey: config.str('api-key'),
+    token: config.str('admin-token')
+  });
 
   // allow for runtime configuration of which
   // address to use for coinbase transactions
@@ -27,9 +24,11 @@ module.exports = async (node, config) => {
   const COINBASE_WALLET_ID = config.str('coinbase-wallet-id', 'primary');
   const COINBASE_ACCOUNT_ID = config.str('coinbase-account-id', 'default');
 
-  const wallet = walletClient.wallet(COINBASE_WALLET_ID);
   logger.info('Fetching coinbase address');
-  const { receiveAddress } = await wallet.getAccount(COINBASE_ACCOUNT_ID);
+  const { receiveAddress } = await walletClient.getAccount(
+    COINBASE_WALLET_ID,
+    COINBASE_ACCOUNT_ID
+  );
 
   await node.miner.addAddress(receiveAddress);
   logger.info(`Set miner coinbase address: ${receiveAddress}`);

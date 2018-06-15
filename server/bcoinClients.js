@@ -15,30 +15,27 @@ module.exports = config => {
   const network = Network.get(config.str('network', 'main'));
 
   // set fallback network configs from `uri` config if set
-  let port = network.rpcPort,
-    hostname,
-    protocol;
+  let port = network.rpcPort;
+  let hostname = config.str('node-host', '127.0.0.1');
+  let protocol = config.str('protocol', 'http:');
 
-  const uri = config.str('node-uri');
+  let uri = config.str('node-uri');
   if (uri) {
     const nodeUrl = url.parse(uri);
     port = nodeUrl.port;
     hostname = nodeUrl.hostname;
     protocol = nodeUrl.protocol;
   }
-
   const ssl =
     config.bool('ssl') || (protocol && protocol.indexOf('https') > -1);
   config.inject({ port, hostname, protocol, ssl });
 
   const nodeOptions = {
-    uri: config.str('node-uri'),
-    host: config.str('host', hostname),
+    host: config.str('hostname'),
     apiKey: config.str('api-key'),
     network: config.str('network', 'main'),
     port: config.uint('port'),
-    ssl: config.bool('ssl'),
-    protocol: config.str('protocol')
+    ssl: config.bool('ssl')
   };
 
   const walletOptions = {
@@ -55,10 +52,11 @@ module.exports = config => {
   // if false, do not instantiate new node client
   if (config.bool('node', true)) {
     nodeClient = new NodeClient(nodeOptions);
+    const { ssl, host, port, network } = nodeOptions;
     logger.info(
-      `Configuring node client with uri: ${nodeOptions.host}:${
-        nodeOptions.port
-      }, network: ${nodeOptions.network}`
+      `Configuring node client with uri: ${
+        ssl ? 'https' : 'http'
+      }://${host}:${port}, network: ${network}`
     );
   }
 
@@ -66,10 +64,11 @@ module.exports = config => {
   // if false, do not instantiate new wallet client
   if (config.bool('wallet', true)) {
     walletClient = new WalletClient(walletOptions);
+    const { ssl, host, port, network } = walletOptions;
     logger.info(
-      `Configuring wallet client with uri: ${walletOptions.host}:${
-        walletOptions.port
-      }, network: ${walletOptions.network}`
+      `Configuring wallet client with uri: ${
+        ssl ? 'https' : 'http'
+      }://${host}:${port}, network: ${network}`
     );
   }
 

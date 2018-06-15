@@ -5,6 +5,7 @@
 // --dev Watch server and webapp
 
 const path = require('path');
+const os = require('os');
 const Config = require('bcfg');
 
 const webpackArgs = [
@@ -26,11 +27,11 @@ if (require.main === module) {
 
     // pass args to nodemon process except `--dev`
     const args = process.argv.slice(2).filter(arg => arg !== '--dev');
-
+    const clientsDir = path.resolve(os.homedir(), '.bpanel/clients');
     // Watch this server
-    return require('nodemon')({
+    const nodemon = require('nodemon')({
       script: 'server/index.js',
-      watch: ['server'],
+      watch: ['server', clientsDir],
       args,
       legacyWatch: poll,
       ext: 'js'
@@ -39,6 +40,13 @@ if (require.main === module) {
         process.exit(1);
       })
       .on('quit', process.exit);
+
+    require('chokidar')
+      .watch(clientsDir, { usePolling: poll, useFsEvents: poll })
+      .on('all', () => {
+        nodemon.emit('restart');
+      });
+    return;
   }
 }
 
@@ -130,10 +138,16 @@ module.exports = (_config = {}) => {
     app.get('/', resolveIndex);
 
     // route to get server info
-    const uri = config.str('node-uri', `${nodeClient.host}:${nodeClient.port}`);
+    const { ssl, host, port: clientPort } = nodeClient;
+
+    const uri = config.str(
+      'node-uri',
+      `${ssl ? 'https' : 'http'}://${host}:${clientPort}`
+    );
     app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
 
     if (nodeClient) {
+      logger.info(`Connecting with ${config.str('client-id')} client`);
       app.use('/bcoin', bcoinRouter(nodeClient));
     }
 
