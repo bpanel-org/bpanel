@@ -33,6 +33,19 @@ npm start -- --client-id=main
 Configurations can also be passed via the command line or environment variables prefaced
 with `BPANEL_`. Read more about configuring bPanel [here](#configuration).
 
+### Quick Start w/ Docker
+From inside the project directory in your terminal, run:
+
+```bash
+npm install && docker-compose up -d
+```
+
+This will start up three docker services as background daemon processes.
+Once everything has started up, you should be able to see your bPanel instance
+at `localhost:5000`.
+
+Read more about using Docker with bPanel below.
+
 ## Application Architecture
 The default configs in the standard `docker-compose.yml` file
 brings up multiple containers
