@@ -52,7 +52,7 @@ class App extends PureComponent {
     getNodeInfo();
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { updateTheme, appLoaded } = this.props;
     updateTheme();
     appLoaded();
@@ -71,7 +71,9 @@ class App extends PureComponent {
       plugin => plugin.sidebar || React.isValidElement(plugin)
     );
     const homePath = panels[0]
-      ? panels[0].pathName ? panels[0].pathName : panels[0].name
+      ? panels[0].pathName
+        ? panels[0].pathName
+        : panels[0].name
       : '';
     return homePath;
   }

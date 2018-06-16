@@ -33,4 +33,5 @@ FROM base
 COPY --from=build /code/node_modules /code/node_modules
 COPY ./scripts/ /code/scripts
 
-CMD ["/code/scripts/entrypoint.sh"]
+ENTRYPOINT [ "node" ]
+CMD ["/code/scripts/bcoin-init.js"]

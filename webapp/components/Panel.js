@@ -30,7 +30,7 @@ export default class extends PureComponent {
     return <Component {...routeProps} />;
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { customChildren = [] } = this.props;
     this.routes = customChildren.map(({ Component, metadata }) => {
       const { pathName, name } = metadata;

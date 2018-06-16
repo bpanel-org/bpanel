@@ -1,16 +1,19 @@
 #!/usr/bin/env node
-// bPanel server -- The bcoin UI
+// bPanel server -- A Blockchain Management System
 // --watch Watch webapp
 // --watch-poll Watch webapp in docker on a Mac
 // --dev Watch server and webapp
 
-let poll = false;
 const path = require('path');
+const os = require('os');
+const Config = require('bcfg');
+
 const webpackArgs = [
   '--config',
   path.resolve(__dirname, '../webpack.config.js')
 ];
 
+let poll = false;
 // If run from command line, parse args
 if (require.main === module) {
   if (process.argv.indexOf('--watch-poll') >= 0) {
@@ -21,11 +24,14 @@ if (require.main === module) {
   }
   if (process.argv.indexOf('--dev') >= 0) {
     if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
+
+    // pass args to nodemon process except `--dev`
+    const args = process.argv.slice(2).filter(arg => arg !== '--dev');
     // Watch this server
-    return require('nodemon')({
+    const nodemon = require('nodemon')({
       script: 'server/index.js',
       watch: ['server'],
-      args: [poll ? '--watch-poll' : '--watch'],
+      args,
       legacyWatch: poll,
       ext: 'js'
     })
@@ -33,11 +39,21 @@ if (require.main === module) {
         process.exit(1);
       })
       .on('quit', process.exit);
+
+    // need to use chokidar to watch for changes outside the working
+    // directory. Will restart if configs get updated
+    const clientsDir = path.resolve(os.homedir(), '.bpanel/clients');
+    require('chokidar')
+      .watch(clientsDir, { usePolling: poll, useFsEvents: poll })
+      .on('all', () => {
+        nodemon.emit('restart');
+      });
+    return;
   }
 }
 
 // Init bPanel
-module.exports = config => {
+module.exports = (_config = {}) => {
   // Always start webpack
   require('nodemon')({
     script: './node_modules/.bin/webpack',
@@ -49,11 +65,6 @@ module.exports = config => {
       process.exit(1);
     })
     .on('quit', process.exit);
-
-  if (!config) {
-    // Load from ENV, secrets.env, & bcoin.env
-    config = require('./loadConfig.js');
-  }
 
   // Import server dependencies
   const path = require('path');
@@ -69,6 +80,18 @@ module.exports = config => {
   const logger = require('./logger');
   const bcoinRouter = require('./bcoinRouter');
   const socketHandler = require('./bcoinSocket');
+
+  // Setting up configs
+  // If passed a bcfg object we can just use that
+  // Otherwise if passed an object we will inject that
+  // into a config object along with command line args,
+  // env vars and config files using bcfg utilities in loadConfigs.js
+  let config = _config;
+  if (!(_config instanceof Config)) {
+    config = require('./loadConfigs')(_config);
+  }
+
+  // create clients
   const { nodeClient, walletClient } = require('./bcoinClients')(config);
 
   // Init bsock socket server
@@ -117,11 +140,16 @@ module.exports = config => {
     app.get('/', resolveIndex);
 
     // route to get server info
-    app.get('/server', (req, res) =>
-      res.status(200).send({ bcoinUri: config.uri })
+    const { ssl, host, port: clientPort } = nodeClient;
+
+    const uri = config.str(
+      'node-uri',
+      `${ssl ? 'https' : 'http'}://${host}:${clientPort}`
     );
+    app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
 
     if (nodeClient) {
+      logger.info(`Connecting with ${config.str('client-id')} client`);
       app.use('/bcoin', bcoinRouter(nodeClient));
     }
 
