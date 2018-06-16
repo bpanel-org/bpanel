@@ -1,7 +1,6 @@
 const { WalletClient } = require('bclient');
 const blgr = require('blgr');
 const { Network } = require('bcoin');
-const assert = require('assert');
 
 // setup coinbase addresses for miner
 // must be done at runtime, otherwise a
