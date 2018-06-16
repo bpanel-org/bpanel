@@ -18,7 +18,6 @@ services:
       ## Mapping to local files- Handy for dev
       - ./webapp:/usr/src/app/webapp
       - ./server:/usr/src/app/server
-      - ./scripts:/usr/src/app/scripts
       - ./package.json:/usr/src/app/package.json
       # Use below to get configs written by bcoin service
       - configs:/root/.bpanel
@@ -55,7 +54,7 @@ services:
     restart: unless-stopped
     env_file:
       # Set arguments to use in bcoin-init.js
-      - ./etc/bcoin.env
+      - ./etc/regtest.bcoin.env
     ports:
       ## Comment these if they conflict with something else you're running.
       #-- Mainnet

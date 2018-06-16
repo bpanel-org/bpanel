@@ -81,12 +81,12 @@ necessary constants.
 choose to trust the certificate
 
 Requests to the `/bcoin` will get forwarded to your bcoin node.
-Requests to the '/bwallet' endpoint will get forwarded to the wallet server
+Requests to the `/bwallet` endpoint will get forwarded to the wallet server
 
 For local development, you run just the bcoin docker container (`docker-compose
 up -d bcoin`) and then `npm run start:dev -- --client-id=_docker`
 (or `npm run start:poll -- --client-id=_docker` for Mac since
-webpack's watch can behave strangely on macOS) to run the app and app server
+webpack's watch can behave strangely on macOS) to run bPanel and its server
 from your local box.
 
 Note that the `--client-id` argument tells bPanel which client config
@@ -152,7 +152,7 @@ You can use custom configs to connect to an existing node,
 or use the bcoin docker service to spin up a bcoin node that the webapp will connect to.
 
 #### Configuration between Docker services
-These instructions are for if you want to run bPanel within the `app` service and have it talk to
+These instructions are for if you want to run bPanel within the `bpanel` service and have it talk to
 a bcoin node running in a container from the `bcoin` service. For example, this is how bPanel works
 out of the box if you simply run `docker-compose up -d`.
 

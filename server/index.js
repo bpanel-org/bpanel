@@ -30,7 +30,7 @@ if (require.main === module) {
     // Watch this server
     const nodemon = require('nodemon')({
       script: 'server/index.js',
-      watch: ['server', clientsDir],
+      watch: ['server'],
       args,
       legacyWatch: poll,
       ext: 'js'
