@@ -121,9 +121,7 @@ const mapDispatchToProps = dispatch => {
   const { getNodeInfo } = nodeActions;
   const { connectSocket, disconnectSocket } = socketActions;
   const { updateTheme } = themeActions;
-  const appLoaded = () => {
-    return { type: 'APP_LOADED' };
-  };
+  const appLoaded = () => ({ type: 'APP_LOADED' });
   return bindActionCreators(
     {
       appLoaded,
