@@ -142,9 +142,10 @@ should be in the same client conf file, prefaced with `wallet-` (note that bcoin
 in separate config files). See the sample conf file for an example.
 
 ## About the Docker Environment
-There are three docker services in the compose file: `app`, `bcoin` and `securityc`.
-The `app` service is bPanel and acts as a static file server and as a request router
-to backend services. The `bcoin` service is an instance of `bcoin` that supports an http
+There are three docker services in the compose file: `bpanel`, `bcoin` and `securityc`.
+The `bpanel` service is an http server that acts as a static file server and as a request router
+to backend services as well as a webpack process for building your js files.
+The `bcoin` service is an instance of `bcoin` that supports an http
 server, a wallet server and a bitcoin p2p server.
 
 The `securityc` service generates TLS keys and certs and runs a TLS terminating reverse proxy.
