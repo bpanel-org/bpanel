@@ -215,12 +215,13 @@ module.exports = (_config = {}) => {
           logger.info('bpanel app running on port', port);
         });
 
-      if (process.env.BPANEL_SERVE_HTTPS) {
+      // can serve over https
+      if (config.bool('bpanel-https', false)) {
         const fs = require('fs');
         const https = require('https');
-        const httpsPort = parseInt(process.env.BPANEL_HTTPS_PORT, 10) || 5001;
-        const keyPath = process.env.BPANEL_TLS_KEY_PATH;
-        const certPath = process.env.BPANEL_TLS_CERT_PATH;
+        const httpsPort = config.int('bpanel-https-port', 5001);
+        const keyPath = config.str('bpanel-tls-key', '/etc/ssl/key.pem');
+        const certPath = config.str('bpanel-tls-cert', '/etc/ssl/cert.pem');
 
         let opts = {};
         try {
