@@ -71,11 +71,11 @@ module.exports = config => {
         ssl ? 'https' : 'http'
       }://${host}:${port}, network: ${network}`
     );
-    multisigWalletClient = new MultisigClient(walletConfig);
+    multisigWalletClient = new MultisigClient(walletOptions);
     logger.info(
-      `Configuring multisigwallet client with uri: ${walletConfig.host}:${
-        walletConfig.port
-      }, network: ${walletConfig.network}`
+      `Configuring multisigwallet client with uri: ${walletOptions.host}:${
+        walletOptions.port
+      }, network: ${walletOptions.network}`
     );
   }
 
