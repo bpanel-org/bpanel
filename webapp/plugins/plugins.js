@@ -2,6 +2,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
+import { combineReducers } from 'redux';
+import { merge } from 'lodash';
 
 import { propsReducerCallback, loadConnectors, moduleLoader } from './utils';
 import constants from '../store/constants';
@@ -28,7 +30,7 @@ let propsDecorators = {};
 let chainReducers;
 let nodeReducers;
 let walletsReducers;
-let pluginsReducers;
+let pluginReducers = [];
 let reducersDecorators = {};
 
 // miscellaneous decorators
@@ -56,17 +58,16 @@ export const loadPlugins = async config => {
     getPanelProps: panelPropsDecorators
   };
 
+  pluginReducers = [];
   // setup reducers decorators
   // TODO: This needs to be generalized
   chainReducers = [];
   nodeReducers = [];
   walletsReducers = [];
-  pluginsReducers = [];
   reducersDecorators = {
     chainReducer: chainReducers,
     nodeReducer: nodeReducers,
-    walletsReducer: walletsReducers,
-    pluginsReducer: pluginsReducers
+    walletsReducer: walletsReducers
   };
 
   middlewares = [];
@@ -165,6 +166,10 @@ export const loadPlugins = async config => {
         reducersDecorators.pluginsReducer.push(plugin.reducePlugins);
       }
 
+      if (plugin.pluginReducers) {
+        pluginReducers.push(plugin.pluginReducers);
+      }
+
       // other miscellaneous decorators
       if (plugin.addSocketConstants) {
         extendConstants.sockets.push(plugin.addSocketConstants);
@@ -238,6 +243,16 @@ export const decorateTheme = themeCreator => {
   if (latestThemeDecorator) return latestThemeDecorator(themeCreator)();
   return themeCreator();
 };
+
+export function getPluginReducers() {
+  // flatten all plugin reducers
+  // merge will overwrite from left to right if there are conflicts
+  const reducers = pluginReducers.reduce(
+    (reducers = {}, current) => merge(reducers, current),
+    {}
+  );
+  return combineReducers(reducers);
+}
 
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>

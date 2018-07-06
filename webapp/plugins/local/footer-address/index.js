@@ -10,6 +10,31 @@ export const mapComponentState = {
   Footer: (state, map) => Object.assign(map, { wallets: state.wallets })
 };
 
+function bp_address(state = { foo: 'bar' }, action) {
+  const newState = { ...state };
+
+  switch (action.type) {
+    case 'SET_FOO':
+      newState.foo = action.payload;
+      return newState;
+    default:
+      return state;
+  }
+}
+
+function bp_hello(state = { hello: 'world' }, action) {
+  const newState = { ...state };
+  switch (action.type) {
+    case 'SET_HELLO':
+      newState.hello = action.payload;
+      return newState;
+    default:
+      return state;
+  }
+}
+
+export const pluginReducers = { bp_address, bp_hello };
+
 export const decorateFooter = (Footer, { React, PropTypes }) => {
   return class extends React.PureComponent {
     constructor(props) {
