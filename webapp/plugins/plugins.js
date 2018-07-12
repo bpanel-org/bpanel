@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
 import { combineReducers } from 'redux';
-import { merge } from 'lodash';
+import { merge, union } from 'lodash';
 
 import {
   propsReducerCallback,
@@ -36,9 +36,11 @@ let propsDecorators = {};
 let chainReducers;
 let nodeReducers;
 let walletsReducers;
-let pluginsReducers;
 let pluginReducers;
 let reducersDecorators = {};
+
+// persist reducer configs
+let persistReducerWhiteList = [];
 
 // miscellaneous decorators
 let extendConstants = {};
@@ -65,9 +67,7 @@ export const loadPlugins = async config => {
     getPanelProps: panelPropsDecorators
   };
 
-  pluginReducers = [];
   // setup reducers decorators
-  // TODO: This needs to be generalized
   chainReducers = [];
   nodeReducers = [];
   walletsReducers = [];
@@ -76,6 +76,11 @@ export const loadPlugins = async config => {
     nodeReducer: nodeReducers,
     walletsReducer: walletsReducers
   };
+  // pluginReducers is a little different
+  // so we don't save them in the reducersDecorators object
+  pluginReducers = [];
+
+  persistReducerWhiteList = [] = [];
 
   middlewares = [];
 
@@ -177,6 +182,13 @@ export const loadPlugins = async config => {
         pluginReducers.push(plugin.pluginReducers);
       }
 
+      if (plugin.persistReducers) {
+        persistReducerWhiteList = union(
+          persistReducerWhiteList,
+          plugin.persistReducers
+        );
+      }
+
       // other miscellaneous decorators
       if (plugin.addSocketConstants) {
         extendConstants.sockets.push(plugin.addSocketConstants);
@@ -266,6 +278,10 @@ export function getPluginReducers() {
     return merge(reducers, reducer);
   }, {});
   return combineReducers(reducers);
+}
+
+export function getPersistWhiteList() {
+  return persistReducerWhiteList;
 }
 
 // decorate and export reducers

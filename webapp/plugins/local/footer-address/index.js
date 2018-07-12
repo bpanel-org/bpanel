@@ -35,6 +35,8 @@ function bp_hello(state = { hello: 'world' }, action) {
 
 export const pluginReducers = { bp_address, bp_hello };
 
+export const persistReducers = ['bp_hello'];
+
 export const decorateFooter = (Footer, { React, PropTypes }) => {
   return class extends React.PureComponent {
     constructor(props) {

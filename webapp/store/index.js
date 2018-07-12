@@ -11,7 +11,8 @@ import { getConstants } from '../plugins/plugins';
 import {
   loadPlugins,
   pluginMiddleware,
-  getPluginReducers
+  getPluginReducers,
+  getPersistWhiteList
 } from '../plugins/plugins';
 import * as reducers from './reducers';
 
@@ -19,16 +20,24 @@ export default async () => {
   // load plugin information before setting up app and store
   await loadPlugins(config);
 
-  const persistConfig = {
+  const rootPersistConfig = {
     key: 'root',
     storage,
-    whitelist: ['node']
+    whitelist: []
   };
+
+  const pluginsPersistConfig = {
+    key: 'plugins',
+    storage,
+    whitelist: getPersistWhiteList()
+  };
+
   const rootReducer = combineReducers({
     ...reducers,
-    plugins: getPluginReducers()
+    plugins: persistReducer(pluginsPersistConfig, getPluginReducers())
   });
-  const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+  const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
 
   const middleware = [thunkMiddleware, pluginMiddleware, effects];
   let compose,
