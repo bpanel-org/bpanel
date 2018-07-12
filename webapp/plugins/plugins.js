@@ -40,7 +40,7 @@ let pluginReducers;
 let reducersDecorators = {};
 
 // persist reducer configs
-let persistReducerWhiteList = [];
+let persistReducerWhiteList;
 
 // miscellaneous decorators
 let extendConstants = {};
@@ -80,7 +80,7 @@ export const loadPlugins = async config => {
   // so we don't save them in the reducersDecorators object
   pluginReducers = [];
 
-  persistReducerWhiteList = [] = [];
+  persistReducerWhiteList = [];
 
   middlewares = [];
 
