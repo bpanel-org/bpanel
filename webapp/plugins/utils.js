@@ -142,3 +142,18 @@ export const moduleLoader = (config, modules = []) => {
 
   return modules;
 };
+
+/*
+ * Useful for skipping internal properties prefixed with underscore
+ * such as _pluginName and _pluginVersion
+ * @param {Object} obj - Object to filter the properties of
+ * @param {Function} callback to operate on each property that passes
+ * callback should accept the key of the passed property
+ * @returns {Null}
+ */
+export function filterInternalProperties(obj, callback) {
+  for (let key in obj) {
+    if (key[0] === '_') continue; // skip if is an internal property
+    callback(key);
+  }
+}

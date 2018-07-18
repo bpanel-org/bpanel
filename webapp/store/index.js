@@ -3,17 +3,42 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import thunkMiddleware from 'redux-thunk';
 import bsockMiddleware from 'bsock-middleware';
 import effects from 'effects-middleware';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 import config from '../config/appConfig';
 import { getConstants } from '../plugins/plugins';
-import { loadPlugins, pluginMiddleware } from '../plugins/plugins';
+import {
+  loadPlugins,
+  pluginMiddleware,
+  getPluginReducers,
+  getPersistWhiteList
+} from '../plugins/plugins';
 import * as reducers from './reducers';
 
 export default async () => {
   // load plugin information before setting up app and store
   await loadPlugins(config);
 
-  const rootReducer = combineReducers(reducers);
+  const rootPersistConfig = {
+    key: 'root',
+    storage,
+    whitelist: []
+  };
+
+  const pluginsPersistConfig = {
+    key: 'plugins',
+    storage,
+    whitelist: getPersistWhiteList()
+  };
+
+  const rootReducer = combineReducers({
+    ...reducers,
+    plugins: persistReducer(pluginsPersistConfig, getPluginReducers())
+  });
+
+  const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
+
   const middleware = [thunkMiddleware, pluginMiddleware, effects];
   let compose,
     debug = false;
@@ -34,6 +59,7 @@ export default async () => {
     compose = applyMiddleware(...middleware);
   }
 
-  const store = createStore(rootReducer, compose);
+  const store = createStore(persistedReducer, compose);
+  persistStore(store);
   return store;
 };

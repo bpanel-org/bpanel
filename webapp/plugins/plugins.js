@@ -1,9 +1,17 @@
+/* eslint-disable no-console */
 // utilities for plugins to load, cache, and decorate
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect as reduxConnect } from 'react-redux';
+import { combineReducers } from 'redux';
+import { merge, union } from 'lodash';
 
-import { propsReducerCallback, loadConnectors, moduleLoader } from './utils';
+import {
+  propsReducerCallback,
+  loadConnectors,
+  moduleLoader,
+  filterInternalProperties
+} from './utils';
 import constants from '../store/constants';
 
 // Instantiate caches
@@ -28,8 +36,11 @@ let propsDecorators = {};
 let chainReducers;
 let nodeReducers;
 let walletsReducers;
-let pluginsReducers;
+let pluginReducers;
 let reducersDecorators = {};
+
+// persist reducer configs
+let persistReducerWhiteList;
 
 // miscellaneous decorators
 let extendConstants = {};
@@ -57,17 +68,19 @@ export const loadPlugins = async config => {
   };
 
   // setup reducers decorators
-  // TODO: This needs to be generalized
   chainReducers = [];
   nodeReducers = [];
   walletsReducers = [];
-  pluginsReducers = [];
   reducersDecorators = {
     chainReducer: chainReducers,
     nodeReducer: nodeReducers,
-    walletsReducer: walletsReducers,
-    pluginsReducer: pluginsReducers
+    walletsReducer: walletsReducers
   };
+  // pluginReducers is a little different
+  // so we don't save them in the reducersDecorators object
+  pluginReducers = [];
+
+  persistReducerWhiteList = [];
 
   middlewares = [];
 
@@ -83,7 +96,6 @@ export const loadPlugins = async config => {
         version = plugin.metadata.version;
         metadata[name] = plugin.metadata;
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error(`There was a problem loading the metadata for ${name}`);
       }
 
@@ -141,11 +153,10 @@ export const loadPlugins = async config => {
       // and value (in the plugin) is a function that extends the props
       // these are collected in an array of functions mapped to component name
       if (plugin.getProps) {
-        for (let key in plugin.getProps) {
-          if (key[0] === '_') continue; // skip if is an internal property
+        filterInternalProperties(plugin.getProps, key => {
           if (!propsDecorators[key]) propsDecorators[key] = [];
           propsDecorators[key] = plugin.getProps;
-        }
+        });
       }
 
       // reducersDecorators
@@ -162,7 +173,20 @@ export const loadPlugins = async config => {
       }
 
       if (plugin.reducePlugins) {
-        reducersDecorators.pluginsReducer.push(plugin.reducePlugins);
+        console.warn(
+          `Depcrecation warning in ${name}: reducePlugins is deprecated please use the pluginReducers API instead`
+        );
+      }
+
+      if (plugin.pluginReducers) {
+        pluginReducers.push(plugin.pluginReducers);
+      }
+
+      if (plugin.persistReducers) {
+        persistReducerWhiteList = union(
+          persistReducerWhiteList,
+          plugin.persistReducers
+        );
       }
 
       // other miscellaneous decorators
@@ -177,13 +201,10 @@ export const loadPlugins = async config => {
 
       // for plugins that can be decorated by other plugins
       if (plugin.decoratePlugin) {
-        // check for each plugin decorator
-        for (let key in plugin.decoratePlugin) {
-          if (key[0] === '_') continue; // skip if is an internal property
-          // initialize of plugin decorators if none
+        filterInternalProperties(plugin.decoratePlugin, key => {
           if (!pluginDecorators[key]) pluginDecorators[key] = [];
           pluginDecorators[key].push(plugin.decoratePlugin[key]);
-        }
+        });
       }
 
       return plugin;
@@ -239,6 +260,30 @@ export const decorateTheme = themeCreator => {
   return themeCreator();
 };
 
+export function getPluginReducers() {
+  // flatten all plugin reducers
+  // merge will overwrite from left to right if there are conflicts
+  const reducers = pluginReducers.reduce((reducers = {}, current) => {
+    const keys = Object.keys(current);
+    const reducer = {};
+    keys.forEach(key => {
+      if (reducers[key] !== undefined && key[0] !== '_')
+        console.warn(
+          `Plugin reducer ${key} already exists. Add unique prefix for ${key} reducer in ${
+            current._pluginName
+          } to avoid conflicts when they are merged or contact the plugin developer.`
+        );
+      if (key[0] !== '_') reducer[key] = current[key];
+    });
+    return merge(reducers, reducer);
+  }, {});
+  return combineReducers(reducers);
+}
+
+export function getPersistWhiteList() {
+  return persistReducerWhiteList;
+}
+
 // decorate and export reducers
 export const decorateReducer = (reducer, name) => (state, action) =>
   reducersDecorators[name].reduce((state_, reducer_) => {
@@ -269,7 +314,6 @@ export function connect(
                 // this is the decorator, everything after in this reduce is error checking
                 ret = mapper(state, acc);
               } catch (err) {
-                // eslint-disable-next-line no-console
                 console.error(
                   `Plugin error: Problem with \`map${name}State\` for ${
                     mapper._pluginName
@@ -278,7 +322,6 @@ export function connect(
                 );
               }
               if (!ret || typeof ret !== 'object') {
-                // eslint-disable-next-line no-console
                 console.error(
                   'Plugin error ',
                   `${
@@ -298,7 +341,6 @@ export function connect(
                 // this is the decorator, everything after in reduce is error checking
                 ret = mapper(dispatch, acc);
               } catch (err) {
-                // eslint-disable-next-line no-console
                 console.error(
                   `Plugin error: Problem with \`map${name}Dispatch\` for ${
                     mapper._pluginName
@@ -307,7 +349,6 @@ export function connect(
                 );
               }
               if (!ret || typeof ret !== 'object') {
-                // eslint-disable-next-line no-console
                 console.error(
                   'Plugin error ',
                   `${
@@ -339,7 +380,6 @@ function exposeDecorated(Component_) {
         try {
           this.props.onDecorated(decorated_);
         } catch (e) {
-          // eslint-disable-next-line no-console
           console.error('Plugin error:', e);
         }
       }
@@ -391,7 +431,6 @@ function getDecorated(Component, name) {
           component__ = decorator(component_, { React, PropTypes });
           component__.displayName = `${pluginName}(${name})`;
         } catch (err) {
-          //eslint-disable-next-line no-console
           console.error(
             `Plugin error when decorating component with ${pluginName}:`,
             typeof err === 'string' ? err : err.stack
@@ -421,7 +460,6 @@ export function decorate(Component_, name) {
 
     componentDidCatch(error, errorInfo) {
       this.setState({ hasError: true });
-      // eslint-disable-next-line no-console
       console.error(
         `Plugins decorating ${name} has been disabled because of a plugin crash.`,
         error,

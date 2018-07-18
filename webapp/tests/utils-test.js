@@ -1,6 +1,10 @@
 import { expect } from 'chai';
 
-import { addPlugin, checkMetadata } from '../plugins/utils';
+import {
+  addPlugin,
+  checkMetadata,
+  filterInternalProperties
+} from '../plugins/utils';
 
 describe('addPlugin', () => {
   let modules;
@@ -130,5 +134,20 @@ describe('checkMetadata', () => {
     const expectedPath = encodeURI(testPath);
     const test = checkMetadata({ name: 'test', pathName: testPath });
     expect(test.pathName).to.equal(expectedPath);
+  });
+});
+
+describe('filterInternalProperties', () => {
+  it('should skip properties whose key is prefaced with "_"', () => {
+    const original = {
+      _test1: 'fail',
+      _test2: 'fail',
+      test3: 'pass'
+    };
+    const final = {};
+    filterInternalProperties(original, key => (final[key] = original[key]));
+    for (let key in final) {
+      expect(key[0] !== '_');
+    }
   });
 });
