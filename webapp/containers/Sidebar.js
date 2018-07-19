@@ -4,9 +4,9 @@ import Sidebar from '../components/Sidebar';
 const mapStateToProps = () => ({});
 const mapDispatchToProps = () => ({});
 
-const SidebarContainer = connect(mapStateToProps, mapDispatchToProps)(
-  Sidebar,
-  'Sidebar'
-);
+const SidebarContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Sidebar, 'Sidebar');
 
 export default SidebarContainer;

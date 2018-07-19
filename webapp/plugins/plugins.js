@@ -84,8 +84,12 @@ export const loadPlugins = async config => {
 
   middlewares = [];
 
+  // this will not get exported anywhere
+  // using this to track used paths internally to avoid conflicts
+  const paths = new Set();
+
   // moduleLoader takes a config and returns all modules
-  // indicated by that config (local, node_modules, and pluginModules)
+  // indicated by that config
   // then we map through each module and compose and cache app decorators
   plugins = moduleLoader(config)
     .map(plugin => {
