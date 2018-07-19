@@ -10,15 +10,9 @@ import Footer from '../Footer';
 import Sidebar from '../Sidebar';
 import Panel from '../Panel';
 import { plugins } from '../../store/selectors';
+import { pluginMetadata } from '../../store/propTypes';
 import { connect } from '../../plugins/plugins';
 import './app.scss';
-
-export const pluginMetaProps = {
-  name: PropTypes.string.isRequired,
-  order: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  parent: PropTypes.string,
-  icon: PropTypes.string
-};
 
 class App extends PureComponent {
   constructor(props) {
@@ -28,12 +22,7 @@ class App extends PureComponent {
   static get propTypes() {
     return {
       children: PropTypes.node,
-      sortedPluginMeta: PropTypes.arrayOf(
-        PropTypes.shape({
-          ...pluginMetaProps,
-          subItems: PropTypes.arrayOf(PropTypes.shape(pluginMetaProps))
-        })
-      ),
+      sortedPluginMeta: pluginMetadata.sortedMetadataPropTypes,
       location: PropTypes.shape({
         pathname: PropTypes.string
       }),
@@ -113,7 +102,7 @@ class App extends PureComponent {
 }
 
 const mapStateToProps = state => ({
-  sortedPluginMeta: plugins.getSortedPluginMetadata(state),
+  sortedPluginMeta: plugins.metadataWithUniquePaths(state),
   theme: state.theme
 });
 
@@ -134,4 +123,7 @@ const mapDispatchToProps = dispatch => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(App, 'App');
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App, 'App');

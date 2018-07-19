@@ -85,7 +85,7 @@ export const loadPlugins = async config => {
   middlewares = [];
 
   // moduleLoader takes a config and returns all modules
-  // indicated by that config (local, node_modules, and pluginModules)
+  // indicated by that config
   // then we map through each module and compose and cache app decorators
   plugins = moduleLoader(config)
     .map(plugin => {

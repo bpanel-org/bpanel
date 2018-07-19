@@ -16,7 +16,11 @@ export default class extends PureComponent {
 
   static get propTypes() {
     return {
-      customChildren: PropTypes.array
+      customChildren: PropTypes.array,
+      paths: PropTypes.shape({
+        name: PropTypes.string,
+        pathName: PropTypes.string
+      })
     };
   }
 
@@ -31,10 +35,13 @@ export default class extends PureComponent {
   }
 
   UNSAFE_componentWillMount() {
-    const { customChildren = [] } = this.props;
+    const { customChildren = [], paths } = this.props;
     this.routes = customChildren.map(({ Component, metadata }) => {
-      const { pathName, name } = metadata;
+      const { name } = metadata;
+
+      const pathName = paths[name]; // will be a unique from state
       let path;
+
       try {
         if (!name) throw 'Must pass a name for custom Panels';
         if (!pathName) {

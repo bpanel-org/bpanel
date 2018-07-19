@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { Text, Header, SidebarNavItem } from '@bpanel/bpanel-ui';
 import { Link } from 'react-router-dom';
 
-import { pluginMetaProps } from '../containers/App/App';
+import { pluginMetadata } from '../store/propTypes';
+
+const { sortedMetadataPropTypes } = pluginMetadata;
+
 try {
   var { version, commit } = require('../version.json');
 } catch (e) {}
@@ -14,20 +17,7 @@ class Sidebar extends PureComponent {
       theme: PropTypes.object,
       beforeNav: PropTypes.array,
       afterNav: PropTypes.array,
-      sidebarNavItems: PropTypes.arrayOf(
-        PropTypes.oneOfType([
-          PropTypes.node,
-          PropTypes.shape({
-            ...pluginMetaProps,
-            subItems: PropTypes.arrayOf(
-              PropTypes.oneOfType([
-                PropTypes.node,
-                PropTypes.shape(pluginMetaProps)
-              ])
-            )
-          })
-        ])
-      ),
+      sidebarNavItems: sortedMetadataPropTypes,
       customSidebarHeader: PropTypes.node,
       customSidebarFooter: PropTypes.node,
       location: PropTypes.shape({
