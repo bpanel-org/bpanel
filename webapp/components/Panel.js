@@ -49,7 +49,6 @@ export default class extends PureComponent {
         } else {
           path = encodeURI(pathName);
         }
-        console.log(`${name}: ${path}`);
         return (
           <Route
             exact
