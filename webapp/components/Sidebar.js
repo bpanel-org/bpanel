@@ -59,21 +59,22 @@ class Sidebar extends PureComponent {
         // filter will first remove any plugins w/o sidebar property set to true
         // mapping through each parent item to create the sidebar nav element
         const sidebarItemProps = { ...plugin, theme, pathname };
-        if (plugin.subItems) {
-          // if this sidebar item has sub items
-          // then we need to create and append the children elements
-          sidebarItemProps.children = plugin.subItems.map(
-            (subItem, subIndex) => {
-              const props = {
-                ...subItem,
-                subItem: true,
-                pathName: subItem.pathName ? subItem.pathName : subItem.name,
-                theme,
-                key: `${index}-${subIndex}`
-              };
-              return this.renderNavItem(plugin, props);
-            }
-          );
+        if (plugin.parent) {
+          // const parentIndex = sidebarNavItems.findIndex(
+          //   item => (item.name = plugin.parent)
+          // );
+          // const parent = sidebarNavItems[parentIndex];
+
+          // if this sidebar item is a child then add appropriate props
+          // const parentPath = parent.pathName ? parent.pathName : parent.name;
+          // const pathName = sidebarItemProps.pathName
+          //   ? `${parentPath}/${sidebarItemProps.pathName}`
+          //   : `${parentPath}/${sidebarItemProps.name}`;
+          const pathName = sidebarItemProps.pathName
+            ? sidebarItemProps.pathName
+            : sidebarItemProps.name;
+          sidebarItemProps.pathName = pathName;
+          sidebarItemProps.subItem = true;
         }
         return this.renderNavItem(plugin, { ...sidebarItemProps, key: index });
       });

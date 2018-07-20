@@ -149,6 +149,9 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
           textDecoration: 'none'
         }
       },
+      subItem: {
+        ...makeGutter('padding', { left: 2.5 })
+      },
       item: {
         border: borderTransparent,
         color: themeColors.primary,

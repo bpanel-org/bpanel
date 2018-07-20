@@ -8,7 +8,7 @@ import {
 import { plugins } from '@bpanel/bpanel-utils';
 
 describe('plugin selectors', () => {
-  let actual, subItems, parentItems;
+  let sortedPlugins, subItems, parentItems;
 
   beforeEach(() => {
     subItems = {
@@ -21,6 +21,11 @@ describe('plugin selectors', () => {
         name: 'first wallet func',
         order: 0,
         parent: 'wallets'
+      },
+      'special-plugin': {
+        name: 'special-plugin',
+        order: 0,
+        parent: 'xwallets'
       }
     };
 
@@ -50,20 +55,14 @@ describe('plugin selectors', () => {
       }
     };
 
-    actual = sortPluginMetadata({ ...parentItems, ...subItems });
+    sortedPlugins = sortPluginMetadata({ ...parentItems, ...subItems });
   });
 
   describe('sortPluginMetadata', () => {
-    it('should return an array of only parent plugin metadata objects', () => {
-      const numberOfParents = Object.keys(parentItems).length;
-      expect(actual).to.have.lengthOf(numberOfParents);
-
-      let hasParents = false;
-      for (let pluginMeta of actual) {
-        hasParents = parentItems[pluginMeta.name] ? true : false;
-        expect(hasParents, `"${pluginMeta.name}" not in parents object`).to.be
-          .true;
-      }
+    it('should return an array of all plugins, parents and children', () => {
+      const totalPlugins =
+        Object.keys(parentItems).length + Object.keys(subItems).length;
+      expect(sortedPlugins).to.have.length(totalPlugins);
     });
 
     it('should call comparePlugins for sorting on parents and subItems', () => {
@@ -71,25 +70,52 @@ describe('plugin selectors', () => {
       sortPluginMetadata({ ...parentItems, ...subItems });
       expect(spy.calledWith(plugins.comparePlugins)).to.be.true;
       const parentNames = Object.keys(parentItems).sort();
-      expect(parentNames[0]).to.equal(actual[0].name);
+      expect(parentNames[0]).to.equal(sortedPlugins[0].name);
     });
 
-    it('should add subItems to subItem property of parents', () => {
-      const subItemCount = {};
-      // get number of expected subItems for each parent
-      for (let plugin in subItems) {
-        const parent = subItems[plugin].parent;
-        let count = subItemCount[parent];
-        subItemCount[parent] = count === undefined ? 1 : count + 1;
-      }
+    it('should only have two level hierarchy, no children w/ children', () => {
+      const parents = new Set();
+      sortedPlugins.forEach(plugin => {
+        if (plugin.parent) parents.add(plugin.parent);
+      });
+      sortedPlugins.forEach(plugin => {
+        if (plugin.parent)
+          assert(
+            !parents.has(plugin.name),
+            `${plugin.name} has a parent and should not have children`
+          );
+      });
+    });
 
-      // confirm that each parent has expected number of subItems
-      for (let plugin of actual) {
-        if (subItemCount[plugin.name]) {
-          expect(plugin.subItems).to.not.be.undefined;
-          expect(plugin.subItems).to.have.lengthOf(subItemCount[plugin.name]);
+    it('should add sorted subItems after parent', () => {
+      const subItems = new Map();
+      sortedPlugins.forEach(plugin => {
+        const { parent } = plugin;
+        if (parent) {
+          if (subItems.has(parent)) {
+            const children = subItems.get(parent);
+            children.push(plugin);
+            subItems.set(parent, children);
+          } else {
+            subItems.set(parent, [plugin]);
+          }
         }
-      }
+      });
+
+      // when you find a parent, check that its children
+      // follow it in the array
+      sortedPlugins.forEach((plugin, index) => {
+        if (subItems.has(plugin.name)) {
+          const children = subItems.get(plugin.name);
+          let count = 0;
+          while (count < children.length) {
+            expect(sortedPlugins[index + count + 1]).to.deep.equal(
+              children[count]
+            );
+            count++;
+          }
+        }
+      });
     });
   });
 
@@ -111,7 +137,9 @@ describe('plugin selectors', () => {
       const paths = new Set();
       const duplicatePaths = new Set();
       metadata.forEach(plugin => paths.add(plugin.pathName));
+
       const sorted = sortPluginMetadata(parentItems);
+
       sorted.forEach(plugin => duplicatePaths.add(plugin.pathName));
 
       expect(duplicatePaths.size).to.not.equal(

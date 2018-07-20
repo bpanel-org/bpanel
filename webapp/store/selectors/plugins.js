@@ -28,17 +28,15 @@ export const sortPluginMetadata = pluginMeta => {
         return true;
       }
     })
-    .sort(comparePlugins)
-    .map(parent => {
-      // go through each parentItem to see if it has subItems
-      const extendedParent = { ...parent };
-      if (subItems.has(parent.name)) {
-        // if subItems has a matching parent, then extend parent to include children
-        const children = subItems.get(parent.name);
-        extendedParent.subItems = children.sort(comparePlugins);
-      }
-      return extendedParent;
-    });
+    .sort(comparePlugins);
+
+  subItems.forEach((children, parent) => {
+    const index = sortedPluginMetadata.findIndex(
+      plugin => parent === plugin.name
+    );
+    children.sort(comparePlugins);
+    sortedPluginMetadata.splice(index + 1, 0, ...children);
+  });
 
   return sortedPluginMetadata;
 };
@@ -50,7 +48,8 @@ export const sortPluginMetadata = pluginMeta => {
 export const uniquePathNames = metadata => {
   const plugins = sortPluginMetadata(metadata);
   const paths = new Set();
-  return plugins.map(plugin => {
+  return plugins.map(_plugin => {
+    const plugin = { ..._plugin };
     const { pathName } = plugin;
     if (pathName) {
       let path = pathName;
