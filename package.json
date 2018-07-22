@@ -83,7 +83,7 @@
     "level-js": "^2.2.4",
     "lint-staged": "^4.3.0",
     "lodash": "^4.17.10",
-    "node-sass": "^4.7.2",
+    "node-sass": "^4.9.2",
     "nodemon": "^1.12.1",
     "postcss-loader": "^2.0.8",
     "prettier": "^1.7.4",
