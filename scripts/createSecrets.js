@@ -8,5 +8,13 @@ const randomValue = crypto.randomBytes(40).toString('hex');
 // admin token must be 32 bytes
 const adminToken = crypto.randomBytes(32).toString('hex');
 
-console.log(`Secret Key: ${randomValue}`);
-console.log(`Admin Token: ${adminToken}`);
+// only log secrets if ran from the command line
+if (require.main === module) {
+  console.log(`Secret Key: ${randomValue}`);
+  console.log(`Admin Token: ${adminToken}`);
+}
+
+module.exports = {
+  randomValue,
+  adminToken
+};
