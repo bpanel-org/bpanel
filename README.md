@@ -141,6 +141,15 @@ you will likely need different configurations to connect to the wallet. These
 should be in the same client conf file, prefaced with `wallet-` (note that bcoin looks for these
 in separate config files). See the sample conf file for an example.
 
+To directly serve bpanel over https without the reverse proxy, set the environment
+variables:
+
+```bash
+BPANEL_HTTPS=true
+BPANEL_TLS_KEY=<path to key>
+BPANEL_TLS_CERT=<path to cert>
+```
+
 ## About the Docker Environment
 There are three docker services in the compose file: `bpanel`, `bcoin` and `securityc`.
 The `bpanel` service is an http server that acts as a static file server and as a request router
