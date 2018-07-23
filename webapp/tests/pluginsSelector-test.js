@@ -88,10 +88,14 @@ describe('plugin selectors', () => {
     });
 
     it('should add sorted subItems after parent', () => {
+      // since parents and children are all on the same level in the array
+      // in order to check children are in the right spot
+      // we need to collect all chidlren first
       const subItems = new Map();
       sortedPlugins.forEach(plugin => {
         const { parent } = plugin;
         if (parent) {
+          // if item has a parent, add it to the map, keyed by its parent
           if (subItems.has(parent)) {
             const children = subItems.get(parent);
             children.push(plugin);
@@ -105,6 +109,9 @@ describe('plugin selectors', () => {
       // when you find a parent, check that its children
       // follow it in the array
       sortedPlugins.forEach((plugin, index) => {
+        // if we hit a plugin that is a key in our map
+        // then the subsequent plugins in the array should match
+        // the values in the map
         if (subItems.has(plugin.name)) {
           const children = subItems.get(plugin.name);
           let count = 0;
@@ -135,18 +142,14 @@ describe('plugin selectors', () => {
 
     it('should not have any metadata w/ duplicate pathNames', () => {
       const paths = new Set();
-      const duplicatePaths = new Set();
-      metadata.forEach(plugin => paths.add(plugin.pathName));
 
-      const sorted = sortPluginMetadata(parentItems);
-
-      sorted.forEach(plugin => duplicatePaths.add(plugin.pathName));
-
-      expect(duplicatePaths.size).to.not.equal(
-        sorted.length,
-        'Test data set does not have any duplicate pathNames. Fix data set'
-      );
-      expect(paths.size).to.equal(metadata.length);
+      metadata.forEach(plugin => {
+        assert(
+          !paths.has(plugin.pathName),
+          `Found duplicate pathName: ${plugin.pathName}`
+        );
+        paths.add(plugin.pathName);
+      });
     });
 
     it('should not have any name-pathName collisions between plugins', () => {

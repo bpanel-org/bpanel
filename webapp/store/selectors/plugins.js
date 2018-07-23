@@ -48,8 +48,7 @@ export const sortPluginMetadata = pluginMeta => {
 export const uniquePathNames = metadata => {
   const plugins = sortPluginMetadata(metadata);
   const paths = new Set();
-  return plugins.map(_plugin => {
-    const plugin = { ..._plugin };
+  return plugins.reduce((acc, plugin) => {
     const { pathName } = plugin;
     if (pathName) {
       let path = pathName;
@@ -71,8 +70,9 @@ export const uniquePathNames = metadata => {
       // set the metadata to the unique path
       plugin.pathName = path;
     }
-    return plugin;
-  });
+    acc.push(plugin);
+    return acc;
+  }, []);
 };
 
 const getSortedPluginMetadata = createSelector(
