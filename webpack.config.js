@@ -62,7 +62,7 @@ module.exports = function(env = {}) {
       symlinks: false,
       extensions: ['-browser.js', '.js', '.json', '.jsx'],
       alias: {
-        bcoin: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
+        bcoin$: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
         '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
         tinycolor: 'tinycolor2'
       }

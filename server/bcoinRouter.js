@@ -3,6 +3,8 @@
 const express = require('express');
 const logger = require('./logger');
 
+let token;
+
 const routerWithClient = client => {
   const bcoinRouter = express.Router({ mergeParams: true });
 
@@ -17,6 +19,13 @@ const routerWithClient = client => {
       );
       logger.debug('query:', query);
       logger.debug('body:', body);
+
+      // proxy the token
+      token = client.token;
+      if ('token' in payload) {
+        client.token = payload.token;
+        logger.debug('Using custom client token');
+      }
       const response = await client.request(method, path, payload);
       logger.debug('server response:', response ? response : 'null');
       if (response) return res.status(200).json(response);
@@ -28,6 +37,9 @@ const routerWithClient = client => {
       return res
         .status(502)
         .send({ error: { message: e.message, code: e.code, type: e.type } });
+    } finally {
+      // always reassign the original token
+      client.token = token;
     }
   });
 

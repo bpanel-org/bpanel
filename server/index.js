@@ -92,7 +92,11 @@ module.exports = (_config = {}) => {
   }
 
   // create clients
-  const { nodeClient, walletClient } = require('./bcoinClients')(config);
+  const {
+    nodeClient,
+    walletClient,
+    multisigWalletClient
+  } = require('./bcoinClients')(config);
 
   // Init bsock socket server
   const socketHttpServer = http.createServer();
@@ -115,11 +119,19 @@ module.exports = (_config = {}) => {
       if (walletClient) {
         await walletClient.open();
       }
+      if (multisigWalletClient) {
+        await multisigWalletClient.open();
+      }
     } catch (err) {
       logger.error('Error connecting sockets: ', err);
     }
 
-    bsock.on('socket', socketHandler(nodeClient, walletClient));
+    // TODO: figure out if duplicating some events between
+    // the two different wallet clients
+    bsock.on(
+      'socket',
+      socketHandler(nodeClient, walletClient, multisigWalletClient)
+    );
 
     // Setup app server
     app.use(
@@ -155,6 +167,10 @@ module.exports = (_config = {}) => {
 
     if (walletClient) {
       app.use('/bwallet', bcoinRouter(walletClient));
+    }
+
+    if (multisigWalletClient) {
+      app.use('/multisig', bcoinRouter(multisigWalletClient));
     }
 
     // TODO: add favicon.ico file
@@ -198,6 +214,32 @@ module.exports = (_config = {}) => {
         .listen(port, () => {
           logger.info('bpanel app running on port', port);
         });
+
+      // can serve over https
+      if (config.bool('https', false)) {
+        const fs = require('fs');
+        const https = require('https');
+        const httpsPort = config.int('https-port', 5001);
+        const keyPath = config.str('tls-key', '/etc/ssl/key.pem');
+        const certPath = config.str('tls-cert', '/etc/ssl/cert.pem');
+
+        let opts = {};
+        try {
+          opts.key = fs.readFileSync(keyPath);
+          opts.cert = fs.readFileSync(certPath);
+        } catch (e) {
+          logger.error(e);
+          logger.error('Error reading cert/key pair');
+          process.exit(1);
+        }
+
+        https
+          .createServer(opts, express().use(app))
+          .on('error', onError('bpanel'))
+          .listen(httpsPort, () => {
+            logger.info('bpanel https app running on port', httpsPort);
+          });
+      }
     }
 
     return app;

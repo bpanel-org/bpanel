@@ -1,6 +1,7 @@
 const url = require('url');
 const { Network } = require('bcoin');
 const { NodeClient, WalletClient } = require('bclient');
+const MultisigClient = require('bmultisig/lib/client');
 const logger = require('./logger');
 const assert = require('assert');
 const Config = require('bcfg');
@@ -47,7 +48,7 @@ module.exports = config => {
     token: config.str('wallet-token')
   };
 
-  let walletClient, nodeClient;
+  let walletClient, nodeClient, multisigWalletClient;
   // check if config explicitly sets node config to `false`
   // if false, do not instantiate new node client
   if (config.bool('node', true)) {
@@ -70,7 +71,13 @@ module.exports = config => {
         ssl ? 'https' : 'http'
       }://${host}:${port}, network: ${network}`
     );
+    multisigWalletClient = new MultisigClient(walletOptions);
+    logger.info(
+      `Configuring multisigwallet client with uri: ${walletOptions.host}:${
+        walletOptions.port
+      }, network: ${walletOptions.network}`
+    );
   }
 
-  return { nodeClient, walletClient };
+  return { nodeClient, walletClient, multisigWalletClient };
 };
