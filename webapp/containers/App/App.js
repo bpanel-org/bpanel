@@ -70,7 +70,7 @@ class App extends PureComponent {
   }
 
   render() {
-    const { sortedPluginMeta, location, theme } = this.props;
+    const { sortedPluginMeta, location, theme, match } = this.props;
     return (
       <ThemeProvider theme={theme}>
         <div>
@@ -83,6 +83,7 @@ class App extends PureComponent {
                   sidebarNavItems={sortedPluginMeta}
                   location={location}
                   theme={theme}
+                  match={match}
                 />
               </div>
               <div className={`${theme.app.content} col-sm-8 col-lg-9`}>

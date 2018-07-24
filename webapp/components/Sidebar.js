@@ -22,16 +22,28 @@ class Sidebar extends PureComponent {
       customSidebarFooter: PropTypes.node,
       location: PropTypes.shape({
         pathname: PropTypes.string
-      })
+      }),
+      match: PropTypes.shape({
+        isExact: PropTypes.bool,
+        path: PropTypes.string,
+        url: PropTypes.string,
+        params: PropTypes.object
+      }).isRequired
     };
   }
 
   renderLogo() {
-    const { theme } = this.props;
+    const {
+      theme,
+      match: { url }
+    } = this.props;
     return (
       <Link to="/">
         <div className={theme.sidebar.logoContainer}>
-          <img src={theme.logoUrl} className={theme.sidebar.logoImg} />
+          <img
+            src={`${url}${theme.logoUrl}`}
+            className={theme.sidebar.logoImg}
+          />
         </div>
       </Link>
     );
@@ -47,37 +59,54 @@ class Sidebar extends PureComponent {
     return React.createElement(SidebarNavItem, props);
   }
 
+  getPathName(itemProps) {
+    return itemProps.pathName ? itemProps.pathName : itemProps.name;
+  }
+
   renderSidebarItems() {
     const {
       sidebarNavItems,
       location: { pathname = '' },
+      match,
       theme
     } = this.props;
-    return sidebarNavItems
-      .filter(plugin => plugin.sidebar || React.isValidElement(plugin))
-      .map((plugin, index) => {
-        // filter will first remove any plugins w/o sidebar property set to true
-        // mapping through each parent item to create the sidebar nav element
-        const sidebarItemProps = { ...plugin, theme, pathname };
-        if (plugin.parent) {
-          // const parentIndex = sidebarNavItems.findIndex(
-          //   item => (item.name = plugin.parent)
-          // );
-          // const parent = sidebarNavItems[parentIndex];
+    return (
+      sidebarNavItems
+        // filter out any plugins w/o sidebar property set to true
+        // or that is not a valid react element (custom sidebar components)
+        .filter(plugin => plugin.sidebar || React.isValidElement(plugin))
+        // map through each parent item to create the sidebar nav element
+        .map((plugin, index) => {
+          // for a nav item that is already a react element
+          // we need to retrieve the props
+          const pluginProps = plugin.props ? plugin.props : {};
+          const sidebarItemProps = {
+            ...plugin,
+            theme,
+            match,
+            pathname,
+            ...pluginProps
+          };
+          sidebarItemProps.pathName = this.getPathName(sidebarItemProps);
+          if (plugin.parent) {
+            // const parentIndex = sidebarNavItems.findIndex(
+            //   item => (item.name = plugin.parent)
+            // );
+            // const parent = sidebarNavItems[parentIndex];
 
-          // if this sidebar item is a child then add appropriate props
-          // const parentPath = parent.pathName ? parent.pathName : parent.name;
-          // const pathName = sidebarItemProps.pathName
-          //   ? `${parentPath}/${sidebarItemProps.pathName}`
-          //   : `${parentPath}/${sidebarItemProps.name}`;
-          const pathName = sidebarItemProps.pathName
-            ? sidebarItemProps.pathName
-            : sidebarItemProps.name;
-          sidebarItemProps.pathName = pathName;
-          sidebarItemProps.subItem = true;
-        }
-        return this.renderNavItem(plugin, { ...sidebarItemProps, key: index });
-      });
+            // if this sidebar item is a child then add appropriate props
+            // const parentPath = parent.pathName ? parent.pathName : parent.name;
+            // const pathName = sidebarItemProps.pathName
+            //   ? `${parentPath}/${sidebarItemProps.pathName}`
+            //   : `${parentPath}/${sidebarItemProps.name}`;
+            sidebarItemProps.subItem = true;
+          }
+          return this.renderNavItem(plugin, {
+            ...sidebarItemProps,
+            key: index
+          });
+        })
+    );
   }
 
   renderFooter() {
