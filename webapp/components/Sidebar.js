@@ -72,9 +72,11 @@ class Sidebar extends PureComponent {
     } = this.props;
     return (
       sidebarNavItems
-        // filter out any plugins w/o sidebar property set to true
+        // filter out any plugins w/o sidebar or nav property set to true
         // or that is not a valid react element (custom sidebar components)
-        .filter(plugin => plugin.sidebar || React.isValidElement(plugin))
+        .filter(
+          plugin => plugin.sidebar || plugin.nav || React.isValidElement(plugin)
+        )
         // map through each parent item to create the sidebar nav element
         .map((plugin, index) => {
           // for a nav item that is already a react element
@@ -89,16 +91,7 @@ class Sidebar extends PureComponent {
           };
           sidebarItemProps.pathName = this.getPathName(sidebarItemProps);
           if (plugin.parent) {
-            // const parentIndex = sidebarNavItems.findIndex(
-            //   item => (item.name = plugin.parent)
-            // );
-            // const parent = sidebarNavItems[parentIndex];
-
             // if this sidebar item is a child then add appropriate props
-            // const parentPath = parent.pathName ? parent.pathName : parent.name;
-            // const pathName = sidebarItemProps.pathName
-            //   ? `${parentPath}/${sidebarItemProps.pathName}`
-            //   : `${parentPath}/${sidebarItemProps.name}`;
             sidebarItemProps.subItem = true;
           }
           return this.renderNavItem(plugin, {

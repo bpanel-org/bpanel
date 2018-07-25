@@ -3,7 +3,9 @@ import sinon from 'sinon';
 
 import {
   sortPluginMetadata,
-  uniquePathNames
+  uniquePathNames,
+  getNavItems,
+  getNestedPaths
 } from '../store/selectors/plugins';
 import { plugins } from '@bpanel/bpanel-utils';
 
@@ -15,16 +17,19 @@ describe('plugin selectors', () => {
       'some wallet func': {
         name: 'some wallet func',
         order: 1,
+        nav: true,
         parent: 'wallets'
       },
       'first wallet func': {
         name: 'first wallet func',
         order: 0,
+        sidebar: true,
         parent: 'wallets'
       },
       'special-plugin': {
         name: 'special-plugin',
         order: 0,
+        nav: true,
         parent: 'xwallets'
       }
     };
@@ -40,16 +45,19 @@ describe('plugin selectors', () => {
         name: 'wallets',
         icon: 'hdd-o',
         pathName: 'wallets',
+        nav: true,
         order: 1
       },
       dashboard: {
         name: 'dashboard',
         order: 0,
+        nav: true,
         icon: 'home'
       },
       xwallets: {
         name: 'xwallets',
         icon: 'hdd-o',
+        sidebar: true,
         pathName: 'zwallets',
         order: 1
       }
@@ -164,6 +172,41 @@ describe('plugin selectors', () => {
             );
         })
       );
+    });
+  });
+
+  describe('getNavItems', () => {
+    it('should only have items with sidebar or nav properties set to true', () => {
+      const navItems = getNavItems(sortedPlugins);
+      assert(navItems.length, 'Data set did not return any nav items');
+      navItems.forEach(item =>
+        assert(
+          item.sidebar || item.nav,
+          `${item.name} does not have nav or sidebar property set to true`
+        )
+      );
+    });
+  });
+
+  describe('getNestedPaths', () => {
+    it('should update child pathNames to be nested if has a parent', () => {
+      const metadata = getNavItems(sortedPlugins);
+      const nested = getNestedPaths(metadata);
+      nested.forEach(plugin => {
+        if (plugin.parent) {
+          const parentIndex = metadata.findIndex(
+            item => item.name === plugin.parent
+          );
+
+          const parent = metadata[parentIndex];
+          const parentPath = parent.pathName ? parent.pathName : parent.name;
+
+          expect(
+            plugin.pathName === `${parentPath}/${plugin.pathName}`,
+            `${plugin.name} did not nest its path in its parent correctly`
+          );
+        }
+      });
     });
   });
 });

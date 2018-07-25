@@ -33,7 +33,13 @@ class App extends PureComponent {
       disconnectSocket: PropTypes.func.isRequired,
       getNodeInfo: PropTypes.func.isRequired,
       updateTheme: PropTypes.func.isRequired,
-      appLoaded: PropTypes.func.isRequired
+      appLoaded: PropTypes.func.isRequired,
+      match: PropTypes.shape({
+        isExact: PropTypes.bool,
+        path: PropTypes.string,
+        url: PropTypes.string,
+        params: PropTypes.object
+      }).isRequired
     };
   }
 
@@ -59,7 +65,7 @@ class App extends PureComponent {
   getHomePath() {
     const { sortedPluginMeta } = this.props;
     const panels = sortedPluginMeta.filter(
-      plugin => plugin.sidebar || React.isValidElement(plugin)
+      plugin => plugin.sidebar || plugin.nav || React.isValidElement(plugin)
     );
     const homePath = panels[0]
       ? panels[0].pathName
@@ -105,7 +111,7 @@ class App extends PureComponent {
 }
 
 const mapStateToProps = state => ({
-  sortedPluginMeta: plugins.metadataWithUniquePaths(state),
+  sortedPluginMeta: plugins.navItems(state),
   theme: state.theme
 });
 

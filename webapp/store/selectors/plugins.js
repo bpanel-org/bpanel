@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { createSelector } from 'reselect';
 import { plugins } from '@bpanel/bpanel-utils';
 
@@ -75,7 +76,39 @@ export const uniquePathNames = metadata => {
   }, []);
 };
 
-const getSortedPluginMetadata = createSelector(
+export function getNestedPaths(metadata) {
+  assert(Array.isArray(metadata), 'Must pass array of metadata');
+  return metadata.reduce((updated, plugin) => {
+    if (plugin.parent) {
+      // if this plugin is a child then update its pathName property
+      // to nest behind the parent
+      const parentIndex = metadata.findIndex(
+        item => item.name === plugin.parent
+      );
+
+      const parent = metadata[parentIndex];
+      // eslint-disable-next-line no-console
+      console.assert(
+        parent,
+        `Parent ${plugin.parent} could not be found for child ${plugin.name}`
+      );
+      const parentPath = parent.pathName ? parent.pathName : parent.name;
+      const pathName = plugin.pathName
+        ? `${parentPath}/${plugin.pathName}`
+        : `${parentPath}/${plugin.name}`;
+      plugin.pathName = pathName;
+    }
+    updated.push(plugin);
+    return updated;
+  }, []);
+}
+
+export function getNavItems(metadata = []) {
+  assert(Array.isArray(metadata), 'Must pass array to getNavItems');
+  return metadata.filter(plugin => plugin.nav || plugin.sidebar);
+}
+
+const sortedPluginMetadata = createSelector(
   [getPluginMetadata],
   sortPluginMetadata
 );
@@ -96,8 +129,17 @@ const uniquePathsByName = createSelector(
   }
 );
 
+const nestedPaths = createSelector(
+  [sortedPluginMetadata, uniquePathsByName],
+  getNestedPaths
+);
+
+const navItems = createSelector([nestedPaths], getNavItems);
+
 export default {
-  getSortedPluginMetadata,
+  sortedPluginMetadata,
   metadataWithUniquePaths,
-  uniquePathsByName
+  uniquePathsByName,
+  navItems,
+  nestedPaths
 };
