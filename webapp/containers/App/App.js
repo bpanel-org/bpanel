@@ -12,7 +12,9 @@ import Panel from '../Panel';
 import { plugins } from '../../store/selectors';
 import { pluginMetadata } from '../../store/propTypes';
 import { connect } from '../../plugins/plugins';
-import './app.scss';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap-grid.min.css';
 
 class App extends PureComponent {
   constructor(props) {
@@ -123,7 +125,4 @@ const mapDispatchToProps = dispatch => {
   );
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App, 'App');
+export default connect(mapStateToProps, mapDispatchToProps)(App, 'App');
