@@ -1,11 +1,6 @@
 import { ADD_SIDE_NAV } from '../constants/nav';
 import { initialMetadata } from '../../plugins/plugins';
-import {
-  navItems,
-  sortPluginMetadata,
-  uniquePathNames,
-  getNestedPaths
-} from '../selectors/plugins';
+import { sortedNavItems } from '../selectors/nav';
 
 const pluginMetadata = initialMetadata();
 const initialState = {
@@ -18,11 +13,11 @@ const navStore = (state = initialState, action) => {
 
   switch (type) {
     case ADD_SIDE_NAV: {
-      let sidebar = newState.sidebar;
+      const sidebar = [...newState.sidebar];
       sidebar.push(payload);
-      sidebar = sortPluginMetadata(sidebar);
-      sidebar = getNestedPaths(sidebar);
-      sidebar = uniquePathNames(sidebar);
+      // sidebar = sortPluginMetadata(sidebar);
+      // sidebar = getNestedPaths(sidebar);
+      // sidebar = uniquePathNames(sidebar);
       newState.sidebar = sidebar;
       return newState;
     }
@@ -30,7 +25,7 @@ const navStore = (state = initialState, action) => {
     default:
       // default to nav from pluginMetadata
       if (!newState.sidebar.length)
-        newState.sidebar = navItems({ pluginMetadata });
+        newState.sidebar = sortedNavItems({ pluginMetadata });
       return newState;
   }
 };

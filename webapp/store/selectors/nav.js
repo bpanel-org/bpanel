@@ -4,10 +4,16 @@ import { plugins } from '@bpanel/bpanel-utils';
 
 const { comparePlugins } = plugins;
 
-const getPluginMetadata = state => state.pluginMetadata;
 const getMetadataList = state => Object.values(state.pluginMetadata);
+const getSidebarItems = state => state.nav.sidebar;
 
+/* Sort plugin metadata (by order and name) and insert and
+ * sort children after parents
+ * @param {Array{}} pluginMeta - unsorted array of plugin Metadata
+ * @returns {Array{}} plugins - returns an array of sorted metadata objects
+ */
 export const sortPluginMetadata = (pluginMeta = []) => {
+  assert(Array.isArray(pluginMeta), 'Must pass array of metadata');
   const subItems = new Map();
 
   const sortedPluginMetadata = pluginMeta
@@ -43,6 +49,13 @@ export const sortPluginMetadata = (pluginMeta = []) => {
   return sortedPluginMetadata;
 };
 
+/* Update list of plugin metadata (or nav objects) to have properly
+ * formatted, nested paths
+ * e.g. { name: 'child', parent: 'parent' } becomes
+ * { name: 'child', parent: 'parent', pathName: 'parent/child'}
+ * @param {Array{}} metadata - Array of plugin metadata objects
+ * @returns {Array{}} plugins - returns an array of metadata w/ updated paths
+ */
 export function getNestedPaths(metadata) {
   assert(Array.isArray(metadata), 'Must pass array of metadata');
   return metadata.reduce((updated, plugin) => {
@@ -77,16 +90,16 @@ export function getNestedPaths(metadata) {
   }, []);
 }
 
-/* Get sorted plugin metadata list w/ unique pathNames
+/* Get plugin metadata list w/ unique pathNames
  * @param {Object{}} metadata - object of plugin metadata objects
- * @returns {Array{}} plugins - returns an array of sorted metadata objects
+ * @returns {Array{}} plugins - returns an array of metadata objects with unique paths
  */
-export const uniquePathNames = metadata => {
-  const plugins = Object.values(metadata);
+export const getUniquePaths = metadata => {
+  assert(Array.isArray(metadata), 'Must pass array of metadata');
   const paths = new Set();
   const names = new Set();
 
-  return plugins.reduce((acc, plugin) => {
+  return metadata.reduce((acc, plugin) => {
     const { pathName, name, displayName: _displayName } = plugin;
     if (pathName) {
       let path = pathName;
@@ -127,38 +140,36 @@ export function getNavItems(metadata = []) {
   return metadata.filter(plugin => plugin.nav || plugin.sidebar);
 }
 
-const sortedPluginMetadata = createSelector(
-  [getMetadataList],
-  sortPluginMetadata
+// Properly compose metadata for navigation
+// sort list of metadata -> compose nested paths -> make paths unique
+function composeNavItems(_navItems = []) {
+  assert(Array.isArray(_navItems), 'Must pass array to composeNavItems');
+  let navItems = sortPluginMetadata(_navItems);
+  navItems = getNestedPaths(navItems);
+  navItems = getUniquePaths(navItems);
+  return navItems;
+}
+
+// selectors for converting pluginMetadata to nav list
+export const sortedNavItems = createSelector(getMetadataList, composeNavItems);
+
+// selector for ordering and composing sidebar navigation items
+export const sortedSidebarItems = createSelector(
+  getSidebarItems,
+  composeNavItems
 );
 
-const metadataWithUniquePaths = createSelector(
-  [getPluginMetadata],
-  uniquePathNames
-);
-
-const uniquePathsByName = createSelector(
-  [metadataWithUniquePaths],
-  metadata => {
-    const paths = {};
-    metadata
-      .filter(plugin => plugin.pathName)
-      .forEach(({ name, pathName }) => (paths[name] = pathName));
-    return paths;
-  }
-);
-
-const nestedPaths = createSelector(
-  [sortedPluginMetadata, uniquePathsByName],
-  getNestedPaths
-);
-
-export const navItems = createSelector([nestedPaths], getNavItems);
+// Useful selector for the Panel which just needs to match names to paths
+export const uniquePathsByName = createSelector(getMetadataList, metadata => {
+  const paths = {};
+  metadata
+    .filter(plugin => plugin.pathName)
+    .forEach(({ name, pathName }) => (paths[name] = pathName));
+  return paths;
+});
 
 export default {
-  sortedPluginMetadata,
-  metadataWithUniquePaths,
+  sortedNavItems,
   uniquePathsByName,
-  navItems,
-  nestedPaths
+  sortedSidebarItems
 };

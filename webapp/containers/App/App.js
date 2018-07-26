@@ -9,6 +9,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import Sidebar from '../Sidebar';
 import Panel from '../Panel';
+import { nav } from '../../store/selectors';
 import { pluginMetadata } from '../../store/propTypes';
 import { connect } from '../../plugins/plugins';
 
@@ -110,7 +111,7 @@ class App extends PureComponent {
 }
 
 const mapStateToProps = state => ({
-  sidebarNavItems: state.nav.sidebar,
+  sidebarNavItems: nav.sortedSidebarItems(state),
   theme: state.theme
 });
 

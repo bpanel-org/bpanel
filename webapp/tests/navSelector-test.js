@@ -6,7 +6,7 @@ import {
   uniquePathNames,
   getNavItems,
   getNestedPaths
-} from '../store/selectors/plugins';
+} from '../store/selectors/nav';
 import { plugins } from '@bpanel/bpanel-utils';
 
 describe('plugin selectors', () => {
@@ -140,7 +140,7 @@ describe('plugin selectors', () => {
     let metadata;
 
     beforeEach(() => {
-      metadata = uniquePathNames(parentItems);
+      metadata = uniquePathNames(Object.values(parentItems));
     });
 
     it('should not have any metadata w/ duplicate pathNames or displayNames', () => {
