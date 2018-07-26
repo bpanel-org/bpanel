@@ -1,7 +1,9 @@
 # Welcome to bPanel!
 
-This is the official repo for the [bPanel project](http://bpanel.org),
-a full featured, enterprise level GUI for your Bcoin Bitcoin node.
+This is the official repo for the [bPanel project](https://bpanel.org),
+a full featured, enterprise level GUI for your bcoin Bitcoin node.
+
+For complete developer and API documentation, visit our website: https://bpanel.org
 
 ## Dependencies
 
