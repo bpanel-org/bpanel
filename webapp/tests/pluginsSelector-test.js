@@ -10,7 +10,7 @@ import {
 import { plugins } from '@bpanel/bpanel-utils';
 
 describe('plugin selectors', () => {
-  let sortedPlugins, subItems, parentItems;
+  let sortedPlugins, subItems, parentItems, metadataList;
 
   beforeEach(() => {
     subItems = {
@@ -58,12 +58,14 @@ describe('plugin selectors', () => {
         name: 'xwallets',
         icon: 'hdd-o',
         sidebar: true,
+        displayName: 'zwallets',
         pathName: 'zwallets',
         order: 1
       }
     };
 
-    sortedPlugins = sortPluginMetadata({ ...parentItems, ...subItems });
+    metadataList = Object.values({ ...parentItems, ...subItems });
+    sortedPlugins = sortPluginMetadata(metadataList);
   });
 
   describe('sortPluginMetadata', () => {
@@ -75,7 +77,7 @@ describe('plugin selectors', () => {
 
     it('should call comparePlugins for sorting on parents and subItems', () => {
       const spy = sinon.spy(Array.prototype, 'sort');
-      sortPluginMetadata({ ...parentItems, ...subItems });
+      sortPluginMetadata(metadataList);
       expect(spy.calledWith(plugins.comparePlugins)).to.be.true;
       const parentNames = Object.keys(parentItems).sort();
       expect(parentNames[0]).to.equal(sortedPlugins[0].name);
@@ -141,37 +143,22 @@ describe('plugin selectors', () => {
       metadata = uniquePathNames(parentItems);
     });
 
-    it('should return plugins in sorted order', () => {
-      const sorted = sortPluginMetadata(parentItems);
-      metadata.forEach((plugin, index) =>
-        expect(plugin.name).to.equal(sorted[index].name)
-      );
-    });
-
-    it('should not have any metadata w/ duplicate pathNames', () => {
+    it('should not have any metadata w/ duplicate pathNames or displayNames', () => {
       const paths = new Set();
+      const names = new Set();
 
       metadata.forEach(plugin => {
         assert(
           !paths.has(plugin.pathName),
           `Found duplicate pathName: ${plugin.pathName}`
         );
+        assert(
+          !names.has(plugin.displayName),
+          `Found duplicate displayName: ${plugin.displayName}`
+        );
         paths.add(plugin.pathName);
+        names.add(plugin.displayName);
       });
-    });
-
-    it('should not have any name-pathName collisions between plugins', () => {
-      const paths = metadata.map(plugin => plugin.pathName);
-      const names = metadata.map(plugin => plugin.name);
-      paths.forEach((path, i) =>
-        names.forEach((name, j) => {
-          if (path === name)
-            assert(
-              i === j,
-              "plugin pathName should only collide with it's own name"
-            );
-        })
-      );
     });
   });
 

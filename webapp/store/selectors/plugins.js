@@ -5,11 +5,12 @@ import { plugins } from '@bpanel/bpanel-utils';
 const { comparePlugins } = plugins;
 
 const getPluginMetadata = state => state.pluginMetadata;
+const getMetadataList = state => Object.values(state.pluginMetadata);
 
-export const sortPluginMetadata = pluginMeta => {
+export const sortPluginMetadata = (pluginMeta = []) => {
   const subItems = new Map();
 
-  const sortedPluginMetadata = Object.values(pluginMeta)
+  const sortedPluginMetadata = pluginMeta
     .filter(plugin => {
       if (plugin.parent) {
         // if it has a parent then add it to corresponding array in subItems map
@@ -42,40 +43,6 @@ export const sortPluginMetadata = pluginMeta => {
   return sortedPluginMetadata;
 };
 
-/* Get sorted plugin metadata list w/ unique pathNames
- * @param {Object{}} metadata - object of plugin metadata objects
- * @returns {Array{}} plugins - returns an array of sorted metadata objects
- */
-export const uniquePathNames = metadata => {
-  const plugins = sortPluginMetadata(metadata);
-  const paths = new Set();
-  return plugins.reduce((acc, plugin) => {
-    const { pathName } = plugin;
-    if (pathName) {
-      let path = pathName;
-
-      // if the pathName is also the name of a plugin
-      // and that plugin is not the current one being tested
-      // add that to the paths set to avoid conflicts w/ names
-      if (metadata[path] && metadata[path].pathName !== path) paths.add(path);
-
-      if (paths.has(path)) {
-        // find unique suffix by incrementing counter
-        let counter = 1;
-        while (paths.has(`${path}-${counter}`)) {
-          counter++;
-        }
-        path = `${path}-${counter}`;
-      }
-      paths.add(path);
-      // set the metadata to the unique path
-      plugin.pathName = path;
-    }
-    acc.push(plugin);
-    return acc;
-  }, []);
-};
-
 export function getNestedPaths(metadata) {
   assert(Array.isArray(metadata), 'Must pass array of metadata');
   return metadata.reduce((updated, plugin) => {
@@ -92,10 +59,17 @@ export function getNestedPaths(metadata) {
         parent,
         `Parent ${plugin.parent} could not be found for child ${plugin.name}`
       );
+      // get parent path, if none, use name
       const parentPath = parent.pathName ? parent.pathName : parent.name;
-      const pathName = plugin.pathName
-        ? `${parentPath}/${plugin.pathName}`
-        : `${parentPath}/${plugin.name}`;
+
+      // get plugin path, if none, use name
+      let pathName = plugin.pathName ? plugin.pathName : plugin.name;
+
+      // sanitize of any other uri constructions like other nested paths
+      pathName = pathName.slice(pathName.lastIndexOf('/') + 1);
+
+      // make nested path
+      pathName = `${parentPath}/${pathName}`;
       plugin.pathName = pathName;
     }
     updated.push(plugin);
@@ -103,13 +77,58 @@ export function getNestedPaths(metadata) {
   }, []);
 }
 
+/* Get sorted plugin metadata list w/ unique pathNames
+ * @param {Object{}} metadata - object of plugin metadata objects
+ * @returns {Array{}} plugins - returns an array of sorted metadata objects
+ */
+export const uniquePathNames = metadata => {
+  const plugins = Object.values(metadata);
+  const paths = new Set();
+  const names = new Set();
+
+  return plugins.reduce((acc, plugin) => {
+    const { pathName, name, displayName: _displayName } = plugin;
+    if (pathName) {
+      let path = pathName;
+
+      if (paths.has(path)) {
+        // find unique suffix by incrementing counter
+        let counter = 1;
+        while (paths.has(`${path}-${counter}`)) {
+          counter++;
+        }
+        path = `${path}-${counter}`;
+      }
+
+      paths.add(path);
+      // set the metadata to the unique path
+      plugin.pathName = path;
+    }
+
+    // get unique displayName using same mechanism
+    let displayName = _displayName ? _displayName : name;
+    if (names.has(displayName)) {
+      let counter = 1;
+      while (names.has(`${displayName}-${counter}`)) {
+        counter++;
+      }
+      displayName = `${displayName}-${counter}`;
+    }
+    names.add(displayName);
+    plugin.displayName = displayName;
+
+    acc.push(plugin);
+    return acc;
+  }, []);
+};
+
 export function getNavItems(metadata = []) {
   assert(Array.isArray(metadata), 'Must pass array to getNavItems');
   return metadata.filter(plugin => plugin.nav || plugin.sidebar);
 }
 
 const sortedPluginMetadata = createSelector(
-  [getPluginMetadata],
+  [getMetadataList],
   sortPluginMetadata
 );
 
@@ -134,7 +153,7 @@ const nestedPaths = createSelector(
   getNestedPaths
 );
 
-const navItems = createSelector([nestedPaths], getNavItems);
+export const navItems = createSelector([nestedPaths], getNavItems);
 
 export default {
   sortedPluginMetadata,

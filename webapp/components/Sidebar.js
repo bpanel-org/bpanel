@@ -59,10 +59,6 @@ class Sidebar extends PureComponent {
     return React.createElement(SidebarNavItem, props);
   }
 
-  getPathName(itemProps) {
-    return itemProps.pathName ? itemProps.pathName : itemProps.name;
-  }
-
   renderSidebarItems() {
     const {
       sidebarNavItems,
@@ -89,7 +85,7 @@ class Sidebar extends PureComponent {
             pathname,
             ...pluginProps
           };
-          sidebarItemProps.pathName = this.getPathName(sidebarItemProps);
+
           if (plugin.parent) {
             // if this sidebar item is a child then add appropriate props
             sidebarItemProps.subItem = true;

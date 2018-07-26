@@ -9,7 +9,6 @@ import Header from '../Header';
 import Footer from '../Footer';
 import Sidebar from '../Sidebar';
 import Panel from '../Panel';
-import { plugins } from '../../store/selectors';
 import { pluginMetadata } from '../../store/propTypes';
 import { connect } from '../../plugins/plugins';
 
@@ -24,7 +23,7 @@ class App extends PureComponent {
   static get propTypes() {
     return {
       children: PropTypes.node,
-      sortedPluginMeta: pluginMetadata.sortedMetadataPropTypes,
+      sidebarNavItems: pluginMetadata.sortedMetadataPropTypes,
       location: PropTypes.shape({
         pathname: PropTypes.string
       }),
@@ -63,8 +62,8 @@ class App extends PureComponent {
   }
 
   getHomePath() {
-    const { sortedPluginMeta } = this.props;
-    const panels = sortedPluginMeta.filter(
+    const { sidebarNavItems } = this.props;
+    const panels = sidebarNavItems.filter(
       plugin => plugin.sidebar || plugin.nav || React.isValidElement(plugin)
     );
     const homePath = panels[0]
@@ -76,7 +75,7 @@ class App extends PureComponent {
   }
 
   render() {
-    const { sortedPluginMeta, location, theme, match } = this.props;
+    const { sidebarNavItems, location, theme, match } = this.props;
     return (
       <ThemeProvider theme={theme}>
         <div>
@@ -86,7 +85,7 @@ class App extends PureComponent {
                 className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}
               >
                 <Sidebar
-                  sidebarNavItems={sortedPluginMeta}
+                  sidebarNavItems={sidebarNavItems}
                   location={location}
                   theme={theme}
                   match={match}
@@ -111,7 +110,7 @@ class App extends PureComponent {
 }
 
 const mapStateToProps = state => ({
-  sortedPluginMeta: plugins.navItems(state),
+  sidebarNavItems: state.nav.sidebar,
   theme: state.theme
 });
 
