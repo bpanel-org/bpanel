@@ -1,4 +1,4 @@
-import { ADD_SIDE_NAV } from '../constants/nav';
+import { ADD_SIDE_NAV, REMOVE_SIDE_NAV } from '../constants/nav';
 import { initialMetadata } from '../../plugins/plugins';
 import { sortedNavItems } from '../selectors/nav';
 
@@ -15,9 +15,16 @@ const navStore = (state = initialState, action) => {
     case ADD_SIDE_NAV: {
       const sidebar = [...newState.sidebar];
       sidebar.push(payload);
-      // sidebar = sortPluginMetadata(sidebar);
-      // sidebar = getNestedPaths(sidebar);
-      // sidebar = uniquePathNames(sidebar);
+      newState.sidebar = sidebar;
+      return newState;
+    }
+
+    case REMOVE_SIDE_NAV: {
+      const sidebar = [...newState.sidebar];
+      const index = sidebar.findIndex(
+        item => item.name === payload.name || item.pathName === payload.pathName
+      );
+      sidebar.splice(index, 1);
       newState.sidebar = sidebar;
       return newState;
     }

@@ -144,7 +144,8 @@ export function getNavItems(metadata = []) {
 // sort list of metadata -> compose nested paths -> make paths unique
 function composeNavItems(_navItems = []) {
   assert(Array.isArray(_navItems), 'Must pass array to composeNavItems');
-  let navItems = sortPluginMetadata(_navItems);
+  let navItems = getNavItems(_navItems);
+  navItems = sortPluginMetadata(navItems);
   navItems = getNestedPaths(navItems);
   navItems = getUniquePaths(navItems);
   return navItems;
