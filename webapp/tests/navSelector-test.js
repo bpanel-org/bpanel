@@ -3,7 +3,7 @@ import sinon from 'sinon';
 
 import {
   sortPluginMetadata,
-  uniquePathNames,
+  getUniquePaths,
   getNavItems,
   getNestedPaths
 } from '../store/selectors/nav';
@@ -136,11 +136,11 @@ describe('plugin selectors', () => {
     });
   });
 
-  describe('uniquePathNames', () => {
+  describe('getUniquePaths', () => {
     let metadata;
 
     beforeEach(() => {
-      metadata = uniquePathNames(Object.values(parentItems));
+      metadata = getUniquePaths(Object.values(parentItems));
     });
 
     it('should not have any metadata w/ duplicate pathNames or displayNames', () => {
