@@ -33,17 +33,11 @@ class Sidebar extends PureComponent {
   }
 
   renderLogo() {
-    const {
-      theme,
-      match: { url }
-    } = this.props;
+    const { theme } = this.props;
     return (
       <Link to="/">
         <div className={theme.sidebar.logoContainer}>
-          <img
-            src={`${url}${theme.logoUrl}`}
-            className={theme.sidebar.logoImg}
-          />
+          <img src={`${theme.logoUrl}`} className={theme.sidebar.logoImg} />
         </div>
       </Link>
     );
@@ -70,9 +64,16 @@ class Sidebar extends PureComponent {
       sidebarNavItems
         // filter out any plugins w/o sidebar or nav property set to true
         // or that is not a valid react element (custom sidebar components)
-        .filter(
-          plugin => plugin.sidebar || plugin.nav || React.isValidElement(plugin)
-        )
+        .filter(plugin => {
+          // if it isn't a custom element confirm that it has a pathName
+          // and its pathName isn't just a single slash
+          if (
+            !React.isValidElement(plugin) &&
+            (!plugin.pathName || plugin.pathName === '/')
+          )
+            return false;
+          return plugin.sidebar || plugin.nav || React.isValidElement(plugin);
+        })
         // map through each parent item to create the sidebar nav element
         .map((plugin, index) => {
           // for a nav item that is already a react element
@@ -85,6 +86,13 @@ class Sidebar extends PureComponent {
             pathname,
             ...pluginProps
           };
+
+          // sanitize out any forward slashes or non-uri safe symbols from pathName
+          // unless it is an absolute URL leading with http
+          if (sidebarItemProps.pathName.indexOf('http') !== 0)
+            sidebarItemProps.pathName = `${match.url}${
+              sidebarItemProps.pathName
+            }`;
 
           if (plugin.parent) {
             // if this sidebar item is a child then add appropriate props

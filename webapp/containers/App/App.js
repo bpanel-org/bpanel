@@ -111,6 +111,9 @@ class App extends PureComponent {
 }
 
 const mapStateToProps = state => ({
+  // by default the sidebar items stay in an unsorted state in the
+  // redux store. Using the selector you can get them sorted (and
+  // it will only recalculate if there's been a change in the state)
   sidebarNavItems: nav.sortedSidebarItems(state),
   theme: state.theme
 });

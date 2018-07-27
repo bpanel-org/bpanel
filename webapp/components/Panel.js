@@ -11,19 +11,16 @@ export default class extends PureComponent {
     this.routes = customChildren.map(({ Component, metadata }) => {
       const { name } = metadata;
 
-      const pathName = paths[name]; // will be a unique path from state
-      let path;
+      let pathName = paths[name]; // will be a unique path from state
 
       try {
         if (!name) throw 'Must pass a name for custom Panels';
         if (!pathName) {
-          path = encodeURI(name);
-        } else {
-          path = encodeURI(pathName);
+          pathName = encodeURI(name);
         }
         return (
           <Route
-            path={`/${path}`}
+            path={`/${pathName}`}
             key={`nav-${name}`}
             render={pathProps => this.childRoute(Component, name, pathProps)} // using render so we can pass props
           />
