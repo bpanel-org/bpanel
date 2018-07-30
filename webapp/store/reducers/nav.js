@@ -13,8 +13,7 @@ const navStore = (state = initialState, action) => {
 
   switch (type) {
     case ADD_SIDE_NAV: {
-      const sidebar = [...newState.sidebar, payload];
-      newState.sidebar = sidebar;
+      newState.sidebar = [...newState.sidebar, payload];
       return newState;
     }
 
