@@ -89,7 +89,7 @@ class Sidebar extends PureComponent {
 
           // sanitize out any forward slashes or non-uri safe symbols from pathName
           // unless it is an absolute URL leading with http
-          if (sidebarItemProps.pathName.indexOf('http') !== 0)
+          if (!/^(http)/.test(sidebarItemProps.pathName))
             sidebarItemProps.pathName = `${match.url}${
               sidebarItemProps.pathName
             }`;

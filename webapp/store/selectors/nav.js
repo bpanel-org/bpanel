@@ -2,6 +2,7 @@ import assert from 'assert';
 import { createSelector } from 'reselect';
 import { plugins } from '@bpanel/bpanel-utils';
 
+import { createUnique } from '../../utils/helpers';
 const { comparePlugins } = plugins;
 
 const getMetadataList = state => Object.values(state.pluginMetadata);
@@ -71,7 +72,7 @@ export function sanitizePaths(navItems) {
 export function getNestedPaths(metadata) {
   assert(Array.isArray(metadata), 'Must pass array of metadata');
   return metadata.reduce((updated, plugin) => {
-    if (plugin.parent && plugin.pathName.indexOf('http') !== 0) {
+    if (plugin.parent && !/^(http)/.test(plugin.pathName)) {
       // if this plugin is a child then update its pathName property
       // to nest behind the parent
       const parentIndex = metadata.findIndex(
@@ -113,17 +114,7 @@ export const getUniquePaths = metadata => {
     ({ paths, names, result }, plugin) => {
       const { pathName, name, displayName: _displayName } = plugin;
       if (pathName) {
-        let path = pathName;
-
-        if (paths.has(path)) {
-          // find unique suffix by incrementing counter
-          let counter = 1;
-          while (paths.has(`${path}-${counter}`)) {
-            counter++;
-          }
-          path = `${path}-${counter}`;
-        }
-
+        let path = createUnique(pathName, paths);
         paths.add(path);
         // set the metadata to the unique path
         plugin.pathName = path;
@@ -131,13 +122,8 @@ export const getUniquePaths = metadata => {
 
       // get unique displayName using same mechanism
       let displayName = _displayName ? _displayName : name;
-      if (names.has(displayName)) {
-        let counter = 1;
-        while (names.has(`${displayName}-${counter}`)) {
-          counter++;
-        }
-        displayName = `${displayName}-${counter}`;
-      }
+      displayName = createUnique(displayName, names);
+
       names.add(displayName);
       plugin.displayName = displayName;
 

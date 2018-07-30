@@ -128,13 +128,6 @@ describe('checkMetadata', () => {
     const test = checkMetadata({ name: testName });
     expect(test).to.deep.equal(expected);
   });
-
-  it('should make sure pathName is encoded for URI if set', () => {
-    const testPath = 'my path';
-    const expectedPath = encodeURI(testPath);
-    const test = checkMetadata({ name: 'test', pathName: testPath });
-    expect(test.pathName).to.equal(expectedPath);
-  });
 });
 
 describe('filterInternalProperties', () => {
