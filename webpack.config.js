@@ -89,10 +89,10 @@ module.exports = function(env = {}) {
           }
         },
         {
-          test: /\.(scss|css)$/,
+          test: /\.css$/,
           use: ExtractTextPlugin.extract({
             fallback: 'style-loader',
-            use: [loaders.css, loaders.postcss, loaders.sass]
+            use: [loaders.css, loaders.postcss]
           })
         },
         {

@@ -4,9 +4,9 @@ import Footer from '../components/Footer';
 const mapStateToProps = () => ({});
 const mapDispatchToProps = () => ({});
 
-const FooterContainer = connect(mapStateToProps, mapDispatchToProps)(
-  Footer,
-  'Footer'
-);
+const FooterContainer = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Footer, 'Footer');
 
 export default FooterContainer;
