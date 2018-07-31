@@ -15,10 +15,10 @@ const getSidebarItems = state => state.nav.sidebar;
  */
 export const sortPluginMetadata = (pluginMeta = []) => {
   assert(Array.isArray(pluginMeta), 'Must pass array of metadata');
-  const subItems = new Map();
+  // const subItems = new Map();
 
-  const sortedPluginMetadata = pluginMeta
-    .filter(plugin => {
+  const { parents, subItems } = pluginMeta.reduce(
+    ({ parents, subItems }, plugin) => {
       if (plugin.parent) {
         // if it has a parent then add it to corresponding array in subItems map
         // this is so that we can get all subItems and then sort later
@@ -30,24 +30,22 @@ export const sortPluginMetadata = (pluginMeta = []) => {
           children.push(plugin);
           subItems.set(parent, children);
         }
-        // don't return to array of top level items
-        return false;
       } else {
-        // only returning an array of the parents
-        return true;
+        parents.push(plugin);
       }
-    })
-    .sort(comparePlugins);
+      return { parents, subItems };
+    },
+    { parents: [], subItems: new Map() }
+  );
 
-  subItems.forEach((children, parent) => {
-    const index = sortedPluginMetadata.findIndex(
-      plugin => parent === plugin.name
-    );
-    children.sort(comparePlugins);
-    sortedPluginMetadata.splice(index + 1, 0, ...children);
-  });
-
-  return sortedPluginMetadata;
+  return parents.sort(comparePlugins).reduce((sortedPluginMetadata, parent) => {
+    if (subItems.has(parent.name)) {
+      const children = subItems.get(parent.name);
+      children.sort(comparePlugins);
+      return [...sortedPluginMetadata, parent, ...children];
+    }
+    return [...sortedPluginMetadata, parent];
+  }, []);
 };
 
 /* Sanitize paths
