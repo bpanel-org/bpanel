@@ -1,6 +1,4 @@
 import assert from 'assert';
-// import bio from 'bufio';
-// import { hash256 } from 'bvcrypto';
 import { helpers } from '@bpanel/bpanel-utils';
 import { ADD_SIDE_NAV, REMOVE_SIDE_NAV, SET_SIDE_NAV } from '../constants/nav';
 import { sortedNavItems } from '../selectors/nav';

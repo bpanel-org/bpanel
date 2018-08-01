@@ -27,7 +27,7 @@ const navStore = (state = initialState, action) => {
       const index = sidebar.findIndex(
         item => item.name === payload.name || item.id === payload.id
       );
-      sidebar.splice(index, 1);
+      if (index > -1) sidebar.splice(index, 1);
       newState.sidebar = sidebar;
       return newState;
     }
