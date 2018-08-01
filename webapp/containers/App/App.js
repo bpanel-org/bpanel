@@ -4,12 +4,17 @@ import { bindActionCreators } from 'redux';
 import { Route, Redirect } from 'react-router';
 
 import ThemeProvider from '../ThemeProvider';
-import { nodeActions, socketActions, themeActions } from '../../store/actions/';
+import {
+  nodeActions,
+  socketActions,
+  themeActions,
+  navActions
+} from '../../store/actions/';
 import Header from '../Header';
 import Footer from '../Footer';
 import Sidebar from '../Sidebar';
 import Panel from '../Panel';
-import { plugins } from '../../store/selectors';
+import { nav } from '../../store/selectors';
 import { pluginMetadata } from '../../store/propTypes';
 import { connect } from '../../plugins/plugins';
 
@@ -19,12 +24,14 @@ import 'bootstrap/dist/css/bootstrap-grid.min.css';
 class App extends PureComponent {
   constructor(props) {
     super(props);
+    props.loadSideNav();
   }
 
   static get propTypes() {
     return {
       children: PropTypes.node,
-      sortedPluginMeta: pluginMetadata.sortedMetadataPropTypes,
+      loadSideNav: PropTypes.func.isRequired,
+      sidebarNavItems: pluginMetadata.sortedMetadataPropTypes,
       location: PropTypes.shape({
         pathname: PropTypes.string
       }),
@@ -33,7 +40,13 @@ class App extends PureComponent {
       disconnectSocket: PropTypes.func.isRequired,
       getNodeInfo: PropTypes.func.isRequired,
       updateTheme: PropTypes.func.isRequired,
-      appLoaded: PropTypes.func.isRequired
+      appLoaded: PropTypes.func.isRequired,
+      match: PropTypes.shape({
+        isExact: PropTypes.bool,
+        path: PropTypes.string,
+        url: PropTypes.string,
+        params: PropTypes.object
+      }).isRequired
     };
   }
 
@@ -57,9 +70,9 @@ class App extends PureComponent {
   }
 
   getHomePath() {
-    const { sortedPluginMeta } = this.props;
-    const panels = sortedPluginMeta.filter(
-      plugin => plugin.sidebar || React.isValidElement(plugin)
+    const { sidebarNavItems } = this.props;
+    const panels = sidebarNavItems.filter(
+      plugin => plugin.sidebar || plugin.nav || React.isValidElement(plugin)
     );
     const homePath = panels[0]
       ? panels[0].pathName
@@ -70,7 +83,7 @@ class App extends PureComponent {
   }
 
   render() {
-    const { sortedPluginMeta, location, theme } = this.props;
+    const { sidebarNavItems, location, theme, match } = this.props;
     return (
       <ThemeProvider theme={theme}>
         <div>
@@ -80,9 +93,10 @@ class App extends PureComponent {
                 className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}
               >
                 <Sidebar
-                  sidebarNavItems={sortedPluginMeta}
+                  sidebarNavItems={sidebarNavItems}
                   location={location}
                   theme={theme}
+                  match={match}
                 />
               </div>
               <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
@@ -104,12 +118,16 @@ class App extends PureComponent {
 }
 
 const mapStateToProps = state => ({
-  sortedPluginMeta: plugins.metadataWithUniquePaths(state),
+  // by default the sidebar items stay in an unsorted state in the
+  // redux store. Using the selector you can get them sorted (and
+  // it will only recalculate if there's been a change in the state)
+  sidebarNavItems: nav.sortedSidebarItems(state),
   theme: state.theme
 });
 
 const mapDispatchToProps = dispatch => {
   const { getNodeInfo } = nodeActions;
+  const { loadSideNav } = navActions;
   const { connectSocket, disconnectSocket } = socketActions;
   const { updateTheme } = themeActions;
   const appLoaded = () => ({ type: 'APP_LOADED' });
@@ -117,6 +135,7 @@ const mapDispatchToProps = dispatch => {
     {
       appLoaded,
       getNodeInfo,
+      loadSideNav,
       connectSocket,
       disconnectSocket,
       updateTheme

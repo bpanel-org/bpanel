@@ -106,7 +106,7 @@ const headerHeight = 7;
 const footerHeight = 2;
 
 // Logo
-const logoUrl = logo;
+const logoUrl = `/${logo}`;
 
 const themeVariables = {
   // rawRem holds all the values that will be converted

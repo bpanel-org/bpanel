@@ -3,28 +3,33 @@ import sinon from 'sinon';
 
 import {
   sortPluginMetadata,
-  uniquePathNames
-} from '../store/selectors/plugins';
+  getUniquePaths,
+  getNavItems,
+  getNestedPaths
+} from '../store/selectors/nav';
 import { plugins } from '@bpanel/bpanel-utils';
 
 describe('plugin selectors', () => {
-  let sortedPlugins, subItems, parentItems;
+  let sortedPlugins, subItems, parentItems, metadataList;
 
   beforeEach(() => {
     subItems = {
       'some wallet func': {
         name: 'some wallet func',
         order: 1,
+        nav: true,
         parent: 'wallets'
       },
       'first wallet func': {
         name: 'first wallet func',
         order: 0,
+        sidebar: true,
         parent: 'wallets'
       },
       'special-plugin': {
         name: 'special-plugin',
         order: 0,
+        nav: true,
         parent: 'xwallets'
       }
     };
@@ -40,22 +45,27 @@ describe('plugin selectors', () => {
         name: 'wallets',
         icon: 'hdd-o',
         pathName: 'wallets',
+        nav: true,
         order: 1
       },
       dashboard: {
         name: 'dashboard',
         order: 0,
+        nav: true,
         icon: 'home'
       },
       xwallets: {
         name: 'xwallets',
         icon: 'hdd-o',
+        sidebar: true,
+        displayName: 'zwallets',
         pathName: 'zwallets',
         order: 1
       }
     };
 
-    sortedPlugins = sortPluginMetadata({ ...parentItems, ...subItems });
+    metadataList = Object.values({ ...parentItems, ...subItems });
+    sortedPlugins = sortPluginMetadata(metadataList);
   });
 
   describe('sortPluginMetadata', () => {
@@ -67,7 +77,7 @@ describe('plugin selectors', () => {
 
     it('should call comparePlugins for sorting on parents and subItems', () => {
       const spy = sinon.spy(Array.prototype, 'sort');
-      sortPluginMetadata({ ...parentItems, ...subItems });
+      sortPluginMetadata(metadataList);
       expect(spy.calledWith(plugins.comparePlugins)).to.be.true;
       const parentNames = Object.keys(parentItems).sort();
       expect(parentNames[0]).to.equal(sortedPlugins[0].name);
@@ -126,44 +136,64 @@ describe('plugin selectors', () => {
     });
   });
 
-  describe('uniquePathNames', () => {
+  describe('getUniquePaths', () => {
     let metadata;
 
     beforeEach(() => {
-      metadata = uniquePathNames(parentItems);
+      metadata = getUniquePaths(Object.values(parentItems));
     });
 
-    it('should return plugins in sorted order', () => {
-      const sorted = sortPluginMetadata(parentItems);
-      metadata.forEach((plugin, index) =>
-        expect(plugin.name).to.equal(sorted[index].name)
-      );
-    });
-
-    it('should not have any metadata w/ duplicate pathNames', () => {
+    it('should not have any metadata w/ duplicate pathNames or displayNames', () => {
       const paths = new Set();
+      const names = new Set();
 
       metadata.forEach(plugin => {
         assert(
           !paths.has(plugin.pathName),
           `Found duplicate pathName: ${plugin.pathName}`
         );
+        assert(
+          !names.has(plugin.displayName),
+          `Found duplicate displayName: ${plugin.displayName}`
+        );
         paths.add(plugin.pathName);
+        names.add(plugin.displayName);
       });
     });
+  });
 
-    it('should not have any name-pathName collisions between plugins', () => {
-      const paths = metadata.map(plugin => plugin.pathName);
-      const names = metadata.map(plugin => plugin.name);
-      paths.forEach((path, i) =>
-        names.forEach((name, j) => {
-          if (path === name)
-            assert(
-              i === j,
-              "plugin pathName should only collide with it's own name"
-            );
-        })
+  describe('getNavItems', () => {
+    it('should only have items with sidebar or nav properties set to true', () => {
+      const navItems = getNavItems(sortedPlugins);
+      assert(navItems.length, 'Data set did not return any nav items');
+      navItems.forEach(item =>
+        assert(
+          item.sidebar || item.nav,
+          `${item.name} does not have nav or sidebar property set to true`
+        )
       );
+    });
+  });
+
+  describe('getNestedPaths', () => {
+    it('should update child pathNames to be nested if has a parent', () => {
+      const metadata = getNavItems(sortedPlugins);
+      const nested = getNestedPaths(metadata);
+      nested.forEach(plugin => {
+        if (plugin.parent) {
+          const parentIndex = metadata.findIndex(
+            item => item.name === plugin.parent
+          );
+
+          const parent = metadata[parentIndex];
+          const parentPath = parent.pathName ? parent.pathName : parent.name;
+
+          expect(
+            plugin.pathName === `${parentPath}/${plugin.pathName}`,
+            `${plugin.name} did not nest its path in its parent correctly`
+          );
+        }
+      });
     });
   });
 });

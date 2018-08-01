@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // utilities for the plugin system modules
 import assert from 'assert';
 import semver from 'semver';
@@ -11,7 +12,6 @@ export const propsReducerCallback = (name, parentProps, ...fnArgs) => (
   try {
     props_ = decorator(parentProps, acc, ...fnArgs);
   } catch (err) {
-    //eslint-disable-next-line no-console
     console.error(
       'Plugin error',
       `${decorator._pluginName}: Error occurred in \`${name}\``,
@@ -21,7 +21,6 @@ export const propsReducerCallback = (name, parentProps, ...fnArgs) => (
   }
 
   if (!props_ || typeof props_ !== 'object') {
-    // eslint-disable-next-line no-console
     console.error(
       'Plugin error',
       `${
@@ -73,7 +72,10 @@ export const checkMetadata = metadata => {
   // if it doesn't, duplicate from `name`
   if (!displayName) updatedMeta.displayName = name;
   // encode pathName if it exists
-  if (pathName) updatedMeta.pathName = encodeURI(pathName);
+  if (pathName) {
+    assert(pathName !== '/', 'pathName should not be a single forward slash');
+    updatedMeta.pathName = pathName.replace(/^(\/)+/, '');
+  }
 
   return updatedMeta;
 };
@@ -134,8 +136,10 @@ export const moduleLoader = (config, modules = []) => {
           // doing recursive call if plugin has plugin bundle
           modules = moduleLoader(plugin.pluginConfig, modules);
       } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error(`Plugin failure: ${e.message} \n`, plugin);
+        console.error(
+          `Plugin failure: In ${plugin.metadata.name}, ${e.message} \n`,
+          plugin
+        );
       }
     });
   }
