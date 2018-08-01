@@ -4,10 +4,10 @@ import { bindActionCreators } from 'redux';
 import { connect } from '../plugins/plugins';
 import Panel from '../components/Panel';
 import { socketActions } from '../store/actions';
-import { plugins } from '../store/selectors';
+import { nav } from '../store/selectors';
 
 const mapStateToProps = state => ({
-  paths: plugins.uniquePathsByName(state),
+  paths: nav.uniquePathsByName(state),
   theme: state.theme
 });
 

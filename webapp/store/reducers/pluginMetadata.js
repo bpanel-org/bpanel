@@ -2,7 +2,6 @@ import { ADD_PLUGIN_META } from '../constants/plugins';
 import { initialMetadata } from '../../plugins/plugins';
 
 const initialPlugins = initialMetadata();
-
 const pluginMetadata = (state = initialPlugins, action) => {
   switch (action.type) {
     case ADD_PLUGIN_META: {

@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import { getRouteProps } from '../plugins/plugins';
@@ -7,7 +7,26 @@ import { getRouteProps } from '../plugins/plugins';
 export default class extends PureComponent {
   constructor(props) {
     super(props);
-    this.routes = [];
+    const { customChildren = [], paths } = props;
+    this.routes = customChildren.map(({ Component, metadata }) => {
+      const { name } = metadata;
+
+      let pathName = paths[name]; // will be a unique path from state
+
+      try {
+        if (!name) throw 'Must pass a name for custom Panels';
+        if (!pathName) {
+          pathName = encodeURI(name);
+        }
+        return (
+          <Route
+            path={`/${pathName}`}
+            key={`nav-${name}`}
+            render={pathProps => this.childRoute(Component, name, pathProps)} // using render so we can pass props
+          />
+        );
+      } catch (e) {}
+    });
   }
 
   static get displayName() {
@@ -26,42 +45,19 @@ export default class extends PureComponent {
 
   // a method to create the routes
   // returns the view Component with props
-  childRoute(Component, name = '') {
+  childRoute(Component, name = '', pathProps) {
     // get props needed for each route
     // 'name' should correspond with the plugin name for each route
     const routeProps = getRouteProps(name, this.props);
 
-    return <Component {...routeProps} />;
-  }
-
-  UNSAFE_componentWillMount() {
-    const { customChildren = [], paths } = this.props;
-    this.routes = customChildren.map(({ Component, metadata }) => {
-      const { name } = metadata;
-
-      const pathName = paths[name]; // will be a unique from state
-      let path;
-
-      try {
-        if (!name) throw 'Must pass a name for custom Panels';
-        if (!pathName) {
-          path = encodeURI(name);
-        } else {
-          path = encodeURI(pathName);
-        }
-        return (
-          <Route
-            exact
-            path={`/${path}`}
-            key={`nav-${name}`}
-            render={() => this.childRoute(Component, name)} // using render so we can pass props
-          />
-        );
-      } catch (e) {}
-    });
+    return <Component {...routeProps} {...pathProps} />;
   }
 
   render() {
-    return <div>{this.routes}</div>;
+    return (
+      <div>
+        <Switch>{this.routes}</Switch>
+      </div>
+    );
   }
 }

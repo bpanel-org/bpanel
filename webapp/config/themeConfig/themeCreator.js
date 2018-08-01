@@ -367,15 +367,6 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     },
 
     condensedTextView: {
-      rowHeader: {
-        width: '6rem'
-      },
-      dataRow: {
-        display: 'flex',
-        flexDirection: 'row',
-        marginBottom: '7px',
-        ...makeGutter('padding', { all: 0.33 })
-      },
       copyIcon: {
         lineHeight: '2rem',
         cursor: 'pointer',
