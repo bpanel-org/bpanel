@@ -366,6 +366,24 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       return style;
     },
 
+    condensedTextView: {
+      rowHeader: {
+        width: '6rem'
+      },
+      dataRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        marginBottom: '7px',
+        ...makeGutter('padding', { all: 0.33 })
+      },
+      copyIcon: {
+        lineHeight: '2rem',
+        cursor: 'pointer',
+        color: themeColors.highlight1,
+        ...makeGutter('padding', { left: 1 })
+      }
+    },
+
     expandedRow: {
       container: {
         height: '100%',
@@ -470,6 +488,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
 
   const {
     app,
+    condensedTextView,
     sidebar,
     headerbar,
     input,
@@ -495,6 +514,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     link: StyleSheet.create(link),
     table: StyleSheet.create(table),
     expandedRow: StyleSheet.create(expandedRow),
+    condensedTextView: StyleSheet.create(condensedTextView),
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
     themeVariables: mergedThemeVariables,
