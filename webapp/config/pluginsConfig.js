@@ -1,9 +1,5 @@
-export const localPlugins = ['footer-address', 'test-child'];
+export const localPlugins = ['footer-address'];
 
-export const plugins = [
-  '@bpanel/genesis-theme',
-  '@bpanel/bdark-theme',
-  '@bpanel/simple-mining'
-];
+export const plugins = ['@bpanel/genesis-theme'];
 
 export default { localPlugins, plugins };
