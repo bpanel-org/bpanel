@@ -4,7 +4,12 @@ import { bindActionCreators } from 'redux';
 import { Route, Redirect } from 'react-router';
 
 import ThemeProvider from '../ThemeProvider';
-import { nodeActions, socketActions, themeActions } from '../../store/actions/';
+import {
+  nodeActions,
+  socketActions,
+  themeActions,
+  navActions
+} from '../../store/actions/';
 import Header from '../Header';
 import Footer from '../Footer';
 import Sidebar from '../Sidebar';
@@ -19,11 +24,13 @@ import 'bootstrap/dist/css/bootstrap-grid.min.css';
 class App extends PureComponent {
   constructor(props) {
     super(props);
+    props.loadSideNav();
   }
 
   static get propTypes() {
     return {
       children: PropTypes.node,
+      loadSideNav: PropTypes.func.isRequired,
       sidebarNavItems: pluginMetadata.sortedMetadataPropTypes,
       location: PropTypes.shape({
         pathname: PropTypes.string
@@ -120,6 +127,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => {
   const { getNodeInfo } = nodeActions;
+  const { loadSideNav } = navActions;
   const { connectSocket, disconnectSocket } = socketActions;
   const { updateTheme } = themeActions;
   const appLoaded = () => ({ type: 'APP_LOADED' });
@@ -127,6 +135,7 @@ const mapDispatchToProps = dispatch => {
     {
       appLoaded,
       getNodeInfo,
+      loadSideNav,
       connectSocket,
       disconnectSocket,
       updateTheme
