@@ -109,6 +109,15 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     transition: smoothTransition
   };
 
+  const themeCommon = {
+    copyIcon: {
+      lineHeight: '2rem',
+      cursor: 'pointer',
+      color: themeColors.highlight1,
+      ...makeGutter('padding', { left: 1 })
+    }
+  };
+
   const themeConfig = {
     // MAIN APP COMPONENTS
 
@@ -367,12 +376,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     },
 
     condensedTextView: {
-      copyIcon: {
-        lineHeight: '2rem',
-        cursor: 'pointer',
-        color: themeColors.highlight1,
-        ...makeGutter('padding', { left: 1 })
-      }
+      copyIcon: themeCommon.copyIcon
     },
 
     expandedRow: {
@@ -403,12 +407,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         width: '80%',
         ...makeGutter('padding', { all: 0.2 })
       },
-      copyIcon: {
-        lineHeight: '2rem',
-        cursor: 'pointer',
-        color: themeColors.highlight1,
-        ...makeGutter('padding', { left: 1 })
-      }
+      copyIcon: themeCommon.copyIcon
     },
 
     //Tab Menu
