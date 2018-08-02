@@ -12,6 +12,9 @@ const navStore = (state = initialState, action) => {
   switch (type) {
     case ADD_SIDE_NAV: {
       const sidebar = [...newState.sidebar];
+      // check if there are any duplicates. Will return true
+      // if at least one item in the sidebar has the same name or id
+      // as the item attempting to be added
       const duplicates = sidebar.some(
         nav => nav.name === payload.name || (!!nav.id && nav.id === payload.id)
       );
