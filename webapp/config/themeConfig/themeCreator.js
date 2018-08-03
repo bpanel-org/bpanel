@@ -109,15 +109,6 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     transition: smoothTransition
   };
 
-  const themeCommon = {
-    copyIcon: {
-      lineHeight: '2rem',
-      cursor: 'pointer',
-      color: themeColors.highlight1,
-      ...makeGutter('padding', { left: 1 })
-    }
-  };
-
   const themeConfig = {
     // MAIN APP COMPONENTS
 
@@ -375,8 +366,11 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       return style;
     },
 
-    condensedTextView: {
-      copyIcon: themeCommon.copyIcon
+    copyIcon: {
+      lineHeight: '2rem',
+      cursor: 'pointer',
+      color: themeColors.highlight1,
+      ...makeGutter('padding', { left: 1 })
     },
 
     expandedRow: {
@@ -406,8 +400,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         overflow: 'auto',
         width: '80%',
         ...makeGutter('padding', { all: 0.2 })
-      },
-      copyIcon: themeCommon.copyIcon
+      }
     },
 
     //Tab Menu
@@ -479,6 +472,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   const {
     app,
     condensedTextView,
+    copyIcon,
     sidebar,
     headerbar,
     input,
@@ -495,6 +489,8 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
 
   const styleSheet = {
     app: StyleSheet.create(app),
+    condensedTextView: StyleSheet.create(condensedTextView),
+    copyIcon: StyleSheet.create(copyIcon),
     sidebar: StyleSheet.create(sidebar),
     headerbar: StyleSheet.create(headerbar),
     input: StyleSheet.create(input),
@@ -504,7 +500,6 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     link: StyleSheet.create(link),
     table: StyleSheet.create(table),
     expandedRow: StyleSheet.create(expandedRow),
-    condensedTextView: StyleSheet.create(condensedTextView),
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
     themeVariables: mergedThemeVariables,
