@@ -406,6 +406,10 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         cursor: 'pointer',
         color: themeColors.highlight1,
         ...makeGutter('padding', { left: 1 })
+      },
+      expandVisualAid: {
+        position: 'absolute',
+        right: '1rem'
       }
     },
 
