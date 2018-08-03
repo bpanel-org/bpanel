@@ -135,6 +135,13 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       }
     },
 
+    // Dropdown
+    dropdown: {
+      container: {
+        width: '100%'
+      }
+    },
+
     // Sidebar
     sidebar: {
       container: {
@@ -470,6 +477,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
 
   const {
     app,
+    dropdown,
     sidebar,
     headerbar,
     input,
@@ -486,6 +494,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
 
   const styleSheet = {
     app: StyleSheet.create(app),
+    dropdown: StyleSheet.create(dropdown),
     sidebar: StyleSheet.create(sidebar),
     headerbar: StyleSheet.create(headerbar),
     input: StyleSheet.create(input),
