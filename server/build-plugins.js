@@ -1,16 +1,16 @@
 'use strict';
 
 const fs = require('fs');
-const logger = require('./logger');
+const os = require('os');
 const { resolve } = require('path');
 const { format } = require('prettier');
 const { execSync } = require('child_process');
-const { transformFileSync } = require('babel-core');
 
-const pluginsConfig = resolve(__dirname, '../webapp/config/pluginsConfig.js');
-const { localPlugins, plugins } = eval(
-  transformFileSync(pluginsConfig, { presets: 'env' }).code
-);
+const logger = require('./logger');
+
+const pluginsConfig = resolve(os.homedir(), '.bpanel/.bpanel.js');
+
+const { localPlugins, plugins } = require(pluginsConfig);
 
 const camelize = str =>
   str
