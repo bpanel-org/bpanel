@@ -3,7 +3,6 @@ import sinon from 'sinon';
 
 import {
   sortPluginMetadata,
-  getUniquePaths,
   getNavItems,
   getNestedPaths
 } from '../store/selectors/nav';
@@ -132,32 +131,6 @@ describe('plugin selectors', () => {
             count++;
           }
         }
-      });
-    });
-  });
-
-  describe('getUniquePaths', () => {
-    let metadata;
-
-    beforeEach(() => {
-      metadata = getUniquePaths(Object.values(parentItems));
-    });
-
-    it('should not have any metadata w/ duplicate pathNames or displayNames', () => {
-      const paths = new Set();
-      const names = new Set();
-
-      metadata.forEach(plugin => {
-        assert(
-          !paths.has(plugin.pathName),
-          `Found duplicate pathName: ${plugin.pathName}`
-        );
-        assert(
-          !names.has(plugin.displayName),
-          `Found duplicate displayName: ${plugin.displayName}`
-        );
-        paths.add(plugin.pathName);
-        names.add(plugin.displayName);
       });
     });
   });

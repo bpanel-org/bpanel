@@ -2,7 +2,6 @@ import assert from 'assert';
 import { createSelector } from 'reselect';
 import { plugins } from '@bpanel/bpanel-utils';
 
-import { createUnique } from '../../utils/helpers';
 const { comparePlugins } = plugins;
 
 const getMetadataList = state => Object.values(state.pluginMetadata);
@@ -69,7 +68,8 @@ export function sanitizePaths(navItems) {
  */
 export function getNestedPaths(metadata) {
   assert(Array.isArray(metadata), 'Must pass array of metadata');
-  return metadata.reduce((updated, plugin) => {
+  return metadata.reduce((updated, _plugin) => {
+    const plugin = { ..._plugin };
     if (plugin.parent && !/^(http)/.test(plugin.pathName)) {
       // if this plugin is a child then update its pathName property
       // to nest behind the parent
@@ -101,38 +101,6 @@ export function getNestedPaths(metadata) {
   }, []);
 }
 
-/* Get plugin metadata list w/ unique pathNames
- * @param {Object{}} metadata - object of plugin metadata objects
- * @returns {Array{}} plugins - returns an array of metadata objects with unique paths
- */
-export const getUniquePaths = metadata => {
-  assert(Array.isArray(metadata), 'Must pass array of metadata');
-
-  const { result } = metadata.reduce(
-    ({ paths, names, result }, plugin) => {
-      const { pathName, name, displayName: _displayName } = plugin;
-      if (pathName) {
-        let path = createUnique(pathName, paths);
-        paths.add(path);
-        // set the metadata to the unique path
-        plugin.pathName = path;
-      }
-
-      // get unique displayName using same mechanism
-      let displayName = _displayName ? _displayName : name;
-      displayName = createUnique(displayName, names);
-
-      names.add(displayName);
-      plugin.displayName = displayName;
-
-      result.push(plugin);
-      return { paths, names, result };
-    },
-    { paths: new Set(), names: new Set(), result: [] }
-  );
-  return result;
-};
-
 export function getNavItems(metadata = []) {
   assert(Array.isArray(metadata), 'Must pass array to getNavItems');
   return metadata.filter(plugin => plugin.nav || plugin.sidebar);
@@ -146,7 +114,6 @@ function composeNavItems(_navItems = []) {
   navItems = sortPluginMetadata(navItems);
   navItems = sanitizePaths(navItems);
   navItems = getNestedPaths(navItems);
-  navItems = getUniquePaths(navItems);
   return navItems;
 }
 
