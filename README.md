@@ -96,13 +96,16 @@ you want to use. `_docker` is the name of the config created by the bcoin
 service.
 
 ## Updating Plugins
+Plugin management is handled in a `js` file located in the `.bpanel` directory in your
+system's home directory.
+
 bPanel comes pre-installed with a default theme called [`Genesis Theme`](https://github.com/bpanel-org/genesis-theme),
 that bundles together a set of useful starter plugins and a custom skin called bMenace.
-If you want, you can disable the Genesis Theme by removing it from the list in `pluginsConfig.js`,
+If you want, you can disable the Genesis Theme by removing it from the list in `.bpanel.js`,
 but if you want to keep using _some_ of the plugins from the theme, feel free to add
 them individually to your config!
 
-To install plugins, simply add the name as a string to the `plugins` array in `webapp/plugins/pluginsConfig.js`.
+To install plugins, simply add the name as a string to the `plugins` array in `~/.bpanel/.bpanel.js`.
 Make sure to match the name to the package name on npm
 (`localPlugins` can be used for plugins you are developing in the `plugins/local` directory).
 Once you save the file, bPanel will automatically install the plugins and rebuild.
