@@ -8,7 +8,7 @@ const { execSync } = require('child_process');
 
 const logger = require('./logger');
 
-const pluginsConfig = resolve(os.homedir(), '.bpanel/.bpanel.js');
+const pluginsConfig = resolve(os.homedir(), '.bpanel/config.js');
 
 const { localPlugins, plugins } = require(pluginsConfig);
 

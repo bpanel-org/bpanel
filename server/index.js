@@ -71,7 +71,7 @@ module.exports = (_config = {}) => {
   const socketHandler = require('./bcoinSocket');
 
   // get bpanel config
-  const bpanelConfig = path.resolve(os.homedir(), '.bpanel/.bpanel.js');
+  const bpanelConfig = path.resolve(os.homedir(), '.bpanel/config.js');
 
   // Always start webpack
   require('nodemon')({
