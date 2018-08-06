@@ -3,11 +3,11 @@ const os = require('os');
 const path = require('path');
 
 const configsDir = path.resolve(os.homedir(), '.bpanel');
-const configsFile = path.resolve(configsDir, './.bpanel.js');
+const configsFile = path.resolve(configsDir, './config.js');
 const clientsDir = path.resolve(configsDir, 'clients');
 
 const configText = `module.exports = {
-  plugins: ['@bpanel/genesis-theme']
+  plugins: ['@bpanel/genesis-theme'],
   localPlugins: [],
 }`;
 if (!fs.existsSync(configsDir)) fs.mkdirSync(configsDir);

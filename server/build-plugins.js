@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const os = require('os');
+const assert = require('assert');
 const { resolve } = require('path');
 const { format } = require('prettier');
 const { execSync } = require('child_process');
@@ -10,7 +11,25 @@ const logger = require('./logger');
 
 const pluginsConfig = resolve(os.homedir(), '.bpanel/config.js');
 
-const { localPlugins, plugins } = require(pluginsConfig);
+// assert(
+//   fs.existsSync(pluginsConfig),
+//   'bPanel config file not found. Please run `npm install` before \
+// starting the server and building the app to automatically generate \
+// your config file.'
+// );
+// try {
+// } catch (e) {
+//   console.log(Object.keys(e))
+//   throw new Error(e.message);
+// }
+
+// if (!fs.existsSync(pluginsConfig)) {
+//   assert.error(
+//     'bPanel config file not found. Please run `npm install` before \
+// starting the server and building the app to automatically generate \
+// your config file.'
+//   );
+// }
 
 const camelize = str =>
   str
@@ -95,9 +114,17 @@ const prepareModules = async (plugins = [], local = true) => {
 
 (async () => {
   try {
+    assert(
+      fs.existsSync(pluginsConfig),
+      'bPanel config file not found. Please run `npm install` before \
+starting the server and building the app to automatically generate \
+your config file.'
+    );
+
+    const { localPlugins, plugins } = require(pluginsConfig);
     prepareModules(localPlugins);
     await prepareModules(plugins, false);
   } catch (err) {
-    logger.error('There was an error preparing modules: ', err);
+    logger.error('There was an error preparing modules: ', err.stack);
   }
 })();
