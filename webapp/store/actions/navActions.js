@@ -33,7 +33,7 @@ export function loadSideNav() {
     let sideNav = sortedNavItems({ pluginMetadata });
     // add unique id to each nav item
     sideNav = sideNav.map(item => {
-      item.id = item.id ? item.id : helpers.getHash(item).slice(0, 6);
+      item.id = item.id ? item.id : helpers.getHash(item, 'sha256', 0, 6);
       return item;
     });
     dispatch(setSideNav(sideNav));

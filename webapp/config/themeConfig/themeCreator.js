@@ -135,6 +135,13 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       }
     },
 
+    // Dropdown
+    dropdown: {
+      container: {
+        width: '100%'
+      }
+    },
+
     // Sidebar
     sidebar: {
       container: {
@@ -365,14 +372,6 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       }
       return style;
     },
-
-    copyIcon: {
-      lineHeight: '2rem',
-      cursor: 'pointer',
-      color: themeColors.highlight1,
-      ...makeGutter('padding', { left: 1 })
-    },
-
     expandedRow: {
       container: {
         height: '100%',
@@ -400,6 +399,16 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         overflow: 'auto',
         width: '80%',
         ...makeGutter('padding', { all: 0.2 })
+      },
+      copyIcon: {
+        lineHeight: '2rem',
+        cursor: 'pointer',
+        color: themeColors.highlight1,
+        ...makeGutter('padding', { left: 1 })
+      },
+      expandVisualAid: {
+        position: 'absolute',
+        right: '1rem'
       }
     },
 
@@ -471,8 +480,8 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
 
   const {
     app,
-    condensedTextView,
     copyIcon,
+    dropdown,
     sidebar,
     headerbar,
     input,
@@ -489,8 +498,8 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
 
   const styleSheet = {
     app: StyleSheet.create(app),
-    condensedTextView: StyleSheet.create(condensedTextView),
     copyIcon: StyleSheet.create(copyIcon),
+    dropdown: StyleSheet.create(dropdown),
     sidebar: StyleSheet.create(sidebar),
     headerbar: StyleSheet.create(headerbar),
     input: StyleSheet.create(input),
