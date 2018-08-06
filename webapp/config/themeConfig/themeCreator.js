@@ -268,6 +268,15 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       }
     },
 
+    glyphs: {
+      copyIcon: {
+        lineHeight: '2rem',
+        cursor: 'pointer',
+        color: themeColors.highlight1,
+        ...makeGutter('padding', { left: 1 })
+      }
+    },
+
     // Header
     header: {
       h1: {
@@ -400,12 +409,6 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         width: '80%',
         ...makeGutter('padding', { all: 0.2 })
       },
-      copyIcon: {
-        lineHeight: '2rem',
-        cursor: 'pointer',
-        color: themeColors.highlight1,
-        ...makeGutter('padding', { left: 1 })
-      },
       expandVisualAid: {
         position: 'absolute',
         right: '1rem'
@@ -456,6 +459,16 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
 
     // Text
     text: {
+      iconInactive: {
+        cursor: 'copy',
+        'text-decoration': 'underline'
+      },
+      iconActive: {
+        cursor: 'text'
+      },
+      condensed: {
+        /* wrapper properties here */
+      },
       span: {
         fontSize: fontSizeNormal
       },
@@ -480,7 +493,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
 
   const {
     app,
-    copyIcon,
+    glyphs,
     dropdown,
     sidebar,
     headerbar,
@@ -498,7 +511,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
 
   const styleSheet = {
     app: StyleSheet.create(app),
-    copyIcon: StyleSheet.create(copyIcon),
+    glyphs: StyleSheet.create(glyphs),
     dropdown: StyleSheet.create(dropdown),
     sidebar: StyleSheet.create(sidebar),
     headerbar: StyleSheet.create(headerbar),
