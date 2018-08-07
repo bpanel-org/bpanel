@@ -96,7 +96,7 @@ async function gitCommitMessage(message, signed, amend) {
 
   let message = '';
 
-  if (process.argv.length > 1) message += `${process.argv[2]}\n\n`;
+  if (process.argv.length > 2) message += `${process.argv[2]}\n\n`;
 
   const firstHash = await gitTreeHash();
   message += `Tree-SHA512: ${firstHash.toString('hex')}`;
