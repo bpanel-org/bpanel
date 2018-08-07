@@ -11,26 +11,6 @@ const logger = require('./logger');
 
 const pluginsConfig = resolve(os.homedir(), '.bpanel/config.js');
 
-// assert(
-//   fs.existsSync(pluginsConfig),
-//   'bPanel config file not found. Please run `npm install` before \
-// starting the server and building the app to automatically generate \
-// your config file.'
-// );
-// try {
-// } catch (e) {
-//   console.log(Object.keys(e))
-//   throw new Error(e.message);
-// }
-
-// if (!fs.existsSync(pluginsConfig)) {
-//   assert.error(
-//     'bPanel config file not found. Please run `npm install` before \
-// starting the server and building the app to automatically generate \
-// your config file.'
-//   );
-// }
-
 const camelize = str =>
   str
     // 1st deal w/ scoped packages (e.g. remove `@bpanel/`)
