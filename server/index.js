@@ -54,20 +54,9 @@ if (require.main === module) {
 
 // Init bPanel
 module.exports = (_config = {}) => {
-  // Always start webpack
-  require('nodemon')({
-    script: './node_modules/.bin/webpack',
-    watch: ['webapp/config/pluginsConfig.js'],
-    args: webpackArgs,
-    legacyWatch: poll
-  })
-    .on('crash', () => {
-      process.exit(1);
-    })
-    .on('quit', process.exit);
-
   // Import server dependencies
   const path = require('path');
+  const os = require('os');
   const http = require('http');
   const express = require('express');
   const bsock = require('bsock').createServer();
@@ -80,6 +69,21 @@ module.exports = (_config = {}) => {
   const logger = require('./logger');
   const bcoinRouter = require('./bcoinRouter');
   const socketHandler = require('./bcoinSocket');
+
+  // get bpanel config
+  const bpanelConfig = path.resolve(os.homedir(), '.bpanel/config.js');
+
+  // Always start webpack
+  require('nodemon')({
+    script: './node_modules/.bin/webpack',
+    watch: [bpanelConfig],
+    args: webpackArgs,
+    legacyWatch: poll
+  })
+    .on('crash', () => {
+      process.exit(1);
+    })
+    .on('quit', process.exit);
 
   // Setting up configs
   // If passed a bcfg object we can just use that
