@@ -1,10 +1,11 @@
 {
   "name": "@bpanel/bpanel",
-  "version": "0.2.0-rc1",
+  "version": "0.2.1-rc1",
   "homepage": "https://bpanel.org",
   "description": "GUI application to interact with a Bcoin Bitcoin node",
   "main": "server/index.js",
   "scripts": {
+    "commit-tree": "node ./scripts/commit-tree.js",
     "start": "node server",
     "start:dev": "node server --dev",
     "start:poll": "node server --dev --watch-poll",
@@ -56,6 +57,7 @@
     "babel-runtime": "^6.26.0",
     "bclient": "^0.1.3",
     "bcoin": "bcoin-org/bcoin",
+    "bcrypto": "^1.0.0",
     "bledger": "^0.1.1",
     "blgr": "0.0.2",
     "bmultisig": "^0.0.2",
