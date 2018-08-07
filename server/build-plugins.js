@@ -87,7 +87,7 @@ const prepareModules = async (plugins = [], local = true) => {
   pluginsIndex += `${importsText}\n\n`;
   pluginsIndex += exportsText;
 
-  pluginsIndex = format(pluginsIndex, { singleQuote: true });
+  pluginsIndex = format(pluginsIndex, { singleQuote: true, parser: 'babylon' });
   const pluginsIndexPath = local ? 'local/index.js' : 'index.js';
   fs.writeFileSync(resolve(pluginsPath, pluginsIndexPath), pluginsIndex);
 };
