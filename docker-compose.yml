@@ -2,9 +2,9 @@ version: '3'
 services:
   bpanel:
     ## Build to use local Dockerfile
-    build: .
+    # build: .
     ## Build from image from docker hub
-    # image: bpanel/bpanel
+    image: bpanel/bpanel
     restart: unless-stopped
     environment:
       # Need this to tell the bpanel client
@@ -43,11 +43,11 @@ services:
 
   bcoin:
     ## Use image to to pull from docker hub
-    # image: bpanel/bcoin
+    image: bpanel/bcoin
     ## Build to use local Dockerfile-bcoin
-    build:
-      context: .
-      dockerfile: Dockerfile-bcoin
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile-bcoin
       # args:
       #   repo: https://github.com/bcoin-org/bcoin.git
       #   branch: master

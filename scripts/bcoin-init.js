@@ -112,7 +112,7 @@ let node;
      * Setup client configs for bPanel:
      * Write and put configs in shared docker volume (`configs`)
      ***/
-    const bpanelConfigDir = path.resolve(config.str('prefix'), '.bpanel');
+    const bpanelConfigDir = path.resolve(config.prefix, '.bpanel');
     const dockerConfig = path.resolve(bpanelConfigDir, 'clients/_docker.conf');
     if (!fs.existsSync(path.resolve(bpanelConfigDir, 'clients')))
       fs.mkdirSync(path.resolve(bpanelConfigDir, 'clients'));
