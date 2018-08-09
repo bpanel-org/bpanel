@@ -2,7 +2,6 @@
 
 const bcoin = require('bcoin');
 const fs = require('fs');
-const os = require('os');
 const crypto = require('crypto');
 const path = require('path');
 const blgr = require('blgr');
@@ -11,7 +10,6 @@ const Config = require('bcfg');
 // global variables
 let logger;
 let node;
-const configsDir = path.resolve(os.homedir(), '.bpanel');
 
 (async () => {
   try {
@@ -25,7 +23,7 @@ const configsDir = path.resolve(os.homedir(), '.bpanel');
      * Setup Configs
      ***/
     const config = new Config('bcoin');
-    config.load({ env: true, argv: true });
+    config.load({ env: true, argv: true, args: true });
 
     // can optionally pass in a custom config file name
     // in either the environment variables (prefaced with `BCOIN_`)
@@ -54,6 +52,7 @@ const configsDir = path.resolve(os.homedir(), '.bpanel');
     node = new bcoin.FullNode({
       env: true,
       args: true,
+      argv: true,
       config: true,
       apiKey: config.str('api-key'),
       network: config.str('network')
@@ -113,9 +112,10 @@ const configsDir = path.resolve(os.homedir(), '.bpanel');
      * Setup client configs for bPanel:
      * Write and put configs in shared docker volume (`configs`)
      ***/
-    const dockerConfig = path.resolve(configsDir, 'clients/_docker.conf');
-    if (!fs.existsSync(path.resolve(configsDir, 'clients')))
-      fs.mkdirSync(path.resolve(configsDir, 'clients'));
+    const bpanelConfigDir = path.resolve(config.str('prefix'), '.bpanel');
+    const dockerConfig = path.resolve(bpanelConfigDir, 'clients/_docker.conf');
+    if (!fs.existsSync(path.resolve(bpanelConfigDir, 'clients')))
+      fs.mkdirSync(path.resolve(bpanelConfigDir, 'clients'));
 
     // run if there is no config
     // skip if a `reset-configs` config is set to false

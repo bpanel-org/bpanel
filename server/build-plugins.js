@@ -1,15 +1,18 @@
 'use strict';
 
 const fs = require('fs');
-const os = require('os');
+
 const assert = require('assert');
 const { resolve } = require('path');
+const Config = require('bcfg');
 const { format } = require('prettier');
 const { execSync } = require('child_process');
 
 const logger = require('./logger');
 
-const pluginsConfig = resolve(os.homedir(), '.bpanel/config.js');
+const config = new Config('bpanel');
+config.load({ env: true, argv: true, arg: true });
+const pluginsConfig = resolve(config.prefix, 'config.js');
 
 const camelize = str =>
   str
