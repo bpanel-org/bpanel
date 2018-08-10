@@ -65,7 +65,7 @@ Read more about how to connect a local instance of bPanel to a bcoin node runnin
 
 ## Managing Plugins
 
-Plugin management is handled in a `js` file located by default in the `.bpanel` directory in your
+Plugin management is handled in a `config.js` file located by default in the `.bpanel` directory in your
 system's home directory (this location can be manually changed with the `BPANEL_PREFIX` env variable or
 `--prefix` option at run time.
 
@@ -81,6 +81,17 @@ To install plugins, simply add the name as a string to the `plugins` array in `~
 Make sure to match the name to the package name on npm
 (`localPlugins` can be used for plugins you are developing in the `plugins/local` directory).
 Once you save the file, bPanel will automatically install the plugins and rebuild.
+
+For example:
+
+```javascript
+// ~/.bpanel/config.js
+export const localPlugins = ['my-local-plugin'];
+
+export const plugins = ['@bpanel/genesis-theme', 'my-plugin'];
+
+export default { localPlugins, plugins };
+```
 
 Note that if you have several plugins or themes being loaded,
 this can take around 30 seconds as `npm install` is run for you.
@@ -164,7 +175,7 @@ are set using environment variables, either in docker-compose.yml or
 an env file (by default in `./etc/regtest.bcoin.env` but you can point to whichever and
 as many env files as you want using the `env_file` configuration in the bcoin
 service). The bcoin node is started with the `bcoin-init.js` script. During this
-process, api keys are generated and all required configurations are saved in a config
+process, API keys are generated and all required configurations are saved in a config
 file called `_docker.conf` in the shared volume.
 
 #### Local bPanel Dev (non-docker) with bcoin docker service
