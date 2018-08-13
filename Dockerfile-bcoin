@@ -34,4 +34,7 @@ COPY --from=build /code/node_modules /code/node_modules
 COPY ./scripts/ /code/scripts
 
 ENTRYPOINT [ "node" ]
-CMD ["/code/scripts/bcoin-init.js"]
+
+# In order to have some predictability w/ docker instances
+# set the prefix via args to avoid any unexpected inconsistencies
+CMD ["/code/scripts/bcoin-init.js", "--prefix=/data"]

@@ -27,6 +27,7 @@ if (require.main === module) {
 
     // pass args to nodemon process except `--dev`
     const args = process.argv.slice(2).filter(arg => arg !== '--dev');
+
     // Watch this server
     const nodemon = require('nodemon')({
       script: 'server/index.js',
@@ -56,7 +57,6 @@ if (require.main === module) {
 module.exports = (_config = {}) => {
   // Import server dependencies
   const path = require('path');
-  const os = require('os');
   const http = require('http');
   const express = require('express');
   const bsock = require('bsock').createServer();
@@ -71,12 +71,16 @@ module.exports = (_config = {}) => {
   const socketHandler = require('./bcoinSocket');
 
   // get bpanel config
-  const bpanelConfig = path.resolve(os.homedir(), '.bpanel/config.js');
+  const bpanelConfig = new Config('bpanel');
+  bpanelConfig.load({ env: true, argv: true, arg: true });
 
   // Always start webpack
   require('nodemon')({
     script: './node_modules/.bin/webpack',
-    watch: [bpanelConfig],
+    watch: [`${bpanelConfig.prefix}/config.js`],
+    env: {
+      BPANEL_PREFIX: bpanelConfig.prefix
+    },
     args: webpackArgs,
     legacyWatch: poll
   })

@@ -114,7 +114,9 @@ module.exports = function(env = {}) {
         onBuildStart: {
           scripts: [
             `node ${path.resolve(__dirname, 'server/clear-plugins')}`,
-            `node ${path.resolve(__dirname, 'server/build-plugins')}`
+            `node ${path.resolve(__dirname, 'server/build-plugins')} --prefix=${
+              process.env.BPANEL_PREFIX
+            }`
           ],
           blocking: true
         }

@@ -17,9 +17,8 @@ CMD [ "server" ]
 ARG NPM_VERSION=6.0.1
 
 # Install updates
-RUN apk update && \
-    apk upgrade && \
-    apk add git python make g++ bash && \
+RUN apk upgrade --no-cache && \
+    apk add --no-cache git python make g++ bash && \
     npm install -g npm@$NPM_VERSION
 
 COPY package.json \
@@ -28,6 +27,8 @@ COPY package.json \
 
 # Install dependencies
 FROM base AS build
+# install dependencies for node-hid
+RUN apk add --no-cache linux-headers eudev-dev libusb-dev
 RUN npm install
 
 # Bundle app
@@ -37,4 +38,3 @@ COPY webpack.config.js /usr/src/app/webpack.config.js
 COPY scripts /usr/src/app/scripts
 COPY server /usr/src/app/server
 COPY webapp /usr/src/app/webapp
-
