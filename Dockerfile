@@ -27,6 +27,7 @@ COPY package.json \
 
 # Install dependencies
 FROM base AS build
+# install dependencies for node-hid
 RUN apk add --no-cache linux-headers eudev-dev libusb-dev
 RUN npm install
 
