@@ -56,7 +56,7 @@ From inside the project directory in your terminal, run:
 npm install && docker-compose up -d
 ```
 
-This will start up three docker services as [detached processes running in the background](https://docs.docker.com/compose/reference/up/).
+This will start up three docker containers as [detached processes running in the background](https://docs.docker.com/compose/reference/up/).
 Once everything has started up, you should be able to see your bPanel instance
 at `localhost:5000`.
 
@@ -186,7 +186,7 @@ use the appropriate configs.
 
 For local development, you run just the bcoin docker container (`docker-compose up -d bcoin`)
 and then `npm run start:dev -- --client-id=_docker` (or `npm run start:poll -- --client-id=_docker`
-for Mac since webpack's watch can behave strangely on macOS) to run bPanel and its server
+on Mac to enbable webpack's watch with filesystem polling) to run bPanel and its server
 from your local box.
 
 Note that the `--client-id` argument tells bPanel which client config
