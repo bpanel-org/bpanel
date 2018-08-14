@@ -415,6 +415,35 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       }
     },
 
+    // tx table row
+    txTableRow: {
+      container: {
+        height: '100%',
+        background: themeColors.darkBg,
+        ...makeGutter('padding', { all: 1 })
+      },
+      thinRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        marginBottom: '2px',
+        justifyContent: 'space-between',
+        ...makeGutter('padding', { all: 0.2 })
+      },
+      subThinRow: {
+        display: 'inline-flex'
+      },
+      subThinItem: {
+        ...makeGutter('padding', { all: 0.33 })
+      },
+      borderItem: {
+        border: border1,
+        borderStyle,
+        borderWidth,
+        borderRadius,
+        ...makeGutter('padding', { all: 0.33 })
+      }
+    },
+
     //Tab Menu
     tabMenu: {
       headerContainer: {
@@ -506,7 +535,8 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     expandedRow,
     tableRowStyle,
     tabMenu,
-    text
+    text,
+    txTableRow
   } = mergedThemeConfig;
 
   const styleSheet = {
@@ -524,6 +554,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     expandedRow: StyleSheet.create(expandedRow),
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
+    txTableRow: StyleSheet.create(txTableRow),
     themeVariables: mergedThemeVariables,
     logoUrl,
     tableRowStyle
