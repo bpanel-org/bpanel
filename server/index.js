@@ -96,7 +96,9 @@ module.exports = (_config = {}) => {
   // env vars and config files using bcfg utilities in loadConfigs.js
   let config = _config;
   if (!(_config instanceof Config)) {
-    config = require('./loadConfigs')(_config);
+    config = require('./loadConfigs')(_config).find(
+      cfg => cfg.str('id') === bpanelConfig.str('client-id')
+    );
   }
 
   // create clients
@@ -134,8 +136,6 @@ module.exports = (_config = {}) => {
       logger.error('Error connecting sockets: ', err);
     }
 
-    // TODO: figure out if duplicating some events between
-    // the two different wallet clients
     bsock.on(
       'socket',
       socketHandler(nodeClient, walletClient, multisigWalletClient)
