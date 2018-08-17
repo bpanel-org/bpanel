@@ -58,7 +58,9 @@ npm install && docker-compose up -d
 
 This will start up three docker containers as [detached processes running in the background](https://docs.docker.com/compose/reference/up/).
 Once everything has started up, you should be able to see your bPanel instance
-at `localhost:5000`.
+at `localhost:5000`. Note that this can take several minutes as bcoin and bcrypto build
+inside the docker container. Use the `docker logs` command to see the logs and check on
+progress in your container.
 
 Read more about how to connect a local instance of bPanel to a bcoin node running in docker
 [here](#local-bpanel-dev-using-bcoin-docker-container).
