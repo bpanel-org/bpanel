@@ -72,6 +72,11 @@ module.exports = (_config = {}) => {
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
+
+  // inject any custom configs passed
+  if (Object.keys(_config).length) bpanelConfig.inject(_config);
+
+  // load configs from environment
   bpanelConfig.load({ env: true, argv: true, arg: true });
 
   // Always start webpack
@@ -89,24 +94,20 @@ module.exports = (_config = {}) => {
     })
     .on('quit', process.exit);
 
-  // Setting up configs
-  // If passed a bcfg object we can just use that
-  // Otherwise if passed an object we will inject that
-  // into a config object along with command line args,
-  // env vars and config files using bcfg utilities in loadConfigs.js
-  let config = _config;
-  if (!(_config instanceof Config)) {
-    config = require('./loadConfigs')(_config).find(
-      cfg => cfg.str('id') === bpanelConfig.str('client-id')
-    );
-  }
+  // Set up client config
+  // loadConfigs uses the bpanelConfig to find the clients and build
+  // each of their configs. Then we filter for the config that matches
+  // the one passed via `client-id`
+  let clientConfig = require('./loadConfigs')(bpanelConfig).find(
+    cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
+  );
 
   // create clients
   const {
     nodeClient,
     walletClient,
     multisigWalletClient
-  } = require('./bcoinClients')(config);
+  } = require('./bcoinClients')(clientConfig);
 
   // Init bsock socket server
   const socketHttpServer = http.createServer();
@@ -162,14 +163,14 @@ module.exports = (_config = {}) => {
     // route to get server info
     const { ssl, host, port: clientPort } = nodeClient;
 
-    const uri = config.str(
+    const uri = clientConfig.str(
       'node-uri',
       `${ssl ? 'https' : 'http'}://${host}:${clientPort}`
     );
     app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
 
     if (nodeClient) {
-      logger.info(`Connecting with ${config.str('client-id')} client`);
+      logger.info(`Connecting with ${clientConfig.str('client-id')} client`);
       app.use('/bcoin', bcoinRouter(nodeClient));
     }
 
@@ -224,12 +225,12 @@ module.exports = (_config = {}) => {
         });
 
       // can serve over https
-      if (config.bool('https', false)) {
+      if (clientConfig.bool('https', false)) {
         const fs = require('fs');
         const https = require('https');
-        const httpsPort = config.int('https-port', 5001);
-        const keyPath = config.str('tls-key', '/etc/ssl/key.pem');
-        const certPath = config.str('tls-cert', '/etc/ssl/cert.pem');
+        const httpsPort = clientConfig.int('https-port', 5001);
+        const keyPath = clientConfig.str('tls-key', '/etc/ssl/key.pem');
+        const certPath = clientConfig.str('tls-cert', '/etc/ssl/cert.pem');
 
         let opts = {};
         try {

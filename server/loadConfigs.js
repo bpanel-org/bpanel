@@ -2,6 +2,21 @@ const Config = require('bcfg');
 const fs = require('fs');
 const { resolve } = require('path');
 
+// load main bpanel config
+function loadMainConfig(options = {}) {
+  const config = new Config('bpanel');
+  config.load({
+    env: true,
+    argv: true,
+    arg: true
+  });
+
+  // load any custom configs being passed in
+  config.inject(options);
+
+  return config;
+}
+
 /*
  * Get an array of configs for each client
  * in the module's home directory
@@ -10,15 +25,12 @@ const { resolve } = require('path');
  * @returns {Config[]} An array of Config object which can be
  * used to load clients
  */
-function loadConfigs(configs = {}) {
-  const config = new Config('bpanel');
-  config.load({
-    argv: true,
-    env: true
-  });
+function loadConfigs(_config) {
+  // first let's load the parent bpanel config
+  let config = _config;
 
-  // load any custom configs being passed in
-  config.inject(configs);
+  // if not passed bcfg object, create one
+  if (!(_config instanceof Config)) config = loadMainConfig(_config);
 
   // clientsDir is the folder where all client configs
   // should be saved and can be changed w/ custom configs
@@ -46,7 +58,7 @@ function loadConfigs(configs = {}) {
       // in the parent config's directory
       clientConf.inject({
         id: clientId,
-        prefix: `${config.prefix}/clients`
+        prefix: `${config.prefix}/${clientsDir}`
       });
 
       // can pass configs to clients via argv and env
