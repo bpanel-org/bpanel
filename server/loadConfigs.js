@@ -26,6 +26,21 @@ function loadConfig(name, options = {}) {
   return config;
 }
 
+// load main bpanel config
+function loadMainConfig(options = {}) {
+  const config = new Config('bpanel');
+  config.load({
+    env: true,
+    argv: true,
+    arg: true
+  });
+
+  // load any custom configs being passed in
+  config.inject(options);
+
+  return config;
+}
+
 /*
  * Get an array of configs for each client
  * in the module's home directory
