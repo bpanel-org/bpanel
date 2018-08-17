@@ -19,6 +19,7 @@ services:
       - ./webapp:/usr/src/app/webapp
       - ./server:/usr/src/app/server
       - ./package.json:/usr/src/app/package.json
+      - ./package-lock.json:/usr/src/app/package-lock.json
       # - ./scripts:/usr/src/app/scripts
       # Use below to get configs written by bcoin service
       - configs:/root/.bpanel
