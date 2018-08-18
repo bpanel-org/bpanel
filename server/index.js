@@ -5,6 +5,7 @@
 // --dev Watch server and webapp
 
 const path = require('path');
+const assert = require('bsert');
 const os = require('os');
 const Config = require('bcfg');
 
@@ -67,8 +68,9 @@ module.exports = (_config = {}) => {
 
   // Import app server utilities and modules
   const logger = require('./logger');
-  const bcoinRouter = require('./bcoinRouter');
   const socketHandler = require('./bcoinSocket');
+  const clientFactory = require('./bcoinClients');
+  const clientRoutes = require('./clientRoutes');
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -98,16 +100,22 @@ module.exports = (_config = {}) => {
   // loadConfigs uses the bpanelConfig to find the clients and build
   // each of their configs. Then we filter for the config that matches
   // the one passed via `client-id`
-  let clientConfig = require('./loadConfigs')(bpanelConfig).find(
+  const clientConfigs = require('./loadConfigs')(bpanelConfig);
+  const clientConfig = clientConfigs.find(
     cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
   );
 
   // create clients
-  const {
-    nodeClient,
-    walletClient,
-    multisigWalletClient
-  } = require('./bcoinClients')(clientConfig);
+  const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
+    clientConfig
+  );
+
+  const clients = clientConfigs.reduce((clientsMap, cfg) => {
+    const id = cfg.str('id');
+    assert(id, 'client config must have id');
+    clientsMap.set(id, { ...clientFactory(cfg), config: cfg });
+    return clientsMap;
+  }, new Map());
 
   // Init bsock socket server
   const socketHttpServer = http.createServer();
@@ -169,18 +177,23 @@ module.exports = (_config = {}) => {
     );
     app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
 
-    if (nodeClient) {
-      logger.info(`Connecting with ${clientConfig.str('client-id')} client`);
-      app.use('/bcoin', bcoinRouter(nodeClient));
-    }
+    app.use('/clients', clientRoutes(clients));
 
-    if (walletClient) {
-      app.use('/bwallet', bcoinRouter(walletClient));
-    }
+    // redirects to support old routes
+    app.use('/bcoin', (req, res) =>
+      res.redirect(307, `/clients/${clientConfig.str('id')}/node${req.path}`)
+    );
 
-    if (multisigWalletClient) {
-      app.use('/multisig', bcoinRouter(multisigWalletClient));
-    }
+    app.use('/bwallet', (req, res) =>
+      res.redirect(307, `/clients/${clientConfig.str('id')}/wallet${req.path}`)
+    );
+
+    app.use('/multisig', (req, res) =>
+      res.redirect(
+        307,
+        `/clients/${clientConfig.str('id')}/multisig${req.path}`
+      )
+    );
 
     // TODO: add favicon.ico file
     app.get('/favicon.ico', (req, res) => {
