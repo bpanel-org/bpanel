@@ -33,6 +33,7 @@ function clientsRouter(clients) {
           code: 404
         }
       });
+
     const clientObj = clients.get(id);
     config = clientObj.config;
     assert(config instanceof Config, 'client needs bcfg config');
