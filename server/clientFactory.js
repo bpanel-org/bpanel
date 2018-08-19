@@ -1,6 +1,14 @@
 const url = require('url');
-const { Network } = require('bcoin');
-const { NodeClient, WalletClient } = require('bclient');
+const { Network: BNetwork } = require('bcoin');
+const { Network: HSNetwork } = require('hsd');
+const {
+  NodeClient: BNodeClient,
+  WalletClient: BWalletClient
+} = require('bclient');
+const {
+  NodeClient: HSNodeClient,
+  WalletClient: HSWalletClient
+} = require('hs-client');
 const MultisigClient = require('bmultisig/lib/client');
 const logger = require('./logger');
 const assert = require('assert');
@@ -13,12 +21,27 @@ const Config = require('bcfg');
  * a Node, Wallet, and Multisig Wallet clients as available
  */
 function clientFactory(config) {
+  let Network, NodeClient, WalletClient;
   assert(
     config instanceof Config,
     'Must pass instance of Config class to client composer'
   );
 
-  // use network fallbacks
+  // bitcoin, bitcoincash, handshake
+  const chain = config.str('chain', 'bitcoin');
+
+  // set tools based on chain
+  if (chain === 'handshake') {
+    Network = HSNetwork;
+    NodeClient = HSNodeClient;
+    WalletClient = HSWalletClient;
+  } else {
+    // bitcoin settings as fallback
+    Network = BNetwork;
+    NodeClient = BNodeClient;
+    WalletClient = BWalletClient;
+  }
+
   const network = Network.get(config.str('network', 'main'));
 
   // set fallback network configs from `uri` config if set

@@ -69,7 +69,7 @@ module.exports = (_config = {}) => {
   // Import app server utilities and modules
   const logger = require('./logger');
   const socketHandler = require('./bcoinSocket');
-  const clientFactory = require('./bcoinClients');
+  const clientFactory = require('./clientFactory');
   const clientRoutes = require('./clientRoutes');
 
   // get bpanel config
@@ -105,17 +105,16 @@ module.exports = (_config = {}) => {
     cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
   );
 
-  // create clients
-  const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
-    clientConfig
-  );
-
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
     const id = cfg.str('id');
     assert(id, 'client config must have id');
     clientsMap.set(id, { ...clientFactory(cfg), config: cfg });
     return clientsMap;
   }, new Map());
+
+  const { nodeClient, walletClient, multisigWalletClient } = clients.get(
+    bpanelConfig.str('client-id', 'default')
+  );
 
   // Init bsock socket server
   const socketHttpServer = http.createServer();
