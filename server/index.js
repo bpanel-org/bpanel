@@ -74,7 +74,7 @@ module.exports = (_config = {}) => {
   const bpanelConfig = new Config('bpanel');
 
   // inject any custom configs passed
-  if (Object.keys(_config).length) bpanelConfig.inject(_config);
+  bpanelConfig.inject(_config);
 
   // load configs from environment
   bpanelConfig.load({ env: true, argv: true, arg: true });

@@ -1,6 +1,7 @@
 const Config = require('bcfg');
 const fs = require('fs');
-const { resolve } = require('path');
+const assert = require('bsert');
+const { resolve, parse } = require('path');
 
 // load main bpanel config
 function loadMainConfig(options = {}) {
@@ -50,7 +51,8 @@ function loadConfigs(_config) {
       // After filter, we load bcfg object for each client
 
       // id is the file name without the extension
-      const clientId = fileName.slice(0, -5);
+      const { name: clientId, ext } = parse(fileName);
+      assert(ext === '.conf', 'client configs must have .conf extension');
       const clientConf = new Config(clientId);
 
       // set an id in the conf if not set
