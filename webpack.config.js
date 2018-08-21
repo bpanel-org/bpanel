@@ -78,6 +78,7 @@ module.exports = function(env = {}) {
             plugins: [
               [
                 'syntax-dynamic-import',
+                'transform-object-rest-spread',
                 'transform-runtime',
                 {
                   helpers: true,

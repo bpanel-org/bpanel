@@ -384,18 +384,22 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     expandedRow: {
       container: {
         height: '100%',
+        background: themeColors.darkBg,
         ...makeGutter('padding', { all: 1 })
       },
       mainDataContainer: {
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        flexWrap: 'wrap'
       },
       subDataContainer: {
         display: 'flex',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        flexWrap: 'wrap'
       },
       rowHeader: {
-        width: '6rem'
+        width: '6rem',
+        margin: '0.8rem'
       },
       dataRow: {
         display: 'flex',
@@ -407,7 +411,9 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         border: border2,
         overflow: 'auto',
         width: '80%',
-        ...makeGutter('padding', { all: 0.2 })
+        ...makeGutter('padding', { all: 0.2 }),
+        margin: 'auto',
+        textAlign: 'center'
       },
       expandVisualAid: {
         position: 'absolute',
