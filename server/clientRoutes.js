@@ -5,11 +5,19 @@ const logger = require('./logger');
 
 function clientsRouter(clients) {
   const router = express.Router({ mergeParams: true });
-  const ids = Array.from(clients.keys());
   let token, id, config, reqClients;
 
-  // return array of the client ids
-  router.get('/', (req, res) => res.status(200).json({ clients: ids }));
+  // return object with
+  // relevant info for each client
+  // keyed to the client id
+  const clientInfo = {};
+  clients.forEach(
+    client =>
+      (clientInfo[client.config.str('id')] = {
+        chain: client.config.str('chain', 'bitcoin')
+      })
+  );
+  router.get('/', (req, res) => res.status(200).json(clientInfo));
 
   // middleware for setting constants based on
   // the route being used
