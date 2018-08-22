@@ -108,11 +108,14 @@ module.exports = (_config = {}) => {
   // save reference to the id for redirects
   const clientId = clientConfig.str('id');
 
+<<<<<<< HEAD
   // create clients
   const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
     clientConfig
   );
 
+=======
+>>>>>>> store client id at runtime
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
     const id = cfg.str('id');
     assert(id, 'client config must have id');
