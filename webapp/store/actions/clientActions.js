@@ -1,35 +1,51 @@
 import { getClient } from '@bpanel/bpanel-utils';
-
-import { SET_DEFAULT_CLIENT, HYDRATE_CLIENTS } from '../constants/clients';
+import { SET_DEFAULT_CLIENT, SET_CLIENTS } from '../constants/clients';
 
 const bpClient = getClient();
 
-function hydrateClients(clients) {
+function setClients(clients) {
   return {
-    type: HYDRATE_CLIENTS,
+    type: SET_CLIENTS,
     payload: clients
   };
 }
 
-export function setDefaultClient(id) {
+export function setDefaultClient(clientInfo) {
+  const { id, chain = 'bitcoin' } = clientInfo;
+  // set the client info for the global client
+  if (id) bpClient.setId(id, chain);
   return {
     type: SET_DEFAULT_CLIENT,
-    payload: id
+    payload: clientInfo
   };
 }
 
 export function getClients() {
   return async dispatch => {
+    const clients = await bpClient.getClients();
+    dispatch(setClients(clients));
+  };
+}
+
+export function getDefaultClient() {
+  return async dispatch => {
+    const defaultClient = await bpClient.getDefault();
+    dispatch(setDefaultClient(defaultClient));
+  };
+}
+
+export function hydrateClients() {
+  return async dispatch => {
     try {
-      const clients = await bpClient.getClients();
-      dispatch(hydrateClients(clients));
+      await dispatch(getClients());
+      await dispatch(getDefaultClient());
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error('error:', e);
+      console.error('There was an error hydrating clients:', e);
     }
   };
 }
 
 export default {
-  getClients
+  hydrateClients
 };

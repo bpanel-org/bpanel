@@ -1,8 +1,8 @@
-import { HYDRATE_CLIENTS, SET_DEFAULT_CLIENT } from '../constants/clients';
+import { SET_CLIENTS, SET_DEFAULT_CLIENT } from '../constants/clients';
 import assert from 'bsert';
 
 const initialState = {
-  default: '',
+  defaultClient: {},
   clients: {}
 };
 
@@ -10,17 +10,17 @@ const clientsState = (state = initialState, action) => {
   let newState = { ...state };
   const { payload, type } = action;
   switch (type) {
-    case HYDRATE_CLIENTS: {
+    case SET_CLIENTS: {
       newState.clients = payload;
       return newState;
     }
 
     case SET_DEFAULT_CLIENT: {
       assert(
-        typeof payload === 'string',
-        'Payload for SET_DEFAULT must be a string'
+        typeof payload === 'object' && payload.id,
+        'Must have a client object with an id'
       );
-      if (state.clients[payload]) newState.default = payload;
+      if (state.clients[payload.id]) newState.defaultClient = payload;
       return newState;
     }
 

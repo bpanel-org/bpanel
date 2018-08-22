@@ -180,7 +180,7 @@ module.exports = (_config = {}) => {
     );
     app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
 
-    app.use('/clients', clientRoutes(clients));
+    app.use('/clients', clientRoutes(clients, clientId));
 
     // redirects to support old routes
     app.use('/bcoin', (req, res) =>
