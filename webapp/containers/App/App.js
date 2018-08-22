@@ -5,6 +5,7 @@ import { Route, Redirect } from 'react-router';
 
 import ThemeProvider from '../ThemeProvider';
 import {
+  clientActions,
   nodeActions,
   socketActions,
   themeActions,
@@ -41,6 +42,7 @@ class App extends PureComponent {
       getNodeInfo: PropTypes.func.isRequired,
       updateTheme: PropTypes.func.isRequired,
       appLoaded: PropTypes.func.isRequired,
+      getClients: PropTypes.func.isRequired,
       match: PropTypes.shape({
         isExact: PropTypes.bool,
         path: PropTypes.string,
@@ -57,8 +59,9 @@ class App extends PureComponent {
   }
 
   UNSAFE_componentWillMount() {
-    const { updateTheme, appLoaded } = this.props;
+    const { updateTheme, appLoaded, getClients } = this.props;
     updateTheme();
+    getClients();
     appLoaded();
   }
 
@@ -130,10 +133,12 @@ const mapDispatchToProps = dispatch => {
   const { loadSideNav } = navActions;
   const { connectSocket, disconnectSocket } = socketActions;
   const { updateTheme } = themeActions;
+  const { getClients } = clientActions;
   const appLoaded = () => ({ type: 'APP_LOADED' });
   return bindActionCreators(
     {
       appLoaded,
+      getClients,
       getNodeInfo,
       loadSideNav,
       connectSocket,

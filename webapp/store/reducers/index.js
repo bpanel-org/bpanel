@@ -4,3 +4,4 @@ export { default as chain } from './chain';
 export { default as theme } from './theme';
 export { default as wallets } from './wallets';
 export { default as nav } from './nav';
+export { default as clients } from './clients';
