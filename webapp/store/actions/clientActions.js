@@ -1,41 +1,30 @@
-import { BPClient } from '@bpanel/bpanel-utils';
+import { getClient } from '@bpanel/bpanel-utils';
 
-import { HYDRATE_CLIENTS } from '../constants/clients';
+import { SET_DEFAULT_CLIENT, HYDRATE_CLIENTS } from '../constants/clients';
 
-function options() {
-  // bpanel endpoints
-  const nodePath = '/bcoin';
-  const walletPath = '/bwallet';
-  // determine the port and ssl usage
-  const protocol = window.location.protocol;
-  const hostname = window.location.hostname;
-  let port = window.location.port;
-  let ssl = false;
-  // use https and http ports when the window doesn't render them
-  if (port === '') protocol === 'https:' ? (port = '443') : (port = '80');
-  if (protocol === 'https:') ssl = true;
+const bpClient = getClient();
+
+function hydrateClients(clients) {
   return {
-    bpanelPort: parseInt(port, 10),
-    ssl,
-    hostname,
-    nodePath,
-    walletPath
+    type: HYDRATE_CLIENTS,
+    payload: clients
   };
 }
 
-const { bpanelPort, hostname, ssl } = options();
+export function setDefaultClient(id) {
+  return {
+    type: SET_DEFAULT_CLIENT,
+    payload: id
+  };
+}
 
 export function getClients() {
   return async dispatch => {
-    const bpClient = new BPClient({ port: bpanelPort, host: hostname, ssl });
     try {
       const clients = await bpClient.getClients();
-      console.log('clients:', clients);
-      dispatch({
-        type: HYDRATE_CLIENTS,
-        payload: clients
-      });
+      dispatch(hydrateClients(clients));
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error('error:', e);
     }
   };
