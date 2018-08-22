@@ -1,4 +1,4 @@
-import { SET_CLIENTS, SET_DEFAULT_CLIENT } from '../constants/clients';
+import { HYDRATE_CLIENTS, SET_DEFAULT_CLIENT } from '../constants/clients';
 import assert from 'bsert';
 
 const initialState = {
@@ -10,7 +10,7 @@ const clientsState = (state = initialState, action) => {
   let newState = { ...state };
   const { payload, type } = action;
   switch (type) {
-    case SET_CLIENTS: {
+    case HYDRATE_CLIENTS: {
       newState.clients = payload;
       return newState;
     }
