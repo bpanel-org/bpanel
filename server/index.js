@@ -105,6 +105,9 @@ module.exports = (_config = {}) => {
     cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
   );
 
+  // save reference to the id for redirects
+  const clientId = clientConfig.str('id');
+
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
     const id = cfg.str('id');
     assert(id, 'client config must have id');
@@ -180,18 +183,15 @@ module.exports = (_config = {}) => {
 
     // redirects to support old routes
     app.use('/bcoin', (req, res) =>
-      res.redirect(307, `/clients/${clientConfig.str('id')}/node${req.path}`)
+      res.redirect(307, `/clients/${clientId}/node${req.path}`)
     );
 
     app.use('/bwallet', (req, res) =>
-      res.redirect(307, `/clients/${clientConfig.str('id')}/wallet${req.path}`)
+      res.redirect(307, `/clients/${clientId}/wallet${req.path}`)
     );
 
     app.use('/multisig', (req, res) =>
-      res.redirect(
-        307,
-        `/clients/${clientConfig.str('id')}/multisig${req.path}`
-      )
+      res.redirect(307, `/clients/${clientId}/multisig${req.path}`)
     );
 
     // TODO: add favicon.ico file
