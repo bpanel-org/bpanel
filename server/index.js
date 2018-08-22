@@ -225,12 +225,12 @@ module.exports = (_config = {}) => {
         });
 
       // can serve over https
-      if (clientConfig.bool('https', false)) {
+      if (bpanelConfig.bool('https', false)) {
         const fs = require('fs');
         const https = require('https');
-        const httpsPort = clientConfig.int('https-port', 5001);
-        const keyPath = clientConfig.str('tls-key', '/etc/ssl/key.pem');
-        const certPath = clientConfig.str('tls-cert', '/etc/ssl/cert.pem');
+        const httpsPort = bpanelConfig.int('https-port', 5001);
+        const keyPath = bpanelConfig.str('tls-key', '/etc/ssl/key.pem');
+        const certPath = bpanelConfig.str('tls-cert', '/etc/ssl/cert.pem');
 
         let opts = {};
         try {
