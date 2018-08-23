@@ -13,7 +13,7 @@ function setClients(clients) {
 export function setDefaultClient(clientInfo) {
   const { id, chain = 'bitcoin' } = clientInfo;
   // set the client info for the global client
-  if (id) bpClient.setId(id, chain);
+  if (id) bpClient.setClientInfo(id, chain);
   return {
     type: SET_DEFAULT_CLIENT,
     payload: clientInfo
