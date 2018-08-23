@@ -23,9 +23,12 @@ function clientsRouter(clients, defaultId) {
   router.get('/', (req, res) => res.status(200).json(clientInfo));
   router.get('/default', (req, res) => {
     if (!clients.has(defaultId))
-      return res
-        .status(500)
-        .send(`Error retrieving default client: ${defaultId}`);
+      return res.status(500).json({
+        error: {
+          message: `Error retrieving default client: ${defaultId}`,
+          code: 500
+        }
+      });
 
     const defaultClient = {
       id: defaultId,

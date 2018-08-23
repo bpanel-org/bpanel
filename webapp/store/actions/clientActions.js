@@ -1,7 +1,7 @@
 import { getClient } from '@bpanel/bpanel-utils';
 import { SET_DEFAULT_CLIENT, SET_CLIENTS } from '../constants/clients';
 
-const bpClient = getClient();
+const client = getClient();
 
 function setClients(clients) {
   return {
@@ -13,7 +13,7 @@ function setClients(clients) {
 export function setCurrentClient(clientInfo) {
   const { id, chain = 'bitcoin' } = clientInfo;
   // set the client info for the global client
-  if (id) bpClient.setClientInfo(id, chain);
+  if (id) client.setClientInfo(id, chain);
   return {
     type: SET_DEFAULT_CLIENT,
     payload: clientInfo
@@ -22,14 +22,14 @@ export function setCurrentClient(clientInfo) {
 
 export function getClients() {
   return async dispatch => {
-    const clients = await bpClient.getClients();
+    const clients = await client.getClients();
     dispatch(setClients(clients));
   };
 }
 
 export function getCurrentClient() {
   return async dispatch => {
-    const currentClient = await bpClient.getDefault();
+    const currentClient = await client.getDefault();
     dispatch(setCurrentClient(currentClient));
   };
 }

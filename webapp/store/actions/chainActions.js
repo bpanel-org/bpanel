@@ -2,7 +2,7 @@ import { getClient } from '@bpanel/bpanel-utils';
 
 import { SET_CHAIN_INFO, SET_GENESIS } from '../constants/chain';
 
-const bpClient = getClient();
+const client = getClient();
 
 export function setChainInfo(chain) {
   return {
@@ -21,8 +21,8 @@ function setGenesisBlock(block) {
 export function getGenesisBlock() {
   return async dispatch => {
     try {
-      if (bpClient.node) {
-        let genesis = await bpClient.node.getBlock(0);
+      if (client.node) {
+        let genesis = await client.node.getBlock(0);
         dispatch(setGenesisBlock(genesis));
       }
     } catch (e) {
