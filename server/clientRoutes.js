@@ -11,12 +11,15 @@ function clientsRouter(clients) {
   // relevant info for each client
   // keyed to the client id
   const clientInfo = {};
-  clients.forEach(
-    client =>
-      (clientInfo[client.config.str('id')] = {
-        chain: client.config.str('chain', 'bitcoin')
-      })
-  );
+  clients.forEach((client, id) => {
+    if (!client.config.str('chain'))
+      logger.warn(
+        `Client config ${id} had no chain set, defaulting to 'bitcoin'`
+      );
+    clientInfo[client.config.str('id')] = {
+      chain: client.config.str('chain', 'bitcoin')
+    };
+  });
   router.get('/', (req, res) => res.status(200).json(clientInfo));
 
   // middleware for setting constants based on
