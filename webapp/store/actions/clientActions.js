@@ -10,7 +10,7 @@ function setClients(clients) {
   };
 }
 
-export function setDefaultClient(clientInfo) {
+export function setCurrentClient(clientInfo) {
   const { id, chain = 'bitcoin' } = clientInfo;
   // set the client info for the global client
   if (id) bpClient.setClientInfo(id, chain);
@@ -27,10 +27,10 @@ export function getClients() {
   };
 }
 
-export function getDefaultClient() {
+export function getCurrentClient() {
   return async dispatch => {
-    const defaultClient = await bpClient.getDefault();
-    dispatch(setDefaultClient(defaultClient));
+    const currentClient = await bpClient.getDefault();
+    dispatch(setCurrentClient(currentClient));
   };
 }
 
@@ -38,7 +38,7 @@ export function hydrateClients() {
   return async dispatch => {
     try {
       await dispatch(getClients());
-      await dispatch(getDefaultClient());
+      await dispatch(getCurrentClient());
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('There was an error hydrating clients:', e);

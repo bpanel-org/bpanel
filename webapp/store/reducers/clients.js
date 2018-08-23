@@ -2,7 +2,7 @@ import { SET_CLIENTS, SET_DEFAULT_CLIENT } from '../constants/clients';
 import assert from 'bsert';
 
 const initialState = {
-  defaultClient: {},
+  currentClient: {},
   clients: {}
 };
 
@@ -20,7 +20,7 @@ const clientsState = (state = initialState, action) => {
         typeof payload === 'object' && payload.id,
         'Must have a client object with an id'
       );
-      if (state.clients[payload.id]) newState.defaultClient = payload;
+      if (state.clients[payload.id]) newState.currentClient = payload;
       return newState;
     }
 
