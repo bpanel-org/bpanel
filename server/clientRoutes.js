@@ -45,12 +45,12 @@ function clientsRouter(clients) {
   // the client param dictates client, node,
   // wallet, or multisig, will be used
   router.use('/:id/:client/', async (req, res) => {
-    const { method, path, body, query } = req;
-    const client = reqClients[req.params.client];
+    const { method, path, body, query, params } = req;
+    const client = reqClients[params.client];
     if (!client)
       res
         .status(404)
-        .send(`Requested client ${req.params.client} for ${id} does not exist`);
+        .send(`Requested client ${params.client} for ${id} does not exist`);
 
     // use query params for GET request, otherwise use body
     const payload = method === 'GET' ? query : body;
