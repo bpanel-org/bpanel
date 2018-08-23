@@ -14,6 +14,7 @@ export function setCurrentClient(clientInfo) {
   const { id, chain = 'bitcoin' } = clientInfo;
   // set the client info for the global client
   if (id) client.setClientInfo(id, chain);
+
   return {
     type: SET_DEFAULT_CLIENT,
     payload: clientInfo
