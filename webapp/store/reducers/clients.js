@@ -20,7 +20,6 @@ const clientsState = (state = initialState, action) => {
         typeof payload === 'object' && payload.id,
         'Must have a client object with an id'
       );
-
       newState.currentClient = payload;
       return newState;
     }
