@@ -7,7 +7,7 @@ export function connectSocket() {
   return {
     type: CONNECT_SOCKET,
     bsock: {
-      host: bpClient.host ? bpClient.host : 'localhost',
+      host: client.host ? client.host : 'localhost',
       port: 8000
     }
   };
