@@ -1,4 +1,5 @@
 import logo from '../../assets/logo.png';
+import favicon from '../../assets/favicon.ico';
 
 /// *****
 /// FONTS
@@ -107,6 +108,7 @@ const footerHeight = 2;
 
 // Logo
 const logoUrl = `/${logo}`;
+const faviconUrl = `/${favicon}`;
 
 const themeVariables = {
   // rawRem holds all the values that will be converted
@@ -167,7 +169,8 @@ const themeVariables = {
   /// COMPONENT VARIABLES
   /// *******************
   // Logo
-  logoUrl
+  logoUrl,
+  faviconUrl
 };
 
 export default themeVariables;
