@@ -37,6 +37,10 @@ class App extends PureComponent {
         pathname: PropTypes.string
       }),
       theme: PropTypes.object,
+      currentClient: PropTypes.shape({
+        id: PropTypes.string,
+        chain: PropTypes.string
+      }),
       connectSocket: PropTypes.func.isRequired,
       disconnectSocket: PropTypes.func.isRequired,
       getNodeInfo: PropTypes.func.isRequired,
@@ -53,15 +57,15 @@ class App extends PureComponent {
   }
 
   async componentDidMount() {
-    const { getNodeInfo, connectSocket } = this.props;
+    const { getNodeInfo, connectSocket, hydrateClients } = this.props;
+    await hydrateClients();
     connectSocket();
     getNodeInfo();
   }
 
   UNSAFE_componentWillMount() {
-    const { updateTheme, appLoaded, hydrateClients } = this.props;
+    const { updateTheme, appLoaded } = this.props;
     updateTheme();
-    hydrateClients();
     appLoaded();
   }
 
@@ -86,35 +90,48 @@ class App extends PureComponent {
   }
 
   render() {
-    const { sidebarNavItems, location, theme, match } = this.props;
+    const {
+      sidebarNavItems,
+      location,
+      theme,
+      match,
+      currentClient
+    } = this.props;
     return (
       <ThemeProvider theme={theme}>
-        <div>
-          <div className={`${theme.app.container} container-fluid`} role="main">
-            <div className="row">
-              <div
-                className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}
-              >
-                <Sidebar
-                  sidebarNavItems={sidebarNavItems}
-                  location={location}
-                  theme={theme}
-                  match={match}
-                />
-              </div>
-              <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
-                <Header />
-                <Route
-                  exact
-                  path="/"
-                  render={() => <Redirect to={`/${this.getHomePath()}`} />}
-                />
-                <Panel />
+        {currentClient.id ? (
+          <div>
+            <div
+              className={`${theme.app.container} container-fluid`}
+              role="main"
+            >
+              <div className="row">
+                <div
+                  className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}
+                >
+                  <Sidebar
+                    sidebarNavItems={sidebarNavItems}
+                    location={location}
+                    theme={theme}
+                    match={match}
+                  />
+                </div>
+                <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
+                  <Header />
+                  <Route
+                    exact
+                    path="/"
+                    render={() => <Redirect to={`/${this.getHomePath()}`} />}
+                  />
+                  <Panel />
+                </div>
               </div>
             </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
+        ) : (
+          <div />
+        )}
       </ThemeProvider>
     );
   }
@@ -125,6 +142,7 @@ const mapStateToProps = state => ({
   // redux store. Using the selector you can get them sorted (and
   // it will only recalculate if there's been a change in the state)
   sidebarNavItems: nav.sortedSidebarItems(state),
+  currentClient: state.clients.currentClient,
   theme: state.theme
 });
 

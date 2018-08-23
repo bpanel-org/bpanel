@@ -53,7 +53,6 @@ module.exports = function(env = {}) {
       extensions: ['-browser.js', '.js', '.json', '.jsx'],
       alias: {
         bcoin$: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
-        hsd$: path.resolve(__dirname, 'node_modules/hsd/lib/hsd-browser'),
         '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
         tinycolor: 'tinycolor2'
       }
