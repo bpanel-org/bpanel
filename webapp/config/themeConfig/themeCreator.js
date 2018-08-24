@@ -404,8 +404,9 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       dataRow: {
         display: 'flex',
         flexDirection: 'row',
-        marginBottom: '7px',
-        ...makeGutter('padding', { all: 0.33 })
+        alignItems: 'center',
+        ...makeGutter('margin', { bottom: 0.2 }),
+        ...makeGutter('padding', { right: 0.33, left: 0.33 })
       },
       borderedCol: {
         border: border2,
