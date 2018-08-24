@@ -34,6 +34,7 @@ module.exports = function(env = {}) {
     );
   }
 
+  const nodeModsDir = path.resolve(__dirname, 'node_modules');
   return {
     context: __dirname,
     entry: ['whatwg-fetch', './webapp/index'],
@@ -52,7 +53,9 @@ module.exports = function(env = {}) {
       symlinks: false,
       extensions: ['-browser.js', '.js', '.json', '.jsx'],
       alias: {
-        bcoin$: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
+        bcoin$: `${nodeModsDir}/bcoin/lib/bcoin-browser`,
+        bcash$: `${nodeModsDir}/bcash/lib/bcoin-browser`,
+        hsd$: `${nodeModsDir}/hsd/lib/hsd-browser`,
         '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
         tinycolor: 'tinycolor2'
       }
