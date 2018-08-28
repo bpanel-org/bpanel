@@ -84,10 +84,7 @@ module.exports = (_config = {}) => {
   // Always start webpack
   require('nodemon')({
     script: './node_modules/.bin/webpack',
-    watch: [
-      `${bpanelConfig.prefix}/config.js`,
-      `${bpanelConfig.prefix}/local_plugins`
-    ],
+    watch: [`${bpanelConfig.prefix}/config.js`],
     env: {
       BPANEL_PREFIX: bpanelConfig.prefix
     },

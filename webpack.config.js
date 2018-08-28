@@ -23,7 +23,6 @@ const loaders = {
 
 module.exports = function(env = {}) {
   const plugins = [];
-
   if (!env.dev) {
     plugins.push(
       new webpack.optimize.UglifyJsPlugin({
@@ -90,12 +89,16 @@ module.exports = function(env = {}) {
       loaders: [
         {
           test: /\.jsx?$/,
-          exclude: path.resolve(__dirname, 'node_modules'),
+          exclude: [
+            path.resolve(__dirname, 'node_modules'),
+            path.resolve(process.env.BPANEL_PREFIX, 'local_plugins')
+          ],
           loader: 'babel-loader',
           query: {
             presets: ['env', 'react', 'stage-3'],
             plugins: [
               [
+                'syntax-dynamic-import',
                 'transform-object-rest-spread',
                 'transform-runtime',
                 {
