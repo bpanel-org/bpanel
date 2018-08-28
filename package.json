@@ -5,8 +5,8 @@
   "description": "GUI application to interact with a Bcoin Bitcoin node",
   "main": "server/index.js",
   "scripts": {
-    "start": "node server",
-    "start:dev": "node server --dev",
+    "start": "node --max_old_space_size=4096 server",
+    "start:dev": "node --max_old_space_size=4096 server --dev",
     "start:poll": "node --max_old_space_size=4096 server --dev --watch-poll",
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
