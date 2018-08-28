@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server",
     "start:dev": "node server --dev",
-    "start:poll": "node server --dev --watch-poll",
+    "start:poll": "node --max_old_space_size=4096 server --dev --watch-poll",
     "lint": "eslint .",
     "test": "npm run lint && karma start --single-run",
     "karma": "karma start --autoWatch",
@@ -77,7 +77,7 @@
     "file-loader": "^1.1.5",
     "font-awesome": "^4.7.0",
     "hs-client": "0.0.2",
-    "hsd": "handshake-org/hsd",
+    "hsd": "handshake-org/hsd#bundle",
     "husky": "^0.15.0-rc.7",
     "level-js": "^2.2.4",
     "lint-staged": "^4.3.0",
