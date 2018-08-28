@@ -1,4 +1,5 @@
 const path = require('path');
+const os = require('os');
 const webpack = require('webpack');
 
 const autoprefixer = require('autoprefixer');
@@ -37,6 +38,13 @@ module.exports = function(env = {}) {
   const nodeModsDir = path.resolve(__dirname, 'node_modules');
   const outputPath = path.resolve(__dirname, 'dist');
 
+  // can be passed by server process via bcfg interface
+  // or passed manually when running webpack from command line
+  // defaults to `~/.bpanel`
+  const bpanelPrefix = process.env.BPANEL_PREFIX
+    ? process.env.BPANEL_PREFIX
+    : path.resolve(os.homedir(), '.bpanel');
+
   if (env.dev) {
     const vendorManifest = path.join(
       __dirname,
@@ -53,7 +61,7 @@ module.exports = function(env = {}) {
       });
       if (dllPlugin) plugins.push(dllPlugin);
     } catch (e) {
-      // eslint-ignore-next-line no-console
+      // eslint-disable-next-line no-console
       console.error('There was an error building DllReferencePlugin:', e);
     }
   }
@@ -86,7 +94,7 @@ module.exports = function(env = {}) {
         bcash$: `${nodeModsDir}/bcash/lib/bcoin-browser`,
         hsd$: `${nodeModsDir}/hsd/lib/hsd-browser`,
         react: `${nodeModsDir}/react`,
-        '&local': path.resolve(process.env.BPANEL_PREFIX, 'local_plugins'),
+        '&local': path.resolve(bpanelPrefix, 'local_plugins'),
         '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
         tinycolor: 'tinycolor2'
       }
@@ -97,7 +105,7 @@ module.exports = function(env = {}) {
           test: /\.jsx?$/,
           exclude: [
             path.resolve(__dirname, 'node_modules'),
-            path.resolve(process.env.BPANEL_PREFIX, 'local_plugins')
+            path.resolve(bpanelPrefix, 'local_plugins')
           ],
           loader: 'babel-loader',
           query: {

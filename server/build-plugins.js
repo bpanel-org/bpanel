@@ -21,7 +21,7 @@ const modulesDirectory = resolve(__dirname, '../node_modules');
 // and passed through via webpack to this script
 const homePrefix = process.env.BPANEL_PREFIX
   ? process.env.BPANEL_PREFIX
-  : resolve(os.homeDir(), '.bpanel');
+  : resolve(os.homedir(), '.bpanel');
 
 const camelize = str =>
   str
