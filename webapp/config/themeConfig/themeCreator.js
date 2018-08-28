@@ -384,6 +384,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     expandedRow: {
       container: {
         height: '100%',
+        overflow: 'scroll',
         ...makeGutter('padding', { all: 1 })
       },
       mainDataContainer: {
