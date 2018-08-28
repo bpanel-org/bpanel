@@ -5,6 +5,8 @@
 // --dev Watch server and webapp
 
 const path = require('path');
+const fs = require('fs');
+const { execSync } = require('child_process');
 const assert = require('bsert');
 const os = require('os');
 const Config = require('bcfg');
@@ -80,6 +82,11 @@ module.exports = (_config = {}) => {
 
   // load configs from environment
   bpanelConfig.load({ env: true, argv: true, arg: true });
+
+  // check if vendor-manifest has been built otherwise run
+  // build:dll first to build the manifest
+  if (!fs.existsSync(path.resolve(__dirname, '../dist/vendor-manifest.json')))
+    execSync('npm run build:dll');
 
   // Always start webpack
   require('nodemon')({
@@ -277,7 +284,7 @@ module.exports = (_config = {}) => {
   };
 };
 
-// Start server when ran from command line
+// Start server when run from command line
 if (require.main === module) {
   module.exports();
 }
