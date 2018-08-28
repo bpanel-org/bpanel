@@ -44,14 +44,20 @@ module.exports = function(env = {}) {
       'vendor-manifest.json'
     );
 
-    plugins.push(
-      new webpack.DllReferencePlugin({
+    let dllPlugin = null;
+    try {
+      dllPlugin = new webpack.DllReferencePlugin({
         manifest: require(vendorManifest),
         name: 'vendor_lib',
         scope: 'mapped'
-      })
-    );
+      });
+      if (dllPlugin) plugins.push(dllPlugin);
+    } catch (e) {
+      // eslint-ignore-next-line no-console
+      console.error('There was an error building DllReferencePlugin:', e);
+    }
   }
+
   return {
     context: __dirname,
     entry: ['whatwg-fetch', './webapp/index'],

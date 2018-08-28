@@ -1,8 +1,8 @@
 'use strict';
 
 const fs = require('fs');
-
-const assert = require('assert');
+const os = require('os');
+const assert = require('bsert');
 const { resolve } = require('path');
 const Config = require('bcfg');
 const { format } = require('prettier');
@@ -14,7 +14,14 @@ const config = new Config('bpanel');
 config.load({ env: true, argv: true, arg: true });
 const pluginsConfig = resolve(config.prefix, 'config.js');
 const modulesDirectory = resolve(__dirname, '../node_modules');
-const homePrefix = process.env.BPANEL_PREFIX;
+
+// location of app configs and local plugins
+// defaults to ~/.bpanel/
+// this is set using bcfg at runtime with server
+// and passed through via webpack to this script
+const homePrefix = process.env.BPANEL_PREFIX
+  ? process.env.BPANEL_PREFIX
+  : resolve(os.homeDir(), '.bpanel');
 
 const camelize = str =>
   str
@@ -56,6 +63,11 @@ async function installRemotePackages(installPackages) {
   });
 }
 
+/*
+ * Adds a symlink for a specific package from the local_plugins
+ * directory in BPANEL_PREFIX to the local app's node_modules.
+ * This allows webpack to watch for changes.
+ */
 function symlinkLocal(packageName) {
   let name = packageName;
   // set temporary name for symlink since fs can't overwrite
@@ -69,11 +81,15 @@ function symlinkLocal(packageName) {
   );
 
   // now rename in order to overwrite
-  if (name !== packageName)
+  if (name !== packageName) {
+    logger.info(
+      `While creating symlink for ${packageName}, found local copy. Overwriting with linked local verison`
+    );
     fs.rename(
       resolve(modulesDirectory, name),
       resolve(modulesDirectory, packageName)
     );
+  }
 }
 
 const prepareModules = async (plugins = [], local = true) => {
@@ -91,10 +107,13 @@ const prepareModules = async (plugins = [], local = true) => {
     try {
       const camelized = camelize(packageName);
       let modulePath;
+
+      // check if the plugin exists in webapp/plugins/local
+      // and import from there if it does
       if (fs.existsSync(resolve(pluginsPath, 'local', packageName)) && local)
         // maintain support for plugins in plugins/local dir
         modulePath = `./${packageName}`;
-      // set import to alias for bpanel's local_plugins dir set in webpack
+      // set import to webpack's alias for bpanel's local_plugins dir
       else modulePath = local ? `&local/${packageName}` : packageName;
 
       // add plugin to list of packages that need to be installed w/ npm
@@ -126,6 +145,7 @@ const prepareModules = async (plugins = [], local = true) => {
           pkg => !fs.existsSync(resolve(modulesDirectory, pkg))
         );
 
+        // if there are new modules, run `npm install`
         if (newModules) await installRemotePackages(installPackages);
         else
           logger.info('No new remote plugins to install. Skipping npm install');
