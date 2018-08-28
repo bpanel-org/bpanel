@@ -1,9 +1,9 @@
-import { bpanelClient } from '@bpanel/bpanel-utils';
+import { getClient } from '@bpanel/bpanel-utils';
 
 import * as types from '../constants/node';
 import { setChainInfo, getGenesisBlock } from './chainActions';
 
-const client = bpanelClient();
+const client = getClient();
 
 export function setNodeInfo(info) {
   return {
@@ -32,7 +32,7 @@ export function getNodeInfo() {
     dispatch(getServerInfo());
     dispatch(getGenesisBlock());
     try {
-      const nodeInfo = await client.getInfo();
+      const nodeInfo = await client.node.getInfo();
       dispatch(requestingNode(false));
       dispatch(setNodeInfo(nodeInfo));
       dispatch(setChainInfo(nodeInfo.chain));

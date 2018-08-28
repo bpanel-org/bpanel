@@ -3,7 +3,7 @@ const assert = require('bsert');
 const Config = require('bcfg');
 const logger = require('./logger');
 
-function clientsRouter(clients) {
+function clientsRouter(clients, defaultId) {
   const router = express.Router({ mergeParams: true });
   let token, id, config, reqClients;
 
@@ -21,6 +21,21 @@ function clientsRouter(clients) {
     };
   });
   router.get('/', (req, res) => res.status(200).json(clientInfo));
+  router.get('/default', (req, res) => {
+    if (!clients.has(defaultId))
+      return res.status(500).json({
+        error: {
+          message: `Error retrieving default client: ${defaultId}`,
+          code: 500
+        }
+      });
+
+    const defaultClient = {
+      id: defaultId,
+      ...clientInfo[defaultId]
+    };
+    res.status(200).json(defaultClient);
+  });
 
   // middleware for setting constants based on
   // the route being used
@@ -33,6 +48,7 @@ function clientsRouter(clients) {
           code: 404
         }
       });
+
     const clientObj = clients.get(id);
     config = clientObj.config;
     assert(config instanceof Config, 'client needs bcfg config');

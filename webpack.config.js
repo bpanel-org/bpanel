@@ -34,6 +34,8 @@ module.exports = function(env = {}) {
     );
   }
 
+  const nodeModsDir = path.resolve(__dirname, 'node_modules');
+  const outputPath = path.resolve(__dirname, 'dist');
   return {
     context: __dirname,
     entry: ['whatwg-fetch', './webapp/index'],
@@ -42,17 +44,24 @@ module.exports = function(env = {}) {
     devtool: 'eval-source-map',
     output: {
       filename: '[name].bundle.js',
-      path: path.resolve(__dirname, 'dist')
+      path: outputPath
     },
     watchOptions: {
       poll: env.poll && (parseInt(env.poll) || 1000),
-      ignored: 'webapp/plugins/**/lib/*'
+      ignored: [
+        'webapp/plugins/**/lib/*',
+        'node_modules/bcoin',
+        'node_modules/bcash',
+        'node_modules/hsd'
+      ]
     },
     resolve: {
       symlinks: false,
       extensions: ['-browser.js', '.js', '.json', '.jsx'],
       alias: {
-        bcoin$: path.resolve(__dirname, 'node_modules/bcoin/lib/bcoin-browser'),
+        bcoin$: `${nodeModsDir}/bcoin/lib/bcoin-browser`,
+        bcash$: `${nodeModsDir}/bcash/lib/bcoin-browser`,
+        hsd$: `${nodeModsDir}/hsd/lib/hsd-browser`,
         '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
         tinycolor: 'tinycolor2'
       }

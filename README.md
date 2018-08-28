@@ -261,6 +261,13 @@ app.use(bpanel.app);
 app.listen(5000);
 ```
 
+## Troubleshooting & FAQ
+#### Nodejs Memory
+With the availability of the bcoin, bcash, and hsd libraries, the webpack build process
+requires an above average amount of memory available. To avoid JS Heap overflows, the
+npm scripts that run webpack (`start`, `start:dev`, and `start:poll`) pass an argument
+`--max_old_space_size` to increase the memory allocation. This can be adjusted as necessary.
+
 ## License
 
 - Copyright (c) 2018, The bPanel Devs (MIT License).

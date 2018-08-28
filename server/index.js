@@ -108,16 +108,17 @@ module.exports = (_config = {}) => {
   // save reference to the id for redirects
   const clientId = clientConfig.str('id');
 
+  // create clients
+  const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
+    clientConfig
+  );
+
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
     const id = cfg.str('id');
     assert(id, 'client config must have id');
     clientsMap.set(id, { ...clientFactory(cfg), config: cfg });
     return clientsMap;
   }, new Map());
-
-  const { nodeClient, walletClient, multisigWalletClient } = clients.get(
-    bpanelConfig.str('client-id', 'default')
-  );
 
   // Init bsock socket server
   const socketHttpServer = http.createServer();
@@ -179,7 +180,7 @@ module.exports = (_config = {}) => {
     );
     app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
 
-    app.use('/clients', clientRoutes(clients));
+    app.use('/clients', clientRoutes(clients, clientId));
 
     // redirects to support old routes
     app.use('/bcoin', (req, res) =>
