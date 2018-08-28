@@ -8,17 +8,7 @@ const WebpackShellPlugin = require('webpack-synchronizable-shell-plugin');
 
 const loaders = {
   css: {
-    loader: 'css-loader',
-    options: {
-      sourceMap: true
-    }
-  },
-  sass: {
-    loader: 'sass-loader',
-    options: {
-      sourceMap: true,
-      includePaths: [path.resolve(__dirname, './webapp/styles/')]
-    }
+    loader: 'css-loader'
   },
   postcss: {
     loader: 'postcss-loader',
@@ -78,6 +68,7 @@ module.exports = function(env = {}) {
             plugins: [
               [
                 'syntax-dynamic-import',
+                'transform-object-rest-spread',
                 'transform-runtime',
                 {
                   helpers: true,
@@ -96,15 +87,23 @@ module.exports = function(env = {}) {
           })
         },
         {
-          test: /\.(png|jpg|gif|eot|svg|ttf|woff|woff2)$/,
-          use: [
-            {
-              loader: 'file-loader',
-              options: {
-                outputPath: 'assets/'
+          test: /\.(ttf|eot|svg|woff|woff2)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+          loader: 'file-loader'
+        },
+        {
+          test: /\.(png|jpg|gif|ico)$/,
+          loader: 'file-loader',
+          options: {
+            name(file) {
+              const { name } = path.parse(file);
+              // this lets us keep name for favicon use
+              if (name === 'logo' || name === 'favicon') {
+                return '[name].[ext]?[hash]';
               }
+
+              return '[hash].[ext]';
             }
-          ]
+          }
         }
       ]
     },

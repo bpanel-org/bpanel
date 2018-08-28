@@ -385,30 +385,37 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       container: {
         height: '100%',
         overflow: 'scroll',
+        background: themeColors.darkBg,
         ...makeGutter('padding', { all: 1 })
       },
       mainDataContainer: {
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        flexWrap: 'wrap'
       },
       subDataContainer: {
         display: 'flex',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        flexWrap: 'wrap'
       },
       rowHeader: {
-        width: '6rem'
+        width: '6rem',
+        margin: '0.8rem'
       },
       dataRow: {
         display: 'flex',
         flexDirection: 'row',
-        marginBottom: '7px',
-        ...makeGutter('padding', { all: 0.33 })
+        alignItems: 'center',
+        ...makeGutter('margin', { bottom: 0.2 }),
+        ...makeGutter('padding', { right: 0.33, left: 0.33 })
       },
       borderedCol: {
         border: border2,
         overflow: 'auto',
         width: '80%',
-        ...makeGutter('padding', { all: 0.2 })
+        ...makeGutter('padding', { all: 0.2 }),
+        margin: 'auto',
+        textAlign: 'center'
       },
       expandVisualAid: {
         position: 'absolute',

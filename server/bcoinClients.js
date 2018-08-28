@@ -6,7 +6,13 @@ const logger = require('./logger');
 const assert = require('assert');
 const Config = require('bcfg');
 
-module.exports = config => {
+/*
+ * Create clients based on given configs
+ * @param {Config} config - a bcfg config object
+ * @returns {Object} clients - an object that includes
+ * a Node, Wallet, and Multisig Wallet clients as available
+ */
+function clientFactory(config) {
   assert(
     config instanceof Config,
     'Must pass instance of Config class to client composer'
@@ -80,4 +86,6 @@ module.exports = config => {
   }
 
   return { nodeClient, walletClient, multisigWalletClient };
-};
+}
+
+module.exports = clientFactory;
