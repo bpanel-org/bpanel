@@ -53,7 +53,6 @@ module.exports = function(env = {}) {
       })
     );
   }
-
   return {
     context: __dirname,
     entry: ['whatwg-fetch', './webapp/index'],
