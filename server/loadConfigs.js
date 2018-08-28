@@ -4,16 +4,24 @@ const assert = require('bsert');
 const { resolve, parse } = require('path');
 
 // load main bpanel config
-function loadMainConfig(options = {}) {
-  const config = new Config('bpanel');
+/*
+ * Load up a bcfg object for a given module and set of options
+ * @params {string} - name - module name
+ * @params {object} - [options] - optional options object to inject into config
+ * @returns {Config} - returns a bcfg object
+ */
+function loadConfig(name, options = {}) {
+  assert(name && typeof name === 'string', 'Must pass a name to load config');
+  const config = new Config(name);
+
+  // load any custom configs being passed in
+  config.inject(options);
+
   config.load({
     env: true,
     argv: true,
     arg: true
   });
-
-  // load any custom configs being passed in
-  config.inject(options);
 
   return config;
 }
@@ -26,12 +34,12 @@ function loadMainConfig(options = {}) {
  * @returns {Config[]} An array of Config object which can be
  * used to load clients
  */
-function loadConfigs(_config) {
+function loadClientConfigs(_config) {
   // first let's load the parent bpanel config
   let config = _config;
 
   // if not passed bcfg object, create one
-  if (!(_config instanceof Config)) config = loadMainConfig(_config);
+  if (!(_config instanceof Config)) config = loadConfig('bpanel', _config);
 
   // clientsDir is the folder where all client configs
   // should be saved and can be changed w/ custom configs
@@ -53,22 +61,13 @@ function loadConfigs(_config) {
       // id is the file name without the extension
       const { name: clientId, ext } = parse(fileName);
       assert(ext === '.conf', 'client configs must have .conf extension');
-      const clientConf = new Config(clientId);
 
-      // set an id in the conf if not set
-      // prefix for the client config should be a clients dir
-      // in the parent config's directory
-      clientConf.inject({
+      const options = {
         id: clientId,
         prefix: `${config.prefix}/${clientsDir}`
-      });
+      };
 
-      // can pass configs to clients via argv and env
-      // will be the same for each config returned
-      clientConf.load({
-        argv: true,
-        env: true
-      });
+      const clientConf = loadConfig(clientId, options);
 
       // load configs from config file
       // files are loaded from the prefix directory
@@ -78,4 +77,4 @@ function loadConfigs(_config) {
     });
 }
 
-module.exports = loadConfigs;
+module.exports = loadClientConfigs;
