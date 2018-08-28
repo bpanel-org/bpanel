@@ -45,7 +45,12 @@ const prepareModules = async (plugins = [], local = true) => {
   plugins.forEach(name => {
     const packageName = getPackageName(name);
     const camelized = camelize(packageName);
-    const modulePath = local ? `./${packageName}` : packageName;
+    let modulePath;
+    if (fs.existsSync(resolve(pluginsPath, 'local', packageName)) && local)
+      // maintain support for plugins in plugins/local dir
+      modulePath = `./${packageName}`;
+    // set import to alias for bpanel's local_plugins dir set in webpack
+    else modulePath = local ? `&local/${packageName}` : packageName;
     if (!local) installPackages.push(name);
     importsText += `import * as ${camelized} from '${modulePath}';\n`;
     exportsText += `${camelized},`;

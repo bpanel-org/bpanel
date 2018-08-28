@@ -80,6 +80,8 @@ module.exports = function(env = {}) {
         bcoin$: `${nodeModsDir}/bcoin/lib/bcoin-browser`,
         bcash$: `${nodeModsDir}/bcash/lib/bcoin-browser`,
         hsd$: `${nodeModsDir}/hsd/lib/hsd-browser`,
+        react: `${nodeModsDir}/react`,
+        '&local': path.resolve(process.env.BPANEL_PREFIX, 'local_plugins'),
         '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
         tinycolor: 'tinycolor2'
       }
@@ -94,7 +96,6 @@ module.exports = function(env = {}) {
             presets: ['env', 'react', 'stage-3'],
             plugins: [
               [
-                'syntax-dynamic-import',
                 'transform-object-rest-spread',
                 'transform-runtime',
                 {
