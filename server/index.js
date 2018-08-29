@@ -122,9 +122,19 @@ module.exports = (_config = {}) => {
   // each of their configs. Then we filter for the config that matches
   // the one passed via `client-id`
   const clientConfigs = require('./loadConfigs')(bpanelConfig);
-  const clientConfig = clientConfigs.find(
+
+  let clientConfig = clientConfigs.find(
     cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
   );
+
+  if (!clientConfig) {
+    logger.error(
+      `Could not find config for ${bpanelConfig.str(
+        'client-id'
+      )}. Will set to 'default' instead.`
+    );
+    clientConfig = clientConfigs.find(cfg => cfg.str('id') === 'default');
+  }
 
   // save reference to the id for redirects
   const clientId = clientConfig.str('id');

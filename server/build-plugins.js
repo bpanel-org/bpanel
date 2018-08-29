@@ -7,6 +7,7 @@ const { resolve } = require('path');
 const Config = require('bcfg');
 const { format } = require('prettier');
 const { execSync } = require('child_process');
+const validate = require('validate-npm-package-name');
 
 const logger = require('./logger');
 
@@ -19,9 +20,8 @@ const modulesDirectory = resolve(__dirname, '../node_modules');
 // defaults to ~/.bpanel/
 // this is set using bcfg at runtime with server
 // and passed through via webpack to this script
-const homePrefix = process.env.BPANEL_PREFIX
-  ? process.env.BPANEL_PREFIX
-  : resolve(os.homedir(), '.bpanel');
+const homePrefix =
+  process.env.BPANEL_PREFIX || resolve(os.homedir(), '.bpanel');
 
 const camelize = str =>
   str
@@ -50,14 +50,18 @@ async function installRemotePackages(installPackages) {
     if (err && err.code === 'ENOTFOUND')
       logger.error(`Can't reach npm servers. Skipping npm install`);
     else {
-      logger.info('Installing plugin packages...');
-      execSync(
-        `npm install --no-save ${installPackages.join(' ')} --production`,
-        {
-          stdio: [0, 1, 2],
-          cwd: resolve(__dirname, '..')
-        }
-      );
+      // validation is done earlier, but still confirming at this step
+      const pkgStr = installPackages.reduce((str, name, index) => {
+        if (validate(name).validForNewPackages)
+          // add spacing for all but first pkg name
+          str = index === 0 ? name : `${str} ${name}`;
+        return str;
+      }, '');
+      logger.info(`Installing plugin packages: ${pkgStr.split(' ')}`);
+      execSync(`npm install --no-save ${pkgStr} --production`, {
+        stdio: [0, 1, 2],
+        cwd: resolve(__dirname, '..')
+      });
       logger.info('Done installing remote plugins');
     }
   });
@@ -123,6 +127,16 @@ async function prepareModules(plugins = [], local = true) {
     const name = plugins[i];
     const packageName = getPackageName(name);
     try {
+      const validator = validate(packageName);
+
+      // make sure that we are working with valid package names
+      // this is important to avoid injecting arbitrary scripts in
+      // later execSync steps.
+      assert(
+        validator.validForNewPackages,
+        `${packageName} is not a valid package name and will not be installed: ${validator.errors &&
+          validator.errors.join(', ')}`
+      );
       const camelized = camelize(packageName);
       let modulePath;
 
