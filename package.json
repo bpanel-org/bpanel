@@ -58,6 +58,7 @@
     "bcash": "bcoin-org/bcash",
     "bclient": "^0.1.3",
     "bcoin": "bcoin-org/bcoin",
+    "bfile": "^0.1.1",
     "bledger": "^0.1.1",
     "blgr": "0.0.2",
     "bmultisig": "^0.0.3",

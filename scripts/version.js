@@ -2,7 +2,7 @@
 // Looks at the git tags and sha to output the version.
 
 let commit, version;
-const fs = require('fs');
+const fs = require('bfile');
 const { execSync } = require('child_process');
 
 try {

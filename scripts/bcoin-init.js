@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 const bcoin = require('bcoin');
-const fs = require('fs');
+const fs = require('bfile');
 const crypto = require('crypto');
 const path = require('path');
 const blgr = require('blgr');

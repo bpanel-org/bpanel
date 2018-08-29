@@ -1,6 +1,6 @@
 'use strict';
 
-const fs = require('fs');
+const fs = require('bfile');
 const os = require('os');
 const assert = require('bsert');
 const { resolve } = require('path');
@@ -51,14 +51,14 @@ async function installRemotePackages(installPackages) {
       logger.error(`Can't reach npm servers. Skipping npm install`);
     else {
       logger.info('Installing plugin packages...');
-      await execSync(
+      execSync(
         `npm install --no-save ${installPackages.join(' ')} --production`,
         {
           stdio: [0, 1, 2],
           cwd: resolve(__dirname, '..')
         }
       );
-      logger.info('Done installing plugins');
+      logger.info('Done installing remote plugins');
     }
   });
 }
@@ -68,31 +68,48 @@ async function installRemotePackages(installPackages) {
  * directory in BPANEL_PREFIX to the local app's node_modules.
  * This allows webpack to watch for changes.
  */
-function symlinkLocal(packageName) {
-  let name = packageName;
-  // set temporary name for symlink since fs can't overwrite
-  // with symlink method
-  if (fs.existsSync(resolve(modulesDirectory, packageName)))
-    name = `_${packageName}`;
+async function symlinkLocal(packageName) {
+  logger.info(`Creating symlink for local plugin ${packageName}...`);
+  const pkgDir = resolve(modulesDirectory, packageName);
 
-  fs.symlinkSync(
-    resolve(homePrefix, 'local_plugins', packageName),
-    resolve(modulesDirectory, name)
-  );
-
-  // now rename in order to overwrite
-  if (name !== packageName) {
+  // remove existing version of plugin
+  const exists = fs.existsSync(pkgDir);
+  if (exists) {
     logger.info(
-      `While creating symlink for ${packageName}, found local copy. Overwriting with linked local verison`
+      `While preparing symlink for ${packageName}, found existing copy. Overwriting with linked local verison`
     );
-    fs.rename(
-      resolve(modulesDirectory, name),
-      resolve(modulesDirectory, packageName)
-    );
+    const stat = await fs.lstatSync(pkgDir);
+
+    // if it exists but is a symlink
+    // remove symlink so we can replace with our new one
+    if (stat.isSymbolicLink()) await fs.unlinkSync(pkgDir);
+    // otherwise remove the old directory
+    else await fs.rimraf(pkgDir);
   }
+
+  await fs.symlink(
+    resolve(homePrefix, 'local_plugins', packageName),
+    resolve(modulesDirectory, pkgDir)
+  );
 }
 
-const prepareModules = async (plugins = [], local = true) => {
+// a utility method to check if a module exists in node_modules
+// useful for confirming if a plugin has already been installed
+async function checkForModuleExistence(pkg) {
+  const pkgPath = resolve(modulesDirectory, pkg);
+  const exists = fs.existsSync(pkgPath);
+
+  // if it doesn't exist we have our answer
+  if (!exists) return false;
+
+  // otherwise need to confirm that it's not a symbolic link
+  const stat = await fs.lstat(pkgPath);
+
+  // if package exists and is not a symbolic link return false
+  return exists && !stat.isSymbolicLink();
+}
+
+async function prepareModules(plugins = [], local = true) {
   const pluginsPath = resolve(__dirname, '../webapp/plugins');
   let pluginsIndex = local
     ? '// exports for all local plugin modules\n\n'
@@ -102,7 +119,8 @@ const prepareModules = async (plugins = [], local = true) => {
   let installPackages = [];
 
   // Create the index.js files for exposing the plugins
-  plugins.forEach(name => {
+  for (let i = 0; i < plugins.length; i++) {
+    const name = plugins[i];
     const packageName = getPackageName(name);
     try {
       const camelized = camelize(packageName);
@@ -110,7 +128,8 @@ const prepareModules = async (plugins = [], local = true) => {
 
       // check if the plugin exists in webapp/plugins/local
       // and import from there if it does
-      if (fs.existsSync(resolve(pluginsPath, 'local', packageName)) && local)
+      const exists = fs.existsSync(resolve(pluginsPath, 'local', packageName));
+      if (exists && local)
         // maintain support for plugins in plugins/local dir
         modulePath = `./${packageName}`;
       // set import to webpack's alias for bpanel's local_plugins dir
@@ -118,14 +137,19 @@ const prepareModules = async (plugins = [], local = true) => {
 
       // add plugin to list of packages that need to be installed w/ npm
       if (!local) installPackages.push(name);
+      else {
+        // create a symlink for local modules to node_modules
+        // so that webpack can watch for changes
+        await symlinkLocal(name);
+      }
 
       importsText += `import * as ${camelized} from '${modulePath}';\n`;
-
       exportsText += `${camelized},`;
     } catch (e) {
-      logger.error(`There was an error preparing ${packageName}: ${e}`);
+      logger.error(`There was an error preparing ${packageName}`);
+      logger.error(e.stack);
     }
-  });
+  }
 
   // Installation step
   if (installPackages.length) {
@@ -141,18 +165,17 @@ const prepareModules = async (plugins = [], local = true) => {
       if (!local) {
         // check if modules need to be installed by confirming
         // if any plugins don't exist yet in our node_modules
-        const newModules = installPackages.some(
-          pkg => !fs.existsSync(resolve(modulesDirectory, pkg))
-        );
+        let newModules = false;
+        for (let i = 0; i < installPackages.length; i++) {
+          const pkg = installPackages[i];
+          newModules = !(await checkForModuleExistence(pkg));
+          if (newModules) break;
+        }
 
-        // if there are new modules, run `npm install`
+        // if there are new modules, install them with npm
         if (newModules) await installRemotePackages(installPackages);
         else
           logger.info('No new remote plugins to install. Skipping npm install');
-      } else {
-        // create a symlink for local modules to node_modules
-        // so that webpack can watch for changes
-        symlinkLocal(name);
       }
     } catch (e) {
       logger.error('Error installing plugins packages: ', e);
@@ -165,8 +188,9 @@ const prepareModules = async (plugins = [], local = true) => {
 
   pluginsIndex = format(pluginsIndex, { singleQuote: true, parser: 'babylon' });
   const pluginsIndexPath = local ? 'local/index.js' : 'index.js';
-  fs.writeFileSync(resolve(pluginsPath, pluginsIndexPath), pluginsIndex);
-};
+  await fs.writeFile(resolve(pluginsPath, pluginsIndexPath), pluginsIndex);
+  return true;
+}
 
 (async () => {
   try {
@@ -178,8 +202,8 @@ your config file.'
     );
 
     const { localPlugins, plugins } = require(pluginsConfig);
-    prepareModules(localPlugins);
     await prepareModules(plugins, false);
+    await prepareModules(localPlugins);
   } catch (err) {
     logger.error('There was an error preparing modules: ', err.stack);
   }

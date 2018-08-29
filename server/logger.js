@@ -1,5 +1,5 @@
 const winston = require('winston');
-const fs = require('fs');
+const fs = require('bfile');
 
 /** Configure the logger */
 const logDir = __dirname.concat('/../logs');

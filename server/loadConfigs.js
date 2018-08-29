@@ -1,5 +1,5 @@
 const Config = require('bcfg');
-const fs = require('fs');
+const fs = require('bfile');
 const assert = require('bsert');
 const { resolve, parse } = require('path');
 

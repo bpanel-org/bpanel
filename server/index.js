@@ -5,11 +5,12 @@
 // --dev Watch server and webapp
 
 const path = require('path');
-const fs = require('fs');
+const fs = require('bfile');
 const { execSync } = require('child_process');
 const assert = require('bsert');
 const os = require('os');
 const Config = require('bcfg');
+const logger = require('./logger');
 
 const webpackArgs = [
   '--config',
@@ -25,6 +26,16 @@ if (require.main === module) {
   } else if (process.argv.indexOf('--watch') >= 0) {
     webpackArgs.push('--watch', '--env.dev');
   }
+
+  // an option to run an `npm install` which will clear any symlinks
+  if (process.argv.indexOf('--clear') > -1) {
+    logger.info('Clearing symlinks in node_modules..');
+    execSync('npm install', {
+      stdio: [0, 1, 2],
+      cwd: path.resolve(__dirname, '..')
+    });
+  }
+
   if (process.argv.indexOf('--dev') >= 0) {
     if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
 
@@ -246,7 +257,7 @@ module.exports = (_config = {}) => {
 
       // can serve over https
       if (bpanelConfig.bool('ssl', false)) {
-        const fs = require('fs');
+        const fs = require('bfile');
         const https = require('https');
         const httpsPort = bpanelConfig.int('https-port', 5001);
         const keyPath = bpanelConfig.str('ssl-key', '/etc/ssl/key.pem');

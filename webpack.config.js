@@ -96,6 +96,14 @@ module.exports = function(env = {}) {
         react: `${nodeModsDir}/react`,
         '&local': path.resolve(bpanelPrefix, 'local_plugins'),
         '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
+        '@bpanel/bpanel-utils': path.resolve(
+          __dirname,
+          'node_modules/@bpanel/bpanel-utils'
+        ),
+        '@bpanel/bpanel-ui': path.resolve(
+          __dirname,
+          'node_modules/@bpanel/bpanel-ui'
+        ),
         tinycolor: 'tinycolor2'
       }
     },
