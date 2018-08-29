@@ -93,6 +93,8 @@ module.exports = function(env = {}) {
         bcoin$: `${nodeModsDir}/bcoin/lib/bcoin-browser`,
         bcash$: `${nodeModsDir}/bcash/lib/bcoin-browser`,
         hsd$: `${nodeModsDir}/hsd/lib/hsd-browser`,
+        bledger: `${nodeModsDir}/bledger`,
+        bmultisig: `${nodeModsDir}/bmultisig`,
         react: `${nodeModsDir}/react`,
         '&local': path.resolve(bpanelPrefix, 'local_plugins'),
         '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
