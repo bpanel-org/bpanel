@@ -41,9 +41,8 @@ module.exports = function(env = {}) {
   // can be passed by server process via bcfg interface
   // or passed manually when running webpack from command line
   // defaults to `~/.bpanel`
-  const bpanelPrefix = process.env.BPANEL_PREFIX
-    ? process.env.BPANEL_PREFIX
-    : path.resolve(os.homedir(), '.bpanel');
+  const bpanelPrefix =
+    process.env.BPANEL_PREFIX || path.resolve(os.homedir(), '.bpanel');
 
   if (env.dev) {
     const vendorManifest = path.join(

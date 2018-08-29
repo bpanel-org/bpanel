@@ -52,9 +52,7 @@ async function installRemotePackages(installPackages) {
     else {
       // validation is done earlier, but still confirming at this step
       const pkgStr = installPackages.reduce((str, name) => {
-        if (validate(name).validForNewPackages)
-          // add spacing for all but first pkg name
-          str = `${str} ${name}`;
+        if (validate(name).validForNewPackages) str = `${str} ${name}`;
         return str;
       }, '');
       logger.info(`Installing plugin packages: ${pkgStr.split(' ')}`);
