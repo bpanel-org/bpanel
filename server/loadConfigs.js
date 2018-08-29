@@ -1,5 +1,5 @@
 const Config = require('bcfg');
-const fs = require('fs');
+const fs = require('bfile');
 const assert = require('bsert');
 const { resolve, parse } = require('path');
 
@@ -11,7 +11,7 @@ const { resolve, parse } = require('path');
  * @returns {Config} - returns a bcfg object
  */
 function loadConfig(name, options = {}) {
-  assert(name && typeof name === 'string', 'Must pass a name to load config');
+  assert(typeof name === 'string', 'Must pass a name to load config');
   const config = new Config(name);
 
   // load any custom configs being passed in

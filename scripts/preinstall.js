@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('bfile');
 const os = require('os');
 const path = require('path');
 

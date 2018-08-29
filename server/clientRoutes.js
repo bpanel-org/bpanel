@@ -11,6 +11,7 @@ function clientsRouter(clients, defaultId) {
   // relevant info for each client
   // keyed to the client id
   const clientInfo = {};
+
   clients.forEach((client, id) => {
     if (!client.config.str('chain'))
       logger.warn(
