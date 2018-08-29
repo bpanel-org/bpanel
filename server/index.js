@@ -31,6 +31,7 @@ if (require.main === module) {
   if (process.argv.indexOf('--clear') > -1) {
     logger.info('Clearing symlinks in node_modules..');
     execSync('npm install', {
+      killSignal: 'SIGINT',
       stdio: [0, 1, 2],
       cwd: path.resolve(__dirname, '..')
     });
@@ -40,7 +41,9 @@ if (require.main === module) {
     if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
 
     // pass args to nodemon process except `--dev`
-    const args = process.argv.slice(2).filter(arg => arg !== '--dev');
+    const args = process.argv
+      .slice(2)
+      .filter(arg => arg !== '--dev' && arg !== '--clear');
 
     // Watch this server
     const nodemon = require('nodemon')({

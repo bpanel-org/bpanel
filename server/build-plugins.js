@@ -78,11 +78,11 @@ async function symlinkLocal(packageName) {
     logger.info(
       `While preparing symlink for ${packageName}, found existing copy. Overwriting with linked local verison`
     );
-    const stat = await fs.lstatSync(pkgDir);
+    const stat = await fs.lstat(pkgDir);
 
     // if it exists but is a symlink
     // remove symlink so we can replace with our new one
-    if (stat.isSymbolicLink()) await fs.unlinkSync(pkgDir);
+    if (stat.isSymbolicLink()) await fs.unlink(pkgDir);
     // otherwise remove the old directory
     else await fs.rimraf(pkgDir);
   }
