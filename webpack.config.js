@@ -89,6 +89,9 @@ module.exports = function(env = {}) {
     resolve: {
       symlinks: false,
       extensions: ['-browser.js', '.js', '.json', '.jsx'],
+      // list of aliases are what packages plugins can list as peerDeps
+      // this helps simplify plugin packages and ensures that parent classes
+      // all point to the same instance, e.g bcoin.TX will be same for all plugins
       alias: {
         bcoin$: `${nodeModsDir}/bcoin/lib/bcoin-browser`,
         bcash$: `${nodeModsDir}/bcash/lib/bcoin-browser`,
@@ -96,6 +99,7 @@ module.exports = function(env = {}) {
         bledger: `${nodeModsDir}/bledger`,
         bmultisig: `${nodeModsDir}/bmultisig`,
         react: `${nodeModsDir}/react`,
+        'react-redux': `${nodeModsDir}/react-redux`,
         '&local': path.resolve(bpanelPrefix, 'local_plugins'),
         '@bpanel': path.resolve(__dirname, 'node_modules/@bpanel'),
         '@bpanel/bpanel-utils': path.resolve(

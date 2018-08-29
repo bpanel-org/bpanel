@@ -51,10 +51,10 @@ async function installRemotePackages(installPackages) {
       logger.error(`Can't reach npm servers. Skipping npm install`);
     else {
       // validation is done earlier, but still confirming at this step
-      const pkgStr = installPackages.reduce((str, name, index) => {
+      const pkgStr = installPackages.reduce((str, name) => {
         if (validate(name).validForNewPackages)
           // add spacing for all but first pkg name
-          str = index === 0 ? name : `${str} ${name}`;
+          str = `${str} ${name}`;
         return str;
       }, '');
       logger.info(`Installing plugin packages: ${pkgStr.split(' ')}`);
