@@ -1,4 +1,4 @@
-const config = require('./webpack.config.js');
+const config = require('./configs/webpack.config.js');
 
 module.exports = {
   parser: 'babel-eslint',
@@ -10,6 +10,7 @@ module.exports = {
   overrides: [
     {
       files: ['webapp/**/*.js'],
+      excludedFiles: '**/node_modules',
       env: {
         node: false,
         browser: true,
@@ -31,6 +32,9 @@ module.exports = {
     'no-empty': ['error', { allowEmptyCatch: true }]
   },
   settings: {
+    react: {
+      version: '^16.3.0'
+    },
     'import/resolver': {
       webpack: {
         config: config({})

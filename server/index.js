@@ -12,14 +12,27 @@ const os = require('os');
 const Config = require('bcfg');
 const logger = require('./logger');
 
-const webpackArgs = [
-  '--config',
-  path.resolve(__dirname, '../configs/webpack.config.js')
-];
+const webpackArgs = [];
 
 let poll = false;
 // If run from command line, parse args
 if (require.main === module) {
+  // setting up webpack configs
+  // use default/base config for dev
+  if (process.argv.indexOf('--dev') >= 0) {
+    webpackArgs.push(
+      '--config',
+      path.resolve(__dirname, '../configs/webpack.config.js')
+    );
+  } else {
+    // otherwise use prod config
+    webpackArgs.push(
+      '--config',
+      path.resolve(__dirname, '../configs/webpack.prod.js')
+    );
+  }
+
+  // environment specific `watch` args
   if (process.argv.indexOf('--watch-poll') >= 0) {
     poll = true;
     webpackArgs.push('--watch', '--env.dev', '--env.poll');
