@@ -8,6 +8,10 @@ module.exports = {
   entry: {
     vendor: [
       'bcoin/lib/bcoin-browser',
+      'bcash/lib/bcoin-browser',
+      'hsd/lib/hsd-browser',
+      'bledger/lib/bledger-browser',
+      'bmultisig/lib/bmultisig-browser',
       'bclient',
       'react',
       'react-redux',
