@@ -14,7 +14,7 @@ const logger = require('./logger');
 
 const webpackArgs = [
   '--config',
-  path.resolve(__dirname, '../webpack.config.js')
+  path.resolve(__dirname, '../configs/webpack.config.js')
 ];
 
 let poll = false;
