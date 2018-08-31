@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@bpanel/bpanel-ui": "^0.0.10",
-    "@bpanel/bpanel-utils": "^0.0.11",
+    "@bpanel/bpanel-utils": "^0.0.12",
     "aphrodite": "^1.2.5",
     "autoprefixer": "^7.1.5",
     "babel-cli": "^6.26.0",

@@ -1,4 +1,4 @@
-const url = require('url');
+const { parse: urlParse } = require('url');
 const { Network: BNetwork } = require('bcoin');
 const { Network: HSNetwork } = require('hsd');
 const {
@@ -54,9 +54,9 @@ function clientFactory(config) {
   let hostname = config.str('node-host', '127.0.0.1');
   let protocol = config.str('protocol', 'http:');
 
-  let uri = config.str('node-uri');
-  if (uri) {
-    const nodeUrl = url.parse(uri);
+  let url = config.str('url') || config.str('node-uri');
+  if (url) {
+    const nodeUrl = urlParse(url);
     port = nodeUrl.port;
     hostname = nodeUrl.hostname;
     protocol = nodeUrl.protocol;
@@ -70,16 +70,17 @@ function clientFactory(config) {
     apiKey: config.str('api-key'),
     network: config.str('network', 'main'),
     port: config.uint('port'),
-    ssl: config.bool('ssl')
+    ssl: config.bool('ssl'),
+    url: config.str('url')
   };
 
   const walletOptions = {
     ...nodeOptions,
-    uri: config.str('wallet-uri'),
     apiKey: config.str('wallet-api-key', nodeOptions.apiKey),
     port: config.uint('wallet-port', network.walletPort),
     ssl: config.bool('wallet-ssl', nodeOptions.ssl),
-    token: config.str('wallet-token')
+    token: config.str('wallet-token'),
+    url: config.str('wallet-uri') || nodeOptions.url
   };
 
   let walletClient, nodeClient, multisigWalletClient;
