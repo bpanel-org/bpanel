@@ -54,7 +54,7 @@ async function installRemotePackages(installPackages) {
       const pkgStr = installPackages.reduce((str, name) => {
         if (validate(name).validForNewPackages) str = `${str} ${name}`;
         return str;
-      }, '');
+      });
       logger.info(`Installing plugin packages: ${pkgStr.split(' ')}`);
       execSync(`npm install --no-save ${pkgStr} --production`, {
         stdio: [0, 1, 2],

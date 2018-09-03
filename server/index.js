@@ -19,7 +19,10 @@ let poll = false;
 if (require.main === module) {
   // setting up webpack configs
   // use default/base config for dev
-  if (process.argv.indexOf('--dev') >= 0) {
+  if (
+    process.argv.indexOf('--dev') >= 0 ||
+    process.env.NODE_ENV === 'development'
+  ) {
     webpackArgs.push(
       '--config',
       path.resolve(__dirname, '../configs/webpack.config.js')
@@ -94,6 +97,7 @@ module.exports = (_config = {}) => {
   // Import express middlewares
   const bodyParser = require('body-parser');
   const cors = require('cors');
+  const compression = require('compression');
 
   // Import app server utilities and modules
   const logger = require('./logger');
@@ -198,10 +202,12 @@ module.exports = (_config = {}) => {
     );
 
     // Setup app server
+    app.use(compression());
     app.use(
       express.static(path.resolve(__dirname, '../dist'), {
+        index: 'index.html',
         setHeaders: function(res, path) {
-          if (path.endsWith('/main.bundle.js.gz')) {
+          if (path.endsWith('.gz')) {
             res.setHeader('Content-Encoding', 'gzip');
             res.setHeader('Content-Type', 'application/javascript');
           }
@@ -211,7 +217,7 @@ module.exports = (_config = {}) => {
 
     const resolveIndex = (req, res) => {
       logger.debug(`Caught request in resolveIndex: ${req.path}`);
-      res.sendFile(path.resolve(__dirname, '../webapp/index.html'));
+      res.sendFile(path.resolve(__dirname, '../dist/index.html'));
     };
     app.get('/', resolveIndex);
 
