@@ -42,13 +42,27 @@ module.exports = function(env = {}) {
   return {
     context: ROOT_DIR,
     mode: 'development',
+    optimization: {
+      runtimeChunk: 'single',
+      splitChunks: {
+        // include all types of chunks
+        chunks: 'all',
+        // cache bcoin vendor files
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules\/(bcoin|bcash|hsd)[\\/]/,
+            name: 'bcoin-vendor',
+            chunks: 'all'
+          }
+        }
+      }
+    },
     entry: ['whatwg-fetch', `${path.resolve(SRC_DIR, 'index.js')}`],
     node: { __dirname: true },
     target: 'web',
     devtool: 'eval-source-map',
     output: {
-      filename: '[name].bundle.js',
-      chunkFilename: '[name].bundle.js',
+      filename: '[name].[contenthash].js',
       path: DIST_DIR,
       libraryTarget: 'umd'
     },
@@ -101,7 +115,8 @@ module.exports = function(env = {}) {
                 {
                   helpers: true,
                   polyfill: true,
-                  regenerator: true
+                  regenerator: true,
+                  modules: false
                 }
               ]
             ]
