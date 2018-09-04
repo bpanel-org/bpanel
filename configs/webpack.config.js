@@ -171,7 +171,9 @@ module.exports = function(env = {}) {
         }
       }),
       new webpack.DefinePlugin({
-        NODE_ENV: `"${process.env.NODE_ENV}"`
+        NODE_ENV: `"${process.env.NODE_ENV}"`,
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+        'process.env.BROWSER': JSON.stringify(true)
       })
     )
   };
