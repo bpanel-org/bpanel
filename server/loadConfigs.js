@@ -2,6 +2,7 @@ const Config = require('bcfg');
 const fs = require('bfile');
 const assert = require('bsert');
 const { resolve, parse } = require('path');
+const logger = require('./logger');
 
 // load main bpanel config
 /*
@@ -53,28 +54,31 @@ function loadClientConfigs(_config) {
   // ignore file names that start with a '.' such as
   // system files and files without `.conf` extension
   // then load config for that client
-  return clientFiles
-    .filter(name => name[0] !== '.' && /.conf$/.test(name))
-    .map(fileName => {
-      // After filter, we load bcfg object for each client
+  const files = clientFiles.filter(
+    name => name[0] !== '.' && /.conf$/.test(name)
+  );
 
-      // id is the file name without the extension
-      const { name: clientId, ext } = parse(fileName);
-      assert(ext === '.conf', 'client configs must have .conf extension');
+  logger.info(`Loading configs for ${files.length} clients...`);
+  return files.map(fileName => {
+    // After filter, we load bcfg object for each client
 
-      const options = {
-        id: clientId,
-        prefix: `${config.prefix}/${clientsDir}`
-      };
+    // id is the file name without the extension
+    const { name: clientId, ext } = parse(fileName);
+    assert(ext === '.conf', 'client configs must have .conf extension');
 
-      const clientConf = loadConfig(clientId, options);
+    const options = {
+      id: clientId,
+      prefix: `${config.prefix}/${clientsDir}`
+    };
 
-      // load configs from config file
-      // files are loaded from the prefix directory
-      clientConf.open(fileName);
+    const clientConf = loadConfig(clientId, options);
 
-      return clientConf;
-    });
+    // load configs from config file
+    // files are loaded from the prefix directory
+    clientConf.open(fileName);
+
+    return clientConf;
+  });
 }
 
 module.exports = loadClientConfigs;
