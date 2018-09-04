@@ -6,7 +6,6 @@ import effects from 'effects-middleware';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-import config from '../config/appConfig';
 import { getConstants } from '../plugins/plugins';
 import {
   loadPlugins,
@@ -36,6 +35,8 @@ function errorCatcherMiddleware(errorHandler) {
 
 export default async () => {
   // load plugin information before setting up app and store
+  const appConfig = await import('../config/appConfig');
+  const config = await appConfig.default();
   await loadPlugins(config);
 
   const rootPersistConfig = {

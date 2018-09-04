@@ -10,10 +10,17 @@ const {
   WalletClient: HSWalletClient
 } = require('hs-client');
 const MultisigClient = require('bmultisig/lib/client');
-const logger = require('./logger');
 const assert = require('assert');
 const Config = require('bcfg');
 
+const logger = require('./logger');
+
+const logClientInfo = (id, type, { ssl, host, port, network }) =>
+  logger.info(
+    `${id}: Configuring ${type} client with uri: ${
+      ssl ? 'https' : 'http'
+    }://${host}:${port}, network: ${network}`
+  );
 /*
  * Create clients based on given configs
  * @param {Config} config - a bcfg config object
@@ -26,6 +33,9 @@ function clientFactory(config) {
     config instanceof Config,
     'Must pass instance of Config class to client composer'
   );
+
+  const id = config.str('id');
+  assert(id, 'Client config must have an id');
 
   // bitcoin, bitcoincash, handshake
   if (!config.str('chain'))
@@ -88,30 +98,17 @@ function clientFactory(config) {
   // if false, do not instantiate new node client
   if (config.bool('node', true)) {
     nodeClient = new NodeClient(nodeOptions);
-    const { ssl, host, port, network } = nodeOptions;
-    logger.info(
-      `Configuring node client with uri: ${
-        ssl ? 'https' : 'http'
-      }://${host}:${port}, network: ${network}`
-    );
+    logClientInfo(id, 'node', nodeOptions);
   }
 
   // check if config explicitly sets wallet config to `false`
   // if false, do not instantiate new wallet client
   if (config.bool('wallet', true)) {
     walletClient = new WalletClient(walletOptions);
-    const { ssl, host, port, network } = walletOptions;
-    logger.info(
-      `Configuring wallet client with uri: ${
-        ssl ? 'https' : 'http'
-      }://${host}:${port}, network: ${network}`
-    );
+    logClientInfo(id, 'wallet', walletOptions);
+
     multisigWalletClient = new MultisigClient(walletOptions);
-    logger.info(
-      `Configuring multisigwallet client with uri: ${walletOptions.host}:${
-        walletOptions.port
-      }, network: ${walletOptions.network}`
-    );
+    logClientInfo(id, 'multisig wallet', nodeOptions);
   }
 
   return { nodeClient, walletClient, multisigWalletClient };

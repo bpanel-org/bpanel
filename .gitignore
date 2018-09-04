@@ -64,7 +64,6 @@ typings/
 dist/*
 
 # bcoin config
-configs/
 bcoin.config.json
 
 # script generated files

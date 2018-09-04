@@ -12,14 +12,30 @@ const os = require('os');
 const Config = require('bcfg');
 const logger = require('./logger');
 
-const webpackArgs = [
-  '--config',
-  path.resolve(__dirname, '../webpack.config.js')
-];
+const webpackArgs = [];
 
 let poll = false;
 // If run from command line, parse args
 if (require.main === module) {
+  // setting up webpack configs
+  // use default/base config for dev
+  if (
+    process.argv.indexOf('--dev') >= 0 ||
+    process.env.NODE_ENV === 'development'
+  ) {
+    webpackArgs.push(
+      '--config',
+      path.resolve(__dirname, '../configs/webpack.config.js')
+    );
+  } else {
+    // otherwise use prod config
+    webpackArgs.push(
+      '--config',
+      path.resolve(__dirname, '../configs/webpack.prod.js')
+    );
+  }
+
+  // environment specific `watch` args
   if (process.argv.indexOf('--watch-poll') >= 0) {
     poll = true;
     webpackArgs.push('--watch', '--env.dev', '--env.poll');
@@ -81,6 +97,7 @@ module.exports = (_config = {}) => {
   // Import express middlewares
   const bodyParser = require('body-parser');
   const cors = require('cors');
+  const compression = require('compression');
 
   // Import app server utilities and modules
   const logger = require('./logger');
@@ -185,10 +202,12 @@ module.exports = (_config = {}) => {
     );
 
     // Setup app server
+    app.use(compression());
     app.use(
       express.static(path.resolve(__dirname, '../dist'), {
+        index: 'index.html',
         setHeaders: function(res, path) {
-          if (path.endsWith('/main.bundle.js.gz')) {
+          if (path.endsWith('.gz')) {
             res.setHeader('Content-Encoding', 'gzip');
             res.setHeader('Content-Type', 'application/javascript');
           }
@@ -198,7 +217,7 @@ module.exports = (_config = {}) => {
 
     const resolveIndex = (req, res) => {
       logger.debug(`Caught request in resolveIndex: ${req.path}`);
-      res.sendFile(path.resolve(__dirname, '../webapp/index.html'));
+      res.sendFile(path.resolve(__dirname, '../dist/index.html'));
     };
     app.get('/', resolveIndex);
 
