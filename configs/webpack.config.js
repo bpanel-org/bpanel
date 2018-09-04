@@ -83,6 +83,7 @@ module.exports = function(env = {}) {
         bmultisig: `${MODULES_DIR}/bmultisig/lib/bmultisig-browser`,
         react: `${MODULES_DIR}/react`,
         'react-redux': `${MODULES_DIR}/react-redux`,
+        'react-loadable': `${MODULES_DIR}/react-loadable`,
         '&local': path.resolve(bpanelPrefix, 'local_plugins'),
         '@bpanel': `${MODULES_DIR}/@bpanel`,
         '@bpanel/bpanel-utils': `${MODULES_DIR}/@bpanel/bpanel-utils`,
