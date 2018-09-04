@@ -10,19 +10,15 @@ const { themeVariables, themeCreator } = theme;
 // localPlugins are typically for either development of a plugin or
 // for default/built-in plugins
 // IMPORTANT: plugins should be added via the pluginsConfig, not here
-let localPlugins = [];
-let plugins = [];
 
-const getModuleList = moduleObject =>
-  Object.keys(moduleObject).map(name => moduleObject[name]);
-
-if (localModules) localPlugins = getModuleList(localModules);
-if (plugins) plugins = getModuleList(modules);
-
-export default {
-  plugins: [...localPlugins, ...plugins], // don't edit this
-  theme: {
-    themeVariables,
-    themeCreator
-  }
-};
+export default async function() {
+  const [...plugins] = await modules();
+  const [...localPlugins] = await localModules();
+  return {
+    plugins: [...localPlugins, ...plugins],
+    theme: {
+      themeVariables,
+      themeCreator
+    }
+  };
+}

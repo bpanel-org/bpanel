@@ -5,7 +5,8 @@ const logger = require('./logger');
 const { resolve } = require('path');
 
 module.exports = () => {
-  const indexText = 'export default {};';
+  const indexText =
+    'export default async function() { return Promise.all([]); }';
   const pluginsPath = resolve(__dirname, '../webapp/plugins');
   try {
     fs.writeFileSync(resolve(pluginsPath, 'local/index.js'), indexText);

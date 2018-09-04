@@ -46,7 +46,6 @@ module.exports = function(env = {}) {
       runtimeChunk: 'single',
       splitChunks: {
         // include all types of chunks
-        chunks: 'all',
         // cache bcoin vendor files
         cacheGroups: {
           vendor: {
@@ -110,6 +109,7 @@ module.exports = function(env = {}) {
             presets: ['env', 'react', 'stage-3'],
             plugins: [
               [
+                'syntax-dynamic-import',
                 'transform-object-rest-spread',
                 'transform-runtime',
                 {
@@ -151,7 +151,7 @@ module.exports = function(env = {}) {
       }),
       new CleanWebpackPlugin([DIST_DIR], {
         root: ROOT_DIR,
-        exclude: ['vendor-manifest.json', 'vendor.js']
+        exclude: ['vendor-manifest.json', 'vendor.js', 'index.html']
       }),
       new MiniCssExtractPlugin({
         filename: '[name].css',

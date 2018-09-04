@@ -23,16 +23,6 @@ const modulesDirectory = resolve(__dirname, '../node_modules');
 const homePrefix =
   process.env.BPANEL_PREFIX || resolve(os.homedir(), '.bpanel');
 
-const camelize = str =>
-  str
-    // 1st deal w/ scoped packages (e.g. remove `@bpanel/`)
-    .replace(/^\W+[\w]+[\W]/, '')
-    .replace(/_/g, '-')
-    .replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
-      return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
-    })
-    .replace(/[^\w]/gi, '');
-
 const getPackageName = name => {
   if (name.indexOf('/') !== -1 && name[0] !== '@') {
     // this is a GitHub repo
@@ -116,8 +106,8 @@ async function prepareModules(plugins = [], local = true) {
   let pluginsIndex = local
     ? '// exports for all local plugin modules\n\n'
     : '// exports for all published plugin modules\n\n';
-  let importsText = '';
-  let exportsText = 'export default {';
+
+  let exportsText = 'export default async function() { \n return Promise.all([';
   let installPackages = [];
 
   // Create the index.js files for exposing the plugins
@@ -135,7 +125,7 @@ async function prepareModules(plugins = [], local = true) {
         `${packageName} is not a valid package name and will not be installed: ${validator.errors &&
           validator.errors.join(', ')}`
       );
-      const camelized = camelize(packageName);
+
       let modulePath;
 
       // check if the plugin exists in webapp/plugins/local
@@ -155,8 +145,7 @@ async function prepareModules(plugins = [], local = true) {
         await symlinkLocal(name);
       }
 
-      importsText += `import * as ${camelized} from '${modulePath}';\n`;
-      exportsText += `${camelized},`;
+      exportsText += `import('${modulePath}'),`;
     } catch (e) {
       logger.error(`There was an error preparing ${packageName}`);
       logger.error(e.stack);
@@ -194,11 +183,10 @@ async function prepareModules(plugins = [], local = true) {
     }
   }
 
-  exportsText += '}';
-  pluginsIndex += `${importsText}\n\n`;
+  exportsText += ']); \n }';
   pluginsIndex += exportsText;
-
   pluginsIndex = format(pluginsIndex, { singleQuote: true, parser: 'babylon' });
+
   const pluginsIndexPath = local ? 'local/index.js' : 'index.js';
   await fs.writeFile(resolve(pluginsPath, pluginsIndexPath), pluginsIndex);
   return true;
