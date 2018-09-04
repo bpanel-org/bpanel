@@ -64,6 +64,9 @@ module.exports = function(env = {}) {
         test: /\.js$/,
         algorithm: 'gzip',
         asset: '[path].gz[query]'
+      }),
+      new webpack.DefinePlugin({
+        'process.env.LOG_LEVEL': 'info'
       })
     ]
   });
