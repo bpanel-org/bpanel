@@ -4,7 +4,6 @@ const webpack = require('webpack');
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const WebpackShellPlugin = require('webpack-synchronizable-shell-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const {
@@ -148,10 +147,6 @@ module.exports = function(env = {}) {
         title: 'bPanel - A Blockchain Management System',
         template: `${path.join(SRC_DIR, 'index.template.ejs')}`,
         inject: 'body'
-      }),
-      new CleanWebpackPlugin([DIST_DIR], {
-        root: ROOT_DIR,
-        exclude: ['vendor-manifest.json', 'vendor.js', 'index.html']
       }),
       new MiniCssExtractPlugin({
         filename: '[name].css',
