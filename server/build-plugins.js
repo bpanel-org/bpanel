@@ -183,6 +183,8 @@ async function prepareModules(plugins = [], local = true) {
       // only add imports for packages that have been installed
       if (existsLocal || fs.existsSync(resolve(MODULES_DIRECTORY, packageName)))
         exportsText += `import('${modulePath}'),`;
+      else if (!local && existsRemote)
+        exportsText += `import('${modulePath}'),`;
     } catch (e) {
       logger.error(`There was an error preparing ${packageName}`);
       logger.error(e.stack);
