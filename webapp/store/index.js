@@ -51,9 +51,16 @@ export default async () => {
     whitelist: getPersistWhiteList()
   };
 
+  // persistReducer will break the store if there are no
+  // plugin reducers to pass it so set to null if getPluginReducers()
+  // doesn't pass anything
+  const pluginReducers = getPluginReducers()
+    ? persistReducer(pluginsPersistConfig, getPluginReducers())
+    : null;
+
   const rootReducer = combineReducers({
     ...reducers,
-    plugins: persistReducer(pluginsPersistConfig, getPluginReducers())
+    plugins: pluginReducers
   });
 
   const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
