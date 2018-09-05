@@ -10,17 +10,18 @@ const { execSync } = require('child_process');
 const validate = require('validate-npm-package-name');
 
 const logger = require('./logger');
+const npmExists = require('./npm-exists');
 
 const config = new Config('bpanel');
 config.load({ env: true, argv: true, arg: true });
-const pluginsConfig = resolve(config.prefix, 'config.js');
-const modulesDirectory = resolve(__dirname, '../node_modules');
+const PLUGINS_CONFIG = resolve(config.prefix, 'config.js');
+const MODULES_DIRECTORY = resolve(__dirname, '../node_modules');
 
 // location of app configs and local plugins
 // defaults to ~/.bpanel/
 // this is set using bcfg at runtime with server
 // and passed through via webpack to this script
-const homePrefix =
+const HOME_PREFIX =
   process.env.BPANEL_PREFIX || resolve(os.homedir(), '.bpanel');
 
 const getPackageName = name => {
@@ -62,7 +63,7 @@ async function installRemotePackages(installPackages) {
  */
 async function symlinkLocal(packageName) {
   logger.info(`Creating symlink for local plugin ${packageName}...`);
-  const pkgDir = resolve(modulesDirectory, packageName);
+  const pkgDir = resolve(MODULES_DIRECTORY, packageName);
 
   // remove existing version of plugin
   const exists = fs.existsSync(pkgDir);
@@ -89,7 +90,7 @@ async function symlinkLocal(packageName) {
       'Scoped package name should have child path with "/" separator'
     );
     const scopeName = packageName.substring(0, pathIndex);
-    const scopePath = resolve(modulesDirectory, scopeName);
+    const scopePath = resolve(MODULES_DIRECTORY, scopeName);
     const scopeExists = await fs.existsSync(scopePath);
 
     // make directory if it did not exist
@@ -97,20 +98,20 @@ async function symlinkLocal(packageName) {
   }
 
   // if the origin does not exist, log an error
-  const originPath = resolve(homePrefix, 'local_plugins', packageName);
+  const originPath = resolve(HOME_PREFIX, 'local_plugins', packageName);
   if (!fs.existsSync(originPath))
     logger.error(`Origin package did not exist at ${originPath}, skipping...`);
   else
     await fs.symlink(
-      resolve(homePrefix, 'local_plugins', packageName),
-      resolve(modulesDirectory, pkgDir)
+      resolve(HOME_PREFIX, 'local_plugins', packageName),
+      resolve(MODULES_DIRECTORY, pkgDir)
     );
 }
 
 // a utility method to check if a module exists in node_modules
 // useful for confirming if a plugin has already been installed
 async function checkForModuleExistence(pkg) {
-  const pkgPath = resolve(modulesDirectory, pkg);
+  const pkgPath = resolve(MODULES_DIRECTORY, pkg);
   const exists = fs.existsSync(pkgPath);
 
   // if it doesn't exist we have our answer
@@ -124,7 +125,7 @@ async function checkForModuleExistence(pkg) {
 }
 
 async function prepareModules(plugins = [], local = true) {
-  const pluginsPath = resolve(__dirname, '../webapp/plugins');
+  const PLUGINS_PATH = resolve(__dirname, '../webapp/plugins');
   let pluginsIndex = local
     ? '// exports for all local plugin modules\n\n'
     : '// exports for all published plugin modules\n\n';
@@ -152,22 +153,36 @@ async function prepareModules(plugins = [], local = true) {
 
       // check if the plugin exists in webapp/plugins/local
       // and import from there if it does
-      const exists = fs.existsSync(resolve(pluginsPath, 'local', packageName));
-      if (exists && local)
+      const existsLocal = fs.existsSync(
+        resolve(PLUGINS_PATH, 'local', packageName)
+      );
+
+      // if adding a remote plugin and it doesn't exist on npm, skip
+      const existsRemote = await npmExists(packageName);
+      if (!local && !existsRemote) {
+        logger.error(
+          `Remote module ${packageName} does not exist on npm. If developing locally, add to local plugins. Skipping...`
+        );
+        continue;
+      }
+
+      if (existsLocal && local)
         // maintain support for plugins in plugins/local dir
         modulePath = `./${packageName}`;
       // set import to webpack's alias for bpanel's local_plugins dir
       else modulePath = local ? `&local/${packageName}` : packageName;
 
       // add plugin to list of packages that need to be installed w/ npm
-      if (!local) installPackages.push(name);
+      if (!local && existsRemote) installPackages.push(name);
       else {
         // create a symlink for local modules to node_modules
         // so that webpack can watch for changes
         await symlinkLocal(name);
       }
 
-      exportsText += `import('${modulePath}'),`;
+      // only add imports for packages that have been installed
+      if (existsLocal || fs.existsSync(resolve(MODULES_DIRECTORY, packageName)))
+        exportsText += `import('${modulePath}'),`;
     } catch (e) {
       logger.error(`There was an error preparing ${packageName}`);
       logger.error(e.stack);
@@ -210,20 +225,20 @@ async function prepareModules(plugins = [], local = true) {
   pluginsIndex = format(pluginsIndex, { singleQuote: true, parser: 'babylon' });
 
   const pluginsIndexPath = local ? 'local/index.js' : 'index.js';
-  await fs.writeFile(resolve(pluginsPath, pluginsIndexPath), pluginsIndex);
+  await fs.writeFile(resolve(PLUGINS_PATH, pluginsIndexPath), pluginsIndex);
   return true;
 }
 
 (async () => {
   try {
     assert(
-      fs.existsSync(pluginsConfig),
+      fs.existsSync(PLUGINS_CONFIG),
       'bPanel config file not found. Please run `npm install` before \
 starting the server and building the app to automatically generate \
 your config file.'
     );
 
-    const { localPlugins, plugins } = require(pluginsConfig);
+    const { localPlugins, plugins } = require(PLUGINS_CONFIG);
     await prepareModules(plugins, false);
     await prepareModules(localPlugins);
   } catch (err) {
