@@ -79,10 +79,32 @@ async function symlinkLocal(packageName) {
     else await fs.rimraf(pkgDir);
   }
 
-  await fs.symlink(
-    resolve(homePrefix, 'local_plugins', packageName),
-    resolve(modulesDirectory, pkgDir)
-  );
+  // for scoped packages, the scope becomes a parent directory
+  // if the parent directory doesn't exist, we need to create it
+  if (packageName.startsWith('@')) {
+    // if scoped, get directory name
+    const pathIndex = packageName.indexOf('/');
+    assert(
+      pathIndex > -1,
+      'Scoped package name should have child path with "/" separator'
+    );
+    const scopeName = packageName.substring(0, pathIndex);
+    const scopePath = resolve(modulesDirectory, scopeName);
+    const scopeExists = await fs.existsSync(scopePath);
+
+    // make directory if it did not exist
+    if (!scopeExists) await fs.mkdir(scopePath);
+  }
+
+  // if the origin does not exist, log an error
+  const originPath = resolve(homePrefix, 'local_plugins', packageName);
+  if (!fs.existsSync(originPath))
+    logger.error(`Origin package did not exist at ${originPath}, skipping...`);
+  else
+    await fs.symlink(
+      resolve(homePrefix, 'local_plugins', packageName),
+      resolve(modulesDirectory, pkgDir)
+    );
 }
 
 // a utility method to check if a module exists in node_modules

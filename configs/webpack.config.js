@@ -85,7 +85,6 @@ module.exports = function(env = {}) {
         'react-redux': `${MODULES_DIR}/react-redux`,
         'react-loadable': `${MODULES_DIR}/react-loadable`,
         '&local': path.resolve(bpanelPrefix, 'local_plugins'),
-        '@bpanel': `${MODULES_DIR}/@bpanel`,
         '@bpanel/bpanel-utils': `${MODULES_DIR}/@bpanel/bpanel-utils`,
         '@bpanel/bpanel-ui': `${MODULES_DIR}/@bpanel/bpanel-ui`,
         tinycolor: 'tinycolor2'

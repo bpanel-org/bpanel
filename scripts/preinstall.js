@@ -7,7 +7,7 @@ const configsFile = path.resolve(configsDir, './config.js');
 const clientsDir = path.resolve(configsDir, 'clients');
 
 const configText = `module.exports = {
-  plugins: ['@bpanel/genesis-theme'],
+  plugins: ['@bpanel/genesis-theme', '@bpanel/bui'],
   localPlugins: [],
 }`;
 if (!fs.existsSync(configsDir)) fs.mkdirSync(configsDir);
