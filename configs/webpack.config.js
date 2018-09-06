@@ -160,8 +160,7 @@ module.exports = function(env = {}) {
               SERVER_DIR,
               'build-plugins.js'
             )} --prefix=${bpanelPrefix}`
-          ],
-          blocking: true
+          ]
         }
       }),
       new webpack.DefinePlugin({
