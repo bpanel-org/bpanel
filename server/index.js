@@ -118,9 +118,13 @@ module.exports = (_config = {}) => {
   // build:dll first to build the manifest
   if (!fs.existsSync(path.resolve(__dirname, '../dist/vendor-manifest.json'))) {
     logger.info(
-      'No vendor manifest. Running webpack dll first. This might take a minute the first time, so please be patient.'
+      'No vendor manifest. Running webpack dll first. This can take a couple minutes the first time but \
+will increase speed of future builds, so please be patient.'
     );
-    execSync('npm run build:dll');
+    execSync('npm run build:dll', {
+      stdio: [0, 1, 2],
+      cwd: path.resolve(__dirname, '..')
+    });
   }
 
   // Always start webpack
@@ -338,5 +342,10 @@ module.exports = (_config = {}) => {
 
 // Start server when run from command line
 if (require.main === module) {
-  module.exports();
+  try {
+    module.exports();
+  } catch (e) {
+    logger.error('There was an error running the server: ', e.stack);
+    process.exit(1);
+  }
 }

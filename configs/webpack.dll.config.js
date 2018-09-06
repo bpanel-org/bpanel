@@ -3,6 +3,7 @@ const path = require('path');
 
 const { DIST_DIR, MODULES_DIR } = require('./constants');
 
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const vendorManifest = path.join(DIST_DIR, '[name]-manifest.json');
 
 module.exports = {
@@ -30,6 +31,23 @@ module.exports = {
     library: '[name]_lib',
     filename: 'vendor.js'
   },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader
+          },
+          'css-loader'
+        ]
+      },
+      {
+        test: /\.(ttf|eot|svg|woff|woff2)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+        loader: 'file-loader'
+      }
+    ]
+  },
   resolve: {
     modules: ['node_modules'],
     extensions: ['-browser.js', '.js', '.json'],
@@ -47,6 +65,10 @@ module.exports = {
     new webpack.DllPlugin({
       name: '[name]_lib',
       path: vendorManifest
+    }),
+    new MiniCssExtractPlugin({
+      filename: '[name].css',
+      chunkFilename: '[id].css'
     })
   ]
 };
