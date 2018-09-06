@@ -14,7 +14,7 @@ WORKDIR /usr/src/app
 ENTRYPOINT [ "node" ]
 CMD [ "server" ]
 
-ARG NPM_VERSION=6.0.1
+ARG NPM_VERSION=6.3.0
 
 # Install updates
 RUN apk upgrade --no-cache && \
@@ -30,11 +30,14 @@ FROM base AS build
 # install dependencies for node-hid
 RUN apk add --no-cache linux-headers eudev-dev libusb-dev
 RUN npm install
+# this is a grandchild dependency of hsd that gets skipped for some reason
+# and needs to be installed manually
+RUN npm install budp
 
 # Bundle app
 FROM base
 COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
-COPY configs /usr/src/app/configs
 COPY scripts /usr/src/app/scripts
+COPY configs /usr/src/app/configs
 COPY server /usr/src/app/server
 COPY webapp /usr/src/app/webapp
