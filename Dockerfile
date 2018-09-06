@@ -34,7 +34,7 @@ RUN npm install
 # Bundle app
 FROM base
 COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
-COPY webpack.config.js /usr/src/app/webpack.config.js
+COPY configs /usr/src/app/configs
 COPY scripts /usr/src/app/scripts
 COPY server /usr/src/app/server
 COPY webapp /usr/src/app/webapp
