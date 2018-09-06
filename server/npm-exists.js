@@ -6,7 +6,7 @@ async function npmExists(_packageName) {
   const base = 'https://www.npmjs.org/package/';
   const { href: path } = new URL(packageName, base);
   const response = await brq({ url: path, method: 'HEAD' });
-  if (response.statusCode === 200) return true;
+  if (200 <= response.statusCode < 400) return true;
   return false;
 }
 

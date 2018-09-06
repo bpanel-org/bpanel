@@ -54,8 +54,9 @@ export default async () => {
   // persistReducer will break the store if there are no
   // plugin reducers to pass it so set to null if getPluginReducers()
   // doesn't pass anything
-  const pluginReducers = getPluginReducers()
-    ? persistReducer(pluginsPersistConfig, getPluginReducers())
+  let pluginReducers = getPluginReducers();
+  pluginReducers = pluginReducers
+    ? persistReducer(pluginsPersistConfig, pluginReducers)
     : null;
 
   const rootReducer = combineReducers({

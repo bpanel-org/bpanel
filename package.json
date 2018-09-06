@@ -13,7 +13,7 @@
     "karma": "karma start --autoWatch",
     "version": "node scripts/version.js",
     "preinstall": "node scripts/preinstall.js",
-    "clean": "npm run clear:plugins && rm -rf ./dist && mkdir ./dist",
+    "clean": "npm run clear:plugins && rm -rf ./dist/*",
     "clear:plugins": "node server/clear-plugins.js",
     "build:plugins": "npm run clear:plugins && node server/build-plugins.js",
     "build:dll": "webpack --config ./configs/webpack.dll.config.js"
