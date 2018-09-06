@@ -268,6 +268,36 @@ requires an above average amount of memory available. To avoid JS Heap overflows
 npm scripts that run webpack (`start`, `start:dev`, and `start:poll`) pass an argument
 `--max_old_space_size` to increase the memory allocation. This can be adjusted as necessary.
 
+## Release Checklist
+The following conditions must be tested before deploying a release. If any of the following
+circumstances causes a break, CHANGELOG should indicate a workaround or migration steps
+should be provided.
+
+- [ ] Pull into an existing environment
+  - [ ] Try a simple restart of the server (`npm run start`)
+  - [ ] Try with a fresh `node_modules`
+  - [ ] Try with a fresh configs (usually `~/.bpanel`) directory
+  - [ ] Install and uninstall new remote plugins using bpanel-cli
+  - [ ] Install and uninstall new local plugins using bpanel-cli
+- [ ] Download zip of development branch from GitHub (this emulates downloading a release from the website).
+Test the following in a fresh environment (i.e. with no existing ~/.bpanel or other configs)
+  - [ ] Run `npm install` and confirm: it creates a new ~/.bpanel directory with `configs/`, `configs.js`,
+  and `local_plugins`
+  - [ ] Run `docker-compose up` and confirm after build is complete that bPanel is accessible at `localhost:5000`
+  - [ ] Confirm fresh install comes with the correct default plugins
+  - [ ] If docker-compose is set to mount config volume, confirm that installing and uninstalling plugins with
+  bpanel-cli works as expected
+  - [ ] Bring down docker (`docker-compose down`) and test on host machine: `npm run start`.
+  This can be done against a docker node with the `_docker.conf` client config or by passing
+  in a custom `client-id` at run time
+- [ ] Test environments above with some of the most common plugins: e.g. recent-blocks, simple-wallet,
+ simple-miner, etc.
+
+Once the above has been confirmed, commit the latest state of development to master as a new release,
+tag it with a new version, and publish to npm. bPanel follows [Semantic Versioning](http://semver.org/) rules.
+
+_TODO: Setup CI to accomplish as much of the above as possible._
+
 ## License
 
 - Copyright (c) 2018, The bPanel Devs (MIT License).
