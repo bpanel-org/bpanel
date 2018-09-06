@@ -155,6 +155,11 @@ module.exports = (_config = {}) => {
       )}. Will set to 'default' instead.`
     );
     clientConfig = clientConfigs.find(cfg => cfg.str('id') === 'default');
+    if (!clientConfig) {
+      logger.warn('Could not find default client config.');
+      clientConfig = clientConfigs[0];
+      logger.warn(`Setting fallback to ${clientConfig.str('id')}.`);
+    }
   }
 
   // save reference to the id for redirects
