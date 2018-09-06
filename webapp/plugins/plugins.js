@@ -261,6 +261,9 @@ export const decorateTheme = themeCreator => {
 };
 
 export function getPluginReducers() {
+  // return nothing if no plugin reducers
+  if (!pluginReducers.length) return null;
+
   // flatten all plugin reducers
   // merge will overwrite from left to right if there are conflicts
   const reducers = pluginReducers.reduce((reducers = {}, current) => {

@@ -116,8 +116,12 @@ module.exports = (_config = {}) => {
 
   // check if vendor-manifest has been built otherwise run
   // build:dll first to build the manifest
-  if (!fs.existsSync(path.resolve(__dirname, '../dist/vendor-manifest.json')))
+  if (!fs.existsSync(path.resolve(__dirname, '../dist/vendor-manifest.json'))) {
+    logger.info(
+      'No vendor manifest. Running webpack dll first. This might take a minute the first time, so please be patient.'
+    );
     execSync('npm run build:dll');
+  }
 
   // Always start webpack
   require('nodemon')({
