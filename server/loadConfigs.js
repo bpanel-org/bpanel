@@ -58,6 +58,18 @@ function loadClientConfigs(_config) {
     name => name[0] !== '.' && /.conf$/.test(name)
   );
 
+  // cancel startup process if there are no clientConfigs
+  if (!files.length) {
+    logger.error('No client configs found.');
+    logger.error(
+      'Please add at least one config called "default" to your clients directory and try again.'
+    );
+    logger.error(
+      'Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
+    );
+    process.exit(1);
+  }
+
   logger.info(`Loading configs for ${files.length} clients...`);
   return files.map(fileName => {
     // After filter, we load bcfg object for each client

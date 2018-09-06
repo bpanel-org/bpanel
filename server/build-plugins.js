@@ -47,11 +47,21 @@ async function installRemotePackages(installPackages) {
         return str;
       });
       logger.info(`Installing plugin packages: ${pkgStr.split(' ')}`);
-      execSync(`npm install --no-save ${pkgStr} --production`, {
-        stdio: [0, 1, 2],
-        cwd: resolve(__dirname, '..')
-      });
-      logger.info('Done installing remote plugins');
+
+      try {
+        await execSync(`npm install --no-save ${pkgStr} --production`, {
+          stdio: [0, 1, 2],
+          cwd: resolve(__dirname, '..')
+        });
+        logger.info('Done installing remote plugins');
+      } catch (e) {
+        logger.error(
+          'There was an error installing plugins. Sometimes this is because of permissions errors \
+in node_modules. Try deleting the node_modules directory and running `npm install` again.'
+        );
+        logger.error(e.stack);
+        process.exit(1);
+      }
     }
   });
 }
