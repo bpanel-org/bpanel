@@ -1,4 +1,7 @@
 /* eslint-disable no-console */
+
+// no non-native modules should be imported here
+// since this file gets run BEFORE `npm install`
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
