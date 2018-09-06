@@ -148,6 +148,12 @@ will increase speed of future builds, so please be patient.'
   // the one passed via `client-id`
   const clientConfigs = require('./loadConfigs')(bpanelConfig);
 
+  assert(
+    clientConfigs.length,
+    'There was a problem loading client configs. \
+Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
+  );
+
   let clientConfig = clientConfigs.find(
     cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
   );
