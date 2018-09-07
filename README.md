@@ -270,18 +270,18 @@ npm scripts that run webpack (`start`, `start:dev`, and `start:poll`) pass an ar
 
 ## Release Checklist
 The following conditions must be tested before deploying a release. If any of the following
-circumstances causes a break, CHANGELOG should indicate a workaround or migration steps
-should be provided.
+circumstances causes a break, CHANGELOG should indicate a workaround or migration steps.
 
-- [ ] Pull into an existing environment
+- [ ] Pull most recent version of `development` branch into an existing environment
   - [ ] Try a simple restart of the server (`npm run start`)
-  - [ ] Try with a fresh `node_modules`
-  - [ ] Try with a fresh configs (usually `~/.bpanel`) directory
+  - [ ] Try with a fresh `node_modules` (i.e. `rm -rf node_modules && npm i`)
+  - [ ] Try with a fresh configs (usually `~/.bpanel`) directory (renaming existing one and
+  running `npm install` will generate a fresh configs directory)
   - [ ] Install and uninstall new remote plugins using bpanel-cli
   - [ ] Install and uninstall new local plugins using bpanel-cli
 - [ ] Download zip of development branch from GitHub (this emulates downloading a release from the website).
 Test the following in a fresh environment (i.e. with no existing ~/.bpanel or other configs)
-  - [ ] Run `npm install` and confirm: it creates a new ~/.bpanel directory with `configs/`, `configs.js`,
+  - [ ] Run `npm install` and confirm it creates a new ~/.bpanel directory with `configs/`, `configs.js`,
   and `local_plugins`
   - [ ] Run `docker-compose up` and confirm after build is complete that bPanel is accessible at `localhost:5000`
   - [ ] Confirm fresh install comes with the correct default plugins
