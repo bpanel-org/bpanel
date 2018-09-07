@@ -285,13 +285,14 @@ Test the following in a fresh environment (i.e. with no existing ~/.bpanel or ot
   and `local_plugins`
   - [ ] Run `docker-compose up` and confirm after build is complete that bPanel is accessible at `localhost:5000`
   - [ ] Confirm fresh install comes with the correct default plugins
-  - [ ] If docker-compose is set to mount config volume, confirm that installing and uninstalling plugins with
-  bpanel-cli works as expected
+  - [ ] If docker-compose is set to mount config volume, confirm that installing and
+  uninstalling plugins with bpanel-cli works as expected
   - [ ] Bring down docker (`docker-compose down`) and test on host machine: `npm run start`.
   This can be done against a docker node with the `_docker.conf` client config or by passing
   in a custom `client-id` at run time
 - [ ] Test environments above with some of the most common plugins: e.g. recent-blocks, simple-wallet,
  simple-miner, etc.
+- [ ] Bonus: check against different chain backends (e.g. handshake and bitcoin)
 
 (Note that sometimes in order to check docker setup, you may have to build a new image from your
 local Dockerfile. If uncommenting the `build` lines in docker-compose, make sure to re-comment, before
