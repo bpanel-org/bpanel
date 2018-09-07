@@ -1,15 +1,30 @@
 const bcoin = require('bcoin');
+const assert = require('bsert');
+
 const consensus = bcoin.protocol.consensus;
-const makeWallets = async node => {
+
+const makeWallets = async (node, config, wallet) => {
+  const network = node.network.type;
+  assert(
+    network !== 'main' && network !== 'testnet',
+    `You probably don't want to be running the miner on the ${network} network`
+  );
+
   const blocks2Mine = process.env.BLOCKS_2_MINE
     ? process.env.BLOCKS_2_MINE
     : 10;
   const miner = node.miner;
   const chain = node.chain;
 
-  consensus.COINBASE_MATURITY = 0;
+  // don't run if already have enough blocks
+  if (chain.height > blocks2Mine) return;
 
-  const wdb = node.require('walletdb').wdb;
+  consensus.COINBASE_MATURITY = 0;
+  let wdb;
+
+  if (wallet) wdb = wallet.wdb;
+  else wdb = node.require('walletdb').wdb;
+
   const primary = wdb.primary;
 
   primary.once('balance', async balance => {
