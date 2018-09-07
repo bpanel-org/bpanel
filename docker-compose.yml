@@ -2,7 +2,7 @@ version: '3'
 services:
   bpanel:
     ## Build to use local Dockerfile
-    build: .
+    # build: .
     ## Build from image from docker hub
     image: bpanel/bpanel
     restart: unless-stopped

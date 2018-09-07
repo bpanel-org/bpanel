@@ -59,7 +59,7 @@ function clientsRouter(clients, defaultId) {
     reqClients = {
       node: clientObj.nodeClient,
       wallet: clientObj.walletClient,
-      multisig: clientObj.multisigClient
+      multisig: clientObj.multisigWalletClient
     };
     next();
   });
