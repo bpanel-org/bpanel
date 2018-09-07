@@ -293,6 +293,10 @@ Test the following in a fresh environment (i.e. with no existing ~/.bpanel or ot
 - [ ] Test environments above with some of the most common plugins: e.g. recent-blocks, simple-wallet,
  simple-miner, etc.
 
+(Note that sometimes in order to check docker setup, you may have to build a new image from your
+local Dockerfile. If uncommenting the `build` lines in docker-compose, make sure to re-comment, before
+comitting the change).
+
 Once the above has been confirmed, commit the latest state of development to master as a new release,
 tag it with a new version, and publish to npm. bPanel follows [Semantic Versioning](http://semver.org/) rules.
 
