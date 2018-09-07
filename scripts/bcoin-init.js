@@ -125,7 +125,6 @@ let node;
       const confText =
         `network: ${network.type}\n` +
         `api-key:${config.str('api-key')}\n` +
-        `node-host: bcoin\n` +
         `wallet-api-key:${config.str('api-key')}\n` +
         `wallet-token:${config.str('admin-token')}`;
 

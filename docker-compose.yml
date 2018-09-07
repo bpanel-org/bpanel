@@ -2,7 +2,7 @@ version: '3'
 services:
   bpanel:
     ## Build to use local Dockerfile
-    # build: .
+    build: .
     ## Build from image from docker hub
     image: bpanel/bpanel
     restart: unless-stopped
@@ -10,7 +10,7 @@ services:
       # Need this to tell the bpanel client
       # how to communicate with the bcoin node
       # in docker
-      BPANEL_NODE_HOST: bcoin
+      _DOCKER_NODE_HOST: bcoin
     ports:
       - "5000:5000"
       - "8000:8000"
