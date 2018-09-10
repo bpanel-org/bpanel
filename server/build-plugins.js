@@ -16,6 +16,7 @@ const config = new Config('bpanel');
 config.load({ env: true, argv: true, arg: true });
 const PLUGINS_CONFIG = resolve(config.prefix, 'config.js');
 const MODULES_DIRECTORY = resolve(__dirname, '../node_modules');
+const PLUGINS_PATH = resolve(__dirname, '../webapp/plugins');
 
 // location of app configs and local plugins
 // defaults to ~/.bpanel/
@@ -47,11 +48,21 @@ async function installRemotePackages(installPackages) {
         return str;
       });
       logger.info(`Installing plugin packages: ${pkgStr.split(' ')}`);
-      execSync(`npm install --no-save ${pkgStr} --production`, {
-        stdio: [0, 1, 2],
-        cwd: resolve(__dirname, '..')
-      });
-      logger.info('Done installing remote plugins');
+
+      try {
+        await execSync(`npm install --no-save ${pkgStr} --production`, {
+          stdio: [0, 1, 2],
+          cwd: resolve(__dirname, '..')
+        });
+        logger.info('Done installing remote plugins');
+      } catch (e) {
+        logger.error(
+          'There was an error installing plugins. Sometimes this is because of permissions errors \
+in node_modules. Try deleting the node_modules directory and running `npm install` again.'
+        );
+        logger.error(e.stack);
+        process.exit(1);
+      }
     }
   });
 }
@@ -124,14 +135,34 @@ async function checkForModuleExistence(pkg) {
   return exists && !stat.isSymbolicLink();
 }
 
+// get names of plugins that are available local to the project
+async function getLocalPlugins() {
+  const localPath = resolve(PLUGINS_PATH, 'local');
+  const contents = fs.readdirSync(localPath);
+  const plugins = [];
+  for (let i = 0; i < contents.length; i++) {
+    const name = contents[i];
+    const stats = fs.lstatSync(resolve(localPath, name));
+
+    // only add directories and non system/hidden directories
+    if (stats.isDirectory() && name[0] !== '.') plugins.push(name);
+  }
+  return plugins;
+}
+
 async function prepareModules(plugins = [], local = true) {
-  const PLUGINS_PATH = resolve(__dirname, '../webapp/plugins');
   let pluginsIndex = local
     ? '// exports for all local plugin modules\n\n'
     : '// exports for all published plugin modules\n\n';
 
   let exportsText = 'export default async function() { \n return Promise.all([';
   let installPackages = [];
+
+  // get any plugins local to the project if building local plugins
+  if (local) {
+    const localPlugins = await getLocalPlugins();
+    plugins.push(...localPlugins);
+  }
 
   // Create the index.js files for exposing the plugins
   for (let i = 0; i < plugins.length; i++) {
@@ -174,8 +205,8 @@ async function prepareModules(plugins = [], local = true) {
 
       // add plugin to list of packages that need to be installed w/ npm
       if (!local && existsRemote) installPackages.push(name);
-      else {
-        // create a symlink for local modules to node_modules
+      else if (local && !existsLocal) {
+        // create a symlink for local modules in [PREFIX]/local_plugins to node_modules
         // so that webpack can watch for changes
         await symlinkLocal(name);
       }

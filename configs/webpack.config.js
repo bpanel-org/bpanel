@@ -55,7 +55,7 @@ module.exports = function(env = {}) {
         }
       }
     },
-    entry: ['whatwg-fetch', `${path.resolve(SRC_DIR, 'index.js')}`],
+    entry: [`${path.resolve(SRC_DIR, 'index.js')}`],
     node: { __dirname: true },
     target: 'web',
     devtool: 'eval-source-map',
@@ -160,8 +160,7 @@ module.exports = function(env = {}) {
               SERVER_DIR,
               'build-plugins.js'
             )} --prefix=${bpanelPrefix}`
-          ],
-          blocking: true
+          ]
         }
       }),
       new webpack.DefinePlugin({

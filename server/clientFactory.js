@@ -107,8 +107,11 @@ function clientFactory(config) {
     walletClient = new WalletClient(walletOptions);
     logClientInfo(id, 'wallet', walletOptions);
 
-    multisigWalletClient = new MultisigClient(walletOptions);
-    logClientInfo(id, 'multisig wallet', nodeOptions);
+    multisigWalletClient = new MultisigClient({
+      ...walletOptions,
+      multisigPath: '/'
+    });
+    logClientInfo(id, 'multisig wallet', walletOptions);
   }
 
   return { nodeClient, walletClient, multisigWalletClient };

@@ -1,15 +1,29 @@
-const bcoin = require('bcoin');
-const consensus = bcoin.protocol.consensus;
-const makeWallets = async node => {
+const { protocol: consensus } = require('bcoin');
+
+const makeWallets = async (node, config, logger, wallet) => {
+  const network = node.network.type;
   const blocks2Mine = process.env.BLOCKS_2_MINE
     ? process.env.BLOCKS_2_MINE
     : 10;
   const miner = node.miner;
   const chain = node.chain;
 
-  consensus.COINBASE_MATURITY = 0;
+  if (network === 'main' || network === 'regtest')
+    logger.warning(
+      `You probably don't want to be running the miner on the ${network} network. Mining
+on a production network can seriously impact performance of your host machine and is generally
+not recommended for docker containers.`
+    );
 
-  const wdb = node.require('walletdb').wdb;
+  // don't run if already have enough blocks
+  if (chain.height > blocks2Mine) return;
+
+  consensus.COINBASE_MATURITY = 0;
+  let wdb;
+
+  if (wallet) wdb = wallet.wdb;
+  else wdb = node.require('walletdb').wdb;
+
   const primary = wdb.primary;
 
   primary.once('balance', async balance => {
