@@ -1,0 +1,2 @@
+export const SET_CLIENTS = 'SET_CLIENTS';
+export const SET_DEFAULT_CLIENT = 'SET_DEFAULT_CLIENT';

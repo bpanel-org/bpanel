@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 const bcoin = require('bcoin');
-const fs = require('fs');
+const fs = require('bfile');
 const crypto = require('crypto');
 const path = require('path');
 const blgr = require('blgr');
@@ -105,7 +105,7 @@ let node;
       );
       // pass running node and config object
       // so script can interact with the node
-      await require(initScriptFilePath)(node, config);
+      await require(initScriptFilePath)(node, config, logger, wallet);
     }
 
     /***
@@ -125,7 +125,6 @@ let node;
       const confText =
         `network: ${network.type}\n` +
         `api-key:${config.str('api-key')}\n` +
-        `wallet-port:${network.walletPort}\n` +
         `wallet-api-key:${config.str('api-key')}\n` +
         `wallet-token:${config.str('admin-token')}`;
 

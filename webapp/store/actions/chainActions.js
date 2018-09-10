@@ -1,8 +1,8 @@
-import { bpanelClient } from '@bpanel/bpanel-utils';
+import { getClient } from '@bpanel/bpanel-utils';
 
 import { SET_CHAIN_INFO, SET_GENESIS } from '../constants/chain';
 
-const client = bpanelClient();
+const client = getClient();
 
 export function setChainInfo(chain) {
   return {
@@ -21,8 +21,10 @@ function setGenesisBlock(block) {
 export function getGenesisBlock() {
   return async dispatch => {
     try {
-      let genesis = await client.getBlock(0);
-      dispatch(setGenesisBlock(genesis));
+      if (client.node) {
+        let genesis = await client.node.getBlock(0);
+        dispatch(setGenesisBlock(genesis));
+      }
     } catch (e) {
       throw `Error getting genesis block: ${e.stack}`;
     }

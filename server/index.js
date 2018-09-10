@@ -5,28 +5,61 @@
 // --dev Watch server and webapp
 
 const path = require('path');
+const fs = require('bfile');
+const { execSync } = require('child_process');
+const assert = require('bsert');
 const os = require('os');
 const Config = require('bcfg');
+const logger = require('./logger');
 
-const webpackArgs = [
-  '--config',
-  path.resolve(__dirname, '../webpack.config.js')
-];
+const webpackArgs = [];
 
 let poll = false;
 // If run from command line, parse args
 if (require.main === module) {
+  // setting up webpack configs
+  // use default/base config for dev
+  if (
+    process.argv.indexOf('--dev') >= 0 ||
+    process.env.NODE_ENV === 'development'
+  ) {
+    webpackArgs.push(
+      '--config',
+      path.resolve(__dirname, '../configs/webpack.config.js')
+    );
+  } else {
+    // otherwise use prod config
+    webpackArgs.push(
+      '--config',
+      path.resolve(__dirname, '../configs/webpack.prod.js')
+    );
+  }
+
+  // environment specific `watch` args
   if (process.argv.indexOf('--watch-poll') >= 0) {
     poll = true;
     webpackArgs.push('--watch', '--env.dev', '--env.poll');
   } else if (process.argv.indexOf('--watch') >= 0) {
     webpackArgs.push('--watch', '--env.dev');
   }
+
+  // an option to run an `npm install` which will clear any symlinks
+  if (process.argv.indexOf('--clear') > -1) {
+    logger.info('Clearing symlinks in node_modules..');
+    execSync('npm install', {
+      killSignal: 'SIGINT',
+      stdio: [0, 1, 2],
+      cwd: path.resolve(__dirname, '..')
+    });
+  }
+
   if (process.argv.indexOf('--dev') >= 0) {
     if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
 
     // pass args to nodemon process except `--dev`
-    const args = process.argv.slice(2).filter(arg => arg !== '--dev');
+    const args = process.argv
+      .slice(2)
+      .filter(arg => arg !== '--dev' && arg !== '--clear');
 
     // Watch this server
     const nodemon = require('nodemon')({
@@ -64,15 +97,35 @@ module.exports = (_config = {}) => {
   // Import express middlewares
   const bodyParser = require('body-parser');
   const cors = require('cors');
+  const compression = require('compression');
 
   // Import app server utilities and modules
   const logger = require('./logger');
-  const bcoinRouter = require('./bcoinRouter');
   const socketHandler = require('./bcoinSocket');
+  const clientFactory = require('./clientFactory');
+  const clientRoutes = require('./clientRoutes');
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
+
+  // inject any custom configs passed
+  bpanelConfig.inject(_config);
+
+  // load configs from environment
   bpanelConfig.load({ env: true, argv: true, arg: true });
+
+  // check if vendor-manifest has been built otherwise run
+  // build:dll first to build the manifest
+  if (!fs.existsSync(path.resolve(__dirname, '../dist/vendor-manifest.json'))) {
+    logger.info(
+      'No vendor manifest. Running webpack dll first. This can take a couple minutes the first time but \
+will increase speed of future builds, so please be patient.'
+    );
+    execSync('npm run build:dll', {
+      stdio: [0, 1, 2],
+      cwd: path.resolve(__dirname, '..')
+    });
+  }
 
   // Always start webpack
   require('nodemon')({
@@ -89,22 +142,50 @@ module.exports = (_config = {}) => {
     })
     .on('quit', process.exit);
 
-  // Setting up configs
-  // If passed a bcfg object we can just use that
-  // Otherwise if passed an object we will inject that
-  // into a config object along with command line args,
-  // env vars and config files using bcfg utilities in loadConfigs.js
-  let config = _config;
-  if (!(_config instanceof Config)) {
-    config = require('./loadConfigs')(_config);
+  // Set up client config
+  // loadConfigs uses the bpanelConfig to find the clients and build
+  // each of their configs. Then we filter for the config that matches
+  // the one passed via `client-id`
+  const clientConfigs = require('./loadConfigs')(bpanelConfig);
+
+  assert(
+    clientConfigs.length,
+    'There was a problem loading client configs. \
+Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
+  );
+
+  let clientConfig = clientConfigs.find(
+    cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
+  );
+
+  if (!clientConfig) {
+    logger.error(
+      `Could not find config for ${bpanelConfig.str(
+        'client-id'
+      )}. Will set to 'default' instead.`
+    );
+    clientConfig = clientConfigs.find(cfg => cfg.str('id') === 'default');
+    if (!clientConfig) {
+      logger.warn('Could not find default client config.');
+      clientConfig = clientConfigs[0];
+      logger.warn(`Setting fallback to ${clientConfig.str('id')}.`);
+    }
   }
 
+  // save reference to the id for redirects
+  const clientId = clientConfig.str('id');
+
   // create clients
-  const {
-    nodeClient,
-    walletClient,
-    multisigWalletClient
-  } = require('./bcoinClients')(config);
+  const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
+    clientConfig
+  );
+
+  const clients = clientConfigs.reduce((clientsMap, cfg) => {
+    const id = cfg.str('id');
+    assert(id, 'client config must have id');
+    clientsMap.set(id, { ...clientFactory(cfg), config: cfg });
+    return clientsMap;
+  }, new Map());
 
   // Init bsock socket server
   const socketHttpServer = http.createServer();
@@ -134,18 +215,18 @@ module.exports = (_config = {}) => {
       logger.error('Error connecting sockets: ', err);
     }
 
-    // TODO: figure out if duplicating some events between
-    // the two different wallet clients
     bsock.on(
       'socket',
       socketHandler(nodeClient, walletClient, multisigWalletClient)
     );
 
     // Setup app server
+    app.use(compression());
     app.use(
       express.static(path.resolve(__dirname, '../dist'), {
+        index: 'index.html',
         setHeaders: function(res, path) {
-          if (path.endsWith('/main.bundle.js.gz')) {
+          if (path.endsWith('.gz')) {
             res.setHeader('Content-Encoding', 'gzip');
             res.setHeader('Content-Type', 'application/javascript');
           }
@@ -155,31 +236,33 @@ module.exports = (_config = {}) => {
 
     const resolveIndex = (req, res) => {
       logger.debug(`Caught request in resolveIndex: ${req.path}`);
-      res.sendFile(path.resolve(__dirname, '../webapp/index.html'));
+      res.sendFile(path.resolve(__dirname, '../dist/index.html'));
     };
     app.get('/', resolveIndex);
 
     // route to get server info
     const { ssl, host, port: clientPort } = nodeClient;
 
-    const uri = config.str(
+    const uri = clientConfig.str(
       'node-uri',
       `${ssl ? 'https' : 'http'}://${host}:${clientPort}`
     );
     app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
 
-    if (nodeClient) {
-      logger.info(`Connecting with ${config.str('client-id')} client`);
-      app.use('/bcoin', bcoinRouter(nodeClient));
-    }
+    app.use('/clients', clientRoutes(clients, clientId));
 
-    if (walletClient) {
-      app.use('/bwallet', bcoinRouter(walletClient));
-    }
+    // redirects to support old routes
+    app.use('/bcoin', (req, res) =>
+      res.redirect(307, `/clients/${clientId}/node${req.path}`)
+    );
 
-    if (multisigWalletClient) {
-      app.use('/multisig', bcoinRouter(multisigWalletClient));
-    }
+    app.use('/bwallet', (req, res) =>
+      res.redirect(307, `/clients/${clientId}/wallet${req.path}`)
+    );
+
+    app.use('/multisig', (req, res) =>
+      res.redirect(307, `/clients/${clientId}/multisig${req.path}`)
+    );
 
     // TODO: add favicon.ico file
     app.get('/favicon.ico', (req, res) => {
@@ -224,12 +307,12 @@ module.exports = (_config = {}) => {
         });
 
       // can serve over https
-      if (config.bool('https', false)) {
-        const fs = require('fs');
+      if (bpanelConfig.bool('ssl', false)) {
+        const fs = require('bfile');
         const https = require('https');
-        const httpsPort = config.int('https-port', 5001);
-        const keyPath = config.str('tls-key', '/etc/ssl/key.pem');
-        const certPath = config.str('tls-cert', '/etc/ssl/cert.pem');
+        const httpsPort = bpanelConfig.int('https-port', 5001);
+        const keyPath = bpanelConfig.str('ssl-key', '/etc/ssl/key.pem');
+        const certPath = bpanelConfig.str('ssl-cert', '/etc/ssl/cert.pem');
 
         let opts = {};
         try {
@@ -263,7 +346,12 @@ module.exports = (_config = {}) => {
   };
 };
 
-// Start server when ran from command line
+// Start server when run from command line
 if (require.main === module) {
-  module.exports();
+  try {
+    module.exports();
+  } catch (e) {
+    logger.error('There was an error running the server: ', e.stack);
+    process.exit(1);
+  }
 }

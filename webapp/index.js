@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 // available to all of application
 import 'font-awesome/css/font-awesome.min.css';
+import './assets/favicon.ico';
 
 import getStore from './store';
 import App from './containers/App/App';

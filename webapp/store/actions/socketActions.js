@@ -1,8 +1,9 @@
 import { CONNECT_SOCKET, DISCONNECT_SOCKET } from '../constants/sockets';
-import { bpanelClient } from '@bpanel/bpanel-utils';
+import { getClient } from '@bpanel/bpanel-utils';
+
+const client = getClient();
 
 export function connectSocket() {
-  const client = bpanelClient();
   return {
     type: CONNECT_SOCKET,
     bsock: {

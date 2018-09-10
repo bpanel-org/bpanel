@@ -1,9 +1,10 @@
-import { bpanelClient } from '@bpanel/bpanel-utils';
+import { getClient } from '@bpanel/bpanel-utils';
+import bcurl from 'bcurl';
 
 import * as types from '../constants/node';
 import { setChainInfo, getGenesisBlock } from './chainActions';
 
-const client = bpanelClient();
+const client = getClient();
 
 export function setNodeInfo(info) {
   return {
@@ -32,7 +33,7 @@ export function getNodeInfo() {
     dispatch(getServerInfo());
     dispatch(getGenesisBlock());
     try {
-      const nodeInfo = await client.getInfo();
+      const nodeInfo = await client.node.getInfo();
       dispatch(requestingNode(false));
       dispatch(setNodeInfo(nodeInfo));
       dispatch(setChainInfo(nodeInfo.chain));
@@ -44,13 +45,15 @@ export function getNodeInfo() {
 }
 
 export function getServerInfo() {
-  return dispatch => {
-    return fetch('/server')
-      .then(response => response.json())
-      .then(serverInfo => {
-        dispatch(setBcoinUri(serverInfo.bcoinUri));
-      })
-      .catch(e => e);
+  return async dispatch => {
+    try {
+      const client = bcurl.client({ port: 5000 });
+      const response = await client.get('server');
+      dispatch(setBcoinUri(response.bcoinUri));
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('There was a problem querying the server:', e.stack);
+    }
   };
 }
 export default {

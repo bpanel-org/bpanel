@@ -261,6 +261,48 @@ app.use(bpanel.app);
 app.listen(5000);
 ```
 
+## Troubleshooting & FAQ
+#### Nodejs Memory
+With the availability of the bcoin, bcash, and hsd libraries, the webpack build process
+requires an above average amount of memory available. To avoid JS Heap overflows, the
+npm scripts that run webpack (`start`, `start:dev`, and `start:poll`) pass an argument
+`--max_old_space_size` to increase the memory allocation. This can be adjusted as necessary.
+
+## Release Checklist
+The following conditions must be tested before deploying a release. If any of the following
+circumstances causes a break, CHANGELOG should indicate a workaround or migration steps.
+
+- [ ] Pull most recent version of `development` branch into an existing environment
+  - [ ] Try a simple restart of the server (`npm run start`)
+  - [ ] Try with a fresh `node_modules` (i.e. `rm -rf node_modules && npm i`)
+  - [ ] Try with a fresh configs (usually `~/.bpanel`) directory (renaming existing one and
+  running `npm install` will generate a fresh configs directory)
+  - [ ] Install and uninstall new remote plugins using bpanel-cli
+  - [ ] Install and uninstall new local plugins using bpanel-cli
+- [ ] Download zip of development branch from GitHub (this emulates downloading a release from the website).
+Test the following in a fresh environment (i.e. with no existing ~/.bpanel or other configs)
+  - [ ] Run `npm install` and confirm it creates a new ~/.bpanel directory with `configs/`, `configs.js`,
+  and `local_plugins`
+  - [ ] Run `docker-compose up` and confirm after build is complete that bPanel is accessible at `localhost:5000`
+  - [ ] Confirm fresh install comes with the correct default plugins
+  - [ ] If docker-compose is set to mount config volume, confirm that installing and
+  uninstalling plugins with bpanel-cli works as expected
+  - [ ] Bring down docker (`docker-compose down`) and test on host machine: `npm run start`.
+  This can be done against a docker node with the `_docker.conf` client config or by passing
+  in a custom `client-id` at run time
+- [ ] Test environments above with some of the most common plugins: e.g. recent-blocks, simple-wallet,
+ simple-miner, etc.
+- [ ] Bonus: check against different chain backends (e.g. handshake and bitcoin)
+
+(Note that sometimes in order to check docker setup, you may have to build a new image from your
+local Dockerfile. If uncommenting the `build` lines in docker-compose, make sure to re-comment, before
+comitting the change).
+
+Once the above has been confirmed, commit the latest state of development to master as a new release,
+tag it with a new version, and publish to npm. bPanel follows [Semantic Versioning](http://semver.org/) rules.
+
+_TODO: Setup CI to accomplish as much of the above as possible._
+
 ## License
 
 - Copyright (c) 2018, The bPanel Devs (MIT License).
