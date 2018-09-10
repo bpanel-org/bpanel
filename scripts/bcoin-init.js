@@ -105,7 +105,7 @@ let node;
       );
       // pass running node and config object
       // so script can interact with the node
-      await require(initScriptFilePath)(node, config, wallet);
+      await require(initScriptFilePath)(node, config, logger, wallet);
     }
 
     /***

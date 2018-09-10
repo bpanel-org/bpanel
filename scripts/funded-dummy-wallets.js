@@ -1,20 +1,19 @@
-const bcoin = require('bcoin');
-const assert = require('bsert');
+const { protocol: consensus } = require('bcoin');
 
-const consensus = bcoin.protocol.consensus;
-
-const makeWallets = async (node, config, wallet) => {
+const makeWallets = async (node, config, logger, wallet) => {
   const network = node.network.type;
-  assert(
-    network !== 'main' && network !== 'testnet',
-    `You probably don't want to be running the miner on the ${network} network`
-  );
-
   const blocks2Mine = process.env.BLOCKS_2_MINE
     ? process.env.BLOCKS_2_MINE
     : 10;
   const miner = node.miner;
   const chain = node.chain;
+
+  if (network === 'main' || network === 'regtest')
+    logger.warning(
+      `You probably don't want to be running the miner on the ${network} network. Mining
+on a production network can seriously impact performance of your host machine and is generally
+not recommended for docker containers.`
+    );
 
   // don't run if already have enough blocks
   if (chain.height > blocks2Mine) return;
