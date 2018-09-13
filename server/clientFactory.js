@@ -60,7 +60,7 @@ function clientFactory(config) {
   const network = Network.get(config.str('network', 'main'));
 
   // set fallback network configs from `uri` config if set
-  let port = network.rpcPort;
+  let port = config.int('port', network.rpcPort);
   let hostname = config.str('node-host', '127.0.0.1');
   let protocol = config.str('protocol', 'http:');
 
@@ -70,7 +70,10 @@ function clientFactory(config) {
     port = nodeUrl.port;
     hostname = nodeUrl.hostname;
     protocol = nodeUrl.protocol;
+  } else {
+    url = `${protocol}//${hostname}:${port}`;
   }
+
   const ssl =
     config.bool('ssl') || (protocol && protocol.indexOf('https') > -1);
   config.inject({ port, hostname, protocol, ssl });
@@ -81,7 +84,7 @@ function clientFactory(config) {
     network: config.str('network', 'main'),
     port: config.uint('port'),
     ssl: config.bool('ssl'),
-    url: config.str('url')
+    url: config.str('url') || url
   };
 
   const walletOptions = {
@@ -90,7 +93,7 @@ function clientFactory(config) {
     port: config.uint('wallet-port', network.walletPort),
     ssl: config.bool('wallet-ssl', nodeOptions.ssl),
     token: config.str('wallet-token'),
-    url: config.str('wallet-uri') || nodeOptions.url
+    url: config.str('wallet-uri') || config.str('wallet-url')
   };
 
   let walletClient, nodeClient, multisigWalletClient;
