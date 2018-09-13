@@ -268,6 +268,14 @@ requires an above average amount of memory available. To avoid JS Heap overflows
 npm scripts that run webpack (`start`, `start:dev`, and `start:poll`) pass an argument
 `--max_old_space_size` to increase the memory allocation. This can be adjusted as necessary.
 
+#### NPM and NodeJS versions
+There are some weird bugs in npm from early 2018 that would erase any modules installed
+from a GitHub repository when `npm install` is run a second time. If you are getting
+errors about missing packages, make sure you have the right versions:
+
+- npm >= 5.7.1
+- node >= 8.9.4
+
 ## Release Checklist
 The following conditions must be tested before deploying a release. If any of the following
 circumstances causes a break, CHANGELOG should indicate a workaround or migration steps.
