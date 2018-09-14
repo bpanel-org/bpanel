@@ -10,7 +10,7 @@
     "start:poll": "node --max_old_space_size=4096 server --dev --watch-poll",
     "lint": "eslint .",
     "test": "karma start --single-run",
-    "karma": "karma start --autoWatch",
+    "test:watch": "karma start --autoWatch",
     "version": "node scripts/version.js",
     "preinstall": "node scripts/preinstall.js",
     "clean": "npm run clear:plugins && rm -rf ./dist/*",

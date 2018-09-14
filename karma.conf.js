@@ -1,4 +1,4 @@
-const webpackConfig = require('./configs/webpack.config.js');
+const webpackConfig = require('./configs/webpack.common.config.js');
 
 module.exports = config => {
   config.set({
@@ -7,12 +7,12 @@ module.exports = config => {
     exclude: ['node_modules/**/test/*.js'],
     files: ['node_modules/babel-polyfill/dist/polyfill.js', 'test/*-test.js'],
     preprocessors: {
-      'test/*.js': ['webpack', 'sourcemap'],
+      'test/*-test.js': ['webpack', 'sourcemap'],
       'node_modules/*.js': ['webpack']
     },
     // karma doesn't like webpack 4's splitChunks optimization
     // so we replace it here
-    webpack: { ...webpackConfig({}), optimization: undefined },
+    webpack: { ...webpackConfig },
     webpackServer: {
       noInfo: true,
       quiet: true
