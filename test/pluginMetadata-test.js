@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
-import pluginMetadata from '../store/reducers/pluginMetadata';
-import { ADD_PLUGIN_META } from '../store/constants/plugins';
+import pluginMetadata from '../webapp/store/reducers/pluginMetadata';
+import { ADD_PLUGIN_META } from '../webapp/store/constants/plugins';
 
 describe('pluginMetadata reducer', () => {
   let state;

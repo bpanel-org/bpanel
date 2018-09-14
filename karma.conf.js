@@ -5,12 +5,9 @@ module.exports = config => {
     basePath: '',
     frameworks: ['mocha', 'chai', 'sinon'],
     exclude: ['node_modules/**/test/*.js'],
-    files: [
-      'node_modules/babel-polyfill/dist/polyfill.js',
-      'webapp/tests/*-test.js'
-    ],
+    files: ['node_modules/babel-polyfill/dist/polyfill.js', 'test/*-test.js'],
     preprocessors: {
-      'webapp/tests/*.js': ['webpack', 'sourcemap'],
+      'test/*.js': ['webpack', 'sourcemap'],
       'node_modules/*.js': ['webpack']
     },
     // karma doesn't like webpack 4's splitChunks optimization
