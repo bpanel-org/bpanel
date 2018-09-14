@@ -20,6 +20,9 @@ const {
 const bpanelPrefix =
   process.env.BPANEL_PREFIX || path.resolve(os.homedir(), '.bpanel');
 
+// default to debug log level, set to info in production config
+const logLevel = process.env.BPANEL_LOG_LEVEL || 'debug';
+
 module.exports = function(env = {}) {
   const plugins = [];
 
@@ -166,7 +169,8 @@ module.exports = function(env = {}) {
       new webpack.DefinePlugin({
         NODE_ENV: `"${process.env.NODE_ENV}"`,
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-        'process.env.BROWSER': JSON.stringify(true)
+        'process.env.BROWSER': JSON.stringify(true),
+        'process.env.LOG_LEVEL': JSON.stringify(logLevel)
       })
     )
   };
