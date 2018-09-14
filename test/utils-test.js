@@ -4,7 +4,7 @@ import {
   addPlugin,
   checkMetadata,
   filterInternalProperties
-} from '../plugins/utils';
+} from '../webapp/plugins/utils';
 
 describe('addPlugin', () => {
   let modules;

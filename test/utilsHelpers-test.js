@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 
-import { createUnique } from '../utils/helpers';
+import { createUnique } from '../webapp/utils/helpers';
 
 describe('helpers', () => {
   describe('createUnique', () => {
