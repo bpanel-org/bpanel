@@ -11,10 +11,11 @@ const appState = (state = initialState, action) => {
   const { type, payload = {} } = action;
   switch (type) {
     case SET_WINDOW: {
-      const { port, protocol, ssl } = payload;
+      const { port, protocol, ssl, hostname } = payload;
       newState.port = port;
       newState.protocol = protocol;
       newState.ssl = ssl;
+      newState.hostname = hostname;
       return newState;
     }
 
