@@ -252,11 +252,11 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     app.use('/clients', clientRoutes(clients, clientId));
 
     // redirects to support old routes
-    app.use('/bcoin', (req, res) =>
+    app.use('/node', (req, res) =>
       res.redirect(307, `/clients/${clientId}/node${req.path}`)
     );
 
-    app.use('/bwallet', (req, res) =>
+    app.use('/wallet', (req, res) =>
       res.redirect(307, `/clients/${clientId}/wallet${req.path}`)
     );
 
