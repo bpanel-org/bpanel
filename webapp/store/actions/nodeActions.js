@@ -44,10 +44,14 @@ export function getNodeInfo() {
   };
 }
 
+// NOTE: this depends on the the app reducer
+// and having the port and ssl set first
 export function getServerInfo() {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     try {
-      const client = bcurl.client({ port: 5000 });
+      const state = getState();
+      const { port, ssl } = state.app;
+      const client = bcurl.client({ port, ssl });
       const response = await client.get('server');
       dispatch(setBcoinUri(response.bcoinUri));
     } catch (e) {

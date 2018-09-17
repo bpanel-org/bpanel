@@ -9,7 +9,8 @@ import {
   nodeActions,
   socketActions,
   themeActions,
-  navActions
+  navActions,
+  appActions
 } from '../../store/actions/';
 import Header from '../Header';
 import Footer from '../Footer';
@@ -58,13 +59,16 @@ class App extends PureComponent {
 
   async componentDidMount() {
     const { getNodeInfo, connectSocket, hydrateClients } = this.props;
+
     await hydrateClients();
     connectSocket();
     getNodeInfo();
   }
 
   UNSAFE_componentWillMount() {
-    const { updateTheme, appLoaded } = this.props;
+    const { updateTheme, appLoaded, getWindowInfo } = this.props;
+
+    getWindowInfo();
     updateTheme();
     appLoaded();
   }
@@ -152,6 +156,7 @@ const mapDispatchToProps = dispatch => {
   const { connectSocket, disconnectSocket } = socketActions;
   const { updateTheme } = themeActions;
   const { hydrateClients } = clientActions;
+  const { getWindowInfo } = appActions;
   const appLoaded = () => ({ type: 'APP_LOADED' });
   return bindActionCreators(
     {
@@ -161,7 +166,8 @@ const mapDispatchToProps = dispatch => {
       loadSideNav,
       connectSocket,
       disconnectSocket,
-      updateTheme
+      updateTheme,
+      getWindowInfo
     },
     dispatch
   );
