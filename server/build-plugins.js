@@ -272,7 +272,9 @@ your config file.'
     );
 
     const { localPlugins, plugins } = require(PLUGINS_CONFIG);
-    await prepareModules(plugins, false);
+    // CLI & ENV plugins override configuration file
+    const envPlugins = config.str('plugins');
+    await prepareModules(envPlugins ? envPlugins.split(',') : plugins, false);
     await prepareModules(localPlugins);
   } catch (err) {
     logger.error('There was an error preparing modules: ', err.stack);
