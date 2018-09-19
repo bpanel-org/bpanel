@@ -21,7 +21,7 @@ module.exports = {
       }
     },
     {
-      files: ['webapp/tests/**/*.js'],
+      files: ['webapp/test/**/*.js', 'server/test/**/*.js'],
       env: {
         mocha: true
       }

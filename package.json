@@ -8,15 +8,16 @@
     "start": "node --max_old_space_size=4096 server",
     "start:dev": "node --max_old_space_size=4096 server --dev",
     "start:poll": "node --max_old_space_size=4096 server --dev --watch-poll",
-    "lint": "eslint .",
-    "test": "karma start --single-run",
-    "test:watch": "karma start --autoWatch",
     "version": "node scripts/version.js",
     "preinstall": "node scripts/preinstall.js",
     "clean": "npm run clear:plugins && rm -rf ./dist/*",
     "clear:plugins": "node server/clear-plugins.js",
     "build:plugins": "npm run clear:plugins && node server/build-plugins.js",
-    "build:dll": "webpack --config ./configs/webpack.dll.config.js"
+    "build:dll": "webpack --config ./configs/webpack.dll.config.js",
+    "lint": "eslint .",
+    "test": "karma start configs/karma.conf.js --single-run",
+    "test:watch": "karma configs/karma.conf.js start --autoWatch",
+    "test:server": "mocha --reporter spec --watch server/test"
   },
   "lint-staged": {
     "*.{js,json,css,jsx,scss}": [
