@@ -76,11 +76,13 @@ describe('socketManager', function() {
         apiKey = 'foobar';
         options = {
           apiKey,
-          port: ports.manager
+          port: ports.manager,
+          logger
         };
         socketManager = new SocketManager(options);
 
         await socketManager.open();
+        socketManager.on('error', () => {});
 
         // testing client
         client = bsock.connect(ports.manager);
@@ -106,7 +108,7 @@ describe('socketManager', function() {
   });
 
   describe('initialization', function() {
-    xit('should initialize a SocketManager with the right options', function() {
+    it('should initialize a SocketManager with the right options', function() {
       assert(socketManager.logger, 'Did not set a logger');
       assert.instanceOf(
         socketManager,
@@ -114,7 +116,7 @@ describe('socketManager', function() {
         'SocketManager should be an instance of a bweb Server'
       );
       assert(socketManager.clients, 'Did not initialize with clients');
-      assert(socketManager.channels, 'Did not initialize with channels');
+      assert(socketManager.io.channels, 'Did not initialize with channels');
     });
 
     it('should initialize a socket server', function(done) {
@@ -135,26 +137,39 @@ describe('socketManager', function() {
       }
     });
 
-    xit('should handle auth', async function(done) {
+    it('should handle auth', async function() {
       assert(
         !socketManager.noAuth,
         'noAuth should be set to false in the test'
       );
+
+      const sockets = socketManager.io.sockets.values();
+      for (let socket of sockets) {
+        assert(!socket.channel('auth'), 'Expected no authenticated sockets');
+      }
+
+      const authSocket = () => client.call('auth', apiKey);
+
+      const resp = await authSocket();
+      assert.isNull(
+        resp,
+        'Expected a null response on successful authentication'
+      );
+
       try {
-        assert(
-          !client.channel('auth'),
-          'client socket should not be authed before test'
-        );
-        client.fire('auth', apiKey);
-        const socket = socketManager.io.sockets.get(client);
-        assert(socket.channel('auth'), 'client socket did not get authorized');
+        await authSocket();
+        throw 'Expected second authentication to throw an error';
       } catch (e) {
-        done(new Error(`Trouble testing auth: ${e}`));
+        assert(e instanceof Error, e);
+        assert(
+          e.message.match(/Already authed/),
+          'Should include "Already authed" error message'
+        );
       }
     });
   });
 
-  xdescribe('addClients & removeClients', function() {
+  describe('addClients & removeClients', function() {
     let clients, id;
     before('add clients to socketManager', async function() {
       clients = {
@@ -170,7 +185,7 @@ describe('socketManager', function() {
       if (socketManager.clients.has(id)) await socketManager.removeClients(id);
     });
 
-    xit('should be able to add new clients keyed to id and type', function() {
+    it('should be able to add new clients keyed to id and type', function() {
       assert(
         socketManager.clients.has(id),
         `Could not find clients under the id ${id}`
@@ -188,27 +203,24 @@ describe('socketManager', function() {
       );
       assert.instanceOf(
         managerClients['multisig'],
-        NodeClient,
+        MultisigClient,
         'Expected a multisig client'
       );
     });
 
-    xit('should not allow duplicate clients', function() {
+    it('should not allow duplicate clients', function() {
       const addDupes = () => socketManager.addClients(id, clients);
-      assert.throws(
-        addDupes,
-        'Expected addClients to throw an error with duplicate client'
-      );
+      assert.throws(addDupes, Error, /already exists/);
     });
 
-    xit('should be able to remove all clients for a given id', async function() {
+    it('should be able to remove all clients for a given id', function() {
       assert(
         socketManager.clients.has(id),
         'Could not find client id to be removed'
       );
-      await socketManager.removeClients(id);
-      assert.notExists(
-        socketManager.clients.has(id),
+      socketManager.removeClients(id);
+      assert(
+        !socketManager.clients.has(id),
         `${id} clients were not removed from manager`
       );
     });
@@ -234,11 +246,11 @@ describe('socketManager', function() {
     });
 
     beforeEach('setup client and some handlers', async function() {
-      await socket.fire('auth');
-      await socket.fire('dispatch', id, event);
+      await socket.call('auth', apiKey);
+      await socket.fire('broadcast', id, event);
     });
 
-    xit('should send dispatch messages to the correct servers', async function() {
+    it('should send dispatch messages to the correct servers', async function() {
       // first confirming integrity of the test
       const needle = 'chain';
       assert.include(event, needle, `The event should contain `);
