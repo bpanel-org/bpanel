@@ -9,7 +9,10 @@ const socketHandler = (nodeClient, walletClient) => {
   const subscriptions = {}; // cache to manage subscriptions made by clients
 
   return async socket => {
-    logger.info('New socket connection. Attaching handlers');
+    logger.info(
+      'New socket connection from %s. Attaching handlers',
+      socket.host
+    );
     // broadcasts only send messages to the bcoin node
     // but originating socket does not expect a response
     socket.bind('broadcast', (event, ...args) => {
