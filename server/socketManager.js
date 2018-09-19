@@ -8,10 +8,18 @@ class SocketManager extends Server {
    * @param {Object} options
    */
   constructor(options) {
-    super(new SocketManagerOptions(options));
+    // super(new SocketManagerOptions(options));
+    super(options);
     return this;
-    // this.init();
   }
+
+  // initSockets() {
+
+  // }
+
+  addClients() {}
+
+  removeClients() {}
 }
 
 class SocketManagerOptions {
@@ -45,9 +53,8 @@ class SocketManagerOptions {
    */
 
   static fromOptions(options) {
-    console.log('hello world');
     return new SocketManagerOptions().fromOptions(options);
   }
 }
-
+//
 module.exports = SocketManager;

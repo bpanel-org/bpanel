@@ -65,6 +65,7 @@ if (require.main === module) {
     const nodemon = require('nodemon')({
       script: 'server/index.js',
       watch: ['server'],
+      ignore: ['server/test/**/*.js'],
       args,
       legacyWatch: poll,
       ext: 'js'

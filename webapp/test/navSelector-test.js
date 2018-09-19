@@ -6,7 +6,7 @@ import {
   sortPluginMetadata,
   getNavItems,
   getNestedPaths
-} from '../webapp/store/selectors/nav';
+} from '../store/selectors/nav';
 
 describe('plugin selectors', () => {
   let sortedPlugins, subItems, parentItems, metadataList;

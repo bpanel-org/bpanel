@@ -5,11 +5,11 @@ const socketHandler = (nodeClient, walletClient) => {
   nodeClient.on('error', err => logger.error('Socket error (node): ', err));
   walletClient.on('error', err => logger.error('Socket error (wallet): ', err));
   logger.info('Set up socket error handlers');
-
   const walletPrefix = 'wallet ';
   const subscriptions = {}; // cache to manage subscriptions made by clients
 
   return async socket => {
+    logger.info('New socket connection. Attaching handlers');
     // broadcasts only send messages to the bcoin node
     // but originating socket does not expect a response
     socket.bind('broadcast', (event, ...args) => {
