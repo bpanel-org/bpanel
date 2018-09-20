@@ -364,6 +364,13 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       },
       body: {
         fontWeight: fontWeights.light
+      },
+      paginationContainer: {
+        float: 'right',
+        ...makeGutter('padding', { all: 0.3 })
+      },
+      paginationButton: {
+        ...makeGutter('margin', { all: 0.3 })
       }
     },
 
