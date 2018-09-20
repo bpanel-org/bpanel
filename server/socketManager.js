@@ -1,5 +1,9 @@
 const { Server } = require('bweb');
 const assert = require('bsert');
+const { sha256, random, ccmp } = require('bcrypto');
+const { base58 } = require('bstring');
+const { URL } = require('url');
+const Validator = require('bval');
 
 class SocketManager extends Server {
   /**
@@ -8,18 +12,179 @@ class SocketManager extends Server {
    * @param {Object} options
    */
   constructor(options) {
-    // super(new SocketManagerOptions(options));
-    super(options);
-    return this;
+    super(new SocketManagerOptions(options));
+
+    this.logger =
+      this.options.logger && this.options.logger.context('socket-manager');
+    this.clients = new Map();
+    this.types = ['node', 'wallet'];
+    this.init();
   }
 
-  // initSockets() {
+  /*
+   */
+  init() {
+    this.on('request', req => {
+      if (req.method === 'POST' && req.pathname === '/') return;
 
-  // }
+      this.logger.debug(
+        'Request for method=%s path=%s (%s).',
+        req.method,
+        req.pathname,
+        req.socket.remoteAddress
+      );
+    });
 
-  addClients() {}
+    this.on('listening', address => {
+      this.logger.info(
+        'SocketManager server listening on %s (port=%d).',
+        address.address,
+        address.port
+      );
+    });
+  }
 
-  removeClients() {}
+  /*
+   * handle new socket clients that connect to server
+   * @param {WebSocket} socket
+   * @returns {null}
+   */
+  handleSocket(socket) {
+    socket.hook('auth', (...args) => {
+      if (socket.channel('auth')) throw new Error('Already authed.');
+
+      if (!this.options.noAuth) {
+        const valid = new Validator(args);
+        const key = valid.str(0, '');
+        if (key.length > 255) throw new Error('Invalid API key.');
+
+        const data = Buffer.from(key, 'utf8');
+        const hash = sha256.digest(data);
+
+        if (!ccmp(hash, this.options.apiHash))
+          throw new Error('Invalid API key.');
+      }
+
+      socket.join('auth');
+      this.logger.info('Successful auth from %s.', socket.host);
+      this.handleAuth(socket);
+      return null;
+    });
+  }
+
+  /*
+   * Utility to verify that the pathname
+   * matches with the id of a client on the class
+   * @param {string} pathname - pathname to validate
+   * @returns {string} id
+   */
+  getIdFromPath(pathname) {
+    assert(
+      pathname[0] === '/' && pathname[pathname.length - 1] === '/',
+      'Invalid pathname'
+    );
+    const id = pathname.slice(1, pathname.length - 1);
+    if (!this.clients.has(id))
+      this.logger.warning(
+        `getIdFromPath: id ${id} from pathname ${pathname} does not exist`
+      );
+
+    return id;
+  }
+
+  /*
+   * Handle new auth'd websocket.
+   * @private
+   * @param {WebSocket} socket
+   */
+  handleAuth(socket) {
+    // pathname will be used similar to socket.io's namespaces
+    // they should correspond to the client id that will be used
+    // to make the calls
+    const { pathname } = new URL(socket.ws.url);
+    const id = this.getIdFromPath(pathname);
+
+    // broadcasts only send messages to the bcoin node
+    // but originating socket does not expect a response
+    /**
+      // Example broadcast from client:
+      socket.fire('broadcast', 'set filter', '00000000000000000000');
+      // which will result in the following fire to bcoin server
+      nodeClient.socket.fire('set filter', '00000000000000000000');
+    **/
+    socket.hook('broadcast', async (event, ...args) => {
+      assert(
+        this.clients.has(id),
+        `No client ${id} for request from ${socket.url}`
+      );
+      const client = this.clients.get(id)['node'];
+      await client.call(event, ...args);
+
+      return null;
+    });
+
+    // requests from client to subscribe to events from node
+    // client should indicate the event to listen for
+    // and the `responseEvent` to fire when the event is heard
+    socket.hook('subscribe', async (event, responseEvent) => {
+      assert(
+        this.clients.has(id),
+        `No client ${id} for request from ${socket.url}`
+      );
+      const client = this.clients.get(id)['node'];
+      this.join(socket, `${event}:${responseEvent}`);
+
+      client.bind(event, (...data) => {
+        socket.fire(responseEvent, ...data);
+        console.log('bound', event);
+        console.log('responseEvent:', responseEvent);
+      });
+      return null;
+    });
+  }
+
+  /*
+   * add clients object to map of manager's clients
+   * @param {string} id - id to store clients under
+   * @param {Object} clients
+   * @param {NodeClient} [clients.node]
+   * @param {WalletClient} [clients.wallet]
+   * @param {MultisigClient} [clients.multisig]
+   * @returns {void}
+   */
+  async addClients(id, clients) {
+    assert(typeof id === 'string', 'Must pass an id and must be a string');
+
+    if (this.clients.has(id))
+      throw new Error(`Clients with id ${id} already exists`);
+
+    for (let client in clients) {
+      await clients[client].open();
+    }
+
+    this.clients.set(id, clients);
+  }
+
+  /*
+   * Remove clients of the given id from manager
+   * @param {string} id - id of clients to remove
+   * @returns {void}
+   */
+  async removeClients(id) {
+    assert(typeof id === 'string', 'Must pass an id and must be a string');
+
+    if (!this.clients.has(id)) {
+      this.logger.debug(`No clients with id ${id} exists in manager`);
+      return;
+    }
+
+    const clients = this.clients.get(id);
+    for (let client in clients) {
+      await clients[client].close();
+    }
+
+    this.clients.delete(id);
+  }
 }
 
 class SocketManagerOptions {
@@ -31,6 +196,12 @@ class SocketManagerOptions {
    */
 
   constructor(options) {
+    this.logger = null;
+    this.apiKey = base58.encode(random.randomBytes(20));
+    this.apiHash = sha256.digest(Buffer.from(this.apiKey, 'ascii'));
+    this.noAuth = false;
+    this.port = 8000;
+
     this.fromOptions(options);
   }
 
@@ -43,6 +214,42 @@ class SocketManagerOptions {
 
   fromOptions(options) {
     assert(options, 'Must pass options object');
+
+    if (options.logger != null) {
+      assert(typeof options.logger === 'object');
+      this.logger = options.logger;
+    }
+
+    if (options.apiKey != null) {
+      assert(typeof options.apiKey === 'string', 'API key must be a string.');
+      assert(options.apiKey.length <= 255, 'API key must be under 256 bytes.');
+      this.apiKey = options.apiKey;
+      this.apiHash = sha256.digest(Buffer.from(this.apiKey, 'ascii'));
+    }
+
+    if (options.noAuth != null) {
+      assert(typeof options.noAuth === 'boolean');
+      this.noAuth = options.noAuth;
+    }
+
+    if (options.host != null) {
+      assert(typeof options.host === 'string');
+      this.host = options.host;
+    }
+
+    if (options.port != null) {
+      assert(
+        (options.port & 0xffff) === options.port,
+        'Port must be a number.'
+      );
+      this.port = options.port;
+    }
+
+    // Allow no-auth implicitly
+    // if we're listening locally.
+    if (!options.apiKey) {
+      if (this.host === '127.0.0.1' || this.host === '::1') this.noAuth = true;
+    }
     return this;
   }
 
