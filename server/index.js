@@ -102,7 +102,7 @@ module.exports = (_config = {}) => {
 
   // Import app server utilities and modules
   const logger = require('./logger');
-  const socketHandler = require('./bcoinSocket');
+  const socketHandler = require('./socketHandler');
   const clientFactory = require('./clientFactory');
   const clientRoutes = require('./clientRoutes');
 

@@ -3,7 +3,6 @@ const { Server } = require('bweb');
 const blgr = require('blgr');
 const bsock = require('bsock');
 const { NodeClient, WalletClient } = require('bclient');
-const MultisigClient = require('bmultisig/lib/client');
 const SocketManager = require('../socketManager');
 const { initFullNode, initWallet } = require('./utils/regtest');
 
@@ -29,6 +28,7 @@ describe('socketManager', function() {
     options,
     apiKey,
     client,
+    supportedTypes,
     node,
     nclient,
     wclient,
@@ -38,6 +38,7 @@ describe('socketManager', function() {
     'setup bcoin node, chain, client, and SocketManager',
     async function() {
       this.timeout(3000);
+      supportedTypes = ['node', 'wallet'];
       try {
         logger = new blgr({
           level: 'info'
@@ -102,7 +103,7 @@ describe('socketManager', function() {
     await logger.close();
     await node.close();
     if (nclient.opened) await nclient.close();
-    if (wclient.opened) await nclient.close();
+    if (wclient.opened) await wclient.close();
     if (client.connected) await client.destroy();
     await socketManager.close();
   });
@@ -117,6 +118,21 @@ describe('socketManager', function() {
       );
       assert(socketManager.clients, 'Did not initialize with clients');
       assert(socketManager.io.channels, 'Did not initialize with channels');
+      assert(
+        Array.isArray(socketManager.types),
+        'Did not initialize with array of supported types'
+      );
+      for (let type of supportedTypes) {
+        assert(
+          socketManager.types.indexOf(type) > -1,
+          `${type} not found in socketManager.types`
+        );
+      }
+      assert.lengthOf(
+        socketManager.types,
+        supportedTypes.length,
+        `should have ${supportedTypes.length} types`
+      );
     });
 
     it('should initialize a socket server', function(done) {
@@ -169,19 +185,21 @@ describe('socketManager', function() {
     });
   });
 
-  describe('addClients & removeClients', function() {
-    let clients, id;
-    before('add clients to socketManager', async function() {
+  describe('addClients, removeClients, getIdFromPath', function() {
+    let clients, id, pathname;
+    beforeEach('add clients to socketManager', async function() {
+      if (wclient.opened) await wclient.close();
+      if (nclient.opened) await nclient.close();
       clients = {
-        wallet: new WalletClient(),
-        node: new NodeClient(),
-        multisig: new MultisigClient()
+        wallet: wclient,
+        node: nclient
       };
       id = 'test123';
+      pathname = `/${id}/`;
       await socketManager.addClients(id, clients);
     });
 
-    after('cleanup socketManager clients', async function() {
+    afterEach('cleanup socketManager clients', async function() {
       if (socketManager.clients.has(id)) await socketManager.removeClients(id);
     });
 
@@ -201,107 +219,103 @@ describe('socketManager', function() {
         NodeClient,
         'Expected a node client'
       );
-      assert.instanceOf(
-        managerClients['multisig'],
-        MultisigClient,
-        'Expected a multisig client'
-      );
     });
 
-    it('should not allow duplicate clients', function() {
-      const addDupes = () => socketManager.addClients(id, clients);
-      assert.throws(addDupes, Error, /already exists/);
+    it('should not allow duplicate clients', async function() {
+      try {
+        await socketManager.addClients(id, clients);
+        assert(false, 'Expected addClients to throw on duplicate');
+      } catch (e) {
+        assert.instanceOf(
+          e,
+          Error,
+          'Expected an error to be thrown on duplicate'
+        );
+        assert(e.message.match(/already exists/), e.message);
+      }
     });
 
-    it('should be able to remove all clients for a given id', function() {
+    it('should be able to remove all clients for a given id', async function() {
       assert(
         socketManager.clients.has(id),
         'Could not find client id to be removed'
       );
-      socketManager.removeClients(id);
+      await socketManager.removeClients(id);
       assert(
         !socketManager.clients.has(id),
         `${id} clients were not removed from manager`
       );
+    });
+
+    describe('getIdFromPath', () => {
+      it('should return an id for a path that matches the id of a client', () => {
+        const idFromPath = socketManager.getIdFromPath(pathname);
+        assert(idFromPath === id, 'Did not correctly validate the pathname');
+      });
+
+      it('should throw for invalid paths', () => {
+        const getId = () => socketManager.getIdFromPath(id);
+        assert.throws(getId, Error, /\binvalid\b|\bdoes not exist\b/i);
+      });
     });
   });
 
   describe('socket message handlers', function() {
     let id, event, socket;
 
-    before('add clients', function(done) {
-      id = 'default';
+    beforeEach('setup client and some handlers', async function() {
+      id = 'socket.io';
       event = 'watch chain';
 
       // adding default node and wallet client for testing handlers
-      socketManager.addClients(id, { node: nclient, wallet: wclient });
+      if (nclient.opened) await nclient.close();
+      if (wclient.opened) await wclient.close();
+      await socketManager.addClients(id, { node: nclient, wallet: wclient });
       socket = bsock.connect(ports.manager);
-      socket.on('error', done);
-      socket.on('connect', done);
-    });
-
-    after('cleanup sockets and clients', async function() {
-      socketManager.removeClients(id);
-      if (socket && socket.opened) await socket.destroy();
-    });
-
-    beforeEach('setup client and some handlers', async function() {
+      socket.on('error', e => {
+        throw e;
+      });
       await socket.call('auth', apiKey);
-      await socket.fire('broadcast', id, event);
+    });
+
+    afterEach('cleanup sockets and clients', async function() {
+      await socketManager.removeClients(id);
+      if (socket.connected) await socket.destroy();
     });
 
     it('should send dispatch messages to the correct servers', async function() {
       // first confirming integrity of the test
       const needle = 'chain';
       assert.include(event, needle, `The event should contain `);
-
-      // this part is tricky b/c of the way sockets are handled in bcoin and bPanel
-      // when the socket sends a `watch chain` message for a socket, we expect
-      // that the socket connection for that socket in the SocketManager to be in the
-      // `chain` channel for the node's http server. Note, we don't expect `socket`
-      // to be since that is only connecting with the SocketManager, _not_ directly
-      // with the node server
+      assert(
+        !node.http.channel('chain'),
+        'Should not have chain channel before broadcast has been sent'
+      );
+      await socket.call('broadcast', event);
       assert(
         node.http.channel('chain'),
         `Node server doesn't have a channel for chain`
-      );
-      const sockets = node.http.channel('chain');
-      assert(
-        sockets.has(nclient),
-        `Couldn't find the client in the node's 'chain' channel`
       );
     });
 
     // TODO: add tests to confirm wallet and multisig clients also
     // get their subscriptions, etc.
+    it('should create new channels for new subscriptions', async function() {
+      const eventName = 'test event';
+      const responseEvent = 'heard event';
+      const subscription = `${eventName}:${responseEvent}`;
 
-    xit('should create new channels for new subscriptions', async function(done) {
-      try {
-        const eventName = 'test event';
-        const responseEvent = 'heard event';
-        const subscription = `${eventName}:${responseEvent}`;
+      assert(
+        !socketManager.channel(subscription),
+        'manager should not have event subscription before the first subscribe event is called'
+      );
 
-        assert(
-          !socketManager.channels.has(subscription),
-          'manager should not have event subscription before the first subscribe event is called'
-        );
-
-        // confirm new channel was created for subscription
-        await socket.fire('subscribe', eventName, responseEvent);
-        assert(
-          socketManager.channels.has(subscription),
-          `socketManager did not have subscription for ${subscription}`
-        );
-
-        // confirm the socket client was added to the channel
-        const channel = socketManager.channel(subscription);
-        assert(
-          channel.has(socket),
-          'socket client was not added to the subscription channel'
-        );
-      } catch (e) {
-        done(new Error(`Trouble creating new subscriptions: ${e}`));
-      }
+      // confirm new channel was created for subscription
+      await socket.call('subscribe', eventName, responseEvent);
+      assert(
+        socketManager.channel(subscription),
+        `socketManager did not have subscription for ${subscription}`
+      );
     });
 
     xit('should fire response events to sockets w/ corresponding subscriptions', async function(done) {
@@ -332,7 +346,7 @@ describe('socketManager', function() {
 
       socket.fire('subscribe', eventName, responseEvent);
       assert(
-        socketManager.channels.has(subscription),
+        socketManager.channel(subscription),
         `socketManager did not have subscription for ${subscription}`
       );
 
