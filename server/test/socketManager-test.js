@@ -5,6 +5,7 @@ const bsock = require('bsock');
 const { NodeClient, WalletClient } = require('bclient');
 const SocketManager = require('../socketManager');
 const { initFullNode, initWallet } = require('./utils/regtest');
+const { sleep } = require('./utils/helpers');
 
 const ports = {
   full: {
@@ -12,7 +13,7 @@ const ports = {
     node: 49332,
     wallet: 49333
   },
-  spv: {
+  node2: {
     p2p: 49431,
     node: 49432,
     wallet: 49433
@@ -21,6 +22,12 @@ const ports = {
 };
 
 const serverApiKey = 'foo';
+
+async function setupWallet(client) {
+  await initWallet(client);
+  await client.execute('selectwallet', ['test']);
+  return await client.execute('getnewaddress', ['blue']);
+}
 
 describe('socketManager', function() {
   let socketManager,
@@ -41,11 +48,11 @@ describe('socketManager', function() {
       supportedTypes = ['node', 'wallet'];
       try {
         logger = new blgr({
-          level: 'info'
+          level: 'none'
         });
         await logger.open();
         node = await initFullNode({
-          ports,
+          ports: ports.full,
           memory: true,
           logLevel: 'none',
           apiKey: serverApiKey
@@ -60,12 +67,9 @@ describe('socketManager', function() {
         });
 
         // setting up the chain by mining some blocks
-        await initWallet(wclient);
-        await wclient.execute('selectwallet', ['test']);
-        const coinbase = await wclient.execute('getnewaddress', ['blue']);
-        const blockCount = 10;
-
+        const coinbase = await setupWallet(wclient);
         // make a function so other tests can use this
+        const blockCount = 10;
         mineBlocks = n => nclient.execute('generatetoaddress', [n, coinbase]);
         const result = await mineBlocks(blockCount);
         assert(
@@ -261,11 +265,27 @@ describe('socketManager', function() {
   });
 
   describe('socket message handlers', function() {
-    let id, event, socket;
+    let id, event, socket, responseEvent;
+
+    async function broadcastTest(needle, event, node, socket) {
+      // first confirming integrity of the test
+      assert.include(event, needle, `The event should contain ${needle}`);
+      assert(
+        !node.http.channel(needle),
+        `Should not have ${needle} channel before broadcast has been sent`
+      );
+      await socket.call('broadcast', event);
+      assert(
+        node.http.channel(needle),
+        `Node server doesn't have a channel for ${needle}`
+      );
+    }
 
     beforeEach('setup client and some handlers', async function() {
       id = 'socket.io';
       event = 'watch chain';
+      subscribeEvent = 'block connect';
+      responseEvent = 'heard event';
 
       // adding default node and wallet client for testing handlers
       if (nclient.opened) await nclient.close();
@@ -283,19 +303,8 @@ describe('socketManager', function() {
       if (socket.connected) await socket.destroy();
     });
 
-    it('should send dispatch messages to the correct servers', async function() {
-      // first confirming integrity of the test
-      const needle = 'chain';
-      assert.include(event, needle, `The event should contain `);
-      assert(
-        !node.http.channel('chain'),
-        'Should not have chain channel before broadcast has been sent'
-      );
-      await socket.call('broadcast', event);
-      assert(
-        node.http.channel('chain'),
-        `Node server doesn't have a channel for chain`
-      );
+    it('should send broadcast messages to the correct servers', async function() {
+      await broadcastTest('chain', event, node, socket);
     });
 
     // TODO: add tests to confirm wallet and multisig clients also
@@ -303,7 +312,7 @@ describe('socketManager', function() {
     it('should create new channels for new subscriptions', async function() {
       const eventName = 'test event';
       const responseEvent = 'heard event';
-      const subscription = `${eventName}:${responseEvent}`;
+      const subscription = `${id}:${eventName}-${responseEvent}`;
 
       assert(
         !socketManager.channel(subscription),
@@ -318,20 +327,18 @@ describe('socketManager', function() {
       );
     });
 
-    xit('should fire response events to sockets w/ corresponding subscriptions', async function(done) {
+    it('should fire response events to sockets w/ corresponding subscriptions', function(done) {
       try {
-        // note we already dispatched `watch chain` so just need to subscribe to block connect
-        const eventName = 'block connect';
-        const responseEvent = 'heard event';
-
-        await socket.fire('subscribe', eventName, responseEvent);
-        socket.on(responseEvent, function() {
+        // first watch the chain
+        socket.call('subscribe', subscribeEvent, responseEvent);
+        socket.bind(responseEvent, function(...data) {
+          assert(data, 'No data received from block connect event');
           // if we hit done then we know it was successful. no need for an assertion
           done();
         });
 
         // when a block is mined we expect the block connect event to be fired
-        await mineBlocks(1);
+        mineBlocks(1);
       } catch (e) {
         done(
           new Error(`Trouble receiving responseEvents for subscriptions: ${e}`)
@@ -342,9 +349,9 @@ describe('socketManager', function() {
     xit('should remove sockets from channels when disconnected', async function() {
       const eventName = 'test remove';
       const responseEvent = 'foo bar';
-      const subscription = `${eventName}:${responseEvent}`;
+      const subscription = `${id}:${eventName}-${responseEvent}`;
 
-      socket.fire('subscribe', eventName, responseEvent);
+      socket.call('subscribe', eventName, responseEvent);
       assert(
         socketManager.channel(subscription),
         `socketManager did not have subscription for ${subscription}`
@@ -359,6 +366,118 @@ describe('socketManager', function() {
         !socketManager.channel(subscription),
         'Subscription channel should be removed after socket closing'
       );
+    });
+
+    // NOTE: This is not supported without an update to bsock that allows support for custom paths
+    // in the socket clients. This has been tested with the WIP branch of bsock
+    xdescribe('handling multiple connections', function() {
+      let node2, nclient2, wclient2, id2, socket2, mineBlocks2;
+      before(async function() {
+        // setup our second node and clients need this to show that socket manager handles
+        // connections to multiple nodes using paths
+        node2 = await initFullNode({
+          ports: ports.node2,
+          memory: true,
+          logLevel: 'none',
+          apiKey: serverApiKey
+        });
+        nclient2 = new NodeClient({
+          port: ports.node2.node,
+          apiKey: serverApiKey
+        });
+
+        wclient2 = new WalletClient({
+          port: ports.node2.wallet,
+          apiKey: serverApiKey
+        });
+
+        // setting up the chain by mining some blocks
+        const coinbase = await setupWallet(wclient2);
+        const blockCount = 9;
+        mineBlocks2 = async n =>
+          await nclient2.execute('generatetoaddress', [n, coinbase]);
+        // make a function so other tests can use this
+        const result = await mineBlocks2(blockCount);
+
+        assert(
+          result && result.length === blockCount,
+          `Chain not initiated properly`
+        );
+      });
+
+      after(async function() {
+        await node2.close();
+      });
+
+      beforeEach(async function() {
+        id2 = 'test';
+        await socketManager.addClients(id2, {
+          wallet: wclient2,
+          node: nclient2
+        });
+
+        socket2 = bsock.connect(
+          ports.manager,
+          '127.0.0.1',
+          false,
+          null,
+          '/test'
+        );
+        socket2.on('error', e => {
+          throw e;
+        });
+        await socket2.call('auth', apiKey);
+      });
+
+      afterEach(async function() {
+        // close connections
+        await socketManager.removeClients(id2);
+        await socket2.destroy();
+      });
+
+      it('should add new clients under expected id', async function() {
+        assert(
+          socketManager.clients.has(id2),
+          `Could not find clients under ${id2}`
+        );
+        const clients = socketManager.clients.get(id2);
+        assert(clients.wallet === wclient2, `Wrong client at ${id2}.wallet`);
+        assert(clients.node === nclient2, `Wrong client at ${id2}.node`);
+      });
+
+      it("should broadcast to the right node based on the socket's path", async function() {
+        await broadcastTest('chain', event, node2, socket2);
+      });
+
+      it('should only receive responseEvents for nodes it is subscribed to', async function() {
+        const e = 'block connect';
+        let received = false;
+
+        // subscription will be exactly the same as above except for the id, set by socket path
+        const subscription = `${id2}:${subscribeEvent}-${responseEvent}`;
+
+        socket2.bind(responseEvent, function() {
+          received = true;
+        });
+
+        await socket2.call('broadcast', 'watch chain');
+        await socket2.call('subscribe', subscribeEvent, responseEvent);
+
+        assert(
+          socketManager.channel(subscription),
+          `Couldn't find subscription ${subscription}`
+        );
+        await mineBlocks(1);
+        // need to sleep to give enough time for the block to mine
+        await sleep(500);
+        assert(
+          !received,
+          'Should not have received responseEvent after block on first node'
+        );
+        await mineBlocks2(1);
+        await sleep(500);
+        assert(received, 'Did not receive responseEvent from socketManager');
+      });
     });
   });
 });

@@ -26,14 +26,14 @@ async function initFullNode(options) {
     listen: true,
     // bip37: true,
     // cors: true,
-    port: options.ports.full.p2p,
-    httpPort: options.ports.full.node,
+    port: options.ports.p2p,
+    httpPort: options.ports.node,
     maxOutbound: 1,
     seeds: [],
     memory: options.memory ? true : false,
     plugins: [walletPlugin],
     env: {
-      BCOIN_WALLET_HTTP_PORT: options.ports.full.wallet.toString()
+      BCOIN_WALLET_HTTP_PORT: options.ports.wallet.toString()
     },
     logLevel: options.logLevel
   });
@@ -52,15 +52,15 @@ async function initSPVNode(options) {
     walletAuth: true,
     workers: true,
     listen: true,
-    port: options.ports.spv.p2p,
-    httpPort: options.ports.spv.node,
+    port: options.ports.p2p,
+    httpPort: options.ports.node,
     maxOutbound: 1,
     seeds: [],
-    nodes: [`127.0.0.1:${options.ports.full.p2p}`],
+    nodes: [`127.0.0.1:${options.ports.p2p}`],
     memory: options.memory ? true : false,
     plugins: [walletPlugin],
     env: {
-      BCOIN_WALLET_HTTP_PORT: options.ports.spv.wallet.toString()
+      BCOIN_WALLET_HTTP_PORT: options.ports.wallet.toString()
     },
     logLevel: options.logLevel
   });

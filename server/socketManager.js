@@ -118,6 +118,7 @@ class SocketManager extends Server {
         `No client ${id} for request from ${socket.url}`
       );
       const client = this.clients.get(id)['node'];
+      this.logger.info(`broadcast ${event} to ${id} client`);
       await client.call(event, ...args);
 
       return null;
@@ -131,13 +132,25 @@ class SocketManager extends Server {
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
       );
-      const client = this.clients.get(id)['node'];
-      this.join(socket, `${event}:${responseEvent}`);
 
+      // TODO: support other this.types
+      const client = this.clients.get(id)['node'];
+      const channel = `${id}:${event}-${responseEvent}`;
+      this.logger.info(
+        `Subscribing socket to ${id} ${event} event: ${channel}`
+      );
+
+      // if the channel doesn't exist we should bind
+      // the client to listen for the event
+      // only needs to bound once no matter how many clients
+      // have the same subscription
+      this.join(socket, channel);
+      const sockets = this.channel(channel);
       client.bind(event, (...data) => {
-        socket.fire(responseEvent, ...data);
-        console.log('bound', event);
-        console.log('responseEvent:', responseEvent);
+        this.logger.info(`"${id}" client received "${event}"`);
+        this.logger.info(`sending "${responseEvent}" to channel "${channel}"`);
+        // send responseEvent to the channel
+        this.to(channel, responseEvent, ...data);
       });
       return null;
     });
