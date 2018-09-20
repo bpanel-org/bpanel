@@ -48,7 +48,7 @@ describe('socketManager', function() {
       supportedTypes = ['node', 'wallet'];
       try {
         logger = new blgr({
-          level: 'none'
+          level: 'info'
         });
         await logger.open();
         node = await initFullNode({
@@ -274,7 +274,8 @@ describe('socketManager', function() {
         !node.http.channel(needle),
         `Should not have ${needle} channel before broadcast has been sent`
       );
-      await socket.call('broadcast', event);
+      socket.fire('broadcast', event);
+      await sleep(200);
       assert(
         node.http.channel(needle),
         `Node server doesn't have a channel for ${needle}`
@@ -320,29 +321,49 @@ describe('socketManager', function() {
       );
 
       // confirm new channel was created for subscription
-      await socket.call('subscribe', eventName, responseEvent);
+      socket.fire('subscribe', eventName, responseEvent);
+      await sleep(300);
       assert(
         socketManager.channel(subscription),
         `socketManager did not have subscription for ${subscription}`
       );
     });
 
-    it('should fire response events to sockets w/ corresponding subscriptions', function(done) {
-      try {
-        // first watch the chain
-        socket.call('subscribe', subscribeEvent, responseEvent);
-        socket.bind(responseEvent, function(...data) {
-          assert(data, 'No data received from block connect event');
-          // if we hit done then we know it was successful. no need for an assertion
-          done();
-        });
+    it('should fire response events to sockets w/ corresponding subscriptions', async function() {
+      let received = false;
+      // first watch the chain
+      socket.fire('subscribe', subscribeEvent, responseEvent);
+      await sleep(300);
 
-        // when a block is mined we expect the block connect event to be fired
-        mineBlocks(1);
-      } catch (e) {
-        done(
-          new Error(`Trouble receiving responseEvents for subscriptions: ${e}`)
+      socket.bind(responseEvent, function(...data) {
+        assert(data, 'No data received from block connect event');
+        received = true;
+      });
+
+      // when a block is mined we expect the block connect event to be fired
+      await mineBlocks(1);
+      await sleep(500);
+      assert(received, `Never received a responseEvent ${responseEvent}`);
+    });
+
+    it('should wait for responses from dispatches', async function() {
+      try {
+        const needle = 'chain';
+        // similar to broadcast test except we're expecting a response
+        assert.include(event, needle, `The event should contain ${needle}`);
+        assert(
+          !node.http.channel(needle),
+          `Should not have ${needle} channel before broadcast has been sent`
         );
+        const resp = await socket.call('dispatch', event);
+        assert(
+          node.http.channel(needle),
+          `Node server doesn't have a channel for ${needle}`
+        );
+        // don't really need to test a real call
+        // this will fail if the endpoint isn't hit and a response heard
+      } catch (e) {
+        assert(false, `Error making dispatch call: ${e.message}`);
       }
     });
 
@@ -370,7 +391,7 @@ describe('socketManager', function() {
 
     // NOTE: This is not supported without an update to bsock that allows support for custom paths
     // in the socket clients. This has been tested with the WIP branch of bsock
-    xdescribe('handling multiple connections', function() {
+    describe('handling multiple connections', function() {
       let node2, nclient2, wclient2, id2, socket2, mineBlocks2;
       before(async function() {
         // setup our second node and clients need this to show that socket manager handles
@@ -460,9 +481,10 @@ describe('socketManager', function() {
           received = true;
         });
 
-        await socket2.call('broadcast', 'watch chain');
-        await socket2.call('subscribe', subscribeEvent, responseEvent);
-
+        await socket2.fire('broadcast', 'watch chain');
+        await sleep(300);
+        await socket2.fire('subscribe', subscribeEvent, responseEvent);
+        await sleep(300);
         assert(
           socketManager.channel(subscription),
           `Couldn't find subscription ${subscription}`

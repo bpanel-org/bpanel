@@ -112,22 +112,20 @@ class SocketManager extends Server {
       // which will result in the following fire to bcoin server
       nodeClient.socket.fire('set filter', '00000000000000000000');
     **/
-    socket.hook('broadcast', async (event, ...args) => {
+    socket.bind('broadcast', (event, ...args) => {
       assert(
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
       );
       const client = this.clients.get(id)['node'];
-      this.logger.info(`broadcast ${event} to ${id} client`);
-      await client.call(event, ...args);
-
-      return null;
+      this.logger.info(`broadcast "${event}"" to ${id} client`);
+      client.call(event, ...args);
     });
 
     // requests from client to subscribe to events from node
     // client should indicate the event to listen for
     // and the `responseEvent` to fire when the event is heard
-    socket.hook('subscribe', async (event, responseEvent) => {
+    socket.bind('subscribe', async (event, responseEvent) => {
       assert(
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
@@ -153,6 +151,19 @@ class SocketManager extends Server {
         this.to(channel, responseEvent, ...data);
       });
       return null;
+    });
+
+    // requests from client for messages to be dispatched to node
+    // dispatches expect bsock calls which wait for acknowledgement response
+    socket.hook('dispatch', async (event, ...args) => {
+      assert(
+        this.clients.has(id),
+        `No client ${id} for request from ${socket.url}`
+      );
+      const client = this.clients.get(id)['node'];
+      this.logger.info(`dispatch "${event}" to ${id} client`);
+      const resp = await client.call(event, ...args);
+      return resp;
     });
   }
 
@@ -207,7 +218,6 @@ class SocketManagerOptions {
    * @constructor
    * @param {Object} options
    */
-
   constructor(options) {
     this.logger = null;
     this.apiKey = base58.encode(random.randomBytes(20));
