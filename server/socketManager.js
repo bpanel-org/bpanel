@@ -88,7 +88,9 @@ class SocketManager extends Server {
     const id = pathname.slice(1, pathname.length - 1);
     if (!this.clients.has(id))
       this.logger.warning(
-        `getIdFromPath: id ${id} from pathname ${pathname} does not exist`
+        'getIdFromPath: id %s from pathname %s does not exist',
+        id,
+        pathname
       );
 
     return id;
@@ -100,7 +102,7 @@ class SocketManager extends Server {
    * @param {WebSocket} socket
    */
   handleAuth(socket) {
-    this.logger.info(`Preparing socket from ${socket.url}`);
+    this.logger.info('Preparing socket from %s', socket.url);
     const parseEvent = event => {
       assert(typeof event === 'string', 'Must pass a string to getClient');
       // defaulting to node client if there is no client prefix
@@ -115,6 +117,29 @@ class SocketManager extends Server {
         parsedEvent = event.slice(split + 1);
       }
       return [id, parsedEvent];
+    };
+
+    // creating a unique channel name for subscriptions
+    // each channel needs to be unique to the clientId
+    // (one of accepted types, e.g. wallet or node),
+    // the id of socket (i.e. from the socket's path)
+    // event being subscribed to and the event fired when event
+    // is heard.
+    const getChannelName = (clientId, id, event, responseEvent) => {
+      assert(
+        typeof clientId === 'string',
+        'required string clientId for channel name'
+      );
+      assert(typeof id === 'string', 'required string id for channel name');
+      assert(
+        typeof event === 'string',
+        'required string event for channel name'
+      );
+      assert(
+        typeof responseEvent === 'string',
+        'required string responseEvent for channel name'
+      );
+      return `${clientId}-${id}:${event}-${responseEvent}`;
     };
 
     // pathname will be used similar to socket.io's namespaces
@@ -137,7 +162,7 @@ class SocketManager extends Server {
       );
       const [clientId, event] = parseEvent(_event);
       const client = this.clients.get(id)[clientId];
-      this.logger.info(`broadcast "${event}"" to ${id}'s ${clientId} client`);
+      this.logger.info(`broadcast "%s" to %s's %s client`, event, id, clientId);
       client.call(event, ...args);
     });
 
@@ -150,11 +175,16 @@ class SocketManager extends Server {
         `No client ${id} for request from ${socket.url}`
       );
 
+      assert(responseEvent, 'subscribe event requires a responseEvent.');
+
       const [clientId, event] = parseEvent(_event);
       const client = this.clients.get(id)[clientId];
-      const channel = `${clientId}-${id}:${event}-${responseEvent}`;
+      const channel = getChannelName(clientId, id, event, responseEvent);
       this.logger.info(
-        `Subscribing ${id}'s ${clientId} socket event "${event}"`
+        `Subscribing to %s's %s socket event "%s"`,
+        id,
+        clientId,
+        event
       );
 
       // if the channel doesn't exist we should bind
@@ -164,8 +194,12 @@ class SocketManager extends Server {
       this.join(socket, channel);
       const sockets = this.channel(channel);
       client.bind(event, (...data) => {
-        this.logger.info(`"${id}" client received "${event}"`);
-        this.logger.info(`sending "${responseEvent}" to channel "${channel}"`);
+        this.logger.info('"%s" client received "%s"', id, event);
+        this.logger.info(
+          'sending "%s" to channel "%s"',
+          responseEvent,
+          channel
+        );
         // send responseEvent to the channel
         this.to(channel, responseEvent, ...data);
       });
@@ -183,7 +217,7 @@ class SocketManager extends Server {
         'Must pass original responseEvent arg to unsubscribe'
       );
       const [clientId, event] = parseEvent(_event);
-      const channel = `${clientId}-${id}:${event}-${responseEvent}`;
+      const channel = getChannelName(clientId, id, event, responseEvent);
       this.logger.info(
         `Unsubscribing from ${id}'s ${clientId} socket event "${event}"`
       );
@@ -204,7 +238,7 @@ class SocketManager extends Server {
       );
       const [clientId, event] = parseEvent(_event);
       const client = this.clients.get(id)[clientId];
-      this.logger.info(`dispatch "${event}" to ${id} ${clientId} client`);
+      this.logger.info('dispatch "%s" to %s %s client', event, id, clientId);
       const resp = await client.call(event, ...args);
       return resp;
     });
@@ -241,7 +275,7 @@ class SocketManager extends Server {
     assert(typeof id === 'string', 'Must pass an id and must be a string');
 
     if (!this.clients.has(id)) {
-      this.logger.debug(`No clients with id ${id} exists in manager`);
+      this.logger.debug('No clients with id %s exists in manager', id);
       return;
     }
 
@@ -314,7 +348,13 @@ class SocketManagerOptions {
     // Allow no-auth implicitly
     // if we're listening locally.
     if (!options.apiKey) {
-      if (this.host === '127.0.0.1' || this.host === '::1') this.noAuth = true;
+      if (this.host === '127.0.0.1' || this.host === '::1') {
+        if (this.logger)
+          this.logger.info(
+            'no apiKey passed and listening locally, allow no-auth implicitly'
+          );
+        this.noAuth = true;
+      }
     }
     return this;
   }
