@@ -18,14 +18,13 @@ const shared = {
 
 async function initFullNode(options) {
   const node = new FullNode({
-    // prefix: options.prefix || null,
+    prefix: options.prefix || null,
     network: shared.network,
     apiKey: options.apiKey || shared.apiKey,
-    // walletAuth: true,
+    walletAuth: true,
     workers: true,
     listen: true,
-    // bip37: true,
-    // cors: true,
+    bip37: true,
     port: options.ports.p2p,
     httpPort: options.ports.node,
     maxOutbound: 1,
