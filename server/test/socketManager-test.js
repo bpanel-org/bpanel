@@ -22,11 +22,11 @@ const ports = {
 };
 
 const serverApiKey = 'foo';
-
+const walletId = 'blue';
 async function setupWallet(client) {
   await initWallet(client);
   await client.execute('selectwallet', ['test']);
-  return await client.execute('getnewaddress', ['blue']);
+  return await client.execute('getnewaddress', [walletId]);
 }
 
 describe('socketManager', function() {
@@ -48,7 +48,7 @@ describe('socketManager', function() {
       supportedTypes = ['node', 'wallet'];
       try {
         logger = new blgr({
-          level: 'info'
+          level: 'none'
         });
         await logger.open();
         node = await initFullNode({
@@ -308,12 +308,29 @@ describe('socketManager', function() {
       await broadcastTest('chain', event, node, socket);
     });
 
-    // TODO: add tests to confirm wallet and multisig clients also
-    // get their subscriptions, etc.
+    it('should be able able to interact with other client types, like wallet', async function() {
+      const wdb = node.plugins.walletdb;
+      let sockets = wdb.http.io.sockets.values();
+      for (const sock of sockets) {
+        assert(
+          sock.channel(`w:${walletId}`),
+          `Socket should not already be subscribed to wallet "${walletId}"`
+        );
+      }
+      await socket.call('dispatch', 'wallet join', walletId);
+      let joined = false;
+      sockets = wdb.http.io.sockets.values();
+      for (const sock of sockets) {
+        if (sock.channel(`w:${walletId}`)) joined = true;
+      }
+      assert(joined, `Socket did not successfully dispatch join to wallet`);
+      await socket.call('dispatch', 'wallet leave', walletId);
+    });
+
     it('should create new channels for new subscriptions', async function() {
       const eventName = 'test event';
       const responseEvent = 'heard event';
-      const subscription = `${id}:${eventName}-${responseEvent}`;
+      const subscription = `node-${id}:${eventName}-${responseEvent}`;
 
       assert(
         !socketManager.channel(subscription),
@@ -353,7 +370,7 @@ describe('socketManager', function() {
         assert.include(event, needle, `The event should contain ${needle}`);
         assert(
           !node.http.channel(needle),
-          `Should not have ${needle} channel before broadcast has been sent`
+          `Should not have ${needle} channel before dispatch has been sent`
         );
         const resp = await socket.call('dispatch', event);
         assert(
@@ -367,22 +384,20 @@ describe('socketManager', function() {
       }
     });
 
-    xit('should remove sockets from channels when disconnected', async function() {
+    it('should be able to unsubscribe from socket subscriptions', async function() {
       const eventName = 'test remove';
       const responseEvent = 'foo bar';
-      const subscription = `${id}:${eventName}-${responseEvent}`;
+      const subscription = `node-${id}:${eventName}-${responseEvent}`;
 
-      socket.call('subscribe', eventName, responseEvent);
+      socket.fire('subscribe', eventName, responseEvent);
+      await sleep(300);
       assert(
         socketManager.channel(subscription),
         `socketManager did not have subscription for ${subscription}`
       );
 
-      await socket.close();
-      assert(
-        !socketManager.io.has(socket),
-        'SocketManager should not have socket client after close'
-      );
+      socket.fire('unsubscribe', eventName, responseEvent);
+      await sleep(300);
       assert(
         !socketManager.channel(subscription),
         'Subscription channel should be removed after socket closing'
@@ -391,7 +406,7 @@ describe('socketManager', function() {
 
     // NOTE: This is not supported without an update to bsock that allows support for custom paths
     // in the socket clients. This has been tested with the WIP branch of bsock
-    describe('handling multiple connections', function() {
+    xdescribe('handling multiple connections', function() {
       let node2, nclient2, wclient2, id2, socket2, mineBlocks2;
       before(async function() {
         // setup our second node and clients need this to show that socket manager handles
@@ -475,7 +490,7 @@ describe('socketManager', function() {
         let received = false;
 
         // subscription will be exactly the same as above except for the id, set by socket path
-        const subscription = `${id2}:${subscribeEvent}-${responseEvent}`;
+        const subscription = `node-${id2}:${subscribeEvent}-${responseEvent}`;
 
         socket2.bind(responseEvent, function() {
           received = true;

@@ -22,6 +22,7 @@ class SocketManager extends Server {
   }
 
   /*
+   * Initialize server
    */
   init() {
     this.on('request', req => {
@@ -75,6 +76,7 @@ class SocketManager extends Server {
   /*
    * Utility to verify that the pathname
    * matches with the id of a client on the class
+   * @private
    * @param {string} pathname - pathname to validate
    * @returns {string} id
    */
@@ -98,13 +100,28 @@ class SocketManager extends Server {
    * @param {WebSocket} socket
    */
   handleAuth(socket) {
+    const parseEvent = event => {
+      assert(typeof event === 'string', 'Must pass a string to getClient');
+      // defaulting to node client if there is no client prefix
+      let parsedEvent = event;
+      let id = 'node';
+
+      // check if first full word is a valid type
+      const split = event.indexOf(' ');
+      const prefix = event.slice(0, split);
+      if (this.types.indexOf(prefix) !== -1) {
+        id = prefix;
+        parsedEvent = event.slice(split + 1);
+      }
+      return [id, parsedEvent];
+    };
+
     // pathname will be used similar to socket.io's namespaces
     // they should correspond to the client id that will be used
     // to make the calls
     const { pathname } = new URL(socket.ws.url);
     const id = this.getIdFromPath(pathname);
-
-    // broadcasts only send messages to the bcoin node
+    // broadcasts only send messages to the  node
     // but originating socket does not expect a response
     /**
       // Example broadcast from client:
@@ -112,30 +129,32 @@ class SocketManager extends Server {
       // which will result in the following fire to bcoin server
       nodeClient.socket.fire('set filter', '00000000000000000000');
     **/
-    socket.bind('broadcast', (event, ...args) => {
+    socket.bind('broadcast', (_event, ...args) => {
       assert(
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
       );
-      const client = this.clients.get(id)['node'];
-      this.logger.info(`broadcast "${event}"" to ${id} client`);
+      const [clientId, event] = parseEvent(_event);
+      const client = this.clients.get(id)[clientId];
+      this.logger.info(`broadcast "${event}"" to ${id}'s ${clientId} client`);
       client.call(event, ...args);
     });
 
     // requests from client to subscribe to events from node
     // client should indicate the event to listen for
     // and the `responseEvent` to fire when the event is heard
-    socket.bind('subscribe', async (event, responseEvent) => {
+    socket.bind('subscribe', async (_event, responseEvent) => {
       assert(
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
       );
 
       // TODO: support other this.types
-      const client = this.clients.get(id)['node'];
-      const channel = `${id}:${event}-${responseEvent}`;
+      const [clientId, event] = parseEvent(_event);
+      const client = this.clients.get(id)[clientId];
+      const channel = `${clientId}-${id}:${event}-${responseEvent}`;
       this.logger.info(
-        `Subscribing socket to ${id} ${event} event: ${channel}`
+        `Subscribing ${id}'s ${clientId} socket event "${event}"`
       );
 
       // if the channel doesn't exist we should bind
@@ -150,18 +169,42 @@ class SocketManager extends Server {
         // send responseEvent to the channel
         this.to(channel, responseEvent, ...data);
       });
+
       return null;
     });
 
-    // requests from client for messages to be dispatched to node
-    // dispatches expect bsock calls which wait for acknowledgement response
-    socket.hook('dispatch', async (event, ...args) => {
+    socket.bind('unsubscribe', async (_event, responseEvent) => {
       assert(
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
       );
-      const client = this.clients.get(id)['node'];
-      this.logger.info(`dispatch "${event}" to ${id} client`);
+      assert(
+        responseEvent,
+        'Must pass original responseEvent arg to unsubscribe'
+      );
+      const [clientId, event] = parseEvent(_event);
+      const channel = `${clientId}-${id}:${event}-${responseEvent}`;
+      this.logger.info(
+        `Unsubscribing from ${id}'s ${clientId} socket event "${event}"`
+      );
+      if (!this.channel(channel)) {
+        this.logger.warning('channel did not exist', channel);
+        return;
+      }
+
+      this.leave(socket, channel);
+    });
+
+    // requests from client for messages to be dispatched to node
+    // dispatches expect bsock calls which wait for acknowledgement response
+    socket.hook('dispatch', async (_event, ...args) => {
+      assert(
+        this.clients.has(id),
+        `No client ${id} for request from ${socket.url}`
+      );
+      const [clientId, event] = parseEvent(_event);
+      const client = this.clients.get(id)[clientId];
+      this.logger.info(`dispatch "${event}" to ${id} ${clientId} client`);
       const resp = await client.call(event, ...args);
       return resp;
     });
@@ -286,5 +329,5 @@ class SocketManagerOptions {
     return new SocketManagerOptions().fromOptions(options);
   }
 }
-//
+
 module.exports = SocketManager;
