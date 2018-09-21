@@ -11,6 +11,7 @@ const assert = require('bsert');
 const os = require('os');
 const Config = require('bcfg');
 const logger = require('./logger');
+const Blgr = require('blgr');
 
 const webpackArgs = [];
 
@@ -88,7 +89,7 @@ if (require.main === module) {
 }
 
 // Init bPanel
-module.exports = (_config = {}) => {
+module.exports = async (_config = {}) => {
   // Import server dependencies
   const path = require('path');
   const http = require('http');
@@ -102,7 +103,7 @@ module.exports = (_config = {}) => {
 
   // Import app server utilities and modules
   const logger = require('./logger');
-  const socketHandler = require('./socketHandler');
+  const SocketManager = require('./socketManager');
   const clientFactory = require('./clientFactory');
   const clientRoutes = require('./clientRoutes');
 
@@ -188,10 +189,6 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     return clientsMap;
   }, new Map());
 
-  // Init bsock socket server
-  const socketHttpServer = http.createServer();
-  bsock.attach(socketHttpServer);
-
   // Init app express server
   const app = express.Router();
   const port = process.env.PORT || 5000;
@@ -199,27 +196,29 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
   app.use(bodyParser.json());
   app.use(cors());
 
+  // create new SocketManager
+  // TODO: consolidate to single logger using blgr and remove other dependency
+  const blgr = new Blgr({
+    level: 'info'
+  });
+  await blgr.open();
+  const socketManager = new SocketManager({
+    noAuth: true,
+    port: bsockPort,
+    logger: blgr
+  });
+
   // Wait for async part of server setup
   const ready = (async function() {
     // Setup bsock server
-    try {
-      if (nodeClient) {
-        await nodeClient.open();
-      }
-      if (walletClient) {
-        await walletClient.open();
-      }
-      if (multisigWalletClient) {
-        await multisigWalletClient.open();
-      }
-    } catch (err) {
-      logger.error('Error connecting sockets: ', err);
-    }
-
-    bsock.on(
-      'socket',
-      socketHandler(nodeClient, walletClient, multisigWalletClient)
-    );
+    // socket.io is the default path
+    // TODO: need support for custom paths in bsock
+    // and add all clients to map to path
+    socketManager.addClients('socket.io', {
+      node: nodeClient,
+      wallet: walletClient,
+      multisig: multisigWalletClient
+    });
 
     // Setup app server
     app.use(compression());
@@ -293,10 +292,10 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     };
 
     // Start bsock server
-    socketHttpServer.on('error', onError('bsock'));
-    socketHttpServer.listen(bsockPort, () => {
-      logger.info('bsock running on port', bsockPort);
-    });
+    socketManager.on('error', e =>
+      logger.error(`socketManager error: ${e.message}`)
+    );
+    await socketManager.open();
 
     // If NOT required from another script...
     if (require.main === module) {

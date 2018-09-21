@@ -100,6 +100,7 @@ class SocketManager extends Server {
    * @param {WebSocket} socket
    */
   handleAuth(socket) {
+    this.logger.info(`Preparing socket from ${socket.url}`);
     const parseEvent = event => {
       assert(typeof event === 'string', 'Must pass a string to getClient');
       // defaulting to node client if there is no client prefix
