@@ -150,7 +150,6 @@ class SocketManager extends Server {
         `No client ${id} for request from ${socket.url}`
       );
 
-      // TODO: support other this.types
       const [clientId, event] = parseEvent(_event);
       const client = this.clients.get(id)[clientId];
       const channel = `${clientId}-${id}:${event}-${responseEvent}`;

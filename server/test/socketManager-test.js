@@ -377,8 +377,6 @@ describe('socketManager', function() {
           node.http.channel(needle),
           `Node server doesn't have a channel for ${needle}`
         );
-        // don't really need to test a real call
-        // this will fail if the endpoint isn't hit and a response heard
       } catch (e) {
         assert(false, `Error making dispatch call: ${e.message}`);
       }
@@ -405,7 +403,7 @@ describe('socketManager', function() {
     });
 
     // NOTE: This is not supported without an update to bsock that allows support for custom paths
-    // in the socket clients. This has been tested with the WIP branch of bsock
+    // in the socket clients. It has, however, been tested with the WIP branch of bsock
     xdescribe('handling multiple connections', function() {
       let node2, nclient2, wclient2, id2, socket2, mineBlocks2;
       before(async function() {
@@ -432,7 +430,6 @@ describe('socketManager', function() {
         const blockCount = 9;
         mineBlocks2 = async n =>
           await nclient2.execute('generatetoaddress', [n, coinbase]);
-        // make a function so other tests can use this
         const result = await mineBlocks2(blockCount);
 
         assert(
@@ -457,7 +454,7 @@ describe('socketManager', function() {
           '127.0.0.1',
           false,
           null,
-          '/test'
+          `/${id2}`
         );
         socket2.on('error', e => {
           throw e;
