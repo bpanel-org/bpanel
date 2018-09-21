@@ -404,7 +404,7 @@ describe('socketManager', function() {
 
     // NOTE: This is not supported without an update to bsock that allows support for custom paths
     // in the socket clients. It has, however, been tested with the WIP branch of bsock
-    xdescribe('handling multiple connections', function() {
+    describe('handling multiple connections', function() {
       let node2, nclient2, wclient2, id2, socket2, mineBlocks2;
       before(async function() {
         // setup our second node and clients need this to show that socket manager handles
@@ -454,7 +454,7 @@ describe('socketManager', function() {
           '127.0.0.1',
           false,
           null,
-          `/${id2}`
+          id2
         );
         socket2.on('error', e => {
           throw e;
