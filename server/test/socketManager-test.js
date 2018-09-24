@@ -265,7 +265,7 @@ describe('socketManager', function() {
   });
 
   describe('socket message handlers', function() {
-    let id, event, socket, responseEvent;
+    let id, event, socket, responseEvent, subscribeEvent;
 
     async function broadcastTest(needle, event, node, socket) {
       // first confirming integrity of the test
@@ -330,7 +330,12 @@ describe('socketManager', function() {
     it('should create new channels for new subscriptions', async function() {
       const eventName = 'test event';
       const responseEvent = 'heard event';
-      const subscription = `node-${id}:${eventName}-${responseEvent}`;
+      const subscription = socketManager.getChannelName(
+        'node',
+        id,
+        eventName,
+        responseEvent
+      );
 
       assert(
         !socketManager.channel(subscription),
@@ -372,7 +377,7 @@ describe('socketManager', function() {
           !node.http.channel(needle),
           `Should not have ${needle} channel before dispatch has been sent`
         );
-        const resp = await socket.call('dispatch', event);
+        await socket.call('dispatch', event);
         assert(
           node.http.channel(needle),
           `Node server doesn't have a channel for ${needle}`
@@ -483,11 +488,15 @@ describe('socketManager', function() {
       });
 
       it('should only receive responseEvents for nodes it is subscribed to', async function() {
-        const e = 'block connect';
         let received = false;
 
         // subscription will be exactly the same as above except for the id, set by socket path
-        const subscription = `node-${id2}:${subscribeEvent}-${responseEvent}`;
+        const subscription = socketManager.getChannelName(
+          'node',
+          id2,
+          subscribeEvent,
+          responseEvent
+        );
 
         socket2.bind(responseEvent, function() {
           received = true;

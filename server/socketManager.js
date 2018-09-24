@@ -96,6 +96,33 @@ class SocketManager extends Server {
     return id;
   }
 
+  /* Create properly formatted channel name
+   * creating a unique channel name for subscriptions
+   * each channel needs to be unique to the clientId
+   * (one of accepted types, e.g. wallet or node),
+   * the id of socket (i.e. from the socket's path)
+   * event being subscribed to and the event fired when event
+   * is heard.
+   * @param {string} clientId
+   * @param {string} id
+   * @param {string} event
+   * @param {responseEvent}
+   * @returns {string} channelName
+   */
+  getChannelName(clientId, id, event, responseEvent) {
+    assert(
+      typeof clientId === 'string',
+      'required string clientId for channel name'
+    );
+    assert(typeof id === 'string', 'required string id for channel name');
+    assert(typeof event === 'string', 'required string event for channel name');
+    assert(
+      typeof responseEvent === 'string',
+      'required string responseEvent for channel name'
+    );
+    return `${clientId}-${id}:${event}-${responseEvent}`;
+  }
+
   /*
    * Handle new auth'd websocket.
    * @private
@@ -112,34 +139,11 @@ class SocketManager extends Server {
       // check if first full word is a valid type
       const split = event.indexOf(' ');
       const prefix = event.slice(0, split);
-      if (this.types.indexOf(prefix) !== -1) {
+      if (this.types.includes(prefix)) {
         id = prefix;
         parsedEvent = event.slice(split + 1);
       }
       return [id, parsedEvent];
-    };
-
-    // creating a unique channel name for subscriptions
-    // each channel needs to be unique to the clientId
-    // (one of accepted types, e.g. wallet or node),
-    // the id of socket (i.e. from the socket's path)
-    // event being subscribed to and the event fired when event
-    // is heard.
-    const getChannelName = (clientId, id, event, responseEvent) => {
-      assert(
-        typeof clientId === 'string',
-        'required string clientId for channel name'
-      );
-      assert(typeof id === 'string', 'required string id for channel name');
-      assert(
-        typeof event === 'string',
-        'required string event for channel name'
-      );
-      assert(
-        typeof responseEvent === 'string',
-        'required string responseEvent for channel name'
-      );
-      return `${clientId}-${id}:${event}-${responseEvent}`;
     };
 
     // pathname will be used similar to socket.io's namespaces
@@ -162,6 +166,8 @@ class SocketManager extends Server {
       );
       const [clientId, event] = parseEvent(_event);
       const client = this.clients.get(id)[clientId];
+      if (!client)
+        this.logger.info('No client %s found under the id %s', clientId, id);
       this.logger.info(`broadcast "%s" to %s's %s client`, event, id, clientId);
       client.call(event, ...args);
     });
@@ -179,7 +185,9 @@ class SocketManager extends Server {
 
       const [clientId, event] = parseEvent(_event);
       const client = this.clients.get(id)[clientId];
-      const channel = getChannelName(clientId, id, event, responseEvent);
+      if (!client)
+        this.logger.info('No client %s found under the id %s', clientId, id);
+      const channel = this.getChannelName(clientId, id, event, responseEvent);
       this.logger.info(
         `Subscribing to %s's %s socket event "%s"`,
         id,
@@ -192,7 +200,6 @@ class SocketManager extends Server {
       // only needs to bound once no matter how many clients
       // have the same subscription
       this.join(socket, channel);
-      const sockets = this.channel(channel);
       client.bind(event, (...data) => {
         this.logger.info('"%s" client received "%s"', id, event);
         this.logger.info(
@@ -217,7 +224,7 @@ class SocketManager extends Server {
         'Must pass original responseEvent arg to unsubscribe'
       );
       const [clientId, event] = parseEvent(_event);
-      const channel = getChannelName(clientId, id, event, responseEvent);
+      const channel = this.getChannelName(clientId, id, event, responseEvent);
       this.logger.info(
         `Unsubscribing from ${id}'s ${clientId} socket event "${event}"`
       );
