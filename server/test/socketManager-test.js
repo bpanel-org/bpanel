@@ -313,7 +313,7 @@ describe('socketManager', function() {
       let sockets = wdb.http.io.sockets.values();
       for (const sock of sockets) {
         assert(
-          sock.channel(`w:${walletId}`),
+          !sock.channel(`w:${walletId}`),
           `Socket should not already be subscribed to wallet "${walletId}"`
         );
       }
@@ -323,8 +323,8 @@ describe('socketManager', function() {
       for (const sock of sockets) {
         if (sock.channel(`w:${walletId}`)) joined = true;
       }
-      assert(joined, `Socket did not successfully dispatch join to wallet`);
       await socket.call('dispatch', 'wallet leave', walletId);
+      assert(joined, `Socket did not successfully dispatch join to wallet`);
     });
 
     it('should create new channels for new subscriptions', async function() {
