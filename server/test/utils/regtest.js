@@ -94,7 +94,6 @@ async function initWallet(wclient) {
   const winfo = await wclient.createWallet('test');
   assert.strictEqual(winfo.id, 'test');
   const wallet = wclient.wallet('test', winfo.token);
-  // await wallet.open();
 
   // We don't use witness here yet, as there is an activation
   // threshold before segwit can be activated.
