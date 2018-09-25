@@ -41,3 +41,6 @@ COPY scripts /usr/src/app/scripts
 COPY configs /usr/src/app/configs
 COPY server /usr/src/app/server
 COPY webapp /usr/src/app/webapp
+RUN npm run build:dll && \
+    npm run preinstall && \
+    touch /root/.bpanel/clients/_docker.conf
