@@ -16,12 +16,9 @@ const nodeState = (state = initialState, action) => {
   let newState = { ...state };
   switch (action.type) {
     case SET_NODE: {
-      const { version, network, memory, mempool, time } = action.payload;
+      const { version, network } = action.payload;
       const node = { version, network };
-      newState.node = node;
-      newState.memory = memory;
-      newState.mempool = mempool;
-      newState.time = time;
+      newState = { ...newState, ...action.payload, node };
       return newState;
     }
 
