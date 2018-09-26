@@ -42,7 +42,7 @@
     "npm": ">=5.7.1"
   },
   "dependencies": {
-    "@bpanel/bpanel-ui": "^0.0.11",
+    "@bpanel/bpanel-ui": "0.0.11",
     "@bpanel/bpanel-utils": "^0.0.13",
     "aphrodite": "^1.2.5",
     "autoprefixer": "^7.1.5",
@@ -69,7 +69,7 @@
     "bootstrap": "^4.1.1",
     "bsert": "0.0.4",
     "bsock": "github:bucko13/bsock#paths",
-    "bsock-middleware": "^1.1.3",
+    "bsock-middleware": "^1.1.4",
     "bstring": "^0.2.0",
     "bweb": "0.0.1",
     "compression": "^1.7.3",
