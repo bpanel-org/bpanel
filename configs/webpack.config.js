@@ -81,6 +81,8 @@ module.exports = function(env = {}) {
         bledger: `${MODULES_DIR}/bledger/lib/bledger-browser`,
         bmultisig: `${MODULES_DIR}/bmultisig/lib/bmultisig-browser`,
         react: `${MODULES_DIR}/react`,
+        'react-router': `${MODULES_DIR}/react-router`,
+        'react-router-dom': `${MODULES_DIR}/react-router-dom`,
         'react-redux': `${MODULES_DIR}/react-redux`,
         'react-loadable': `${MODULES_DIR}/react-loadable`,
         '&local': path.resolve(bpanelPrefix, 'local_plugins'),
