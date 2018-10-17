@@ -45,6 +45,7 @@ class App extends PureComponent {
       connectSocket: PropTypes.func.isRequired,
       disconnectSocket: PropTypes.func.isRequired,
       getNodeInfo: PropTypes.func.isRequired,
+      getWindowInfo: PropTypes.func,
       updateTheme: PropTypes.func.isRequired,
       appLoaded: PropTypes.func.isRequired,
       hydrateClients: PropTypes.func.isRequired,
