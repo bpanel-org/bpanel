@@ -19,9 +19,11 @@ function clientsRouter(clients, defaultId) {
       );
     clientInfo[client.config.str('id')] = {
       chain: client.config.str('chain', 'bitcoin'),
-      hasNode: !!client.nodeClient,
-      hasWallet: !!client.walletClient,
-      hasMultisig: !!client.multisigWalletClient
+      services: {
+        node: !!client.nodeClient,
+        wallet: !!client.walletClient,
+        multisig: !!client.multisigWalletClient
+      }
     };
   });
   router.get('/', (req, res) => res.status(200).json(clientInfo));
