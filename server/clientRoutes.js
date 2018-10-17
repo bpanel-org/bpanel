@@ -18,7 +18,12 @@ function clientsRouter(clients, defaultId) {
         `Client config ${id} had no chain set, defaulting to 'bitcoin'`
       );
     clientInfo[client.config.str('id')] = {
-      chain: client.config.str('chain', 'bitcoin')
+      chain: client.config.str('chain', 'bitcoin'),
+      services: {
+        node: !!client.nodeClient,
+        wallet: !!client.walletClient,
+        multisig: !!client.multisigWalletClient
+      }
     };
   });
   router.get('/', (req, res) => res.status(200).json(clientInfo));

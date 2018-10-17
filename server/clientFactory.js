@@ -109,7 +109,9 @@ function clientFactory(config) {
   if (config.bool('wallet', true)) {
     walletClient = new WalletClient(walletOptions);
     logClientInfo(id, 'wallet', walletOptions);
+  }
 
+  if (config.bool('multisig', true)) {
     multisigWalletClient = new MultisigClient({
       ...walletOptions,
       multisigPath: '/'
