@@ -14,7 +14,6 @@ const getSidebarItems = state => state.nav.sidebar;
  */
 export const sortPluginMetadata = (pluginMeta = []) => {
   assert(Array.isArray(pluginMeta), 'Must pass array of metadata');
-  // const subItems = new Map();
 
   const { parents, subItems } = pluginMeta.reduce(
     ({ parents, subItems }, plugin) => {
