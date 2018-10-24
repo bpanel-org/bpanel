@@ -46,7 +46,7 @@ if (require.main === module) {
 
   // an option to run an `npm install` which will clear any symlinks
   if (process.argv.indexOf('--clear') > -1) {
-    logger.info('Clearing symlinks in node_modules..');
+    logger.info('Clearing symlinks in node_modules with `npm install`...');
     execSync('npm install', {
       killSignal: 'SIGINT',
       stdio: [0, 1, 2],
@@ -94,7 +94,6 @@ module.exports = async (_config = {}) => {
   const path = require('path');
   const http = require('http');
   const express = require('express');
-  const bsock = require('bsock').createServer();
 
   // Import express middlewares
   const bodyParser = require('body-parser');

@@ -50,7 +50,7 @@ async function installRemotePackages(installPackages) {
       logger.info(`Installing plugin packages: ${pkgStr.split(' ')}`);
 
       try {
-        await execSync(`npm install --no-save ${pkgStr} --production`, {
+        execSync(`npm install --no-save ${pkgStr} --production`, {
           stdio: [0, 1, 2],
           cwd: resolve(__dirname, '..')
         });
