@@ -28,7 +28,7 @@ services:
     ## Only MacOSX users need --watch-poll
     ## the client-id says to use the config created by the
     ## bcoin docker services
-    command: server --dev --watch-poll --client-id=_docker
+    command: --max_old_space_size=4096 server --dev --watch-poll --clear --client-id=_docker
 
   securityc:
     image: bpanel/securityc
