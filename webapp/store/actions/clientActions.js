@@ -45,7 +45,7 @@ function hydrateClients() {
     try {
       await dispatch(getClients());
       let currentClient = getState().clients.currentClient;
-      if (!currentClient) {
+      if (!currentClient.id) {
         await dispatch(getCurrentClient());
         currentClient = getState().clients.currentClient;
       } else {
