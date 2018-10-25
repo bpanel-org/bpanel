@@ -1,6 +1,5 @@
 import { getClient } from '@bpanel/bpanel-utils';
 import { SET_CURRENT_CLIENT, SET_CLIENTS } from '../constants/clients';
-import { getNodeInfo } from './nodeActions';
 
 const client = getClient();
 

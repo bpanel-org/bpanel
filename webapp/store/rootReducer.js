@@ -37,7 +37,11 @@ export default function getPersistedReducer() {
       Object.keys(state).forEach(key => {
         storage.removeItem(`persist:${key}`);
       });
+      Object.keys(state.plugins).forEach(key => {
+        state.plugins[key] = undefined;
+      });
       state.chain = undefined;
+      state.wallets = undefined;
       state.node = undefined;
       state.plugins = undefined;
     }
@@ -47,20 +51,3 @@ export default function getPersistedReducer() {
 
   return persistReducer(rootPersistConfig, rootReducer);
 }
-
-// reset state middleware
-// on CLIENT_CHANGE
-// dispatch RESET_STATE
-// reload configs
-//
-// refetch node info
-
-// const createRootReducer = asyncReducers => {
-//   const appReducer = combineReducers({ myReducer, ...asyncReducers });
-//   return (state, action) => {
-//     if (action.type === 'LOGOUT_USER') {
-//       state = undefined;
-//     }
-//     return appReducer(state, action);
-//   };
-// };

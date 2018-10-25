@@ -4,45 +4,11 @@ import thunkMiddleware from 'redux-thunk';
 import bsockMiddleware from 'bsock-middleware';
 import effects from 'effects-middleware';
 import { persistStore } from 'redux-persist';
-import { getClient } from '@bpanel/bpanel-utils';
 
+import { errorCatcherMiddleware, clientMiddleware } from './middleware';
 import getPersistedReducer from './rootReducer';
 import { getConstants } from '../plugins/plugins';
 import { loadPlugins, pluginMiddleware } from '../plugins/plugins';
-
-const client = getClient();
-
-function errorCatcherMiddleware(errorHandler) {
-  return function(store) {
-    return function(next) {
-      return function(action) {
-        try {
-          return next(action);
-        } catch (err) {
-          const message = `There was an error in the middleware for the action ${
-            action.type
-          }: `;
-          errorHandler(message, err, store.getState, action, store.dispatch);
-          return err;
-        }
-      };
-    };
-  };
-}
-
-function clientMiddleware() {
-  return function(next) {
-    return function(action) {
-      if (action.type === 'SET_CURRENT_CLIENT') {
-        const clientInfo = action.payload;
-        const { id, chain = 'bitcoin' } = clientInfo;
-        // set the client info for the global client
-        if (id) client.setClientInfo(id, chain);
-      }
-      return next(action);
-    };
-  };
-}
 
 export default async () => {
   // load plugin information before setting up app and store
