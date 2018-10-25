@@ -1,5 +1,6 @@
 import { getClient } from '@bpanel/bpanel-utils';
-import { SET_DEFAULT_CLIENT, SET_CLIENTS } from '../constants/clients';
+import { SET_CURRENT_CLIENT, SET_CLIENTS } from '../constants/clients';
+import { getNodeInfo } from './nodeActions';
 
 const client = getClient();
 
@@ -10,31 +11,37 @@ function setClients(clients) {
   };
 }
 
-export function setCurrentClient(clientInfo) {
+function setCurrentClient(clientInfo) {
   const { id, chain = 'bitcoin' } = clientInfo;
   // set the client info for the global client
   if (id) client.setClientInfo(id, chain);
   return {
-    type: SET_DEFAULT_CLIENT,
+    type: SET_CURRENT_CLIENT,
     payload: clientInfo
   };
 }
 
-export function getClients() {
+function resetClient() {
+  return {
+    type: 'RESET_STATE'
+  };
+}
+
+function getClients() {
   return async dispatch => {
     const clients = await client.getClients();
     dispatch(setClients(clients));
   };
 }
 
-export function getCurrentClient() {
+function getCurrentClient() {
   return async dispatch => {
     const currentClient = await client.getDefault();
     dispatch(setCurrentClient(currentClient));
   };
 }
 
-export function hydrateClients() {
+function hydrateClients() {
   return async dispatch => {
     try {
       await dispatch(getClients());
@@ -47,5 +54,10 @@ export function hydrateClients() {
 }
 
 export default {
-  hydrateClients
+  hydrateClients,
+  getCurrentClient,
+  getClients,
+  resetClient,
+  setCurrentClient,
+  setClients
 };

@@ -26,10 +26,41 @@ export default function getPersistedReducer() {
     ? persistReducer(pluginsPersistConfig, pluginReducers)
     : null;
 
-  const rootReducer = combineReducers({
+  const appReducers = combineReducers({
     ...reducers,
     plugins: pluginReducers
   });
 
+  const rootReducer = (state, action) => {
+    if (action.type === 'RESET_STATE') {
+      // need to clear local storage as well so it's not persisted
+      Object.keys(state).forEach(key => {
+        storage.removeItem(`persist:${key}`);
+      });
+      state.chain = undefined;
+      state.node = undefined;
+      state.plugins = undefined;
+    }
+
+    return appReducers(state, action);
+  };
+
   return persistReducer(rootPersistConfig, rootReducer);
 }
+
+// reset state middleware
+// on CLIENT_CHANGE
+// dispatch RESET_STATE
+// reload configs
+//
+// refetch node info
+
+// const createRootReducer = asyncReducers => {
+//   const appReducer = combineReducers({ myReducer, ...asyncReducers });
+//   return (state, action) => {
+//     if (action.type === 'LOGOUT_USER') {
+//       state = undefined;
+//     }
+//     return appReducer(state, action);
+//   };
+// };
