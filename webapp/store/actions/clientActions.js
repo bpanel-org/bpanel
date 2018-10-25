@@ -41,10 +41,16 @@ function getCurrentClient() {
 }
 
 function hydrateClients() {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     try {
       await dispatch(getClients());
-      await dispatch(getCurrentClient());
+      let currentClient = getState().clients.currentClient;
+      if (!currentClient) {
+        await dispatch(getCurrentClient());
+        currentClient = getState().clients.currentClient;
+      } else {
+        dispatch(setCurrentClient(currentClient));
+      }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('There was an error hydrating clients:', e);

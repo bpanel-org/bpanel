@@ -9,7 +9,7 @@ export default function getPersistedReducer() {
   const rootPersistConfig = {
     key: 'root',
     storage,
-    whitelist: []
+    whitelist: ['clients']
   };
 
   const pluginsPersistConfig = {
@@ -36,9 +36,6 @@ export default function getPersistedReducer() {
       // need to clear local storage as well so it's not persisted
       Object.keys(state).forEach(key => {
         storage.removeItem(`persist:${key}`);
-      });
-      Object.keys(state.plugins).forEach(key => {
-        state.plugins[key] = undefined;
       });
       state.chain = undefined;
       state.wallets = undefined;
