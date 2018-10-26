@@ -211,13 +211,20 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
   const ready = (async function() {
     // Setup bsock server
     // socket.io is the default path
-    // TODO: need support for custom paths in bsock
-    // and add all clients to map to path
     socketManager.addClients('socket.io', {
       node: nodeClient,
       wallet: walletClient,
       multisig: multisigWalletClient
     });
+
+    const clientIds = clients.keys();
+    for (let id of clientIds) {
+      socketManager.addClients(id, {
+        node: clients.get(id).nodeClient,
+        wallet: clients.get(id).walletClient,
+        multisig: clients.get(id).multisigWalletClient
+      });
+    }
 
     // Setup app server
     app.use(compression());

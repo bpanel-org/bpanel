@@ -8,7 +8,8 @@ export function connectSocket() {
     type: CONNECT_SOCKET,
     bsock: {
       host: client.host ? client.host : 'localhost',
-      port: 8000
+      port: 8000,
+      namespace: client.id
     }
   };
 }

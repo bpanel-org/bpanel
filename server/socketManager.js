@@ -52,7 +52,10 @@ class SocketManager extends Server {
    */
   handleSocket(socket) {
     socket.hook('auth', (...args) => {
-      if (socket.channel('auth')) throw new Error('Already authed.');
+      if (socket.channel('auth')) {
+        this.logger.warning('Already authed');
+        return;
+      }
 
       if (!this.options.noAuth) {
         const valid = new Validator(args);
