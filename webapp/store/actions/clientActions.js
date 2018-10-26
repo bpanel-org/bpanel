@@ -11,6 +11,11 @@ function setClients(clients) {
 }
 
 function setCurrentClient(clientInfo) {
+  if (!clientInfo.chain && clientInfo.id)
+    // eslint-disable-next-line no-console
+    console.warn(
+      `No chain was set for client ${clientInfo.id}, defaulting to "bitcoin"`
+    );
   const { id, chain = 'bitcoin' } = clientInfo;
   // set the client info for the global client
   if (id) client.setClientInfo(id, chain);
