@@ -8,6 +8,7 @@ const path = require('path');
 
 const BPANEL_DIR = path.resolve(os.homedir(), '.bpanel');
 const CONFIGS_FILE = path.resolve(BPANEL_DIR, './config.js');
+const SECRETS_FILE = path.resolve(BPANEL_DIR, './secrets.json');
 const CLIENTS_DIR = path.resolve(BPANEL_DIR, 'clients');
 const LOCAL_PLUGINS_DIR = path.resolve(BPANEL_DIR, 'local_plugins');
 
@@ -36,6 +37,13 @@ try {
       `info: No local plugins directory file found. Creating one at ${LOCAL_PLUGINS_DIR}`
     );
     fs.mkdirSync(LOCAL_PLUGINS_DIR);
+  }
+
+  if (!fs.existsSync(SECRETS_FILE)) {
+    console.log(
+      `info: No clients directory file found. Creating one at ${SECRETS_FILE}`
+    );
+    fs.appendFileSync(SECRETS_FILE, JSON.stringify({}));
   }
 
   if (!fs.existsSync(CLIENTS_DIR)) {
