@@ -1,5 +1,6 @@
 import { getClient } from '@bpanel/bpanel-utils';
 import { SET_CURRENT_CLIENT, SET_CLIENTS } from '../constants/clients';
+import { STATE_REFRESHED, RESET_STATE } from '../constants/app';
 import { disconnectSocket, connectSocket } from './socketActions';
 
 const client = getClient();
@@ -31,7 +32,10 @@ function resetClient() {
     dispatch(disconnectSocket());
     dispatch(connectSocket());
     dispatch({
-      type: 'RESET_STATE'
+      type: RESET_STATE
+    });
+    dispatch({
+      type: STATE_REFRESHED
     });
   };
 }

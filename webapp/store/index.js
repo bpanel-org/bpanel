@@ -34,7 +34,7 @@ export default async () => {
   if (NODE_ENV === 'development') {
     const composeEnhancers = composeWithDevTools({
       autoPause: true,
-      maxAge: 10
+      maxAge: 15
     });
     debug = true;
     middleware.push(bsockMiddleware({ debug, listeners }));

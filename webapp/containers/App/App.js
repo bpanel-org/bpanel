@@ -13,6 +13,7 @@ import {
   navActions,
   appActions
 } from '../../store/actions/';
+import { APP_LOADED } from '../../store/constants/app';
 import Header from '../Header';
 import Footer from '../Footer';
 import Sidebar from '../Sidebar';
@@ -171,7 +172,7 @@ const mapDispatchToProps = dispatch => {
   const { updateTheme } = themeActions;
   const { hydrateClients, resetClient } = clientActions;
   const { getWindowInfo } = appActions;
-  const appLoaded = () => ({ type: 'APP_LOADED' });
+  const appLoaded = () => ({ type: APP_LOADED });
   return bindActionCreators(
     {
       appLoaded,

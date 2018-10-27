@@ -4,6 +4,7 @@ import storage from 'redux-persist/lib/storage';
 
 import { getPluginReducers, getPersistWhiteList } from '../plugins/plugins';
 import * as reducers from './reducers';
+import { RESET_STATE } from './constants/clients';
 
 export default function getPersistedReducer() {
   const rootPersistConfig = {
@@ -32,7 +33,7 @@ export default function getPersistedReducer() {
   });
 
   const rootReducer = (state, action) => {
-    if (action.type === 'RESET_STATE') {
+    if (action.type === RESET_STATE) {
       // need to clear local storage as well so it's not persisted
       Object.keys(state).forEach(key => {
         storage.removeItem(`persist:${key}`);

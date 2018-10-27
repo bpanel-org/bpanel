@@ -1,5 +1,7 @@
 import { getClient } from '@bpanel/bpanel-utils';
 
+import { SET_CURRENT_CLIENT } from './constants/clients';
+
 export function errorCatcherMiddleware(errorHandler) {
   return function(store) {
     return function(next) {
@@ -22,7 +24,7 @@ export function clientMiddleware() {
   return function(next) {
     return function(action) {
       const client = getClient();
-      if (action.type === 'SET_CURRENT_CLIENT') {
+      if (action.type === SET_CURRENT_CLIENT) {
         const clientInfo = action.payload;
 
         if (!clientInfo.chain && clientInfo.id)
