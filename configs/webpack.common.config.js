@@ -13,11 +13,10 @@ const { MODULES_DIR, SRC_DIR, SERVER_DIR } = require('./constants');
 const bpanelPrefix =
   process.env.BPANEL_PREFIX || path.resolve(os.homedir(), '.bpanel');
 
-let MY_SECRETS = {};
-
 module.exports = () => {
+  let SECRETS = {};
   try {
-    MY_SECRETS = require(path.resolve(bpanelPrefix, 'secrets.json'));
+    SECRETS = require(path.resolve(bpanelPrefix, 'secrets.json'));
   } catch (e) {
     logger.error(
       `Couldn't find secrets.json in ${bpanelPrefix}. Make sure to run npm install to create boilerplate files`
@@ -66,7 +65,7 @@ module.exports = () => {
         }
       }),
       new webpack.DefinePlugin({
-        MY_SECRETS: JSON.stringify(MY_SECRETS),
+        SECRETS: JSON.stringify(SECRETS),
         NODE_ENV: `"${process.env.NODE_ENV}"`,
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         'process.env.BROWSER': JSON.stringify(true)
