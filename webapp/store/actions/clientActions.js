@@ -47,7 +47,7 @@ function getClients() {
   };
 }
 
-function getCurrentClient() {
+function getDefaultClient() {
   return async dispatch => {
     const currentClient = await client.getDefault();
     dispatch(setCurrentClient(currentClient));
@@ -60,7 +60,7 @@ function hydrateClients() {
       await dispatch(getClients());
       let currentClient = getState().clients.currentClient;
       if (!currentClient.id) {
-        await dispatch(getCurrentClient());
+        await dispatch(getDefaultClient());
         currentClient = getState().clients.currentClient;
       } else {
         dispatch(setCurrentClient(currentClient));
@@ -74,7 +74,7 @@ function hydrateClients() {
 
 export default {
   hydrateClients,
-  getCurrentClient,
+  getDefaultClient,
   getClients,
   resetClient,
   setCurrentClient,
