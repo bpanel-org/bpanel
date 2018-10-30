@@ -4,18 +4,9 @@ const webpack = require('webpack');
 
 const merge = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const WebpackShellPlugin = require('webpack-synchronizable-shell-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const config = require('./webpack.common.config.js');
-
-const {
-  ROOT_DIR,
-  DIST_DIR,
-  SRC_DIR,
-  SERVER_DIR,
-  MODULES_DIR
-} = require('./constants');
+const { ROOT_DIR, DIST_DIR, SRC_DIR, MODULES_DIR } = require('./constants');
 
 // can be passed by server process via bcfg interface
 // or passed manually when running webpack from command line
@@ -41,7 +32,7 @@ module.exports = function(env = {}) {
     console.error('There was an error building DllReferencePlugin:', e);
   }
 
-  return merge.smart(config, {
+  return merge.smart(config(), {
     context: ROOT_DIR,
     mode: 'development',
     optimization: {
@@ -125,30 +116,9 @@ module.exports = function(env = {}) {
       ]
     },
     plugins: plugins.concat(
-      new HtmlWebpackPlugin({
-        title: 'bPanel - A Blockchain Management System',
-        template: `${path.join(SRC_DIR, 'index.template.ejs')}`,
-        inject: 'body'
-      }),
       new MiniCssExtractPlugin({
         filename: '[name].css',
         chunkFilename: '[id].css'
-      }),
-      new WebpackShellPlugin({
-        onBuildStart: {
-          scripts: [
-            `node ${path.resolve(SERVER_DIR, 'clear-plugins.js')}`,
-            `node ${path.resolve(
-              SERVER_DIR,
-              'build-plugins.js'
-            )} --prefix=${bpanelPrefix}`
-          ]
-        }
-      }),
-      new webpack.DefinePlugin({
-        NODE_ENV: `"${process.env.NODE_ENV}"`,
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-        'process.env.BROWSER': JSON.stringify(true)
       })
     )
   });
