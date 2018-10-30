@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { Route, Redirect } from 'react-router';
+import { getClient } from '@bpanel/bpanel-utils';
 
 import ThemeProvider from '../ThemeProvider';
 import {
@@ -12,6 +13,7 @@ import {
   navActions,
   appActions
 } from '../../store/actions/';
+import { APP_LOADED } from '../../store/constants/app';
 import Header from '../Header';
 import Footer from '../Footer';
 import Sidebar from '../Sidebar';
@@ -27,6 +29,7 @@ class App extends PureComponent {
   constructor(props) {
     super(props);
     props.loadSideNav();
+    this.client = null;
   }
 
   static get propTypes() {
@@ -49,6 +52,7 @@ class App extends PureComponent {
       updateTheme: PropTypes.func.isRequired,
       appLoaded: PropTypes.func.isRequired,
       hydrateClients: PropTypes.func.isRequired,
+      resetClient: PropTypes.func.isRequired,
       match: PropTypes.shape({
         isExact: PropTypes.bool,
         path: PropTypes.string,
@@ -59,9 +63,19 @@ class App extends PureComponent {
   }
 
   async componentDidMount() {
-    const { getNodeInfo, connectSocket, hydrateClients } = this.props;
+    const {
+      getNodeInfo,
+      connectSocket,
+      hydrateClients,
+      resetClient
+    } = this.props;
 
     await hydrateClients();
+    this.client = getClient();
+    this.client.on('set clients', clientInfo => {
+      resetClient(clientInfo);
+      getNodeInfo();
+    });
     connectSocket();
     getNodeInfo();
   }
@@ -156,13 +170,14 @@ const mapDispatchToProps = dispatch => {
   const { loadSideNav } = navActions;
   const { connectSocket, disconnectSocket } = socketActions;
   const { updateTheme } = themeActions;
-  const { hydrateClients } = clientActions;
+  const { hydrateClients, resetClient } = clientActions;
   const { getWindowInfo } = appActions;
-  const appLoaded = () => ({ type: 'APP_LOADED' });
+  const appLoaded = () => ({ type: APP_LOADED });
   return bindActionCreators(
     {
       appLoaded,
       hydrateClients,
+      resetClient,
       getNodeInfo,
       loadSideNav,
       connectSocket,

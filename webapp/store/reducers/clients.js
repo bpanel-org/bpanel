@@ -1,4 +1,4 @@
-import { SET_CLIENTS, SET_DEFAULT_CLIENT } from '../constants/clients';
+import { SET_CLIENTS, SET_CURRENT_CLIENT } from '../constants/clients';
 import assert from 'bsert';
 
 const initialState = {
@@ -15,7 +15,7 @@ const clientsState = (state = initialState, action) => {
       return newState;
     }
 
-    case SET_DEFAULT_CLIENT: {
+    case SET_CURRENT_CLIENT: {
       assert(
         typeof payload === 'object' && payload.id,
         'Must have a client object with an id'

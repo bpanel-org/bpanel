@@ -124,15 +124,7 @@ async function symlinkLocal(packageName) {
 async function checkForModuleExistence(pkg) {
   const pkgPath = resolve(MODULES_DIRECTORY, pkg);
   const exists = fs.existsSync(pkgPath);
-
-  // if it doesn't exist we have our answer
-  if (!exists) return false;
-
-  // otherwise need to confirm that it's not a symbolic link
-  const stat = await fs.lstat(pkgPath);
-
-  // if package exists and is not a symbolic link return false
-  return exists && !stat.isSymbolicLink();
+  return exists;
 }
 
 // get names of plugins that are available local to the project
