@@ -27,6 +27,21 @@ function loadConfig(name, options = {}) {
   return config;
 }
 
+function getConfigFromOptions(options) {
+  let config;
+  if (!(options instanceof Config)) {
+    assert(options.id, 'must pass an id to test config options');
+    config = loadConfig(options.id, options);
+  } else {
+    assert(options.str('id'), 'must pass an id to test config options');
+    // make a copy to avoid mutations
+    config = loadConfig(options.str('id'), {
+      ...options.options
+    });
+  }
+  return config;
+}
+
 /*
  * Get an array of configs for each client
  * in the module's home directory
@@ -93,4 +108,4 @@ function loadClientConfigs(_config) {
   });
 }
 
-module.exports = { loadClientConfigs, loadConfig };
+module.exports = { loadClientConfigs, loadConfig, getConfigFromOptions };

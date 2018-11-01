@@ -12,7 +12,7 @@ function clientsRouter(clients, defaultId) {
   // relevant info for each client
   // keyed to the client id
   const clientInfo = {};
-  console.log('clientRoutes:', clients.get('hsd_local').walletClient);
+
   clients.forEach((client, id) => {
     if (!client.config.str('chain'))
       logger.warn(

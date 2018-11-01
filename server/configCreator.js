@@ -1,41 +1,48 @@
 // Create a bcfg-compatible config file
 
-const Config = require('bcfg');
 const assert = require('bsert');
 const fs = require('bfile');
 const { resolve } = require('path');
 
 const logger = require('./logger');
 const clientFactory = require('./clientFactory');
-const { loadConfig } = require('./loadConfigs');
-/* Supports following use cases:
- * create a new config from scratch
- * update an existing config with new
- * options
+const { loadConfig, getConfigFromOptions } = require('./loadConfigs');
+
+/*
+ * create client config
+ * Note: This will actually create the file in your bpanel prefix location
+ * @param {Object} options object for a bcoin/hsd client
+ * @returns {bcfg.Config}
  */
-
 async function createClientConfig(options) {
-  let clientConfig = options;
-  // if not a bcfg object, create one from object
-  if (!(options instanceof Config)) {
-    // confirm it has an id
-    assert(
-      typeof options.id === 'string',
-      'Must pass a string for the configs id'
-    );
-    const appConfig = loadConfig('bpanel', options);
-    const clientsDir = appConfig.str('clients-dir', 'clients');
-
-    // get full path to client configs relative to the project
-    // prefix which defaults to `~/.bpanel`
-    const clientsPath = resolve(appConfig.prefix, clientsDir);
-
-    clientConfig = loadConfig(options.id, { ...options, prefix: clientsPath });
-  }
+  let clientConfig = getConfigFromOptions(options);
   assert(clientConfig.str('id'), 'Client config must have an id');
 
-  await testClients(clientConfig);
+  const appConfig = loadConfig('bpanel', options);
+  const clientsDir = appConfig.str('clients-dir', 'clients');
 
+  // get full path to client configs relative to the project
+  // prefix which defaults to `~/.bpanel`
+  const clientsPath = resolve(appConfig.prefix, clientsDir);
+
+  await testConfigOptions(clientConfig);
+
+  let configTxt = '';
+  for (let key in clientConfig.options) {
+    const configKey = key
+      .replace('-', '')
+      .replace('_', '')
+      .toLowerCase();
+    const text = `${configKey}: ${clientConfig.options[key]}\n`;
+    configTxt = configTxt.concat(text);
+  }
+  if (!fs.existsSync(clientsPath)) {
+    logger.warn(
+      `Could not find requested client directory at ${clientsPath}. Creating new one...`
+    );
+    fs.mkdirpSync(clientsPath);
+  }
+  fs.writeFileSync(`${clientsPath}/${clientConfig.str('id')}.conf`, configTxt);
   return clientConfig;
 }
 
@@ -46,11 +53,8 @@ async function createClientConfig(options) {
  * @returns void
  */
 
-async function testClients(clientConfig) {
-  assert(
-    clientConfig instanceof Config,
-    'Must pass bcfg instance to test clients'
-  );
+async function testConfigOptions(options) {
+  const clientConfig = getConfigFromOptions(options);
   const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
     clientConfig
   );
@@ -107,15 +111,8 @@ class ClientErrors extends Error {
   }
 }
 
-/*
-// **** prepare config text
- // create empty text for config file
- // go through each item in the Config's data property
-  // take key, remove '-', and toLowerCase()
-  // concat ': ' + value
-// add text to file using prefix and id from config
-*/
-
 module.exports = {
-  createClientConfig
+  createClientConfig,
+  ClientErrors,
+  testConfigOptions
 };
