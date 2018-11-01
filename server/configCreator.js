@@ -33,40 +33,49 @@ async function createClientConfig(options) {
     clientConfig = loadConfig(options.id, { ...options, prefix: clientsPath });
   }
   assert(clientConfig.str('id'), 'Client config must have an id');
+
+  await testClients(clientConfig);
+
+  return clientConfig;
+}
+
+/*
+ * create and test clients based on a passed config
+ * @param {Config} clientConfig
+ * @throws {ClientErrors} - throws if at least one client fails
+ * @returns void
+ */
+
+async function testClients(clientConfig) {
+  assert(
+    clientConfig instanceof Config,
+    'Must pass bcfg instance to test clients'
+  );
   const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
     clientConfig
   );
 
-  // test status of clients based on configs
-  // throw an error if any of them fail
-  const clientErrors = new Error(
-    'There was a problem connecting with the clients: '
-  );
-  clientErrors.failed = [];
+  const clientErrors = new ClientErrors();
+
   try {
     if (clientConfig.bool('node', true)) await nodeClient.getInfo();
   } catch (e) {
-    clientErrors.node = { message: e.message, ...e };
-    clientErrors.failed.push('node');
+    clientErrors.addFailed('node', e);
   }
   try {
     if (clientConfig.bool('wallet', true)) await walletClient.getInfo();
   } catch (e) {
-    clientErrors.wallet = { message: e.message, ...e };
-    clientErrors.failed.push('wallet');
+    clientErrors.addFailed('wallet', e);
   }
   try {
     if (clientConfig.bool('multisigWallet', true))
       await multisigWalletClient.getInfo();
   } catch (e) {
-    clientErrors.multisigWallet = { message: e.message, ...e };
-    clientErrors.failed.push('multisigWallet');
+    clientErrors.addFailed('multisigWallet', e);
   }
 
-  if (clientErrors.node || clientErrors.wallet || clientErrors.multisigWallet) {
-    clientErrors.message = clientErrors.message.concat(
-      clientErrors.failed.join(', ')
-    );
+  if (clientErrors.failed.length) {
+    clientErrors.composeMessage();
     if (clientConfig.bool('force', false)) {
       logger.warn(clientErrors.message);
       logger.warn('Creating config file anyway...');
@@ -74,7 +83,28 @@ async function createClientConfig(options) {
       throw clientErrors;
     }
   }
-  return clientConfig;
+}
+
+class ClientErrors extends Error {
+  constructor(...options) {
+    super(...options);
+    this.failed = [];
+  }
+
+  addFailed(clientType, error) {
+    assert(typeof clientType === 'string');
+    this[clientType] = { message: error.message, ...error };
+    this.failed.push(clientType);
+  }
+
+  composeMessage() {
+    // compose only if there isn't a custom message
+    if (!this.message.length) {
+      const prefix =
+        'There was a problem connecting with the following clients: ';
+      this.message = prefix.concat(this.failed.join(', '));
+    }
+  }
 }
 
 /*
