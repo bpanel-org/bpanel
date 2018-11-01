@@ -2,6 +2,7 @@ const express = require('express');
 const assert = require('bsert');
 const Config = require('bcfg');
 const logger = require('./logger');
+const { createClientConfig } = require('./configCreator');
 
 function clientsRouter(clients, defaultId) {
   const router = express.Router({ mergeParams: true });
@@ -11,7 +12,7 @@ function clientsRouter(clients, defaultId) {
   // relevant info for each client
   // keyed to the client id
   const clientInfo = {};
-
+  console.log('clientRoutes:', clients.get('hsd_local').walletClient);
   clients.forEach((client, id) => {
     if (!client.config.str('chain'))
       logger.warn(
@@ -46,6 +47,10 @@ function clientsRouter(clients, defaultId) {
   // middleware for setting constants based on
   // the route being used
   router.use('/:id', (req, res, next) => {
+    // this middleware only useful for existing clients
+    // so we can skip if POSTing a new client config
+    if (req.method === 'POST') return next();
+
     id = req.params.id;
     if (!clients.has(id))
       return res.status(404).json({
@@ -125,6 +130,41 @@ function clientsRouter(clients, defaultId) {
     res.status(200).json(info);
   });
 
+  router.post('/:id', async (req, res) => {
+    const id = req.params.id;
+    if (clientInfo[req.params.id])
+      return res
+        .status(409)
+        .send({ message: `A client with the id "${id}" already exists` });
+
+    try {
+      const config = await createClientConfig({ id, ...req.body });
+      res.status(200).json({
+        message: 'so you want to add a client?',
+        client: config.options
+      });
+    } catch (error) {
+      logger.error('Problem creating config: ', error.message);
+      res.status(400).send({ error: { message: error.message, ...error } });
+    }
+    // will check for some sort of option in body to "force"
+    // creation. This is for the case where user confirms
+    // they want to create a config when client fails to connect
+  });
+
+  router.delete('/:id', (req, res) => {
+    res.status(200).json({
+      message: 'so you want to delete a client?',
+      client: clientInfo[req.params.id]
+    });
+  });
+
+  router.put('/:id', (req, res) => {
+    res.status(200).json({
+      message: 'so you want to update a client?',
+      client: clientInfo[req.params.id]
+    });
+  });
   return router;
 }
 

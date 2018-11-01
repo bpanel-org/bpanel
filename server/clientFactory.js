@@ -50,11 +50,13 @@ function clientFactory(config) {
     Network = HSNetwork;
     NodeClient = HSNodeClient;
     WalletClient = HSWalletClient;
-  } else {
+  } else if (chain === 'bitcoin' || chain === 'bitcoincash') {
     // bitcoin settings as fallback
     Network = BNetwork;
     NodeClient = BNodeClient;
     WalletClient = BWalletClient;
+  } else {
+    throw new Error(`Unrecognized chain ${chain}`);
   }
 
   const network = Network.get(config.str('network', 'main'));

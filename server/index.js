@@ -105,6 +105,7 @@ module.exports = async (_config = {}) => {
   const SocketManager = require('./socketManager');
   const clientFactory = require('./clientFactory');
   const clientRoutes = require('./clientRoutes');
+  const { loadClientConfigs } = require('./loadConfigs');
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -147,7 +148,7 @@ will increase speed of future builds, so please be patient.'
   // loadConfigs uses the bpanelConfig to find the clients and build
   // each of their configs. Then we filter for the config that matches
   // the one passed via `client-id`
-  const clientConfigs = require('./loadConfigs')(bpanelConfig);
+  const clientConfigs = loadClientConfigs(bpanelConfig);
 
   assert(
     clientConfigs.length,

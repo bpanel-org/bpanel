@@ -93,4 +93,4 @@ function loadClientConfigs(_config) {
   });
 }
 
-module.exports = loadClientConfigs;
+module.exports = { loadClientConfigs, loadConfig };
