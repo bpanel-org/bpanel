@@ -169,10 +169,11 @@ function clientsRouter(clients, defaultId) {
   });
 
   router.post('/:id', async (req, res) => {
-    if (clientInfo[req.params.id])
+    const id = req.params.id;
+    if (clientInfo[id])
       return res
         .status(409)
-        .send({ message: `A client with the id "${id}" already exists` });
+        .send({ message: `A client with the id '${id}' already exists` });
 
     return updateOrAdd(req, res);
   });

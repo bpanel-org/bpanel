@@ -22,7 +22,7 @@ process.env.BPANEL_CLIENTS_DIR = 'test_clients';
 const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
 const clientsDirPath = resolve(BPANEL_PREFIX, BPANEL_CLIENTS_DIR);
 
-describe.only('configHelpers', () => {
+describe('configHelpers', () => {
   let node, apiKey, ports, options, id, config;
 
   before('create and start regtest node', async () => {

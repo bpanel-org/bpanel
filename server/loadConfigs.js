@@ -28,20 +28,14 @@ function loadConfig(name, options = {}) {
 }
 
 function getConfigFromOptions(options) {
-  let config;
-  if (!(options instanceof Config)) {
-    assert(options.id, 'must pass an id to test config options');
-    config = loadConfig(options.id, options);
-  } else {
-    assert(options.str('id'), 'must pass an id to test config options');
-    // making a copy from options and data properties
-    // to avoid any mutations
-    config = loadConfig(options.str('id'), {
-      ...options.options,
-      ...options.data
-    });
-  }
-  return config;
+  if (!(options instanceof Config)) options = loadConfig(options.id, options);
+  assert(options.str('id'), 'must pass an id to test config options');
+  // making a copy from options and data properties
+  // to avoid any mutations
+  return loadConfig(options.str('id'), {
+    ...options.options,
+    ...options.data
+  });
 }
 
 /*

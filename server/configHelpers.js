@@ -20,7 +20,6 @@ const { loadConfig, getConfigFromOptions } = require('./loadConfigs');
  */
 async function createClientConfig(id, options = {}, force = false) {
   assert(typeof id === 'string', 'Must pass an id as first paramater');
-  // assert(options, 'Must pass config options to create a client');
 
   let clientConfig = options;
   if (!(options instanceof Config))
@@ -126,26 +125,24 @@ async function testConfigOptions(options) {
   } catch (e) {
     throw e;
   }
-  const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
-    clientConfig
-  );
+
+  const clients = clientFactory(clientConfig);
+
   const clientErrors = new ClientErrors();
 
-  try {
-    if (clientConfig.bool('node', true)) await nodeClient.getInfo();
-  } catch (e) {
-    clientErrors.addFailed('node', e);
-  }
-  try {
-    if (clientConfig.bool('wallet', true)) await walletClient.getInfo();
-  } catch (e) {
-    clientErrors.addFailed('wallet', e);
-  }
-  try {
-    if (clientConfig.bool('multisigWallet', true))
-      await multisigWalletClient.getInfo();
-  } catch (e) {
-    clientErrors.addFailed('multisigWallet', e);
+  // check each client to see if it can connect
+  // for each failure, `addFailed` to the error object
+  for (let key in clients) {
+    // keys come back of the form "nodeClient"
+    // to get the type we need to remove "Client" from the string
+    const type = key.substr(0, key.indexOf('Client'));
+    try {
+      logger.info(`Checking ${key} for config "${clientConfig.str('id')}"`);
+      if (clientConfig.bool(type, true)) await clients[key].getInfo();
+    } catch (e) {
+      clientErrors.addFailed(type, e);
+      continue;
+    }
   }
 
   if (clientErrors.failed.length) {
