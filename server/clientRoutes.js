@@ -162,7 +162,7 @@ function clientsRouter(clients, defaultId) {
     // scrub apiKeys and tokens
     for (let key in configurations.data) {
       if (key.includes('api') || key.includes('token'))
-        delete configurations.data[key];
+        configurations.data[key] = undefined;
     }
 
     res.status(200).json(info);

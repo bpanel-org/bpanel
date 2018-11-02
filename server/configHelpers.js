@@ -98,17 +98,14 @@ function deleteConfig(id) {
   assert(typeof id === 'string', 'Expected to get id of config to delete');
   const config = getConfig(id);
   const path = resolve(config.prefix, `${config.str('id')}.conf`);
-  const exists = fs.existsSync(path);
-  if (!exists)
-    logger.info('Attempt to delete config failed because file does not exist');
-  else {
-    try {
-      fs.unlinkSync(path);
-    } catch (e) {
-      logger.error('Problem removing file:', e);
-    }
+  let success = true;
+  try {
+    fs.unlinkSync(path);
+  } catch (e) {
+    logger.error('Problem removing config:', e);
+    success = false;
   }
-  return true;
+  return success;
 }
 
 /*
