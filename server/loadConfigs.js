@@ -34,9 +34,11 @@ function getConfigFromOptions(options) {
     config = loadConfig(options.id, options);
   } else {
     assert(options.str('id'), 'must pass an id to test config options');
-    // make a copy to avoid mutations
+    // making a copy from options and data properties
+    // to avoid any mutations
     config = loadConfig(options.str('id'), {
-      ...options.options
+      ...options.options,
+      ...options.data
     });
   }
   return config;

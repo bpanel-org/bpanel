@@ -94,11 +94,15 @@ async function getConfig(id) {
  */
 
 async function testConfigOptions(options) {
-  const clientConfig = getConfigFromOptions(options);
+  let clientConfig;
+  try {
+    clientConfig = getConfigFromOptions(options);
+  } catch (e) {
+    throw e;
+  }
   const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
     clientConfig
   );
-
   const clientErrors = new ClientErrors();
 
   try {

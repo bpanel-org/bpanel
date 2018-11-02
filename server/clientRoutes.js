@@ -139,25 +139,30 @@ function clientsRouter(clients, defaultId) {
         return res.status(500).send(`There was a problem with your request.`);
     }
 
-    // scrub apiKeys and tokens
-    for (let key in configurations.data) {
-      if (key.includes('api') || key.includes('token'))
-        delete configurations.data[key];
-    }
-
     const info = {
       configs: configurations.data
     };
 
     if (req.query.checkStatus) {
-      let status = true;
       logger.info(`Checking status of client "${req.params.id}"...`);
       try {
+        console.log('configurations:', configurations);
         await testConfigOptions(configurations);
+        info.status = true;
       } catch (e) {
-        status = false;
+        if (e.failed && e.failed.length) {
+          info.failed = e.failed;
+          info.status = false;
+        } else {
+          return res.status(500).send(e);
+        }
       }
-      info.status = status;
+    }
+
+    // scrub apiKeys and tokens
+    for (let key in configurations.data) {
+      if (key.includes('api') || key.includes('token'))
+        delete configurations.data[key];
     }
 
     res.status(200).json(info);
