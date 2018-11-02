@@ -42,8 +42,8 @@
     "npm": ">=5.7.1"
   },
   "dependencies": {
-    "@bpanel/bpanel-ui": "0.0.12",
-    "@bpanel/bpanel-utils": "0.1.1",
+    "@bpanel/bpanel-ui": "0.0.13",
+    "@bpanel/bpanel-utils": "0.1.2",
     "aphrodite": "^1.2.5",
     "autoprefixer": "^7.1.5",
     "base64-inline-loader": "^1.1.1",
