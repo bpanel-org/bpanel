@@ -20,7 +20,7 @@ process.env.BPANEL_CLIENTS_DIR = 'test_clients';
 const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
 const clientsDirPath = resolve(BPANEL_PREFIX, BPANEL_CLIENTS_DIR);
 
-describe('configCreator', () => {
+describe.only('configCreator', () => {
   let node, apiKey, ports, options, id, config;
 
   before('create and start regtest node', async () => {
@@ -128,7 +128,7 @@ describe('configCreator', () => {
       let passed = false;
 
       try {
-        await createClientConfig(failOpts);
+        await createClientConfig(id, failOpts);
         passed = true;
       } catch (e) {
         assert.instanceOf(
@@ -142,7 +142,7 @@ describe('configCreator', () => {
 
     it('should create a new config file in correct clients directory with correct configs', async () => {
       config.inject(options);
-      await createClientConfig(options);
+      await createClientConfig(id, options);
       const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
       const clientPath = resolve(
         BPANEL_PREFIX,

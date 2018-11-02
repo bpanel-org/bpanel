@@ -11,11 +11,14 @@ const { loadConfig, getConfigFromOptions } = require('./loadConfigs');
 /*
  * create client config
  * Note: This will actually create the file in your bpanel prefix location
+ * @param {string} id - id for the client
  * @param {Object} options object for a bcoin/hsd client
+ * @param {bool} force - whether or not to force config creation if client
+ * can't connect
  * @returns {bcfg.Config}
  */
-async function createClientConfig(options) {
-  let clientConfig = getConfigFromOptions(options);
+async function createClientConfig(id, options, force = false) {
+  let clientConfig = getConfigFromOptions({ id, ...options });
   assert(clientConfig.str('id'), 'Client config must have an id');
 
   const appConfig = loadConfig('bpanel', options);
@@ -25,7 +28,14 @@ async function createClientConfig(options) {
   // prefix which defaults to `~/.bpanel`
   const clientsPath = resolve(appConfig.prefix, clientsDir);
 
-  await testConfigOptions(clientConfig);
+  try {
+    await testConfigOptions(clientConfig);
+  } catch (e) {
+    if (force) {
+      logger.warn(e.message);
+      logger.warn('Creating config file anyway...');
+    } else throw e;
+  }
 
   let configTxt = '';
   for (let key in clientConfig.options) {
@@ -80,12 +90,7 @@ async function testConfigOptions(options) {
 
   if (clientErrors.failed.length) {
     clientErrors.composeMessage();
-    if (clientConfig.bool('force', false)) {
-      logger.warn(clientErrors.message);
-      logger.warn('Creating config file anyway...');
-    } else {
-      throw clientErrors;
-    }
+    throw clientErrors;
   }
 }
 

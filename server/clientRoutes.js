@@ -138,7 +138,8 @@ function clientsRouter(clients, defaultId) {
         .send({ message: `A client with the id "${id}" already exists` });
 
     try {
-      const config = await createClientConfig({ id, ...req.body });
+      const { options, force = false } = req.body;
+      const config = await createClientConfig(id, options, force);
       res.status(200).json({
         message: 'so you want to add a client?',
         client: config.options
@@ -147,9 +148,6 @@ function clientsRouter(clients, defaultId) {
       logger.error('Problem creating config: ', error.message);
       res.status(400).send({ error: { message: error.message, ...error } });
     }
-    // will check for some sort of option in body to "force"
-    // creation. This is for the case where user confirms
-    // they want to create a config when client fails to connect
   });
 
   router.delete('/:id', (req, res) => {
