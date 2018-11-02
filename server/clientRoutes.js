@@ -169,25 +169,12 @@ function clientsRouter(clients, defaultId) {
   });
 
   router.post('/:id', async (req, res) => {
-    const id = req.params.id;
     if (clientInfo[req.params.id])
       return res
         .status(409)
         .send({ message: `A client with the id "${id}" already exists` });
 
-    try {
-      const { options, force = false } = req.body;
-      const config = await createClientConfig(id, options, force);
-      res.status(200).json({
-        message: 'so you want to add a client?',
-        client: config.options
-      });
-    } catch (error) {
-      logger.error('Problem creating config: ', error.message);
-      return res
-        .status(400)
-        .send({ error: { message: error.message, ...error } });
-    }
+    return updateOrAdd(req, res);
   });
 
   router.delete('/:id', (req, res) => {
@@ -195,13 +182,24 @@ function clientsRouter(clients, defaultId) {
     return res.status(200).json({ success });
   });
 
-  router.put('/:id', (req, res) => {
-    res.status(200).json({
-      message: 'so you want to update a client?',
-      client: clientInfo[req.params.id]
-    });
-  });
+  router.put('/:id', updateOrAdd);
   return router;
+}
+
+async function updateOrAdd(req, res) {
+  const id = req.params.id;
+  try {
+    const { options, force = false } = req.body;
+    const config = await createClientConfig(id, options, force);
+    return res.status(200).send({
+      configs: config.options
+    });
+  } catch (error) {
+    logger.error('Problem creating config: ', error.message);
+    return res
+      .status(400)
+      .send({ error: { message: error.message, ...error } });
+  }
 }
 
 module.exports = clientsRouter;
