@@ -6,6 +6,7 @@ const logger = require('./logger');
 const {
   createClientConfig,
   getConfig,
+  deleteConfig,
   testConfigOptions
 } = require('./configHelpers');
 
@@ -146,7 +147,6 @@ function clientsRouter(clients, defaultId) {
     if (req.query.checkStatus) {
       logger.info(`Checking status of client "${req.params.id}"...`);
       try {
-        console.log('configurations:', configurations);
         await testConfigOptions(configurations);
         info.status = true;
       } catch (e) {
@@ -184,15 +184,15 @@ function clientsRouter(clients, defaultId) {
       });
     } catch (error) {
       logger.error('Problem creating config: ', error.message);
-      res.status(400).send({ error: { message: error.message, ...error } });
+      return res
+        .status(400)
+        .send({ error: { message: error.message, ...error } });
     }
   });
 
   router.delete('/:id', (req, res) => {
-    res.status(200).json({
-      message: 'so you want to delete a client?',
-      client: clientInfo[req.params.id]
-    });
+    const success = deleteConfig(req.params.id);
+    return res.status(200).json({ success });
   });
 
   router.put('/:id', (req, res) => {

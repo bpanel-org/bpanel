@@ -66,7 +66,8 @@ async function createClientConfig(id, options = {}, force = false) {
  * @param {string} id - id of client to retrieve
  * @returns {bcfg.Config} - bcfg object of config
  */
-async function getConfig(id) {
+
+function getConfig(id) {
   assert(typeof id === 'string', 'Client config must have an id');
 
   const appConfig = loadConfig('bpanel');
@@ -84,6 +85,31 @@ async function getConfig(id) {
 
   config.open(`${id}.conf`);
   return config;
+}
+
+/*
+ * Simple utility that deletes a config
+ * Does not throw errors if client is not found
+ * NOTE: This does not confirm. Deletion is final!
+ * @param {string} id
+ * @returns {bool} - returns true when operation completed successfully
+ */
+
+function deleteConfig(id) {
+  assert(typeof id === 'string', 'Expected to get id of config to delete');
+  const config = getConfig(id);
+  const path = resolve(config.prefix, `${config.str('id')}.conf`);
+  const exists = fs.existsSync(path);
+  if (!exists)
+    logger.info('Attempt to delete config failed because file does not exist');
+  else {
+    try {
+      fs.unlinkSync(path);
+    } catch (e) {
+      logger.error('Problem removing file:', e);
+    }
+  }
+  return true;
 }
 
 /*
@@ -153,6 +179,7 @@ class ClientErrors extends Error {
 module.exports = {
   createClientConfig,
   getConfig,
+  deleteConfig,
   ClientErrors,
   testConfigOptions
 };
