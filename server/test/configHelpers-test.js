@@ -10,8 +10,9 @@ const { initFullNode } = require('./utils/regtest');
 const {
   createClientConfig,
   testConfigOptions,
+  getConfig,
   ClientErrors
-} = require('../configCreator');
+} = require('../configHelpers');
 
 // setup tmp directory for testing
 const testDir = resolve(os.homedir(), '.bpanel_tmp');
@@ -20,7 +21,7 @@ process.env.BPANEL_CLIENTS_DIR = 'test_clients';
 const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
 const clientsDirPath = resolve(BPANEL_PREFIX, BPANEL_CLIENTS_DIR);
 
-describe.only('configCreator', () => {
+describe.only('configHelpers', () => {
   let node, apiKey, ports, options, id, config;
 
   before('create and start regtest node', async () => {
@@ -109,18 +110,10 @@ describe.only('configCreator', () => {
   });
 
   describe('createClientConfig', () => {
-    it('should only take an options object or a bcfg object', async () => {
-      let failedOnString = true;
-      try {
-        await createClientConfig(options);
-        config.inject(options);
-        await createClientConfig(config);
-        await createClientConfig('baz');
-        failedOnString = false;
-      } catch (e) {
-        assert(e);
-      }
-      assert(failedOnString, 'Should have failed when passed a string');
+    it('should accept options object or a bcfg object', async () => {
+      await createClientConfig(id, options, true);
+      config.inject(options);
+      await createClientConfig(id, config, true);
     });
 
     it('should test clients', async () => {
@@ -140,7 +133,7 @@ describe.only('configCreator', () => {
       assert(!passed, 'Expected to fail with bad options');
     });
 
-    it('should create a new config file in correct clients directory with correct configs', async () => {
+    it('should create new config file in clients directory with correct configs', async () => {
       config.inject(options);
       await createClientConfig(id, options);
       const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
@@ -158,6 +151,55 @@ describe.only('configCreator', () => {
       const loadedConfigs = loadConfig(id, { id, prefix: clientsDirPath });
       loadedConfigs.open(`${id}.conf`);
       await testConfigOptions(loadedConfigs.data);
+    });
+  });
+
+  describe('getConfig', () => {
+    it('should get the config object from a config file', async () => {
+      await createClientConfig(id, options);
+      const config = await getConfig(id);
+      assert.instanceOf(config, Config, 'Expected to get a bcfg object');
+      const expectedConfigs = loadConfig(id, options);
+
+      // need to do a custom deep comparison with non-strict comparisons
+      // because of the way bcfg converts
+      // `data` contains the configs loaded from a file
+      // `options` contains configs injected from options
+      const actualKeys = Object.keys(config.data);
+      const expectedKeys = Object.keys(expectedConfigs.options);
+      assert.equal(
+        actualKeys.length,
+        expectedKeys.length,
+        'Wrong number of properties'
+      );
+      for (let key of actualKeys) {
+        let actual = config.data[key];
+        let expected = expectedConfigs.options[key];
+
+        // bools don't get inserted consistently to config object
+        if (actual === 'false' || actual === 'true')
+          actual = JSON.parse(actual);
+        if (expected === 'false' || expected === 'true')
+          expected = JSON.parse(expected);
+
+        assert.equal(
+          actual,
+          expected,
+          `Actual ${key} in config.data did not match expected ${key}`
+        );
+      }
+    });
+
+    it('should throw if config does not exist', async () => {
+      const failId = 'fail';
+      let failed;
+      try {
+        await getConfig(failId);
+        failed = false;
+      } catch (e) {
+        failed = true;
+      }
+      assert(failed, `Expected getConfig to fail for id "${failId}"`);
     });
   });
 });

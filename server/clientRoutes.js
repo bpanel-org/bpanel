@@ -1,8 +1,13 @@
 const express = require('express');
 const assert = require('bsert');
 const Config = require('bcfg');
+
 const logger = require('./logger');
-const { createClientConfig } = require('./configCreator');
+const {
+  createClientConfig,
+  getConfig,
+  testConfigOptions
+} = require('./configHelpers');
 
 function clientsRouter(clients, defaultId) {
   const router = express.Router({ mergeParams: true });
@@ -122,11 +127,39 @@ function clientsRouter(clients, defaultId) {
   });
 
   // get info about a specific client
-  router.get('/:id', (req, res) => {
+  router.get('/:id', async (req, res) => {
+    let configurations;
+    try {
+      configurations = await getConfig(req.params.id);
+    } catch (e) {
+      logger.error(e);
+      if (e.code === 'ENOENT')
+        return res.status(404).send(`Config for "${req.params.id}" not found`);
+      else
+        return res.status(500).send(`There was a problem with your request.`);
+    }
+
+    // scrub apiKeys and tokens
+    for (let key in configurations.data) {
+      if (key.includes('api') || key.includes('token'))
+        delete configurations.data[key];
+    }
+
     const info = {
-      network: config.str('network'),
-      chain: config.str('chain', 'bitcoin')
+      configs: configurations.data
     };
+
+    if (req.query.checkStatus) {
+      let status = true;
+      logger.info(`Checking status of client "${req.params.id}"...`);
+      try {
+        await testConfigOptions(configurations);
+      } catch (e) {
+        status = false;
+      }
+      info.status = status;
+    }
+
     res.status(200).json(info);
   });
 
