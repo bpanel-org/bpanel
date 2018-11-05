@@ -144,18 +144,17 @@ function clientsRouter(clients, defaultId) {
       configs: configurations.data
     };
 
-    if (req.query.checkStatus) {
-      logger.info(`Checking status of client "${req.params.id}"...`);
+    if (req.query.health) {
       try {
-        await testConfigOptions(configurations);
-        info.status = true;
-      } catch (e) {
-        if (e.failed && e.failed.length) {
-          info.failed = e.failed;
-          info.status = false;
-        } else {
-          return res.status(500).send(e);
+        logger.info(`Checking status of client "${req.params.id}"...`);
+        const [err, clientErrors] = await testConfigOptions(configurations);
+        if (!err) info.healthy = true;
+        else if (clientErrors.failed.length) {
+          info.failed = clientErrors.failed;
+          info.healthy = false;
         }
+      } catch (e) {
+        return res.status(500).send(e);
       }
     }
 

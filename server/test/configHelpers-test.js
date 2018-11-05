@@ -75,37 +75,29 @@ describe('configHelpers', () => {
 
       config.inject(options);
 
-      let failed = true;
-      try {
-        await testConfigOptions(config);
-        failed = false;
-      } catch (e) {
-        assert.includeMembers(
-          e.failed,
-          ['node', 'wallet'],
-          'Expected failures for node and wallet clients'
-        );
+      const [err, clientErrors] = await testConfigOptions(config);
+      assert(err, 'Expected testConfigOptions to have an error');
+      assert.includeMembers(
+        clientErrors.failed,
+        ['node', 'wallet'],
+        'Expected failures for node and wallet clients'
+      );
 
-        // since we're testing specific errors, want to make sure the test is
-        // setup correctly
-        assert(
-          options.apiKey !== apiKey && options.walletport !== ports.wallet,
-          'api key and wallet port options should not match node when testing failures'
-        );
-        assert.include(
-          e.node.message,
-          'Unauthorized',
-          'Node should have failed because of bad API key'
-        );
-        assert.include(
-          e.wallet.message,
-          'ECONNREFUSED',
-          'Wallet client connection should have failed because of bad port'
-        );
-      }
+      // since we're testing specific errors, want to make sure the test is
+      // setup correctly
       assert(
-        failed,
-        'Expected testConfigOptions to fail with incorrect options'
+        options.apiKey !== apiKey && options.walletport !== ports.wallet,
+        'api key and wallet port options should not match node when testing failures'
+      );
+      assert.include(
+        clientErrors.node.message,
+        'Unauthorized',
+        'Node should have failed because of bad API key'
+      );
+      assert.include(
+        clientErrors.wallet.message,
+        'ECONNREFUSED',
+        'Wallet client connection should have failed because of bad port'
       );
     });
   });

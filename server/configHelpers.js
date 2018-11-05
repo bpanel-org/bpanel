@@ -32,13 +32,12 @@ async function createClientConfig(id, options = {}, force = false) {
   // prefix which defaults to `~/.bpanel`
   const clientsPath = resolve(appConfig.prefix, clientsDir);
 
-  try {
-    await testConfigOptions(clientConfig);
-  } catch (e) {
-    if (force) {
-      logger.warn(e.message);
-      logger.warn('Creating config file anyway...');
-    } else throw e;
+  const [err, clientErrors] = await testConfigOptions(clientConfig);
+  if (err && force) {
+    logger.warn(clientErrors.message);
+    logger.warn('Creating config file anyway...');
+  } else if (err) {
+    throw clientErrors;
   }
 
   let configTxt = '';
@@ -98,21 +97,22 @@ function deleteConfig(id) {
   assert(typeof id === 'string', 'Expected to get id of config to delete');
   const config = getConfig(id);
   const path = resolve(config.prefix, `${config.str('id')}.conf`);
-  let success = true;
+
   try {
     fs.unlinkSync(path);
+    return true;
   } catch (e) {
     logger.error('Problem removing config:', e);
-    success = false;
+    return false;
   }
-  return success;
 }
 
 /*
  * create and test clients based on a passed config
  * @param {Config} clientConfig
  * @throws {ClientErrors} - throws if at least one client fails
- * @returns void
+ * @returns {[bool, ClientErrors]} [err, ClientErrors] - bool is true
+ * if there was an error, false if no error.
  */
 
 async function testConfigOptions(options) {
@@ -127,25 +127,42 @@ async function testConfigOptions(options) {
 
   const clientErrors = new ClientErrors();
 
+  // save the async checks in an array so we can parallelize the
+  // network call with a `Promise.all`
+  const clientChecks = [];
+
   // check each client to see if it can connect
   // for each failure, `addFailed` to the error object
   for (let key in clients) {
     // keys come back of the form "nodeClient"
     // to get the type we need to remove "Client" from the string
     const type = key.substr(0, key.indexOf('Client'));
-    try {
-      logger.info(`Checking ${key} for config "${clientConfig.str('id')}"`);
-      if (clientConfig.bool(type, true)) await clients[key].getInfo();
-    } catch (e) {
-      clientErrors.addFailed(type, e);
-      continue;
-    }
+    const check = new Promise(async resolve => {
+      try {
+        logger.info(`Checking ${key} for config "${clientConfig.str('id')}"`);
+        if (clientConfig.bool(type, true)) await clients[key].getInfo();
+      } catch (e) {
+        logger.info(
+          `${key} connection for "${clientConfig.str('id')}" failed.`
+        );
+        clientErrors.addFailed(type, e);
+      } finally {
+        // resolving all calls so that we can store the failures in the
+        // clientErrors object
+        resolve();
+      }
+    });
+    clientChecks.push(check);
   }
+
+  await Promise.all(clientChecks);
 
   if (clientErrors.failed.length) {
     clientErrors.composeMessage();
-    throw clientErrors;
+    return [true, clientErrors];
   }
+
+  return [false];
 }
 
 class ClientErrors extends Error {
