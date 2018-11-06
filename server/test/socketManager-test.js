@@ -175,17 +175,6 @@ describe('socketManager', function() {
         resp,
         'Expected a null response on successful authentication'
       );
-
-      try {
-        await authSocket();
-        throw 'Expected second authentication to throw an error';
-      } catch (e) {
-        assert(e instanceof Error, e);
-        assert(
-          e.message.match(/Already authed/),
-          'Should include "Already authed" error message'
-        );
-      }
     });
   });
 

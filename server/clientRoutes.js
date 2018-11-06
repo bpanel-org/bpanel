@@ -1,7 +1,14 @@
 const express = require('express');
 const assert = require('bsert');
 const Config = require('bcfg');
+
 const logger = require('./logger');
+const {
+  createClientConfig,
+  getConfig,
+  deleteConfig,
+  testConfigOptions
+} = require('./configHelpers');
 
 function clientsRouter(clients, defaultId) {
   const router = express.Router({ mergeParams: true });
@@ -46,6 +53,10 @@ function clientsRouter(clients, defaultId) {
   // middleware for setting constants based on
   // the route being used
   router.use('/:id', (req, res, next) => {
+    // this middleware only useful for existing clients
+    // so we can skip if POSTing a new client config
+    if (req.method === 'POST') return next();
+
     id = req.params.id;
     if (!clients.has(id))
       return res.status(404).json({
@@ -117,15 +128,78 @@ function clientsRouter(clients, defaultId) {
   });
 
   // get info about a specific client
-  router.get('/:id', (req, res) => {
+  router.get('/:id', async (req, res) => {
+    let configurations;
+    try {
+      configurations = await getConfig(req.params.id);
+    } catch (e) {
+      logger.error(e);
+      if (e.code === 'ENOENT')
+        return res.status(404).send(`Config for "${req.params.id}" not found`);
+      else
+        return res.status(500).send(`There was a problem with your request.`);
+    }
+
     const info = {
-      network: config.str('network'),
-      chain: config.str('chain', 'bitcoin')
+      configs: configurations.data
     };
+
+    if (req.query.health) {
+      try {
+        logger.info(`Checking status of client "${req.params.id}"...`);
+        const [err, clientErrors] = await testConfigOptions(configurations);
+        if (!err) info.healthy = true;
+        else if (clientErrors.failed.length) {
+          info.failed = clientErrors.failed;
+          info.healthy = false;
+        }
+      } catch (e) {
+        return res.status(500).send(e);
+      }
+    }
+
+    // scrub apiKeys and tokens
+    for (let key in configurations.data) {
+      if (key.includes('api') || key.includes('token'))
+        configurations.data[key] = undefined;
+    }
+
     res.status(200).json(info);
   });
 
+  router.post('/:id', async (req, res) => {
+    const id = req.params.id;
+    if (clientInfo[id])
+      return res
+        .status(409)
+        .send({ message: `A client with the id '${id}' already exists` });
+
+    return updateOrAdd(req, res);
+  });
+
+  router.delete('/:id', (req, res) => {
+    const success = deleteConfig(req.params.id);
+    return res.status(200).json({ success });
+  });
+
+  router.put('/:id', updateOrAdd);
   return router;
+}
+
+async function updateOrAdd(req, res) {
+  const id = req.params.id;
+  try {
+    const { options, force = false } = req.body;
+    const config = await createClientConfig(id, options, force);
+    return res.status(200).send({
+      configs: config.options
+    });
+  } catch (error) {
+    logger.error('Problem creating config: ', error.message);
+    return res
+      .status(400)
+      .send({ error: { message: error.message, ...error } });
+  }
 }
 
 module.exports = clientsRouter;
