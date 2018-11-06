@@ -162,7 +162,7 @@ async function testConfigOptions(options) {
     return [true, clientErrors];
   }
 
-  return [false];
+  return [false, null];
 }
 
 class ClientErrors extends Error {

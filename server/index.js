@@ -245,31 +245,10 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       logger.debug(`Caught request in resolveIndex: ${req.path}`);
       res.sendFile(path.resolve(__dirname, '../dist/index.html'));
     };
+
     app.get('/', resolveIndex);
 
-    // route to get server info
-    const { ssl, host, port: clientPort } = nodeClient;
-
-    const uri = clientConfig.str(
-      'node-uri',
-      `${ssl ? 'https' : 'http'}://${host}:${clientPort}`
-    );
-    app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
-
     app.use('/clients', clientRoutes(clients, clientId));
-
-    // redirects to support old routes
-    app.use('/bcoin', (req, res) =>
-      res.redirect(307, `/clients/${clientId}/node${req.path}`)
-    );
-
-    app.use('/bwallet', (req, res) =>
-      res.redirect(307, `/clients/${clientId}/wallet${req.path}`)
-    );
-
-    app.use('/multisig', (req, res) =>
-      res.redirect(307, `/clients/${clientId}/multisig${req.path}`)
-    );
 
     // TODO: add favicon.ico file
     app.get('/favicon.ico', (req, res) => {
