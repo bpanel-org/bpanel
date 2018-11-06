@@ -105,6 +105,7 @@ module.exports = async (_config = {}) => {
   const SocketManager = require('./socketManager');
   const clientFactory = require('./clientFactory');
   const clientRoutes = require('./clientRoutes');
+  const { getDefaultConfig } = require('./configHelpers');
   const { loadClientConfigs } = require('./loadConfigs');
 
   // get bpanel config
@@ -156,32 +157,6 @@ will increase speed of future builds, so please be patient.'
 Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
   );
 
-  let clientConfig = clientConfigs.find(
-    cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
-  );
-
-  if (!clientConfig) {
-    logger.error(
-      `Could not find config for ${bpanelConfig.str(
-        'client-id'
-      )}. Will set to 'default' instead.`
-    );
-    clientConfig = clientConfigs.find(cfg => cfg.str('id') === 'default');
-    if (!clientConfig) {
-      logger.warn('Could not find default client config.');
-      clientConfig = clientConfigs[0];
-      logger.warn(`Setting fallback to ${clientConfig.str('id')}.`);
-    }
-  }
-
-  // save reference to the id for redirects
-  const clientId = clientConfig.str('id');
-
-  // create clients
-  const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
-    clientConfig
-  );
-
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
     const id = cfg.str('id');
     assert(id, 'client config must have id');
@@ -211,13 +186,6 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
   // Wait for async part of server setup
   const ready = (async function() {
     // Setup bsock server
-    // socket.io is the default path
-    socketManager.addClients('socket.io', {
-      node: nodeClient,
-      wallet: walletClient,
-      multisig: multisigWalletClient
-    });
-
     const clientIds = clients.keys();
     for (let id of clientIds) {
       socketManager.addClients(id, {
@@ -248,6 +216,11 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
 
     app.get('/', resolveIndex);
 
+    // get default config for fallback endpoint
+    const defaultClientConfig = getDefaultConfig(bpanelConfig);
+    const clientId = defaultClientConfig.str('id');
+
+    // client routes
     app.use('/clients', clientRoutes(clients, clientId));
 
     // TODO: add favicon.ico file
@@ -327,8 +300,7 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     app,
     ready,
     logger,
-    nodeClient,
-    walletClient
+    clientConfigs
   };
 };
 
