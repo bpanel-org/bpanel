@@ -103,9 +103,11 @@ module.exports = async (_config = {}) => {
   // Import app server utilities and modules
   const logger = require('./logger');
   const SocketManager = require('./socketManager');
-  const { clientFactory, attach } = require('./utils');
+  const { clientFactory, attach, apiFilters } = require('./utils');
   const { loadClientConfigs } = require('./loadConfigs');
   const endpoints = require('./endpoints');
+
+  const { isBlacklisted } = apiFilters;
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -113,8 +115,10 @@ module.exports = async (_config = {}) => {
   // inject any custom configs passed
   bpanelConfig.inject(_config);
 
-  // load configs from environment
+  // load configs from environment, args, and config file
   bpanelConfig.load({ env: true, argv: true, arg: true });
+  const configFile = require(path.resolve(bpanelConfig.prefix, 'config.js'));
+  bpanelConfig.inject(configFile);
 
   // check if vendor-manifest has been built otherwise run
   // build:dll first to build the manifest
@@ -221,11 +225,30 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       apiEndpoints.push(...endpoints[key]);
     }
 
+    function forbiddenHandler() {
+      return (req, res) => res.sendStatus(403);
+    }
+
     for (let endpoint of apiEndpoints) {
       try {
-        attach({ app, endpoint, logger, bpanelConfig });
+        // if the endpoint is blacklisted in the configs
+        // don't attach handlers
+        const blacklisted = isBlacklisted(bpanelConfig, endpoint);
+        if (!blacklisted) attach({ app, endpoint, logger, bpanelConfig });
+        else if (blacklisted) {
+          logger.info(
+            `Endpoint ${endpoint.method} ${
+              endpoint.path
+            } has been blacklisted...`
+          );
+          attach({
+            app,
+            endpoint: { ...endpoint, handler: forbiddenHandler },
+            logger
+          });
+        }
       } catch (e) {
-        logger.error(e.message);
+        logger.error(e.stack);
       }
     }
 
