@@ -103,10 +103,9 @@ module.exports = async (_config = {}) => {
   // Import app server utilities and modules
   const logger = require('./logger');
   const SocketManager = require('./socketManager');
-  const clientFactory = require('./clientFactory');
-  const clientRoutes = require('./clientRoutes');
-  const { getDefaultConfig } = require('./configHelpers');
+  const { clientFactory, attach } = require('./utils');
   const { loadClientConfigs } = require('./loadConfigs');
+  const endpoints = require('./endpoints');
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -216,12 +215,19 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
 
     app.get('/', resolveIndex);
 
-    // get default config for fallback endpoint
-    const defaultClientConfig = getDefaultConfig(bpanelConfig);
-    const clientId = defaultClientConfig.str('id');
+    // compose endpoints
+    const apiEndpoints = [];
+    for (let key in endpoints) {
+      apiEndpoints.push(...endpoints[key]);
+    }
 
-    // client routes
-    app.use('/clients', clientRoutes(clients, clientId));
+    for (let endpoint of apiEndpoints) {
+      try {
+        attach({ app, endpoint, logger, bpanelConfig });
+      } catch (e) {
+        logger.error(e.message);
+      }
+    }
 
     // TODO: add favicon.ico file
     app.get('/favicon.ico', (req, res) => {

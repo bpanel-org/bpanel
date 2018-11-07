@@ -7,13 +7,15 @@ const { resolve } = require('path');
 const logger = require('../logger');
 const { loadConfig } = require('../loadConfigs');
 const { initFullNode } = require('./utils/regtest');
+
+const { configHelpers } = require('../utils');
 const {
   createClientConfig,
   testConfigOptions,
   getConfig,
   deleteConfig,
   ClientErrors
-} = require('../configHelpers');
+} = configHelpers;
 
 // setup tmp directory for testing
 const testDir = resolve(os.homedir(), '.bpanel_tmp');

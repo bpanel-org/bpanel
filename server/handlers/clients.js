@@ -1,41 +1,52 @@
-const express = require('express');
-const assert = require('bsert');
 const Config = require('bcfg');
+const assert = require('bsert');
 
-const logger = require('./logger');
+const { loadClientConfigs } = require('../loadConfigs');
+
+const { configHelpers, clientFactory } = require('../utils');
 const {
+  getDefaultConfig,
   createClientConfig,
-  getConfig,
+  createConfigsMap,
+  testConfigOptions,
   deleteConfig,
-  testConfigOptions
-} = require('./configHelpers');
+  getConfig
+} = configHelpers;
 
-function clientsRouter(clients, defaultId) {
-  const router = express.Router({ mergeParams: true });
-  let token, id, config, reqClients;
+let configsMap = null;
 
-  // return object with
-  // relevant info for each client
-  // keyed to the client id
-  const clientInfo = {};
+function getClientInfo(logger, bpanelConfig) {
+  return (req, res) => {
+    const clientConfigs = loadClientConfigs(bpanelConfig);
+    const clientInfo = {};
 
-  clients.forEach((client, id) => {
-    if (!client.config.str('chain'))
-      logger.warn(
-        `Client config ${id} had no chain set, defaulting to 'bitcoin'`
-      );
-    clientInfo[client.config.str('id')] = {
-      chain: client.config.str('chain', 'bitcoin'),
-      services: {
-        node: !!client.nodeClient,
-        wallet: !!client.walletClient,
-        multisig: !!client.multisigWalletClient
-      }
-    };
-  });
-  router.get('/', (req, res) => res.status(200).json(clientInfo));
-  router.get('/default', (req, res) => {
-    if (!clients.has(defaultId))
+    for (let client of clientConfigs) {
+      if (!client.str('chain'))
+        logger.warn(
+          `Client config ${client.str(
+            'id'
+          )} had no chain set, defaulting to 'bitcoin'`
+        );
+      clientInfo[client.str('id')] = {
+        chain: client.str('chain', 'bitcoin'),
+        services: {
+          node: client.bool('node', true),
+          wallet: client.bool('wallet', true),
+          multisig: client.bool('multisig', true)
+        }
+      };
+    }
+
+    return res.status(200).json(clientInfo);
+  };
+}
+
+function getDefaultClientInfo(logger, bpanelConfig) {
+  return (req, res) => {
+    const defaultClientConfig = getDefaultConfig(bpanelConfig);
+
+    // if there is no default config, return a 500
+    if (!defaultClientConfig)
       return res.status(500).json({
         error: {
           message: `Error retrieving default client: ${defaultId}`,
@@ -43,22 +54,31 @@ function clientsRouter(clients, defaultId) {
         }
       });
 
+    const defaultId = defaultClientConfig.str('id');
     const defaultClient = {
       id: defaultId,
-      ...clientInfo[defaultId]
+      chain: defaultClientConfig.str('chain', 'bitcoin'),
+      services: {
+        node: defaultClientConfig.bool('node', true),
+        wallet: defaultClientConfig.bool('wallet', true),
+        multisig: defaultClientConfig.bool('multisig', true)
+      }
     };
     res.status(200).json(defaultClient);
-  });
+  };
+}
 
-  // middleware for setting constants based on
-  // the route being used
-  router.use('/:id', (req, res, next) => {
-    // this middleware only useful for existing clients
-    // so we can skip if POSTing a new client config
-    if (req.method === 'POST') return next();
+function clientsHandler(logger, bpanelConfig) {
+  return async (req, res) => {
+    let token;
+    const { method, path, body, query, params } = req;
+    const { id } = params;
 
-    id = req.params.id;
-    if (!clients.has(id))
+    const clientConfigs = loadClientConfigs(bpanelConfig);
+
+    if (!configsMap) configsMap = createConfigsMap(clientConfigs);
+
+    if (!configsMap.has(id))
       return res.status(404).json({
         error: {
           message: `Sorry, there was no client with the id ${id}`,
@@ -66,26 +86,22 @@ function clientsRouter(clients, defaultId) {
         }
       });
 
-    const clientObj = clients.get(id);
-    config = clientObj.config;
+    const config = configsMap.get(id);
+
     assert(config instanceof Config, 'client needs bcfg config');
 
-    // store clients to be used in the routes
-    // handled in the next middleware
-    reqClients = {
-      node: clientObj.nodeClient,
-      wallet: clientObj.walletClient,
-      multisig: clientObj.multisigWalletClient
-    };
-    next();
-  });
+    const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
+      config
+    );
 
-  // all routes for a given client
-  // the client param dictates client, node,
-  // wallet, or multisig, will be used
-  router.use('/:id/:client/', async (req, res) => {
-    const { method, path, body, query, params } = req;
+    const reqClients = {
+      node: nodeClient,
+      wallet: walletClient,
+      multisig: multisigWalletClient
+    };
+
     const client = reqClients[params.client];
+
     if (!client)
       return res.status(404).json({
         error: {
@@ -93,6 +109,11 @@ function clientsRouter(clients, defaultId) {
           code: 404
         }
       });
+
+    /*
+     * this part of the handler is the proxy to the nodes that the clients
+     * are communicating with
+     */
 
     // use query params for GET request, otherwise use body
     const payload = method === 'GET' ? query : body;
@@ -125,10 +146,11 @@ function clientsRouter(clients, defaultId) {
       // always reassign the original token
       client.token = token;
     }
-  });
+  };
+}
 
-  // get info about a specific client
-  router.get('/:id', async (req, res) => {
+function getConfigHandler(logger) {
+  return async (req, res) => {
     let configurations;
     try {
       configurations = await getConfig(req.params.id);
@@ -165,28 +187,37 @@ function clientsRouter(clients, defaultId) {
     }
 
     res.status(200).json(info);
-  });
+  };
+}
 
-  router.post('/:id', async (req, res) => {
+async function addConfigHandler(logger, bpanelConfig) {
+  if (!configsMap) {
+    const clientConfigs = loadClientConfigs(bpanelConfig);
+    configsMap = createConfigsMap(clientConfigs);
+  }
+  return (req, res) => {
     const id = req.params.id;
-    if (clientInfo[id])
+    if (configsMap.get(id))
       return res
         .status(409)
         .send({ message: `A client with the id '${id}' already exists` });
 
-    return updateOrAdd(req, res);
-  });
-
-  router.delete('/:id', (req, res) => {
-    const success = deleteConfig(req.params.id);
-    return res.status(200).json({ success });
-  });
-
-  router.put('/:id', updateOrAdd);
-  return router;
+    return updateOrAdd(logger, req, res);
+  };
 }
 
-async function updateOrAdd(req, res) {
+function updateConfigHandler(logger) {
+  return (req, res) => updateOrAdd(logger, req, res);
+}
+
+function deleteConfigHandler() {
+  return (req, res) => {
+    const success = deleteConfig(req.params.id);
+    return res.status(200).json({ success });
+  };
+}
+
+async function updateOrAdd(logger, req, res) {
   const id = req.params.id;
   try {
     const { options, force = false } = req.body;
@@ -202,4 +233,12 @@ async function updateOrAdd(req, res) {
   }
 }
 
-module.exports = clientsRouter;
+module.exports = {
+  getClientInfo,
+  getDefaultClientInfo,
+  clientsHandler,
+  getConfigHandler,
+  addConfigHandler,
+  updateConfigHandler,
+  deleteConfigHandler
+};

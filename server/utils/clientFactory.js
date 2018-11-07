@@ -13,7 +13,7 @@ const MultisigClient = require('bmultisig/lib/client');
 const assert = require('assert');
 const Config = require('bcfg');
 
-const logger = require('./logger');
+const logger = require('../logger');
 
 const logClientInfo = (id, type, { ssl, host, port, network }) =>
   logger.info(
