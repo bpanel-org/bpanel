@@ -215,6 +215,14 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
 
     app.get('/', resolveIndex);
 
+    // add utilities to the req object
+    // for use in the api endpoints
+    app.use((req, res, next) => {
+      req.logger = logger;
+      req.config = bpanelConfig;
+      next();
+    });
+
     // compose endpoints
     const apiEndpoints = [];
     for (let key in endpoints) {
@@ -223,7 +231,7 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
 
     for (let endpoint of apiEndpoints) {
       try {
-        attach({ app, endpoint, logger, bpanelConfig });
+        attach(app, endpoint);
       } catch (e) {
         logger.error(e.message);
       }
