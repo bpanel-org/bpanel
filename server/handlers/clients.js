@@ -190,7 +190,7 @@ function getConfigHandler(logger) {
   };
 }
 
-async function addConfigHandler(logger, bpanelConfig) {
+function addConfigHandler(logger, bpanelConfig) {
   if (!configsMap) {
     const clientConfigs = loadClientConfigs(bpanelConfig);
     configsMap = createConfigsMap(clientConfigs);
