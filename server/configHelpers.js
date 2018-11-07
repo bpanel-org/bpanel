@@ -7,7 +7,11 @@ const Config = require('bcfg');
 
 const logger = require('./logger');
 const clientFactory = require('./clientFactory');
-const { loadConfig, getConfigFromOptions } = require('./loadConfigs');
+const {
+  loadConfig,
+  getConfigFromOptions,
+  loadClientConfigs
+} = require('./loadConfigs');
 
 /*
  * create client config
@@ -162,7 +166,42 @@ async function testConfigOptions(options) {
     return [true, clientErrors];
   }
 
-  return [false];
+  return [false, null];
+}
+
+/*
+ * Simple utility for getting a default config with logging
+ * for certain edge cases
+ * @param {Config} bpanelConfig
+ * @returns {Config}
+ */
+
+function getDefaultConfig(bpanelConfig) {
+  assert(
+    bpanelConfig instanceof Config,
+    'Need the main bcfg for the app to get default configs'
+  );
+  const clientConfigs = loadClientConfigs(bpanelConfig);
+  let defaultClientConfig = clientConfigs.find(
+    cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
+  );
+
+  if (!defaultClientConfig) {
+    logger.error(
+      `Could not find config for ${bpanelConfig.str(
+        'client-id'
+      )}. Will set to 'default' instead.`
+    );
+    defaultClientConfig = clientConfigs.find(
+      cfg => cfg.str('id') === 'default'
+    );
+    if (!defaultClientConfig) {
+      logger.warn('Could not find default client config.');
+      defaultClientConfig = clientConfigs[0];
+      logger.warn(`Setting fallback to ${defaultClientConfig.str('id')}.`);
+    }
+  }
+  return defaultClientConfig;
 }
 
 class ClientErrors extends Error {
@@ -189,6 +228,7 @@ class ClientErrors extends Error {
 
 module.exports = {
   createClientConfig,
+  getDefaultConfig,
   getConfig,
   deleteConfig,
   ClientErrors,
