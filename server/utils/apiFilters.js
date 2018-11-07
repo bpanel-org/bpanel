@@ -3,7 +3,7 @@ const Config = require('bcfg');
 
 function isBlacklisted(config, endpoint) {
   assert(config instanceof Config, 'Must pass a config to check blacklist');
-  const blacklist = config.array('blacklist');
+  const blacklist = config.array('blacklist', []);
 
   for (let blacklisted of blacklist) {
     // if item in array is just a string, check against the path

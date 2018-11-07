@@ -226,7 +226,8 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     }
 
     function forbiddenHandler() {
-      return (req, res) => res.sendStatus(403);
+      return (req, res) =>
+        res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
     }
 
     for (let endpoint of apiEndpoints) {
