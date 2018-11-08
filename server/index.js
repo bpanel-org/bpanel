@@ -219,34 +219,36 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
 
     app.get('/', resolveIndex);
 
+    // add utilities to the req object
+    // for use in the api endpoints
+    app.use((req, res, next) => {
+      req.logger = logger;
+      req.config = bpanelConfig;
+      next();
+    });
+
     // compose endpoints
     const apiEndpoints = [];
     for (let key in endpoints) {
       apiEndpoints.push(...endpoints[key]);
     }
 
-    function forbiddenHandler() {
-      return (req, res) =>
-        res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
-    }
+    const forbiddenHandler = (req, res) =>
+      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
 
     for (let endpoint of apiEndpoints) {
       try {
         // if the endpoint is blacklisted in the configs
         // don't attach handlers
         const blacklisted = isBlacklisted(bpanelConfig, endpoint);
-        if (!blacklisted) attach({ app, endpoint, logger, bpanelConfig });
+        if (!blacklisted) attach(app, endpoint);
         else if (blacklisted) {
           logger.info(
             `Endpoint ${endpoint.method} ${
               endpoint.path
             } has been blacklisted...`
           );
-          attach({
-            app,
-            endpoint: { ...endpoint, handler: forbiddenHandler },
-            logger
-          });
+          attach(app, { ...endpoint, handler: forbiddenHandler });
         }
       } catch (e) {
         logger.error(e.stack);

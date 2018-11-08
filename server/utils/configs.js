@@ -37,6 +37,7 @@ async function createClientConfig(id, options = {}, force = false) {
   const clientsPath = resolve(appConfig.prefix, clientsDir);
 
   const [err, clientErrors] = await testConfigOptions(clientConfig);
+  assert(typeof force === 'boolean', 'The force argument must be a bool.');
   if (err && force) {
     logger.warn(clientErrors.message);
     logger.warn('Creating config file anyway...');
