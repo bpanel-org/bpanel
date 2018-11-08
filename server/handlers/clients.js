@@ -185,7 +185,7 @@ async function getConfigHandler(req, res) {
       logger.info(`Checking status of client "${req.params.id}"...`);
       const [err, clientErrors] = await testConfigOptions(configurations);
       if (!err) info.healthy = true;
-      else if (clientErrors.failed.length) {
+      else {
         info.failed = clientErrors.failed;
         info.healthy = false;
       }
@@ -233,7 +233,14 @@ async function updateOrAdd(req, res) {
   const id = req.params.id;
   try {
     const { options, force = false } = req.body;
-    const config = await createClientConfig(id, options, JSON.parse(force));
+
+    // coercing force to a boolean
+    let forceBool = force;
+    if (forceBool === 'true' || forceBool === true) forceBool = true;
+    else if (forceBool === 'false' || forceBool === false) forceBool = false;
+    else logger.warn('Expected either "true" or "false" for the force option');
+
+    const config = await createClientConfig(id, options, forceBool);
     return res.status(200).send({
       configs: config.options
     });
