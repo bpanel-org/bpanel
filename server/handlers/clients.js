@@ -230,7 +230,10 @@ function deleteConfigHandler(req, res) {
     else if (error.message.match('not found', 'i'))
       return res
         .status(404)
-        .json({ error: { message: `Config for ${req.params.id} not found` } });
+        .json({
+          error: { message: `Config for '${req.params.id}' not found` }
+        });
+    else throw error;
   } catch (e) {
     return res.status(500).json(e);
   }
