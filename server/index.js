@@ -78,9 +78,11 @@ if (require.main === module) {
 
     // need to use chokidar to watch for changes outside the working
     // directory. Will restart if configs get updated
+    // should be updated to check bpanelConfig for where the prefix is
     const clientsDir = path.resolve(os.homedir(), '.bpanel/clients');
+    const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
     require('chokidar')
-      .watch(clientsDir, { usePolling: poll, useFsEvents: poll })
+      .watch([clientsDir, configFile], { usePolling: poll, useFsEvents: poll })
       .on('all', () => {
         nodemon.emit('restart');
       });
@@ -103,8 +105,11 @@ module.exports = async (_config = {}) => {
   // Import app server utilities and modules
   const logger = require('./logger');
   const SocketManager = require('./socketManager');
-  const clientFactory = require('./clientFactory');
-  const clientRoutes = require('./clientRoutes');
+  const { clientFactory, attach, apiFilters } = require('./utils');
+  const { loadClientConfigs } = require('./loadConfigs');
+  const endpoints = require('./endpoints');
+
+  const { isBlacklisted } = apiFilters;
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -112,8 +117,10 @@ module.exports = async (_config = {}) => {
   // inject any custom configs passed
   bpanelConfig.inject(_config);
 
-  // load configs from environment
+  // load configs from environment, args, and config file
   bpanelConfig.load({ env: true, argv: true, arg: true });
+  const configFile = require(path.resolve(bpanelConfig.prefix, 'config.js'));
+  bpanelConfig.inject(configFile);
 
   // check if vendor-manifest has been built otherwise run
   // build:dll first to build the manifest
@@ -147,38 +154,12 @@ will increase speed of future builds, so please be patient.'
   // loadConfigs uses the bpanelConfig to find the clients and build
   // each of their configs. Then we filter for the config that matches
   // the one passed via `client-id`
-  const clientConfigs = require('./loadConfigs')(bpanelConfig);
+  const clientConfigs = loadClientConfigs(bpanelConfig);
 
   assert(
     clientConfigs.length,
     'There was a problem loading client configs. \
 Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
-  );
-
-  let clientConfig = clientConfigs.find(
-    cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
-  );
-
-  if (!clientConfig) {
-    logger.error(
-      `Could not find config for ${bpanelConfig.str(
-        'client-id'
-      )}. Will set to 'default' instead.`
-    );
-    clientConfig = clientConfigs.find(cfg => cfg.str('id') === 'default');
-    if (!clientConfig) {
-      logger.warn('Could not find default client config.');
-      clientConfig = clientConfigs[0];
-      logger.warn(`Setting fallback to ${clientConfig.str('id')}.`);
-    }
-  }
-
-  // save reference to the id for redirects
-  const clientId = clientConfig.str('id');
-
-  // create clients
-  const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
-    clientConfig
   );
 
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
@@ -210,13 +191,6 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
   // Wait for async part of server setup
   const ready = (async function() {
     // Setup bsock server
-    // socket.io is the default path
-    socketManager.addClients('socket.io', {
-      node: nodeClient,
-      wallet: walletClient,
-      multisig: multisigWalletClient
-    });
-
     const clientIds = clients.keys();
     for (let id of clientIds) {
       socketManager.addClients(id, {
@@ -244,31 +218,47 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       logger.debug(`Caught request in resolveIndex: ${req.path}`);
       res.sendFile(path.resolve(__dirname, '../dist/index.html'));
     };
+
     app.get('/', resolveIndex);
 
-    // route to get server info
-    const { ssl, host, port: clientPort } = nodeClient;
+    // add utilities to the req object
+    // for use in the api endpoints
+    app.use((req, res, next) => {
+      req.logger = logger;
+      req.config = bpanelConfig;
+      next();
+    });
 
-    const uri = clientConfig.str(
-      'node-uri',
-      `${ssl ? 'https' : 'http'}://${host}:${clientPort}`
-    );
-    app.get('/server', (req, res) => res.status(200).send({ bcoinUri: uri }));
+    // black list filter
+    const forbiddenHandler = (req, res) =>
+      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
 
-    app.use('/clients', clientRoutes(clients, clientId));
+    app.use((req, res, next) => {
+      try {
+        if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
+        next();
+      } catch (e) {
+        res.status(500).json({
+          error: {
+            message: `Server error: Problem filtering through server's blacklist`
+          }
+        });
+      }
+    });
 
-    // redirects to support old routes
-    app.use('/bcoin', (req, res) =>
-      res.redirect(307, `/clients/${clientId}/node${req.path}`)
-    );
+    // compose endpoints
+    const apiEndpoints = [];
+    for (let key in endpoints) {
+      apiEndpoints.push(...endpoints[key]);
+    }
 
-    app.use('/bwallet', (req, res) =>
-      res.redirect(307, `/clients/${clientId}/wallet${req.path}`)
-    );
-
-    app.use('/multisig', (req, res) =>
-      res.redirect(307, `/clients/${clientId}/multisig${req.path}`)
-    );
+    for (let endpoint of apiEndpoints) {
+      try {
+        attach(app, endpoint);
+      } catch (e) {
+        logger.error(e.stack);
+      }
+    }
 
     // TODO: add favicon.ico file
     app.get('/favicon.ico', (req, res) => {
@@ -347,8 +337,7 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     app,
     ready,
     logger,
-    nodeClient,
-    walletClient
+    clientConfigs
   };
 };
 

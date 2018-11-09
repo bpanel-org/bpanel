@@ -13,7 +13,7 @@ const MultisigClient = require('bmultisig/lib/client');
 const assert = require('assert');
 const Config = require('bcfg');
 
-const logger = require('./logger');
+const logger = require('../logger');
 
 const logClientInfo = (id, type, { ssl, host, port, network }) =>
   logger.info(
@@ -46,15 +46,20 @@ function clientFactory(config) {
   const chain = config.str('chain', 'bitcoin');
 
   // set tools based on chain
-  if (chain === 'handshake') {
-    Network = HSNetwork;
-    NodeClient = HSNodeClient;
-    WalletClient = HSWalletClient;
-  } else {
-    // bitcoin settings as fallback
-    Network = BNetwork;
-    NodeClient = BNodeClient;
-    WalletClient = BWalletClient;
+  switch (chain) {
+    case 'handshake':
+      Network = HSNetwork;
+      NodeClient = HSNodeClient;
+      WalletClient = HSWalletClient;
+      break;
+    case 'bitcoin':
+    case 'bitcoincash':
+      Network = BNetwork;
+      NodeClient = BNodeClient;
+      WalletClient = BWalletClient;
+      break;
+    default:
+      throw new Error(`Unrecognized chain ${chain}`);
   }
 
   const network = Network.get(config.str('network', 'main'));
