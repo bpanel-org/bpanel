@@ -234,8 +234,16 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
 
     app.use((req, res, next) => {
-      if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
-      next();
+      try {
+        if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
+        next();
+      } catch (e) {
+        res.status(500).json({
+          error: {
+            message: `Server error: Problem filtering through server's blacklist`
+          }
+        });
+      }
     });
 
     // compose endpoints
