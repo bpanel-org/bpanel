@@ -78,9 +78,11 @@ if (require.main === module) {
 
     // need to use chokidar to watch for changes outside the working
     // directory. Will restart if configs get updated
+    // should be updated to check bpanelConfig for where the prefix is
     const clientsDir = path.resolve(os.homedir(), '.bpanel/clients');
+    const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
     require('chokidar')
-      .watch(clientsDir, { usePolling: poll, useFsEvents: poll })
+      .watch([clientsDir, configFile], { usePolling: poll, useFsEvents: poll })
       .on('all', () => {
         nodemon.emit('restart');
       });
@@ -227,29 +229,24 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       next();
     });
 
+    // black list filter
+    const forbiddenHandler = (req, res) =>
+      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
+
+    app.use((req, res, next) => {
+      if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
+      next();
+    });
+
     // compose endpoints
     const apiEndpoints = [];
     for (let key in endpoints) {
       apiEndpoints.push(...endpoints[key]);
     }
 
-    const forbiddenHandler = (req, res) =>
-      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
-
     for (let endpoint of apiEndpoints) {
       try {
-        // if the endpoint is blacklisted in the configs
-        // don't attach handlers
-        const blacklisted = isBlacklisted(bpanelConfig, endpoint);
-        if (!blacklisted) attach(app, endpoint);
-        else if (blacklisted) {
-          logger.info(
-            `Endpoint ${endpoint.method} ${
-              endpoint.path
-            } has been blacklisted...`
-          );
-          attach(app, { ...endpoint, handler: forbiddenHandler });
-        }
+        attach(app, endpoint);
       } catch (e) {
         logger.error(e.stack);
       }
