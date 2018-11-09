@@ -116,9 +116,9 @@ async function clientsHandler(req, res) {
     });
 
   /*
-     * this part of the handler is the proxy to the nodes that the clients
-     * are communicating with
-     */
+   * this part of the handler is the proxy to the nodes that the clients
+   * are communicating with
+   */
 
   // use query params for GET request, otherwise use body
   const payload = method === 'GET' ? query : body;
@@ -163,7 +163,7 @@ async function getConfigHandler(req, res) {
     if (e.code === 'ENOENT')
       return res.status(404).json({
         error: {
-          message: `Config for "${req.params.id}" not found`,
+          message: `Config for '${req.params.id}' not found`,
           code: 404
         }
       });
@@ -224,8 +224,16 @@ function updateConfigHandler(req, res) {
 }
 
 function deleteConfigHandler(req, res) {
-  const success = deleteConfig(req.params.id);
-  return res.status(200).json({ success });
+  try {
+    const error = deleteConfig(req.params.id);
+    if (!error) return res.status(200).json({ success: true });
+    else if (error.message.match('not found', 'i'))
+      return res
+        .status(404)
+        .json({ error: { message: `Config for ${req.params.id} not found` } });
+  } catch (e) {
+    return res.status(500).json(e);
+  }
 }
 
 async function updateOrAdd(req, res) {
