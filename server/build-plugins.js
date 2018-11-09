@@ -10,7 +10,7 @@ const { execSync } = require('child_process');
 const validate = require('validate-npm-package-name');
 
 const logger = require('./logger');
-const npmExists = require('./npm-exists');
+const { npmExists } = require('./utils');
 
 const config = new Config('bpanel');
 config.load({ env: true, argv: true, arg: true });

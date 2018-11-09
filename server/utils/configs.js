@@ -5,13 +5,13 @@ const fs = require('bfile');
 const { resolve } = require('path');
 const Config = require('bcfg');
 
-const logger = require('./logger');
-const clientFactory = require('./clientFactory');
+const logger = require('../logger');
+const clientFactory = require('../utils/clientFactory');
 const {
   loadConfig,
   getConfigFromOptions,
   loadClientConfigs
-} = require('./loadConfigs');
+} = require('../loadConfigs');
 
 /*
  * create client config
@@ -37,6 +37,7 @@ async function createClientConfig(id, options = {}, force = false) {
   const clientsPath = resolve(appConfig.prefix, clientsDir);
 
   const [err, clientErrors] = await testConfigOptions(clientConfig);
+  assert(typeof force === 'boolean', 'The force argument must be a bool.');
   if (err && force) {
     logger.warn(clientErrors.message);
     logger.warn('Creating config file anyway...');
@@ -204,6 +205,17 @@ function getDefaultConfig(bpanelConfig) {
   return defaultClientConfig;
 }
 
+function createConfigsMap(configs) {
+  assert(Array.isArray(configs), 'Must pass an array to get map of configs');
+  return configs.reduce((clientsMap, cfg) => {
+    assert(cfg instanceof Config, 'Must pass an array of configs');
+    const id = cfg.str('id');
+    assert(id, 'client config must have id');
+    clientsMap.set(id, cfg);
+    return clientsMap;
+  }, new Map());
+}
+
 class ClientErrors extends Error {
   constructor(...options) {
     super(...options);
@@ -228,6 +240,7 @@ class ClientErrors extends Error {
 
 module.exports = {
   createClientConfig,
+  createConfigsMap,
   getDefaultConfig,
   getConfig,
   deleteConfig,
