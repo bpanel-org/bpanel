@@ -105,12 +105,19 @@ module.exports = async (_config = {}) => {
   // Import app server utilities and modules
   const logger = require('./logger');
   const SocketManager = require('./socketManager');
-  const { clientFactory, attach, apiFilters, pluginUtils } = require('./utils');
+  const {
+    clientFactory,
+    attach,
+    apiFilters,
+    pluginUtils,
+    configHelpers
+  } = require('./utils');
   const { loadClientConfigs } = require('./loadConfigs');
   const endpoints = require('./endpoints');
 
   const { isBlacklisted } = apiFilters;
   const { getPluginEndpoints } = pluginUtils;
+  const { createConfigsMap } = configHelpers;
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -156,6 +163,7 @@ will increase speed of future builds, so please be patient.'
   // each of their configs. Then we filter for the config that matches
   // the one passed via `client-id`
   const clientConfigs = loadClientConfigs(bpanelConfig);
+  const configsMap = createConfigsMap(clientConfigs);
 
   assert(
     clientConfigs.length,
@@ -228,6 +236,7 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     app.use((req, res, next) => {
       req.logger = logger;
       req.config = bpanelConfig;
+      req.clients = configsMap;
       next();
     });
 
