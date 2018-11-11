@@ -105,11 +105,12 @@ module.exports = async (_config = {}) => {
   // Import app server utilities and modules
   const logger = require('./logger');
   const SocketManager = require('./socketManager');
-  const { clientFactory, attach, apiFilters } = require('./utils');
+  const { clientFactory, attach, apiFilters, pluginUtils } = require('./utils');
   const { loadClientConfigs } = require('./loadConfigs');
   const endpoints = require('./endpoints');
 
   const { isBlacklisted } = apiFilters;
+  const { getPluginEndpoints } = pluginUtils;
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -223,6 +224,7 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
 
     // add utilities to the req object
     // for use in the api endpoints
+    // TODO: Load up client configs and attach to req object here
     app.use((req, res, next) => {
       req.logger = logger;
       req.config = bpanelConfig;
@@ -246,11 +248,21 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       }
     });
 
+    /*
+     * Setup backend plugins
+     */
+
+    const { beforeCoreMiddleware, afterCoreMiddleware } = getPluginEndpoints(
+      bpanelConfig
+    );
+
     // compose endpoints
-    const apiEndpoints = [];
+    const apiEndpoints = [...beforeCoreMiddleware];
+
     for (let key in endpoints) {
       apiEndpoints.push(...endpoints[key]);
     }
+    apiEndpoints.concat(afterCoreMiddleware);
 
     for (let endpoint of apiEndpoints) {
       try {
