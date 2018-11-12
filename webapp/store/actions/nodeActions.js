@@ -20,17 +20,9 @@ export function requestingNode(loadingState) {
   };
 }
 
-export function setBcoinUri(uri) {
-  return {
-    type: types.SET_BCOIN_URI,
-    payload: uri
-  };
-}
-
 export function getNodeInfo() {
   return async dispatch => {
     dispatch(requestingNode(true));
-    dispatch(getServerInfo());
     dispatch(getGenesisBlock());
     try {
       const nodeInfo = await client.node.getInfo();
@@ -44,22 +36,6 @@ export function getNodeInfo() {
   };
 }
 
-// NOTE: this depends on the the app reducer
-// and having the port and ssl set first
-export function getServerInfo() {
-  return async (dispatch, getState) => {
-    try {
-      const state = getState();
-      const { port, ssl } = state.app;
-      const client = bcurl.client({ port, ssl });
-      const response = await client.get('server');
-      dispatch(setBcoinUri(response.bcoinUri));
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error('There was a problem querying the server:', e.stack);
-    }
-  };
-}
 export default {
   setNodeInfo,
   requestingNode,
