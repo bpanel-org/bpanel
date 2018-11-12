@@ -223,7 +223,7 @@ function updateConfigHandler(req, res) {
 function deleteConfigHandler(req, res) {
   const error = deleteConfig(req.params.id);
   if (!error) return res.status(200).json({ success: true });
-  else if (error.message.match('not found', 'i'))
+  else if (error.code === 'ENOENT')
     return res.status(404).json({
       error: { message: `Config for '${req.params.id}' not found` }
     });
