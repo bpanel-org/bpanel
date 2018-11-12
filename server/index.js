@@ -202,6 +202,20 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
 
     // Setup app server
     app.use(compression());
+
+    // black list filter
+    const forbiddenHandler = (req, res) =>
+      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
+
+    app.use((req, res, next) => {
+      try {
+        if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
+        next();
+      } catch (e) {
+        next(e);
+      }
+    });
+
     app.use(
       express.static(path.resolve(__dirname, '../dist'), {
         index: 'index.html',
@@ -227,19 +241,6 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       req.logger = logger;
       req.config = bpanelConfig;
       next();
-    });
-
-    // black list filter
-    const forbiddenHandler = (req, res) =>
-      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
-
-    app.use((req, res, next) => {
-      try {
-        if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
-        next();
-      } catch (e) {
-        next(e);
-      }
     });
 
     // compose endpoints
