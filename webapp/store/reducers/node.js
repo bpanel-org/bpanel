@@ -1,15 +1,12 @@
 import { decorateReducer } from '../../plugins/plugins';
-import { SET_NODE, SET_LOADING, SET_BCOIN_URI } from '../constants/node';
+import { SET_NODE, SET_LOADING } from '../constants/node';
 
 const initialState = {
   node: {},
   memory: {},
   mempool: {},
   time: {},
-  loading: true,
-  serverInfo: {
-    bcoinUri: '0.0.0.0'
-  }
+  loading: true
 };
 
 const nodeState = (state = initialState, action) => {
@@ -24,14 +21,6 @@ const nodeState = (state = initialState, action) => {
 
     case SET_LOADING:
       newState.loading = action.payload;
-      return newState;
-
-    case SET_BCOIN_URI:
-      // TODO: use safeSet
-      if (!('serverInfo' in newState)) {
-        newState.serverInfo = {};
-      }
-      newState.serverInfo.bcoinUri = action.payload;
       return newState;
 
     default:
