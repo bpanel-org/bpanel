@@ -238,11 +238,7 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
         if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
         next();
       } catch (e) {
-        res.status(500).json({
-          error: {
-            message: `Server error: Problem filtering through server's blacklist`
-          }
-        });
+        next(e);
       }
     });
 
@@ -266,6 +262,14 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     });
 
     app.get('/*', resolveIndex);
+
+    // This must be the last middleware
+    app.use((err, req, res, next) => {
+      if (res.headersSent) {
+        return next(err);
+      }
+      res.status(500).json({ error: { status: 500, message: 'Server error' } });
+    });
 
     // handle the unhandled rejections and exceptions
     if (process.listenerCount('unhandledRejection') === 0) {
