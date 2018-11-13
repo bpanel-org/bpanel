@@ -54,7 +54,7 @@
     "bfile": "^0.1.1",
     "bledger": "^0.1.1",
     "blgr": "0.0.2",
-    "bmultisig": "^0.0.3",
+    "bmultisig": "^1.0.1",
     "body-parser": "^1.18.2",
     "bootstrap": "^4.1.1",
     "bsert": "0.0.4",
