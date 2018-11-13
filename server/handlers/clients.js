@@ -7,6 +7,7 @@ const { configHelpers, clientFactory } = require('../utils');
 const {
   getDefaultConfig,
   createClientConfig,
+  createConfigsMap,
   testConfigOptions,
   deleteConfig,
   getConfig
@@ -36,18 +37,15 @@ function getClientInfo(req, res) {
   return res.status(200).json(clientInfo);
 }
 
-function getDefaultClientInfo(req, res) {
-  const { config } = req;
+function getDefaultClientInfo(req, res, next) {
+  const { config, logger } = req;
   const defaultClientConfig = getDefaultConfig(config);
 
   // if there is no default config, return a 500
-  if (!defaultClientConfig)
-    return res.status(500).json({
-      error: {
-        message: `Error retrieving default client: ${defaultId}`,
-        code: 500
-      }
-    });
+  if (!defaultClientConfig) {
+    logger.error(`Request for default client failed: ${defaultId}`);
+    return next(new Error('Request failed'));
+  }
 
   const defaultId = defaultClientConfig.str('id');
   const defaultClient = {
@@ -204,17 +202,13 @@ function updateConfigHandler(req, res) {
 }
 
 function deleteConfigHandler(req, res) {
-  try {
-    const error = deleteConfig(req.params.id);
-    if (!error) return res.status(200).json({ success: true });
-    else if (error.message.match('not found', 'i'))
-      return res.status(404).json({
-        error: { message: `Config for '${req.params.id}' not found` }
-      });
-    else throw error;
-  } catch (e) {
-    return res.status(500).json(e);
-  }
+  const error = deleteConfig(req.params.id);
+  if (!error) return res.status(200).json({ success: true });
+  else if (error.code === 'ENOENT')
+    return res.status(404).json({
+      error: { message: `Config for '${req.params.id}' not found` }
+    });
+  else throw error;
 }
 
 async function updateOrAdd(req, res) {

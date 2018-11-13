@@ -209,8 +209,27 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       });
     }
 
+    const resolveIndex = (req, res) => {
+      logger.debug(`Caught request in resolveIndex: ${req.path}`);
+      res.sendFile(path.resolve(__dirname, '../dist/index.html'));
+    };
+
     // Setup app server
     app.use(compression());
+
+    // black list filter
+    const forbiddenHandler = (req, res) =>
+      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
+
+    app.use((req, res, next) => {
+      try {
+        if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
+        next();
+      } catch (e) {
+        next(e);
+      }
+    });
+
     app.use(
       express.static(path.resolve(__dirname, '../dist'), {
         index: 'index.html',
@@ -223,11 +242,6 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       })
     );
 
-    const resolveIndex = (req, res) => {
-      logger.debug(`Caught request in resolveIndex: ${req.path}`);
-      res.sendFile(path.resolve(__dirname, '../dist/index.html'));
-    };
-
     app.get('/', resolveIndex);
 
     // add utilities to the req object
@@ -238,23 +252,6 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       req.config = bpanelConfig;
       req.clients = configsMap;
       next();
-    });
-
-    // black list filter
-    const forbiddenHandler = (req, res) =>
-      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
-
-    app.use((req, res, next) => {
-      try {
-        if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
-        next();
-      } catch (e) {
-        res.status(500).json({
-          error: {
-            message: `Server error: Problem filtering through server's blacklist`
-          }
-        });
-      }
     });
 
     /*
@@ -271,7 +268,7 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     for (let key in endpoints) {
       apiEndpoints.push(...endpoints[key]);
     }
-    apiEndpoints.concat(afterCoreMiddleware);
+    apiEndpoints.push(...afterCoreMiddleware);
 
     for (let endpoint of apiEndpoints) {
       try {
@@ -287,6 +284,14 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     });
 
     app.get('/*', resolveIndex);
+
+    // This must be the last middleware
+    app.use((err, req, res, next) => {
+      if (res.headersSent) {
+        return next(err);
+      }
+      res.status(500).json({ error: { status: 500, message: 'Server error' } });
+    });
 
     // handle the unhandled rejections and exceptions
     if (process.listenerCount('unhandledRejection') === 0) {
