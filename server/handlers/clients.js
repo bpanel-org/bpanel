@@ -13,14 +13,11 @@ const {
   getConfig
 } = configHelpers;
 
-let configsMap = null;
-
 function getClientInfo(req, res) {
-  const { logger, config } = req;
-  const clientConfigs = loadClientConfigs(config);
+  const { logger, clients } = req;
   const clientInfo = {};
 
-  for (let client of clientConfigs) {
+  clients.forEach(client => {
     if (!client.str('chain'))
       logger.warn(
         `Client config ${client.str(
@@ -35,7 +32,7 @@ function getClientInfo(req, res) {
         multisig: client.bool('multisig', true)
       }
     };
-  }
+  });
 
   return res.status(200).json(clientInfo);
 }
@@ -65,22 +62,10 @@ function getDefaultClientInfo(req, res, next) {
 
 async function clientsHandler(req, res) {
   let token;
-  const {
-    method,
-    path,
-    body,
-    query,
-    params,
-    config: bpanelConfig,
-    logger
-  } = req;
+  const { method, path, body, query, params, logger, clients } = req;
   const { id } = params;
 
-  const clientConfigs = loadClientConfigs(bpanelConfig);
-
-  if (!configsMap) configsMap = createConfigsMap(clientConfigs);
-
-  if (!configsMap.has(id))
+  if (!clients.has(id))
     return res.status(404).json({
       error: {
         message: `Sorry, there was no client with the id ${id}`,
@@ -88,7 +73,7 @@ async function clientsHandler(req, res) {
       }
     });
 
-  const config = configsMap.get(id);
+  const config = clients.get(id);
 
   assert(config instanceof Config, 'client needs bcfg config');
 
@@ -201,14 +186,10 @@ async function getConfigHandler(req, res) {
 }
 
 function addConfigHandler(req, res) {
-  const { config } = req;
+  const { clients } = req;
   const id = req.params.id;
 
-  if (!configsMap) {
-    const clientConfigs = loadClientConfigs(config);
-    configsMap = createConfigsMap(clientConfigs);
-  }
-  if (configsMap.get(id))
+  if (clients.get(id))
     return res
       .status(409)
       .send({ message: `A client with the id '${id}' already exists` });
