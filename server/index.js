@@ -78,9 +78,11 @@ if (require.main === module) {
 
     // need to use chokidar to watch for changes outside the working
     // directory. Will restart if configs get updated
+    // should be updated to check bpanelConfig for where the prefix is
     const clientsDir = path.resolve(os.homedir(), '.bpanel/clients');
+    const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
     require('chokidar')
-      .watch(clientsDir, { usePolling: poll, useFsEvents: poll })
+      .watch([clientsDir, configFile], { usePolling: poll, useFsEvents: poll })
       .on('all', () => {
         nodemon.emit('restart');
       });
@@ -103,9 +105,11 @@ module.exports = async (_config = {}) => {
   // Import app server utilities and modules
   const logger = require('./logger');
   const SocketManager = require('./socketManager');
-  const { clientFactory, attach } = require('./utils');
+  const { clientFactory, attach, apiFilters } = require('./utils');
   const { loadClientConfigs } = require('./loadConfigs');
   const endpoints = require('./endpoints');
+
+  const { isBlacklisted } = apiFilters;
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -113,8 +117,10 @@ module.exports = async (_config = {}) => {
   // inject any custom configs passed
   bpanelConfig.inject(_config);
 
-  // load configs from environment
+  // load configs from environment, args, and config file
   bpanelConfig.load({ env: true, argv: true, arg: true });
+  const configFile = require(path.resolve(bpanelConfig.prefix, 'config.js'));
+  bpanelConfig.inject(configFile);
 
   // check if vendor-manifest has been built otherwise run
   // build:dll first to build the manifest
@@ -196,6 +202,20 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
 
     // Setup app server
     app.use(compression());
+
+    // black list filter
+    const forbiddenHandler = (req, res) =>
+      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
+
+    app.use((req, res, next) => {
+      try {
+        if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
+        next();
+      } catch (e) {
+        next(e);
+      }
+    });
+
     app.use(
       express.static(path.resolve(__dirname, '../dist'), {
         index: 'index.html',
@@ -233,7 +253,7 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
       try {
         attach(app, endpoint);
       } catch (e) {
-        logger.error(e.message);
+        logger.error(e.stack);
       }
     }
 
@@ -243,6 +263,14 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     });
 
     app.get('/*', resolveIndex);
+
+    // This must be the last middleware
+    app.use((err, req, res, next) => {
+      if (res.headersSent) {
+        return next(err);
+      }
+      res.status(500).json({ error: { status: 500, message: 'Server error' } });
+    });
 
     // handle the unhandled rejections and exceptions
     if (process.listenerCount('unhandledRejection') === 0) {

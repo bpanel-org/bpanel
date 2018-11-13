@@ -100,15 +100,14 @@ function getConfig(id) {
 
 function deleteConfig(id) {
   assert(typeof id === 'string', 'Expected to get id of config to delete');
-  const config = getConfig(id);
-  const path = resolve(config.prefix, `${config.str('id')}.conf`);
-
   try {
+    const config = getConfig(id);
+    const path = resolve(config.prefix, `${config.str('id')}.conf`);
     fs.unlinkSync(path);
-    return true;
+    return null;
   } catch (e) {
     logger.error('Problem removing config:', e);
-    return false;
+    return e;
   }
 }
 
