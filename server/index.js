@@ -97,6 +97,11 @@ module.exports = async (_config = {}) => {
   const http = require('http');
   const express = require('express');
 
+  // network information
+  const bcoinNetworks = require('bcash').protocol.networks;
+  const bcashNetworks = require('bcash').protocol.networks;
+  const hsdNetworks = require('hsd').protocol.networks;
+
   // Import express middlewares
   const bodyParser = require('body-parser');
   const cors = require('cors');
@@ -191,10 +196,22 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     level: 'info'
   });
   await blgr.open();
+
+  // setting up whitelisted ports for wsproxy
+  // can add other custom ones via `proxy-ports` config option
+  const ports = [18444, 28333, 28901].concat(
+    bpanelConfig.array('proxy-ports', [])
+  );
+
+  for (let network of [bcoinNetworks, bcashNetworks, hsdNetworks]) {
+    ports.push(network.main.port);
+    ports.push(network.testnet.port);
+  }
   const socketManager = new SocketManager({
     noAuth: true,
     port: bsockPort,
-    logger: blgr
+    logger: blgr,
+    ports
   });
 
   // Wait for async part of server setup
