@@ -21,6 +21,7 @@ class SocketManager extends Server {
     this.clients = new Map();
     this.sockets = new WeakMap();
     this.ports = new Set();
+    this.subscriptions = new Map();
     this.types = ['node', 'wallet'];
 
     if (options.ports) {
@@ -172,7 +173,7 @@ class SocketManager extends Server {
       // only needs to bound once no matter how many clients
       // have the same subscription
       this.join(socket, channel);
-      client.bind(event, (...data) => {
+      const handler = (...data) => {
         this.logger.info('"%s" client received "%s"', id, event);
         this.logger.info(
           'sending "%s" to channel "%s"',
@@ -181,8 +182,9 @@ class SocketManager extends Server {
         );
         // send responseEvent to the channel
         this.to(channel, responseEvent, ...data);
-      });
-
+      };
+      this.subscriptions.set(channel, handler);
+      client.bind(event, handler);
       return null;
     });
 
@@ -204,9 +206,45 @@ class SocketManager extends Server {
         this.logger.warning('channel did not exist', channel);
         return;
       }
-
+      console.log('channels before left:', socket.channels);
+      // console.log('this.channel before:', this.channel(channel));
       this.leave(socket, channel);
+
+      // if the channel for this subscription is empty,
+      // then we should unbind the client
+      if (!this.channel(channel)) {
+        const [clientId, event] = parseEvent(_event);
+        const client = this.clients.get(id)[clientId];
+        const handler = this.subscriptions.get(channel);
+        console.log('subscriptions:', this.subscriptions.has(channel));
+        client.socket.unbind(event, handler);
+        console.log('events:', client.socket.events);
+      }
+      console.log('channels after left:', socket.channels);
+      console.log('this.channel after:', this.channel(channel));
     });
+
+    // socket.on('unsubscribe', async (_event, responseEvent) => {
+    //   assert(
+    //     this.clients.has(id),
+    //     `No client ${id} for request from ${socket.url}`
+    //   );
+    //   assert(
+    //     responseEvent,
+    //     'Must pass original responseEvent arg to unsubscribe'
+    //   );
+    //   const [clientId, event] = parseEvent(_event);
+    //   const channel = this.getChannelName(clientId, id, event, responseEvent);
+    //   this.logger.info(
+    //     `Unsubscribing from ${id}'s ${clientId} socket event "${event}"`
+    //   );
+    //   if (!this.channel(channel)) {
+    //     this.logger.warning('channel did not exist', channel);
+    //     return;
+    //   }
+
+    //   this.leave(socket, channel);
+    // });
 
     // requests from client for messages to be dispatched to node
     // dispatches expect bsock calls which wait for acknowledgement response
@@ -225,6 +263,24 @@ class SocketManager extends Server {
     // listener for tcp proxy requests (useful for in-browser nodes)
     socket.bind('tcp connect', (port, host) => {
       this.handleTCPConnect(socket, port, host);
+    });
+
+    // need to unsubscribe
+    socket.on('disconnect', () => {
+      console.log('OH MY GOD YOU DISCONNECTED!');
+      console.log(socket.channels);
+      const channels = socket.channels;
+      channels.forEach(channel => {
+        let [client, event] = channel.split(':');
+        if (event) {
+          event = event.split('-');
+          client = client.split('-');
+          console.log('event', event);
+          console.log('client:', client);
+          // console.log('event:', arr[1].split('-'));
+        }
+        socket.emit('unsubscribe', 'tx', 'mempool tx');
+      });
     });
   }
 

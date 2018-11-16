@@ -29,7 +29,7 @@ async function setupWallet(client) {
   return await client.execute('getnewaddress', [walletId]);
 }
 
-describe('socketManager', function() {
+describe.only('socketManager', function() {
   let socketManager,
     logger,
     options,
