@@ -399,7 +399,15 @@ describe.only('socketManager', function() {
     // NOTE: This is not supported without an update to bsock that allows support for custom paths
     // in the socket clients. It has, however, been tested with the WIP branch of bsock
     describe('handling multiple connections', function() {
-      let node2, nclient2, wclient2, id2, socket2, mineBlocks2;
+      let node2,
+        nclient2,
+        wclient2,
+        id2,
+        socket2,
+        socket3,
+        mineBlocks2,
+        channelName;
+
       before(async function() {
         // setup our second node and clients need this to show that socket manager handles
         // connections to multiple nodes using paths
@@ -442,24 +450,33 @@ describe.only('socketManager', function() {
           wallet: wclient2,
           node: nclient2
         });
-
-        socket2 = bsock.connect(
-          ports.manager,
-          '127.0.0.1',
-          false,
-          null,
-          id2
-        );
+        const options = [ports.manager, '127.0.0.1', false, null, id2];
+        socket2 = bsock.connect(...options);
+        socket3 = bsock.connect(...options);
         socket2.on('error', e => {
           throw e;
         });
+        socket3.on('error', e => {
+          throw e;
+        });
         await socket2.call('auth', apiKey);
+        await socket3.call('auth', apiKey);
+
+        // subscription will be the same as for first socket
+        // just with a different id
+        channelName = socketManager.getChannelName(
+          'node',
+          id2,
+          subscribeEvent,
+          responseEvent
+        );
       });
 
       afterEach(async function() {
         // close connections
         await socketManager.removeClients(id2);
         await socket2.destroy();
+        await socket3.destroy();
       });
 
       it('should add new clients under expected id', async function() {
@@ -479,14 +496,6 @@ describe.only('socketManager', function() {
       it('should only receive responseEvents for nodes it is subscribed to', async function() {
         let received = false;
 
-        // subscription will be exactly the same as above except for the id, set by socket path
-        const subscription = socketManager.getChannelName(
-          'node',
-          id2,
-          subscribeEvent,
-          responseEvent
-        );
-
         socket2.bind(responseEvent, function() {
           received = true;
         });
@@ -496,8 +505,8 @@ describe.only('socketManager', function() {
         await socket2.fire('subscribe', subscribeEvent, responseEvent);
         await sleep(300);
         assert(
-          socketManager.channel(subscription),
-          `Couldn't find subscription ${subscription}`
+          socketManager.channel(channelName),
+          `Couldn't find subscription ${channelName}`
         );
         await mineBlocks(1);
         // need to sleep to give enough time for the block to mine
@@ -509,6 +518,63 @@ describe.only('socketManager', function() {
         await mineBlocks2(1);
         await sleep(500);
         assert(received, 'Did not receive responseEvent from socketManager');
+      });
+
+      it('should unbind listener when event has no more subscribed sockets', async function() {
+        let client = socketManager.clients.get('test');
+
+        // need to dig into the client a bit to check for event subscriptions
+        // only necessary for the tests
+        let events = client.node.socket.events._events;
+
+        // clear subscriptions
+        socketManager.subscriptions.clear();
+        assert(
+          !events[subscribeEvent],
+          'Should not have listener before subscribing'
+        );
+
+        await socket2.fire('subscribe', subscribeEvent, responseEvent);
+        await socket3.fire('subscribe', subscribeEvent, responseEvent);
+        await sleep(200);
+
+        assert(
+          socketManager.subscriptions.has(channelName),
+          `Should have "${channelName}" subscription`
+        );
+
+        assert.equal(
+          socketManager.subscriptions.size,
+          1,
+          'Should have only one more subscription when two sockets with same subscription are added'
+        );
+
+        assert(
+          events[subscribeEvent],
+          `Client should have 1 event listener, for "${subscribeEvent}" event`
+        );
+
+        await socket2.close();
+        assert(
+          events[subscribeEvent],
+          `Client should keep event handler until all subscriptions have disconnected`
+        );
+
+        assert(
+          socketManager.subscriptions.has(channelName),
+          `Should still have "${channelName}" subscription when only one of two subscribed sockets closed`
+        );
+
+        await socket3.fire('unsubscribe', subscribeEvent, responseEvent);
+        await sleep(200);
+
+        client = socketManager.clients.get('test');
+        events = client.node.socket.events._events;
+
+        assert(
+          !events[subscribeEvent],
+          `Client should remove handler for ${subscribeEvent} after last socket has disconnected`
+        );
       });
     });
   });

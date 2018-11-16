@@ -153,7 +153,6 @@ class SocketManager extends Server {
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
       );
-
       assert(responseEvent, 'subscribe event requires a responseEvent.');
 
       const [clientId, event] = parseEvent(_event);
@@ -168,23 +167,34 @@ class SocketManager extends Server {
         event
       );
 
-      // if the channel doesn't exist we should bind
-      // the client to listen for the event
+      // add socket to this channel so we can send events to it
+      this.join(socket, channel);
+
+      // keep track of the channels the socket has joined
+      socket.join(channel);
+
+      // if did not have this subscription yet
+      // then we need to bind the client to listen for the event
       // only needs to bound once no matter how many clients
       // have the same subscription
-      this.join(socket, channel);
-      const handler = (...data) => {
-        this.logger.info('"%s" client received "%s"', id, event);
-        this.logger.info(
-          'sending "%s" to channel "%s"',
-          responseEvent,
-          channel
-        );
-        // send responseEvent to the channel
-        this.to(channel, responseEvent, ...data);
-      };
-      this.subscriptions.set(channel, handler);
-      client.bind(event, handler);
+      if (!this.subscriptions.has(channel)) {
+        const handler = (...data) => {
+          this.logger.info('"%s" client received "%s"', id, event);
+          this.logger.info(
+            'sending "%s" to channel "%s"',
+            responseEvent,
+            channel
+          );
+          // send responseEvent to the channel
+          this.to(channel, responseEvent, ...data);
+        };
+
+        // save subscription handler
+        this.subscriptions.set(channel, handler);
+
+        // subscribe to event
+        client.bind(event, handler);
+      }
       return null;
     });
 
@@ -206,45 +216,8 @@ class SocketManager extends Server {
         this.logger.warning('channel did not exist', channel);
         return;
       }
-      console.log('channels before left:', socket.channels);
-      // console.log('this.channel before:', this.channel(channel));
-      this.leave(socket, channel);
-
-      // if the channel for this subscription is empty,
-      // then we should unbind the client
-      if (!this.channel(channel)) {
-        const [clientId, event] = parseEvent(_event);
-        const client = this.clients.get(id)[clientId];
-        const handler = this.subscriptions.get(channel);
-        console.log('subscriptions:', this.subscriptions.has(channel));
-        client.socket.unbind(event, handler);
-        console.log('events:', client.socket.events);
-      }
-      console.log('channels after left:', socket.channels);
-      console.log('this.channel after:', this.channel(channel));
+      this.handleUnsubscribe(socket, channel);
     });
-
-    // socket.on('unsubscribe', async (_event, responseEvent) => {
-    //   assert(
-    //     this.clients.has(id),
-    //     `No client ${id} for request from ${socket.url}`
-    //   );
-    //   assert(
-    //     responseEvent,
-    //     'Must pass original responseEvent arg to unsubscribe'
-    //   );
-    //   const [clientId, event] = parseEvent(_event);
-    //   const channel = this.getChannelName(clientId, id, event, responseEvent);
-    //   this.logger.info(
-    //     `Unsubscribing from ${id}'s ${clientId} socket event "${event}"`
-    //   );
-    //   if (!this.channel(channel)) {
-    //     this.logger.warning('channel did not exist', channel);
-    //     return;
-    //   }
-
-    //   this.leave(socket, channel);
-    // });
 
     // requests from client for messages to be dispatched to node
     // dispatches expect bsock calls which wait for acknowledgement response
@@ -265,23 +238,63 @@ class SocketManager extends Server {
       this.handleTCPConnect(socket, port, host);
     });
 
-    // need to unsubscribe
+    // handle disconnect
     socket.on('disconnect', () => {
-      console.log('OH MY GOD YOU DISCONNECTED!');
-      console.log(socket.channels);
+      this.logger.info('Disconnecting socket from %s', socket.url);
+
+      // need to unsubscribe from all channel subscriptions
       const channels = socket.channels;
       channels.forEach(channel => {
-        let [client, event] = channel.split(':');
-        if (event) {
-          event = event.split('-');
-          client = client.split('-');
-          console.log('event', event);
-          console.log('client:', client);
-          // console.log('event:', arr[1].split('-'));
-        }
-        socket.emit('unsubscribe', 'tx', 'mempool tx');
+        this.handleUnsubscribe(socket, channel);
       });
     });
+  }
+
+  parseSubscriptionChannel(channel) {
+    const [client, _event] = channel.split(':');
+    if (_event) {
+      const [event, responseEvent] = _event.split('-');
+      const [clientId, id] = client.split('-');
+      return { event, responseEvent, clientId, id };
+    }
+    // not a subscription channel otherwise
+    return null;
+  }
+
+  handleUnsubscribe(socket, channel) {
+    this.logger.info(
+      'Unsubscribing %s from "%s" channel',
+      socket.host,
+      channel
+    );
+
+    // remove the socket from the channel
+    this.leave(socket, channel);
+
+    // parse channel name for client info
+    const parsed = this.parseSubscriptionChannel(channel);
+
+    // nothing left to do if not a subscription channel
+    if (!parsed) return;
+
+    const { event, clientId, id } = parsed;
+
+    // if the channel for this subscription is empty,
+    // then we should unbind the client and remove subscription
+    if (!this.channel(channel)) {
+      this.logger.info(
+        '"%s" has no more subscriptions, removing handlers',
+        channel
+      );
+      const client = this.clients.get(id)[clientId];
+      const handler = this.subscriptions.get(channel);
+
+      // unbind handler
+      client.socket.unbind(event, handler);
+
+      // remove channel's handler from subscriptions
+      this.subscriptions.delete(channel);
+    }
   }
 
   handleTCPConnect(ws, port, host) {
