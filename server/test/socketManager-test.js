@@ -29,7 +29,7 @@ async function setupWallet(client) {
   return await client.execute('getnewaddress', [walletId]);
 }
 
-describe.only('socketManager', function() {
+describe('socketManager', function() {
   let socketManager,
     logger,
     options,
@@ -520,20 +520,23 @@ describe.only('socketManager', function() {
         assert(received, 'Did not receive responseEvent from socketManager');
       });
 
-      it('should unbind listener when event has no more subscribed sockets', async function() {
+      it('should unbind event listeners when event has no more subscribed sockets', async function() {
         let client = socketManager.clients.get('test');
 
         // need to dig into the client a bit to check for event subscriptions
         // only necessary for the tests
         let events = client.node.socket.events._events;
 
-        // clear subscriptions
+        // clear subscriptions. Easier to see breaks if starting from scratch
+        // otherwise this will already fail because of leftover subscriptions
         socketManager.subscriptions.clear();
+
         assert(
           !events[subscribeEvent],
           'Should not have listener before subscribing'
         );
 
+        // have two socket subscribe to the same event
         await socket2.fire('subscribe', subscribeEvent, responseEvent);
         await socket3.fire('subscribe', subscribeEvent, responseEvent);
         await sleep(200);
@@ -543,9 +546,8 @@ describe.only('socketManager', function() {
           `Should have "${channelName}" subscription`
         );
 
-        assert.equal(
-          socketManager.subscriptions.size,
-          1,
+        assert(
+          socketManager.subscriptions.size === 1,
           'Should have only one more subscription when two sockets with same subscription are added'
         );
 
@@ -555,6 +557,7 @@ describe.only('socketManager', function() {
         );
 
         await socket2.close();
+
         assert(
           events[subscribeEvent],
           `Client should keep event handler until all subscriptions have disconnected`
