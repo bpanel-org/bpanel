@@ -98,9 +98,11 @@ module.exports = async (_config = {}) => {
   const express = require('express');
 
   // network information
-  const bcoinNetworks = require('bcash').protocol.networks;
-  const bcashNetworks = require('bcash').protocol.networks;
-  const hsdNetworks = require('hsd').protocol.networks;
+  const networks = {
+    bitcoin: require('bcoin/lib/protocol/networks'),
+    bitcoincash: require('bcash/lib/protocol/networks'),
+    handshake: require('hsd/lib/protocol/networks')
+  };
 
   // Import express middlewares
   const bodyParser = require('body-parser');
@@ -203,10 +205,11 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     bpanelConfig.array('proxy-ports', [])
   );
 
-  for (let network of [bcoinNetworks, bcashNetworks, hsdNetworks]) {
-    ports.push(network.main.port);
-    ports.push(network.testnet.port);
+  for (let chain in networks) {
+    ports.push(networks[chain].main.port);
+    ports.push(networks[chain].testnet.port);
   }
+
   const socketManager = new SocketManager({
     noAuth: true,
     port: bsockPort,
