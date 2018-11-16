@@ -37,12 +37,13 @@ try {
   const nodeMin = process.env.npm_package_engines_node;
 
   if (
-    !semver.satisfies(npmVersion.version, npmMin) ||
+    !semver.satisfies(npmVersion, npmMin) ||
     !semver.satisfies(nodeVersion, nodeMin)
   )
     throw new Error(
       `bPanel requires npm version ${npmMin} and node version ${nodeMin}. \
-You are running npm ${npmVersion} and node ${nodeVersion}. Please update and try again.`
+You are running npm ${npmVersion} and node ${nodeVersion}. Please check your $PATH variable, \
+update and try again.`
     );
 
   if (!fs.existsSync(BPANEL_DIR)) {

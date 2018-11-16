@@ -276,6 +276,25 @@ errors about missing packages, make sure you have the right versions:
 - npm >= 5.7.1
 - node >= 8.9.4
 
+##### A note about the `$PATH` variable
+Note that bPanel will actually do a check of your system's `npm` version and the process's
+version of node and will fail if these don't reach the minimum requirements. If you believe
+you have the right version of `npm` installed, make sure it is in the `PATH` environment variable.
+
+You can check this by running:
+
+```bash
+$ which npm
+# /usr/local/bin/npm
+```
+
+Make sure the returned path is included in the following return:
+```bash
+$ echo $PATH
+# /usr/local/bin:/usr/local/sbin:/usr/local/lib
+```
+
+
 ## Release Checklist
 The following conditions must be tested before deploying a release. If any of the following
 circumstances causes a break, CHANGELOG should indicate a workaround or migration steps.
