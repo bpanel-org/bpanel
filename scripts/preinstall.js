@@ -29,18 +29,15 @@ try {
   let npmVersion = execSync('npm --version', {
     encoding: 'utf8'
   });
-  let nodeVersion = execSync('node --version', {
-    encoding: 'utf8'
-  });
+  let nodeVersion = process.version;
 
   npmVersion = trim(npmVersion);
-  nodeVersion = trim(nodeVersion);
 
   const npmMin = process.env.npm_package_engines_npm;
   const nodeMin = process.env.npm_package_engines_node;
 
   if (
-    !semver.satisfies(npmVersion.version, npmMin) &&
+    !semver.satisfies(npmVersion.version, npmMin) ||
     !semver.satisfies(nodeVersion, nodeMin)
   )
     throw new Error(
