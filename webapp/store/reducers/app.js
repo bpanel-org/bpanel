@@ -3,7 +3,8 @@ import { SET_WINDOW } from '../constants/app';
 const initialState = {
   port: null,
   protocol: null,
-  ssl: null
+  ssl: null,
+  socketPort: 8000
 };
 
 const appState = (state = initialState, action) => {
