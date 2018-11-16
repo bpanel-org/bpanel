@@ -5,6 +5,8 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { execSync } = require('child_process');
+const semver = require('semver');
 
 const BPANEL_DIR = path.resolve(os.homedir(), '.bpanel');
 const CONFIGS_FILE = path.resolve(BPANEL_DIR, './config.js');
@@ -17,7 +19,35 @@ const configText = `module.exports = {
   localPlugins: [],
 }`;
 
+// simple utility to remove whitespace from string
+function trim(string) {
+  return string.replace(/^\s+|\s+$/g, '');
+}
+
 try {
+  // check minimum version of npm
+  let npmVersion = execSync('npm --version', {
+    encoding: 'utf8'
+  });
+  let nodeVersion = execSync('node --version', {
+    encoding: 'utf8'
+  });
+
+  npmVersion = trim(npmVersion);
+  nodeVersion = trim(nodeVersion);
+
+  const npmMin = process.env.npm_package_engines_npm;
+  const nodeMin = process.env.npm_package_engines_node;
+
+  if (
+    !semver.satisfies(npmVersion.version, npmMin) &&
+    !semver.satisfies(nodeVersion, nodeMin)
+  )
+    throw new Error(
+      `bPanel requires npm version ${npmMin} and node version ${nodeMin}. \
+You are running npm ${npmVersion} and node ${nodeVersion}. Please update and try again.`
+    );
+
   if (!fs.existsSync(BPANEL_DIR)) {
     console.log(
       `info: No module directory found. Creating one at ${BPANEL_DIR}`
