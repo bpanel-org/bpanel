@@ -68,9 +68,7 @@ update and try again.`
   }
 
   if (!fs.existsSync(SECRETS_FILE)) {
-    console.log(
-      `info: No clients directory file found. Creating one at ${SECRETS_FILE}`
-    );
+    console.log(`info: No secrets file found. Creating one at ${SECRETS_FILE}`);
     fs.appendFileSync(SECRETS_FILE, JSON.stringify({}));
   }
 
