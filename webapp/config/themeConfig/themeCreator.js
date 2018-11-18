@@ -10,9 +10,9 @@ const { makeRem, makeGutter } = utils;
 
 const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   /* This if statement gives you access to default themeVariables in your custom theme.
-  ** Declaring your themeVariables as a function gives you access to the default themeVariables as
-  ** an argument to that function.
-  */
+   ** Declaring your themeVariables as a function gives you access to the default themeVariables as
+   ** an argument to that function.
+   */
   if (typeof _themeVariables === 'function')
     _themeVariables = _themeVariables(themeVariables);
 
@@ -360,7 +360,10 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       },
       header: {
         fontWeight: fontWeights.semiBold,
-        textTransform: 'capitalize'
+        textTransform: 'capitalize',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       },
       body: {
         fontWeight: fontWeights.light
@@ -491,9 +494,9 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   };
 
   /* This if statement gives you access to default themeConfig in your custom theme.
-  ** Declaring your themeConfig as a function gives you access to the default theme config as
-  ** an argument to that function.
-  */
+   ** Declaring your themeConfig as a function gives you access to the default theme config as
+   ** an argument to that function.
+   */
   if (typeof _themeConfig === 'function')
     _themeConfig = _themeConfig(themeVariables, themeConfig);
 
