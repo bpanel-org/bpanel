@@ -13,6 +13,10 @@ const { MODULES_DIR, SRC_DIR, SERVER_DIR } = require('./constants');
 const bpanelPrefix =
   process.env.BPANEL_PREFIX || path.resolve(os.homedir(), '.bpanel');
 
+// socket port hard coded in since running on a different port from
+// file server and http proxy
+const BPANEL_SOCKET_PORT = process.env.BPANEL_SOCKET_PORT || 8000;
+
 module.exports = () => {
   let SECRETS = {};
   try {
@@ -41,8 +45,6 @@ module.exports = () => {
         'react-redux': `${MODULES_DIR}/react-redux`,
         redux: `${MODULES_DIR}/redux`,
         'react-dom': `${MODULES_DIR}/react-dom`,
-        'react-router-dom': `${MODULES_DIR}/react-router-dom`,
-        'react-redux': `${MODULES_DIR}/react-redux`,
         'react-loadable': `${MODULES_DIR}/react-loadable`,
         '&local': path.resolve(bpanelPrefix, 'local_plugins'),
         '@bpanel/bpanel-utils': `${MODULES_DIR}/@bpanel/bpanel-utils`,
@@ -69,6 +71,7 @@ module.exports = () => {
       }),
       new webpack.DefinePlugin({
         SECRETS: JSON.stringify(SECRETS),
+        BPANEL_SOCKET_PORT: JSON.stringify(BPANEL_SOCKET_PORT),
         NODE_ENV: `"${process.env.NODE_ENV}"`,
         'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
         'process.env.BROWSER': JSON.stringify(true)

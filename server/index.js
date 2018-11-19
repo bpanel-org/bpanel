@@ -150,12 +150,15 @@ will increase speed of future builds, so please be patient.'
     });
   }
 
+  const bsockPort = bpanelConfig.int('bsock-port') || 8000;
+
   // Always start webpack
   require('nodemon')({
     script: './node_modules/.bin/webpack',
     watch: [`${bpanelConfig.prefix}/config.js`],
     env: {
-      BPANEL_PREFIX: bpanelConfig.prefix
+      BPANEL_PREFIX: bpanelConfig.prefix,
+      BPANEL_SOCKET_PORT: bsockPort
     },
     args: webpackArgs,
     legacyWatch: poll
@@ -188,7 +191,6 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
   // Init app express server
   const app = express.Router();
   const port = process.env.PORT || 5000;
-  const bsockPort = process.env.BSOCK_PORT || 8000;
   app.use(bodyParser.json());
   app.use(cors());
 
