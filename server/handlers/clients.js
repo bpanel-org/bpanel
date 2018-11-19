@@ -1,13 +1,10 @@
 const Config = require('bcfg');
 const assert = require('bsert');
 
-const { loadClientConfigs } = require('../loadConfigs');
-
 const { configHelpers, clientFactory } = require('../utils');
 const {
   getDefaultConfig,
   createClientConfig,
-  createConfigsMap,
   testConfigOptions,
   deleteConfig,
   getConfig
