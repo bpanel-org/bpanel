@@ -4,7 +4,7 @@ const initialState = {
   port: null,
   protocol: null,
   ssl: null,
-  socketPort: 8000
+  socketPort: parseInt(BPANEL_SOCKET_PORT, 10)
 };
 
 const appState = (state = initialState, action) => {
