@@ -367,8 +367,15 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       },
       selectableRow: {
         ':hover': {
-          cursor: 'pointer'
+          cursor: 'pointer',
+          backgroundColor: themeColors.highlight1
         }
+      },
+      selectedRow: {
+        ':hover': {
+          cursor: 'pointer'
+        },
+        backgroundColor: themeColors.lowlight1
       },
       selectedRowIndicator: {
         padding: '10px'
