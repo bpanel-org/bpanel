@@ -365,6 +365,18 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       body: {
         fontWeight: fontWeights.light
       },
+      headerRow: {
+        backgroundColor: themeColors.mediumBg,
+        fontWeight: fontWeights.light
+      },
+      oddRow: {
+        backgroundColor: themeColors.lightBg,
+        fontWeight: fontWeights.light
+      },
+      evenRow: {
+        backgroundColor: themeColors.transparent,
+        fontWeight: fontWeights.light
+      },
       selectableRow: {
         ':hover': {
           cursor: 'pointer',
