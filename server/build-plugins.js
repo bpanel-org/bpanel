@@ -35,36 +35,26 @@ const getPackageName = name => {
 };
 
 async function installRemotePackages(installPackages) {
-  // check if connected to internet
-  // if not, skip npm install
-  const EXTERNAL_URI = process.env.EXTERNAL_URI || 'npmjs.com';
-  await require('dns').lookup(EXTERNAL_URI, async err => {
-    if (err && err.code === 'ENOTFOUND')
-      logger.error(`Can't reach npm servers. Skipping npm install`);
-    else {
-      // validation is done earlier, but still confirming at this step
-      const pkgStr = installPackages.reduce((str, name) => {
-        if (validate(name).validForNewPackages) str = `${str} ${name}`;
-        return str;
-      });
-      logger.info(`Installing plugin packages: ${pkgStr.split(' ')}`);
-
-      try {
-        execSync(`npm install --no-save ${pkgStr} --production`, {
-          stdio: [0, 1, 2],
-          cwd: resolve(__dirname, '..')
-        });
-        logger.info('Done installing remote plugins');
-      } catch (e) {
-        logger.error(
-          'There was an error installing plugins. Sometimes this is because of permissions errors \
-in node_modules. Try deleting the node_modules directory and running `npm install` again.'
-        );
-        logger.error(e.stack);
-        process.exit(1);
-      }
-    }
+  const pkgStr = installPackages.reduce((str, name) => {
+    if (validate(name).validForNewPackages) str = `${str} ${name}`;
+    return str;
   });
+  logger.info(`Installing plugin packages: ${pkgStr.split(' ')}`);
+
+  try {
+    execSync(`npm install --no-save ${pkgStr} --production`, {
+      stdio: [0, 1, 2],
+      cwd: resolve(__dirname, '..')
+    });
+    logger.info('Done installing remote plugins');
+  } catch (e) {
+    logger.error(
+      'There was an error installing plugins. Sometimes this is because of permissions errors \
+in node_modules. Try deleting the node_modules directory and running `npm install` again.'
+    );
+    logger.error(e.stack);
+    process.exit(1);
+  }
 }
 
 /*
@@ -142,7 +132,7 @@ async function getLocalPlugins() {
   return plugins;
 }
 
-async function prepareModules(plugins = [], local = true) {
+async function prepareModules(plugins = [], local = true, network = false) {
   let pluginsIndex = local
     ? '// exports for all local plugin modules\n\n'
     : '// exports for all published plugin modules\n\n';
@@ -180,13 +170,17 @@ async function prepareModules(plugins = [], local = true) {
         resolve(PLUGINS_PATH, 'local', packageName)
       );
 
-      // if adding a remote plugin and it doesn't exist on npm, skip
-      const existsRemote = !local && (await npmExists(packageName));
-      if (!local && !existsRemote) {
-        logger.error(
-          `Remote module ${packageName} does not exist on npm. If developing locally, add to local plugins. Skipping...`
-        );
-        continue;
+      // can skip remote check if no nework connection
+      let existsRemote = true;
+      if (network) {
+        // if adding a remote plugin and it doesn't exist on npm, skip
+        existsRemote = !local && (await npmExists(packageName));
+        if (!local && !existsRemote) {
+          logger.error(
+            `Remote module ${packageName} does not exist on npm. If developing locally, add to local plugins. Skipping...`
+          );
+          continue;
+        }
       }
 
       if (existsLocal && local)
@@ -235,8 +229,13 @@ async function prepareModules(plugins = [], local = true) {
           if (newModules) break;
         }
 
+        // if there is no network connection, log message
+        if (!network)
+          logger.info(
+            'Skipping npm install of remote plugins due to lack of network connection'
+          );
         // if there are new modules, install them with npm
-        if (newModules) await installRemotePackages(installPackages);
+        else if (newModules) await installRemotePackages(installPackages);
         else
           logger.info('No new remote plugins to install. Skipping npm install');
       }
@@ -268,21 +267,24 @@ your config file.'
     // CLI & ENV plugins override configuration file
     const envPlugins = config.str('plugins');
 
-    // skip remote plugins if no connection
+    // get network status for dealing with remote plugins
+    let network = false;
     const EXTERNAL_URI = process.env.EXTERNAL_URI || 'npmjs.com';
-    await require('dns').lookup(EXTERNAL_URI, async err => {
+    require('dns').lookup(EXTERNAL_URI, async err => {
       if (err && err.code === 'ENOTFOUND')
-        logger.error(`Can't reach npm servers. Skipping npm install`);
+        logger.error(`No network connection found.`);
       else {
-        await prepareModules(
-          envPlugins ? envPlugins.split(',').map(s => s.trim(s)) : plugins,
-          false
-        );
+        network = true;
       }
+      // prepare remote plugins
+      await prepareModules(
+        envPlugins ? envPlugins.split(',').map(s => s.trim(s)) : plugins,
+        false,
+        network
+      );
+      // prepare local plugins
+      await prepareModules(localPlugins, true, network);
     });
-
-    // prepare local plugins
-    await prepareModules(localPlugins);
   } catch (err) {
     logger.error('There was an error preparing modules: ', err.stack);
   }
