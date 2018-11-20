@@ -377,6 +377,11 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         backgroundColor: themeColors.transparent,
         fontWeight: fontWeights.light
       },
+      expandableRow: {
+        ':hover': {
+          cursor: 'pointer'
+        }
+      },
       selectableRow: {
         ':hover': {
           cursor: 'pointer',
