@@ -181,7 +181,7 @@ async function prepareModules(plugins = [], local = true) {
       );
 
       // if adding a remote plugin and it doesn't exist on npm, skip
-      const existsRemote = await npmExists(packageName);
+      const existsRemote = !local && (await npmExists(packageName));
       if (!local && !existsRemote) {
         logger.error(
           `Remote module ${packageName} does not exist on npm. If developing locally, add to local plugins. Skipping...`
@@ -264,12 +264,24 @@ your config file.'
     );
 
     const { localPlugins, plugins } = require(PLUGINS_CONFIG);
+
     // CLI & ENV plugins override configuration file
     const envPlugins = config.str('plugins');
-    await prepareModules(
-      envPlugins ? envPlugins.split(',').map(s => s.trim(s)) : plugins,
-      false
-    );
+
+    // skip remote plugins if no connection
+    const EXTERNAL_URI = process.env.EXTERNAL_URI || 'npmjs.com';
+    await require('dns').lookup(EXTERNAL_URI, async err => {
+      if (err && err.code === 'ENOTFOUND')
+        logger.error(`Can't reach npm servers. Skipping npm install`);
+      else {
+        await prepareModules(
+          envPlugins ? envPlugins.split(',').map(s => s.trim(s)) : plugins,
+          false
+        );
+      }
+    });
+
+    // prepare local plugins
     await prepareModules(localPlugins);
   } catch (err) {
     logger.error('There was an error preparing modules: ', err.stack);
