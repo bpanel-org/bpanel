@@ -4,6 +4,8 @@ const { sha256, random, ccmp } = require('bcrypto');
 const { base58 } = require('bstring');
 const { URL } = require('url');
 const Validator = require('bval');
+const net = require('net');
+const IP = require('binet');
 
 class SocketManager extends Server {
   /**
@@ -17,7 +19,14 @@ class SocketManager extends Server {
     this.logger =
       this.options.logger && this.options.logger.context('socket-manager');
     this.clients = new Map();
+    this.sockets = new WeakMap();
+    this.ports = new Set();
     this.types = ['node', 'wallet'];
+
+    if (options.ports) {
+      for (const port of options.ports) this.ports.add(port);
+    }
+
     this.init();
   }
 
@@ -57,6 +66,16 @@ class SocketManager extends Server {
         return;
       }
 
+      const state = new SocketState(this, socket);
+
+      // Use a weak map to avoid
+      // mutating the websocket object.
+      this.sockets.set(socket, state);
+
+      socket.on('error', err => {
+        this.emit('error', err);
+      });
+
       if (!this.options.noAuth) {
         const valid = new Validator(args);
         const key = valid.str(0, '');
@@ -74,56 +93,6 @@ class SocketManager extends Server {
       this.handleAuth(socket);
       return null;
     });
-  }
-
-  /*
-   * Utility to verify that the pathname
-   * matches with the id of a client on the class
-   * @private
-   * @param {string} pathname - pathname to validate
-   * @returns {string} id
-   */
-  getIdFromPath(pathname) {
-    assert(
-      pathname[0] === '/' && pathname[pathname.length - 1] === '/',
-      'Invalid pathname'
-    );
-    const id = pathname.slice(1, pathname.length - 1);
-    if (!this.clients.has(id))
-      this.logger.warning(
-        'getIdFromPath: id %s from pathname %s does not exist',
-        id,
-        pathname
-      );
-
-    return id;
-  }
-
-  /* Create properly formatted channel name
-   * creating a unique channel name for subscriptions
-   * each channel needs to be unique to the clientId
-   * (one of accepted types, e.g. wallet or node),
-   * the id of socket (i.e. from the socket's path)
-   * event being subscribed to and the event fired when event
-   * is heard.
-   * @param {string} clientId
-   * @param {string} id
-   * @param {string} event
-   * @param {responseEvent}
-   * @returns {string} channelName
-   */
-  getChannelName(clientId, id, event, responseEvent) {
-    assert(
-      typeof clientId === 'string',
-      'required string clientId for channel name'
-    );
-    assert(typeof id === 'string', 'required string id for channel name');
-    assert(typeof event === 'string', 'required string event for channel name');
-    assert(
-      typeof responseEvent === 'string',
-      'required string responseEvent for channel name'
-    );
-    return `${clientId}-${id}:${event}-${responseEvent}`;
   }
 
   /*
@@ -252,6 +221,211 @@ class SocketManager extends Server {
       const resp = await client.call(event, ...args);
       return resp;
     });
+
+    // listener for tcp proxy requests (useful for in-browser nodes)
+    socket.bind('tcp connect', (port, host) => {
+      this.handleTCPConnect(socket, port, host);
+    });
+  }
+
+  handleTCPConnect(ws, port, host) {
+    const state = this.sockets.get(ws);
+    assert(state);
+    if (state.socket) {
+      this.proxyLog('info', 'Client is trying to reconnect (%s).', state.host);
+      return;
+    }
+
+    if (
+      (port & 0xffff) !== port ||
+      typeof host !== 'string' ||
+      host.length === 0
+    ) {
+      this.proxyLog('error', 'Client gave bad arguments (%s).', state.host);
+      ws.fire('tcp close');
+      ws.destroy();
+      return;
+    }
+
+    let raw, addr;
+    try {
+      raw = IP.toBuffer(host);
+      addr = IP.toString(raw);
+    } catch (e) {
+      this.proxyLog(
+        'error',
+        'Client gave a bad host: %s (%s).',
+        host,
+        state.host
+      );
+      ws.fire('tcp error', {
+        message: 'EHOSTUNREACH',
+        code: 'EHOSTUNREACH'
+      });
+      ws.destroy();
+      return;
+    }
+
+    if (!IP.isRoutable(raw) || IP.isOnion(raw)) {
+      this.proxyLog(
+        'warning',
+        'Client is trying to connect to a bad ip: %s (%s).',
+        addr,
+        state.host
+      );
+      ws.fire('tcp error', {
+        message: 'ENETUNREACH',
+        code: 'ENETUNREACH'
+      });
+      ws.destroy();
+      return;
+    }
+
+    if (!this.ports.has(port)) {
+      this.proxyLog(
+        'warning',
+        'Client is connecting to non-whitelist port (%s).',
+        state.host
+      );
+      ws.fire('tcp error', {
+        message: 'ENETUNREACH',
+        code: 'ENETUNREACH'
+      });
+      ws.destroy();
+      return;
+    }
+
+    let socket;
+    try {
+      socket = state.connect(
+        port,
+        addr
+      );
+      this.proxyLog(
+        'info',
+        'Connecting to %s (%s).',
+        state.remoteHost,
+        state.host
+      );
+    } catch (e) {
+      this.proxyLog('error', e.message);
+      this.proxyLog('info', 'Closing %s (%s).', state.remoteHost, state.host);
+      ws.fire('tcp error', {
+        message: 'ENETUNREACH',
+        code: 'ENETUNREACH'
+      });
+      ws.destroy();
+      return;
+    }
+
+    socket.on('connect', () => {
+      ws.fire('tcp connect', socket.remoteAddress, socket.remotePort);
+    });
+
+    socket.on('data', data => {
+      ws.fire('tcp data', data.toString('hex'));
+    });
+
+    socket.on('error', err => {
+      ws.fire('tcp error', {
+        message: err.message,
+        code: err.code || null
+      });
+    });
+
+    socket.on('timeout', () => {
+      ws.fire('tcp timeout');
+    });
+
+    socket.on('close', () => {
+      this.proxyLog('info', 'Closing %s (%s).', state.remoteHost, state.host);
+      ws.fire('tcp close');
+      ws.destroy();
+    });
+
+    ws.bind('tcp data', data => {
+      if (typeof data !== 'string') return;
+      socket.write(Buffer.from(data, 'hex'));
+    });
+
+    ws.bind('tcp keep alive', (enable, delay) => {
+      socket.setKeepAlive(enable, delay);
+    });
+
+    ws.bind('tcp no delay', enable => {
+      socket.setNoDelay(enable);
+    });
+
+    ws.bind('tcp set timeout', timeout => {
+      socket.setTimeout(timeout);
+    });
+
+    ws.bind('tcp pause', () => {
+      socket.pause();
+    });
+
+    ws.bind('tcp resume', () => {
+      socket.resume();
+    });
+
+    ws.on('disconnect', () => {
+      socket.destroy();
+    });
+  }
+
+  proxyLog(level, _message, ...args) {
+    const message = `(wsproxy) ${_message}`;
+    this.logger[level](message, ...args);
+  }
+
+  /*
+   * Utility to verify that the pathname
+   * matches with the id of a client on the class
+   * @private
+   * @param {string} pathname - pathname to validate
+   * @returns {string} id
+   */
+  getIdFromPath(pathname) {
+    assert(
+      pathname[0] === '/' && pathname[pathname.length - 1] === '/',
+      'Invalid pathname'
+    );
+    const id = pathname.slice(1, pathname.length - 1);
+    if (!this.clients.has(id) && id !== 'socket.io')
+      this.logger.warning(
+        'getIdFromPath: id %s from pathname %s does not exist',
+        id,
+        pathname
+      );
+
+    return id;
+  }
+
+  /* Create properly formatted channel name
+   * creating a unique channel name for subscriptions
+   * each channel needs to be unique to the clientId
+   * (one of accepted types, e.g. wallet or node),
+   * the id of socket (i.e. from the socket's path)
+   * event being subscribed to and the event fired when event
+   * is heard.
+   * @param {string} clientId
+   * @param {string} id
+   * @param {string} event
+   * @param {responseEvent}
+   * @returns {string} channelName
+   */
+  getChannelName(clientId, id, event, responseEvent) {
+    assert(
+      typeof clientId === 'string',
+      'required string clientId for channel name'
+    );
+    assert(typeof id === 'string', 'required string id for channel name');
+    assert(typeof event === 'string', 'required string event for channel name');
+    assert(
+      typeof responseEvent === 'string',
+      'required string responseEvent for channel name'
+    );
+    return `${clientId}-${id}:${event}-${responseEvent}`;
   }
 
   /*
@@ -377,6 +551,23 @@ class SocketManagerOptions {
 
   static fromOptions(options) {
     return new SocketManagerOptions().fromOptions(options);
+  }
+}
+
+class SocketState {
+  constructor(server, socket) {
+    this.socket = null;
+    this.host = socket.host;
+    this.remoteHost = null;
+  }
+
+  connect(port, host) {
+    this.socket = net.connect(
+      port,
+      host
+    );
+    this.remoteHost = IP.toHostname(host, port);
+    return this.socket;
   }
 }
 

@@ -97,6 +97,13 @@ module.exports = async (_config = {}) => {
   const http = require('http');
   const express = require('express');
 
+  // network information
+  const networks = {
+    bitcoin: require('bcoin/lib/protocol/networks'),
+    bitcoincash: require('bcash/lib/protocol/networks'),
+    handshake: require('hsd/lib/protocol/networks')
+  };
+
   // Import express middlewares
   const bodyParser = require('body-parser');
   const cors = require('cors');
@@ -143,12 +150,15 @@ will increase speed of future builds, so please be patient.'
     });
   }
 
+  const bsockPort = bpanelConfig.int('bsock-port') || 8000;
+
   // Always start webpack
   require('nodemon')({
     script: './node_modules/.bin/webpack',
     watch: [`${bpanelConfig.prefix}/config.js`],
     env: {
-      BPANEL_PREFIX: bpanelConfig.prefix
+      BPANEL_PREFIX: bpanelConfig.prefix,
+      BPANEL_SOCKET_PORT: bsockPort
     },
     args: webpackArgs,
     legacyWatch: poll
@@ -181,7 +191,6 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
   // Init app express server
   const app = express.Router();
   const port = process.env.PORT || 5000;
-  const bsockPort = process.env.BSOCK_PORT || 8000;
   app.use(bodyParser.json());
   app.use(cors());
 
@@ -191,10 +200,23 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     level: 'info'
   });
   await blgr.open();
+
+  // setting up whitelisted ports for wsproxy
+  // can add other custom ones via `proxy-ports` config option
+  const ports = [18444, 28333, 28901].concat(
+    bpanelConfig.array('proxy-ports', [])
+  );
+
+  for (let chain in networks) {
+    ports.push(networks[chain].main.port);
+    ports.push(networks[chain].testnet.port);
+  }
+
   const socketManager = new SocketManager({
     noAuth: true,
     port: bsockPort,
-    logger: blgr
+    logger: blgr,
+    ports
   });
 
   // Wait for async part of server setup
