@@ -52,6 +52,7 @@
     "bcoin": "bcoin-org/bcoin",
     "bcurl": "^0.1.3",
     "bfile": "^0.1.1",
+    "binet": "^0.3.2",
     "bledger": "^0.1.1",
     "blgr": "0.0.2",
     "bmultisig": "^1.0.1",

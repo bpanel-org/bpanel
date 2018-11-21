@@ -1,5 +1,4 @@
 import { getClient } from '@bpanel/bpanel-utils';
-import bcurl from 'bcurl';
 
 import * as types from '../constants/node';
 import { setChainInfo, getGenesisBlock } from './chainActions';
