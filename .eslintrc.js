@@ -17,7 +17,9 @@ module.exports = {
         commonjs: true
       },
       globals: {
-        NODE_ENV: true
+        NODE_ENV: true,
+        BPANEL_SOCKET_PORT: true,
+        SECRETS: true
       }
     },
     {

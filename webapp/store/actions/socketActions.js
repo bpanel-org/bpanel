@@ -4,13 +4,15 @@ import { getClient } from '@bpanel/bpanel-utils';
 const client = getClient();
 
 export function connectSocket() {
-  return {
-    type: CONNECT_SOCKET,
-    bsock: {
-      host: client.host ? client.host : 'localhost',
-      port: 8000,
-      namespace: client.id
-    }
+  return (dispatch, getState) => {
+    dispatch({
+      type: CONNECT_SOCKET,
+      bsock: {
+        host: client.host ? client.host : 'localhost',
+        port: getState().app.socketPort,
+        namespace: client.id
+      }
+    });
   };
 }
 
