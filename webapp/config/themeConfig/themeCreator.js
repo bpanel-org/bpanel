@@ -365,37 +365,12 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       body: {
         fontWeight: fontWeights.light
       },
-      headerRow: {
-        backgroundColor: themeColors.mediumBg,
-        fontWeight: fontWeights.light
-      },
-      oddRow: {
-        backgroundColor: themeColors.lightBg,
-        fontWeight: fontWeights.light
-      },
-      evenRow: {
-        backgroundColor: themeColors.transparent,
-        fontWeight: fontWeights.light
-      },
-      expandableRow: {
-        ':hover': {
-          cursor: 'pointer'
-        }
-      },
-      selectableRow: {
-        ':hover': {
-          cursor: 'pointer',
-          backgroundColor: themeColors.highlight1
-        }
+      hoverRow: {
+        cursor: 'pointer',
+        backgroundColor: themeColors.highlight1
       },
       selectedRow: {
-        ':hover': {
-          cursor: 'pointer'
-        },
         backgroundColor: themeColors.lowlight1
-      },
-      selectedRowIndicator: {
-        padding: '10px'
       }
     },
 
@@ -565,6 +540,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
     themeVariables: mergedThemeVariables,
+    themeConfig: mergedThemeConfig,
     logoUrl,
     tableRowStyle
   };
