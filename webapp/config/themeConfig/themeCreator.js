@@ -371,6 +371,9 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       },
       selectedRow: {
         backgroundColor: themeColors.lowlight1
+      },
+      hoverExpandableRow: {
+        cursor: 'pointer'
       }
     },
 
