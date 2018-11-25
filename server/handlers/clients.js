@@ -7,7 +7,8 @@ const {
   createClientConfig,
   testConfigOptions,
   deleteConfig,
-  getConfig
+  getConfig,
+  ClientErrors
 } = configHelpers;
 
 function getClientInfo(req, res) {
@@ -220,15 +221,23 @@ async function updateOrAdd(req, res) {
     else if (forceBool === 'false' || forceBool === false) forceBool = false;
     else logger.warn('Expected either "true" or "false" for the force option');
 
-    const config = await createClientConfig(id, options, forceBool);
+    // first get original configs to merge any missing items
+    const { data } = getConfig(id);
+    const config = await createClientConfig(
+      id,
+      { ...data, ...options },
+      forceBool
+    );
     return res.status(200).send({
       configs: config.options
     });
   } catch (error) {
     logger.error('Problem creating config: ', error.message);
-    return res
-      .status(400)
-      .send({ error: { message: error.message, ...error } });
+    // special error response with extra information
+    // so want to still send 200 so client can receive full message
+    if (error instanceof ClientErrors)
+      return res.status(200).send({ message: error.message, ...error });
+    throw error;
   }
 }
 
