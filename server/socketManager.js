@@ -1,6 +1,6 @@
 const { Server } = require('bweb');
 const assert = require('bsert');
-const { sha256, random, ccmp } = require('bcrypto');
+const { SHA256, random, safeEqual } = require('bcrypto');
 const { base58 } = require('bstring');
 const { URL } = require('url');
 const Validator = require('bval');
@@ -21,6 +21,7 @@ class SocketManager extends Server {
     this.clients = new Map();
     this.sockets = new WeakMap();
     this.ports = new Set();
+    this.subscriptions = new Map();
     this.types = ['node', 'wallet'];
 
     if (options.ports) {
@@ -82,9 +83,9 @@ class SocketManager extends Server {
         if (key.length > 255) throw new Error('Invalid API key.');
 
         const data = Buffer.from(key, 'utf8');
-        const hash = sha256.digest(data);
+        const hash = SHA256.digest(data);
 
-        if (!ccmp(hash, this.options.apiHash))
+        if (!safeEqual(hash, this.options.apiHash))
           throw new Error('Invalid API key.');
       }
 
@@ -136,11 +137,16 @@ class SocketManager extends Server {
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
       );
-      const [clientId, event] = parseEvent(_event);
-      const client = this.clients.get(id)[clientId];
+      const [clientType, event] = parseEvent(_event);
+      const client = this.clients.get(id)[clientType];
       if (!client)
-        this.logger.info('No client %s found under the id %s', clientId, id);
-      this.logger.info(`broadcast "%s" to %s's %s client`, event, id, clientId);
+        this.logger.info('No %s client found under the id %s', clientType, id);
+      this.logger.info(
+        `broadcast "%s" to %s's %s client`,
+        event,
+        id,
+        clientType
+      );
       client.call(event, ...args);
     });
 
@@ -152,37 +158,53 @@ class SocketManager extends Server {
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
       );
-
       assert(responseEvent, 'subscribe event requires a responseEvent.');
 
-      const [clientId, event] = parseEvent(_event);
-      const client = this.clients.get(id)[clientId];
+      const [clientType, event] = parseEvent(_event);
+      const client = this.clients.get(id)[clientType];
       if (!client)
-        this.logger.info('No client %s found under the id %s', clientId, id);
-      const channel = this.getChannelName(clientId, id, event, responseEvent);
+        this.logger.debug('No client %s found under the id %s', clientType, id);
+      const channel = this.getChannelName(clientType, id, event, responseEvent);
       this.logger.info(
         `Subscribing to %s's %s socket event "%s"`,
         id,
-        clientId,
+        clientType,
         event
       );
 
-      // if the channel doesn't exist we should bind
-      // the client to listen for the event
-      // only needs to bound once no matter how many clients
-      // have the same subscription
+      // add socket to this channel so we can send events to it
       this.join(socket, channel);
-      client.bind(event, (...data) => {
-        this.logger.info('"%s" client received "%s"', id, event);
-        this.logger.info(
-          'sending "%s" to channel "%s"',
-          responseEvent,
-          channel
-        );
-        // send responseEvent to the channel
-        this.to(channel, responseEvent, ...data);
-      });
 
+      // keep track of the channels the socket has joined
+      socket.join(channel);
+
+      // if did not have this subscription yet
+      // then we need to bind the client to listen for the event
+      // only needs to be bound once no matter how many clients
+      // have the same subscription
+      // Channel names are unique to client type, id, event, and responseEvent
+      // so new subscription is created if any of these change
+      if (!this.subscriptions.has(channel)) {
+        // create the handler that will be bound to the client
+        const handler = (...data) => {
+          this.logger.info('"%s" client received "%s"', id, event);
+          this.logger.info(
+            'Sending "%s" to channel "%s"',
+            responseEvent,
+            channel
+          );
+          // send responseEvent to the channel
+          this.to(channel, responseEvent, ...data);
+        };
+
+        // save subscription handler
+        // need this later to _unbind_ the handler
+        // when all sockets have disconnected/unsubscribed
+        this.subscriptions.set(channel, handler);
+
+        // subscribe to event
+        client.bind(event, handler);
+      }
       return null;
     });
 
@@ -195,17 +217,16 @@ class SocketManager extends Server {
         responseEvent,
         'Must pass original responseEvent arg to unsubscribe'
       );
-      const [clientId, event] = parseEvent(_event);
-      const channel = this.getChannelName(clientId, id, event, responseEvent);
+      const [clientType, event] = parseEvent(_event);
+      const channel = this.getChannelName(clientType, id, event, responseEvent);
       this.logger.info(
-        `Unsubscribing from ${id}'s ${clientId} socket event "${event}"`
+        `Unsubscribing from ${id}'s ${clientType} socket event "${event}"`
       );
       if (!this.channel(channel)) {
-        this.logger.warning('channel did not exist', channel);
+        this.logger.warning('Channel did not exist', channel);
         return;
       }
-
-      this.leave(socket, channel);
+      this.handleUnsubscribe(socket, channel);
     });
 
     // requests from client for messages to be dispatched to node
@@ -215,9 +236,9 @@ class SocketManager extends Server {
         this.clients.has(id),
         `No client ${id} for request from ${socket.url}`
       );
-      const [clientId, event] = parseEvent(_event);
-      const client = this.clients.get(id)[clientId];
-      this.logger.info('dispatch "%s" to %s %s client', event, id, clientId);
+      const [clientType, event] = parseEvent(_event);
+      const client = this.clients.get(id)[clientType];
+      this.logger.info('Dispatch "%s" to %s %s client', event, id, clientType);
       const resp = await client.call(event, ...args);
       return resp;
     });
@@ -226,6 +247,64 @@ class SocketManager extends Server {
     socket.bind('tcp connect', (port, host) => {
       this.handleTCPConnect(socket, port, host);
     });
+
+    // handle disconnect
+    socket.on('disconnect', () => {
+      this.logger.info('Disconnecting socket from %s', socket.url);
+
+      // need to unsubscribe from all channel subscriptions
+      const channels = socket.channels;
+      channels.forEach(channel => {
+        this.handleUnsubscribe(socket, channel);
+      });
+    });
+  }
+
+  parseSubscriptionChannel(channel) {
+    const [client, _event] = channel.split(':');
+    if (_event) {
+      const [event, responseEvent] = _event.split('-');
+      const [clientType, id] = client.split('-');
+      return { event, responseEvent, clientType, id };
+    }
+    // not a subscription channel otherwise
+    return null;
+  }
+
+  handleUnsubscribe(socket, channel) {
+    this.logger.info(
+      'Unsubscribing %s from "%s" channel',
+      socket.host,
+      channel
+    );
+
+    // remove the socket from the channel
+    this.leave(socket, channel);
+
+    // parse channel name for client info
+    const parsed = this.parseSubscriptionChannel(channel);
+
+    // nothing left to do if not an event subscription channel
+    if (!parsed) return;
+
+    const { event, clientType, id } = parsed;
+
+    // if the channel for this subscription is empty,
+    // then we should unbind the client and remove subscription
+    if (!this.channel(channel)) {
+      this.logger.info(
+        '"%s" has no more subscriptions, removing handlers',
+        channel
+      );
+      const client = this.clients.get(id)[clientType];
+      const handler = this.subscriptions.get(channel);
+
+      // unbind handler
+      client.socket.unbind(event, handler);
+
+      // remove channel's handler from subscriptions
+      this.subscriptions.delete(channel);
+    }
   }
 
   handleTCPConnect(ws, port, host) {
@@ -403,21 +482,21 @@ class SocketManager extends Server {
 
   /* Create properly formatted channel name
    * creating a unique channel name for subscriptions
-   * each channel needs to be unique to the clientId
+   * each channel needs to be unique to the clientType
    * (one of accepted types, e.g. wallet or node),
    * the id of socket (i.e. from the socket's path)
    * event being subscribed to and the event fired when event
    * is heard.
-   * @param {string} clientId
+   * @param {string} clientType
    * @param {string} id
    * @param {string} event
    * @param {responseEvent}
    * @returns {string} channelName
    */
-  getChannelName(clientId, id, event, responseEvent) {
+  getChannelName(clientType, id, event, responseEvent) {
     assert(
-      typeof clientId === 'string',
-      'required string clientId for channel name'
+      typeof clientType === 'string',
+      'required string clientType for channel name'
     );
     assert(typeof id === 'string', 'required string id for channel name');
     assert(typeof event === 'string', 'required string event for channel name');
@@ -425,7 +504,7 @@ class SocketManager extends Server {
       typeof responseEvent === 'string',
       'required string responseEvent for channel name'
     );
-    return `${clientId}-${id}:${event}-${responseEvent}`;
+    return `${clientType}-${id}:${event}-${responseEvent}`;
   }
 
   /*
@@ -482,7 +561,7 @@ class SocketManagerOptions {
   constructor(options) {
     this.logger = null;
     this.apiKey = base58.encode(random.randomBytes(20));
-    this.apiHash = sha256.digest(Buffer.from(this.apiKey, 'ascii'));
+    this.apiHash = SHA256.digest(Buffer.from(this.apiKey, 'ascii'));
     this.noAuth = false;
     this.port = 8000;
 
@@ -508,7 +587,7 @@ class SocketManagerOptions {
       assert(typeof options.apiKey === 'string', 'API key must be a string.');
       assert(options.apiKey.length <= 255, 'API key must be under 256 bytes.');
       this.apiKey = options.apiKey;
-      this.apiHash = sha256.digest(Buffer.from(this.apiKey, 'ascii'));
+      this.apiHash = SHA256.digest(Buffer.from(this.apiKey, 'ascii'));
     }
 
     if (options.noAuth != null) {
