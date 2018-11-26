@@ -1,6 +1,6 @@
 const { Server } = require('bweb');
 const assert = require('bsert');
-const { sha256, random, ccmp } = require('bcrypto');
+const { SHA256, random, safeEqual } = require('bcrypto');
 const { base58 } = require('bstring');
 const { URL } = require('url');
 const Validator = require('bval');
@@ -82,9 +82,9 @@ class SocketManager extends Server {
         if (key.length > 255) throw new Error('Invalid API key.');
 
         const data = Buffer.from(key, 'utf8');
-        const hash = sha256.digest(data);
+        const hash = SHA256.digest(data);
 
-        if (!ccmp(hash, this.options.apiHash))
+        if (!safeEqual(hash, this.options.apiHash))
           throw new Error('Invalid API key.');
       }
 
@@ -482,7 +482,7 @@ class SocketManagerOptions {
   constructor(options) {
     this.logger = null;
     this.apiKey = base58.encode(random.randomBytes(20));
-    this.apiHash = sha256.digest(Buffer.from(this.apiKey, 'ascii'));
+    this.apiHash = SHA256.digest(Buffer.from(this.apiKey, 'ascii'));
     this.noAuth = false;
     this.port = 8000;
 
@@ -508,7 +508,7 @@ class SocketManagerOptions {
       assert(typeof options.apiKey === 'string', 'API key must be a string.');
       assert(options.apiKey.length <= 255, 'API key must be under 256 bytes.');
       this.apiKey = options.apiKey;
-      this.apiHash = sha256.digest(Buffer.from(this.apiKey, 'ascii'));
+      this.apiHash = SHA256.digest(Buffer.from(this.apiKey, 'ascii'));
     }
 
     if (options.noAuth != null) {
