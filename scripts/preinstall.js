@@ -6,7 +6,8 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execSync } = require('child_process');
-const semver = require('semver');
+
+const semver = require('../vendor/semver');
 
 const BPANEL_DIR = path.resolve(os.homedir(), '.bpanel');
 const CONFIGS_FILE = path.resolve(BPANEL_DIR, './config.js');
