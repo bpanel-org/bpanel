@@ -39,7 +39,7 @@ module.exports = () => {
         hsd$: `${MODULES_DIR}/hsd/lib/hsd-browser`,
         bledger: `${MODULES_DIR}/bledger/lib/bledger-browser`,
         bmultisig: `${MODULES_DIR}/bmultisig/lib/bmultisig-browser`,
-        bcrytp: `${MODULES_DIR}/bcrypto`,
+        bcrytpo: `${MODULES_DIR}/bcrypto`,
         react: `${MODULES_DIR}/react`,
         'react-router': `${MODULES_DIR}/react-router`,
         'react-router-dom': `${MODULES_DIR}/react-router-dom`,
