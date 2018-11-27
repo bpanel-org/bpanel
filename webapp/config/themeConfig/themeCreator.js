@@ -367,10 +367,10 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       },
       hoverRow: {
         cursor: 'pointer',
-        backgroundColor: themeColors.highlight1
+        backgroundColor: themeColors.highlight1 + ' !important'
       },
       selectedRow: {
-        backgroundColor: themeColors.lowlight1
+        backgroundColor: themeColors.lowlight1 + ' !important'
       },
       hoverExpandableRow: {
         cursor: 'pointer'
@@ -543,7 +543,6 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
     themeVariables: mergedThemeVariables,
-    themeConfig: mergedThemeConfig,
     logoUrl,
     tableRowStyle
   };
