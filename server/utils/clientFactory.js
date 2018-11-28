@@ -101,6 +101,14 @@ function clientFactory(config) {
     url: config.str('wallet-uri') || config.str('wallet-url')
   };
 
+  // set any options that are empty strings to undefined
+  for (let options of [nodeOptions, walletOptions]) {
+    for (let key in options) {
+      if (typeof options[key] === 'string' && !options[key].length)
+        options[key] = undefined;
+    }
+  }
+
   let walletClient, nodeClient, multisigWalletClient;
   // check if config explicitly sets node config to `false`
   // if false, do not instantiate new node client
