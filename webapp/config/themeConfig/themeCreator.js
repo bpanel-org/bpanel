@@ -367,6 +367,16 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       },
       body: {
         fontWeight: fontWeights.light
+      },
+      hoverRow: {
+        cursor: 'pointer',
+        backgroundColor: themeColors.highlight1 + ' !important'
+      },
+      selectedRow: {
+        backgroundColor: themeColors.lowlight1 + ' !important'
+      },
+      hoverExpandableRow: {
+        cursor: 'pointer'
       }
     },
 
