@@ -504,6 +504,18 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         fontSize: fontSizeNormal,
         fontWeight: fontWeights.semiBold
       }
+    },
+
+    label: {
+      container: {
+        width: '100%'
+      },
+      description: {
+        fontSize: makeRem(fontSizeSmall),
+        ...makeGutter('margin', { bottom: 0 })
+      },
+      text: {},
+      content: {}
     }
   };
 
@@ -526,6 +538,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     footer,
     button,
     header,
+    label,
     link,
     table,
     expandedRow,
@@ -544,6 +557,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     footer: StyleSheet.create(footer),
     button: StyleSheet.create(button),
     header: StyleSheet.create(header),
+    label: StyleSheet.create(label),
     link: StyleSheet.create(link),
     table: StyleSheet.create(table),
     expandedRow: StyleSheet.create(expandedRow),
