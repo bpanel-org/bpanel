@@ -188,14 +188,19 @@ function addConfigHandler(req, res) {
   const id = req.params.id;
 
   if (clients.get(id))
-    return res
-      .status(409)
-      .send({ message: `A client with the id '${id}' already exists` });
+    return res.status(409).send({
+      error: {
+        message: `A client with the id '${id}' already exists`,
+        code: 409
+      }
+    });
 
+  req.type = 'add';
   return updateOrAdd(req, res);
 }
 
 function updateConfigHandler(req, res) {
+  req.type = 'update';
   return updateOrAdd(req, res);
 }
 
@@ -221,13 +226,20 @@ async function updateOrAdd(req, res) {
     else if (forceBool === 'false' || forceBool === false) forceBool = false;
     else logger.warn('Expected either "true" or "false" for the force option');
 
-    // first get original configs to merge any missing items
-    const { data } = getConfig(id);
-    const config = await createClientConfig(
-      id,
-      { ...data, ...options },
-      forceBool
-    );
+    let configOptions = options;
+    // first get original configs to merge any missing items if updating
+    // useful for fields like api key that are sent to client
+    if (req.type === 'update') {
+      const { data } = getConfig(id);
+      configOptions = { ...data, ...configOptions };
+    }
+
+    for (let key in configOptions) {
+      if (typeof configOptions[key] === 'string' && !configOptions[key].length)
+        configOptions[key] = undefined;
+    }
+
+    const config = await createClientConfig(id, configOptions, forceBool);
     return res.status(200).send({
       configs: config.options
     });
@@ -235,9 +247,10 @@ async function updateOrAdd(req, res) {
     logger.error('Problem creating config: ', error.message);
     // special error response with extra information
     // so want to still send 200 so client can receive full message
+    // since bcurl sanitizes non-standard errors
     if (error instanceof ClientErrors)
       return res.status(200).send({ message: error.message, ...error });
-    throw error;
+    return res.status(400).send({ error: { message: error.message } });
   }
 }
 

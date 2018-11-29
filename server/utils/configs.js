@@ -5,6 +5,7 @@ const fs = require('bfile');
 const { resolve } = require('path');
 const Config = require('bcfg');
 
+const pkg = require('../../pkg');
 const logger = require('../logger');
 const clientFactory = require('../utils/clientFactory');
 const {
@@ -127,9 +128,19 @@ async function testConfigOptions(options) {
     throw e;
   }
 
-  const clients = clientFactory(clientConfig);
+  const agents = new Map([
+    ['bcoin', 'bitcoin'],
+    ['bcash', 'bitcoincash'],
+    ['hsd', 'handshake']
+  ]);
 
   const clientErrors = new ClientErrors();
+  const chain = clientConfig.str('chain', 'bitcoin');
+
+  if (!pkg.chains.includes(chain))
+    throw new Error(`${chain} is not a recognized chain`);
+
+  const clients = clientFactory(clientConfig);
 
   // save the async checks in an array so we can parallelize the
   // network call with a `Promise.all`
@@ -144,10 +155,28 @@ async function testConfigOptions(options) {
     const check = new Promise(async resolve => {
       try {
         logger.info(`Checking ${key} for config "${clientConfig.str('id')}"`);
-        if (clientConfig.bool(type, true)) await clients[key].getInfo();
+        if (clientConfig.bool(type, true)) {
+          const info = await clients[key].getInfo();
+          if (info) {
+            const {
+              pool: { agent }
+            } = info;
+            // find implementation from user agent
+            const implementation = agent.match(/(?<=\/)(\w*)(?=:)/)[0];
+            assert(agents.has(implementation), `Agent ${agent} not supported.`);
+            if (agents.get(implementation) !== chain)
+              throw new Error(
+                `Chain config of "${chain}"" did not match the node's chain "${agents.get(
+                  implementation
+                )}"`
+              );
+          }
+        }
       } catch (e) {
         logger.info(
-          `${key} connection for "${clientConfig.str('id')}" failed.`
+          '%s connection for "%s" failed.',
+          key,
+          clientConfig.str('id')
         );
         clientErrors.addFailed(type, e);
       } finally {
