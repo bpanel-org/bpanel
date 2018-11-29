@@ -5,7 +5,7 @@ const WebpackShellPlugin = require('webpack-synchronizable-shell-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const logger = require('../server/logger');
-const { MODULES_DIR, SRC_DIR, SERVER_DIR } = require('./constants');
+const { MODULES_DIR, SRC_DIR, SERVER_DIR, ROOT_DIR } = require('./constants');
 
 // can be passed by server process via bcfg interface
 // or passed manually when running webpack from command line
@@ -41,6 +41,7 @@ module.exports = () => {
         bmultisig: `${MODULES_DIR}/bmultisig/lib/bmultisig-browser`,
         bcrytpo: `${MODULES_DIR}/bcrypto`,
         react: `${MODULES_DIR}/react`,
+        '&bpanel/pkg': `${ROOT_DIR}/pkg`,
         'react-dom': `${MODULES_DIR}/react-dom`,
         'react-loadable': `${MODULES_DIR}/react-loadable`,
         'react-router': `${MODULES_DIR}/react-router`,
