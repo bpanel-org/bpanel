@@ -7,11 +7,11 @@
 const path = require('path');
 const fs = require('bfile');
 const { execSync } = require('child_process');
-const assert = require('bsert');
 const os = require('os');
 const Config = require('bcfg');
 const logger = require('./logger');
 const Blgr = require('blgr');
+const chokidar = require('chokidar');
 
 const webpackArgs = [];
 
@@ -81,8 +81,8 @@ if (require.main === module) {
     // should be updated to check bpanelConfig for where the prefix is
     const clientsDir = path.resolve(os.homedir(), '.bpanel/clients');
     const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
-    require('chokidar')
-      .watch([clientsDir, configFile], { usePolling: poll, useFsEvents: poll })
+    chokidar
+      .watch([configFile], { usePolling: poll, useFsEvents: poll })
       .on('all', () => {
         nodemon.emit('restart');
       });
@@ -113,18 +113,17 @@ module.exports = async (_config = {}) => {
   const logger = require('./logger');
   const SocketManager = require('./socketManager');
   const {
-    clientFactory,
+    buildClients,
     attach,
     apiFilters,
-    pluginUtils,
-    configHelpers
+    pluginUtils
+    // configHelpers
   } = require('./utils');
-  const { loadClientConfigs } = require('./loadConfigs');
   const endpoints = require('./endpoints');
 
   const { isBlacklisted } = apiFilters;
   const { getPluginEndpoints } = pluginUtils;
-  const { createConfigsMap } = configHelpers;
+  // const { createConfigsMap, loadClientConfigs } = configHelpers;
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -168,26 +167,6 @@ will increase speed of future builds, so please be patient.'
     })
     .on('quit', process.exit);
 
-  // Set up client config
-  // loadConfigs uses the bpanelConfig to find the clients and build
-  // each of their configs. Then we filter for the config that matches
-  // the one passed via `client-id`
-  const clientConfigs = loadClientConfigs(bpanelConfig);
-  const configsMap = createConfigsMap(clientConfigs);
-
-  assert(
-    clientConfigs.length,
-    'There was a problem loading client configs. \
-Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
-  );
-
-  const clients = clientConfigs.reduce((clientsMap, cfg) => {
-    const id = cfg.str('id');
-    assert(id, 'client config must have id');
-    clientsMap.set(id, { ...clientFactory(cfg), config: cfg });
-    return clientsMap;
-  }, new Map());
-
   // Init app express server
   const app = express.Router();
   const port = process.env.PORT || 5000;
@@ -221,8 +200,12 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
 
   // Wait for async part of server setup
   const ready = (async function() {
-    // Setup bsock server
+    // Set up client config
+    let { clients, configsMap } = buildClients(bpanelConfig);
+
     const clientIds = clients.keys();
+
+    // Setup bsock server
     for (let id of clientIds) {
       socketManager.addClients(id, {
         node: clients.get(id).nodeClient,
@@ -230,6 +213,40 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
         multisig: clients.get(id).multisigWalletClient
       });
     }
+
+    // refresh the clients map if the clients directory gets updated
+    const clientsDir = path.resolve(bpanelConfig.prefix, 'clients');
+    chokidar
+      .watch([clientsDir], { usePolling: poll, useFsEvents: poll })
+      .on('all', () => {
+        blgr.info(
+          'Change detected in clients directory. Updating clients on server.'
+        );
+        const builtClients = buildClients(bpanelConfig);
+        clients = builtClients.clients;
+        configsMap = builtClients.configsMap;
+
+        // need to update the socket manager too
+        // TODO: this isn't ideal (doing two loops)
+        // but it's better than restarting the whole server
+        // which also restarts the webpack build
+        // hopefully this is easier to manage when the socket manager also
+        // has the full server for all requests and can manage this internally
+        const ids = clients.keys();
+        // add any new clients not in socketManager
+        for (let id of ids)
+          if (!socketManager.hasClient(id))
+            socketManager.addClients(id, {
+              node: clients.get(id).nodeClient,
+              wallet: clients.get(id).walletClient,
+              multisig: clients.get(id).multisigWalletClient
+            });
+
+        // remove any clients from the socketManager not in our list
+        const sockets = socketManager.clients.keys();
+        for (let id of sockets)
+          if (!clients.has(id)) socketManager.removeClients(id);
+      });
 
     const resolveIndex = (req, res) => {
       logger.debug(`Caught request in resolveIndex: ${req.path}`);
@@ -385,7 +402,7 @@ Visit the documentation for more information: https://bpanel.org/docs/configurat
     app,
     ready,
     logger,
-    clientConfigs
+    configsMap
   };
 };
 
