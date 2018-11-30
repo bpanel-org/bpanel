@@ -36,6 +36,7 @@ module.exports = () => {
       alias: {
         bcoin$: `${MODULES_DIR}/bcoin/lib/bcoin-browser`,
         bcash$: `${MODULES_DIR}/bcash/lib/bcoin-browser`,
+        bsert: `${MODULES_DIR}/bsert`,
         hsd$: `${MODULES_DIR}/hsd/lib/hsd-browser`,
         bledger: `${MODULES_DIR}/bledger/lib/bledger-browser`,
         bmultisig: `${MODULES_DIR}/bmultisig/lib/bmultisig-browser`,

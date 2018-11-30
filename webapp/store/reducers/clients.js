@@ -1,4 +1,5 @@
 import {
+  ADD_CLIENT,
   SET_CLIENTS,
   SET_CURRENT_CLIENT,
   UPDATE_CLIENT
@@ -39,6 +40,15 @@ const clientsState = (state = initialState, action) => {
       newState.clients = { ...newState.clients };
       assert(newState.clients[id], `Client "${id}" does not exist`);
       newState.clients[id] = { ...newState.clients[id], ...info };
+      return newState;
+    }
+
+    case ADD_CLIENT: {
+      assert(
+        !newState.clients[payload.id],
+        `Client with the id ${payload.id} already exists. Can't add duplicate.`
+      );
+      newState.clients[payload.id] = payload.info;
       return newState;
     }
 
