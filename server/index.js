@@ -79,7 +79,6 @@ if (require.main === module) {
     // need to use chokidar to watch for changes outside the working
     // directory. Will restart if configs get updated
     // should be updated to check bpanelConfig for where the prefix is
-    const clientsDir = path.resolve(os.homedir(), '.bpanel/clients');
     const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
     chokidar
       .watch([configFile], { usePolling: poll, useFsEvents: poll })
@@ -112,18 +111,11 @@ module.exports = async (_config = {}) => {
   // Import app server utilities and modules
   const logger = require('./logger');
   const SocketManager = require('./socketManager');
-  const {
-    buildClients,
-    attach,
-    apiFilters,
-    pluginUtils
-    // configHelpers
-  } = require('./utils');
+  const { buildClients, attach, apiFilters, pluginUtils } = require('./utils');
   const endpoints = require('./endpoints');
 
   const { isBlacklisted } = apiFilters;
   const { getPluginEndpoints } = pluginUtils;
-  // const { createConfigsMap, loadClientConfigs } = configHelpers;
 
   // get bpanel config
   const bpanelConfig = new Config('bpanel');
@@ -324,7 +316,8 @@ will increase speed of future builds, so please be patient.'
 
     app.get('/*', resolveIndex);
 
-    // This must be the last middleware
+    // This must be the last middleware so that
+    // it catches and returns errors
     app.use((err, req, res, next) => {
       if (res.headersSent) {
         return next(err);
@@ -402,7 +395,7 @@ will increase speed of future builds, so please be patient.'
     app,
     ready,
     logger,
-    configsMap
+    config: bpanelConfig
   };
 };
 

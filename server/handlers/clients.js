@@ -43,19 +43,14 @@ function getClientsInfo(req, res) {
 }
 
 function getDefaultClientInfo(req, res, next) {
-  const { config, logger } = req;
-  const defaultClientConfig = getDefaultConfig(config);
-
-  // if there is no default config, return a 500
-  if (!defaultClientConfig) {
-    logger.error(
-      `Request for default client failed: ${defaultClientConfig.str(defaultId)}`
-    );
-    return next(new Error('Request failed'));
+  const { config } = req;
+  try {
+    const defaultClientConfig = getDefaultConfig(config);
+    const defaultClient = getClientInfo(defaultClientConfig);
+    return res.status(200).json(defaultClient);
+  } catch (e) {
+    next(e);
   }
-
-  const defaultClient = getClientInfo(defaultClientConfig);
-  res.status(200).json(defaultClient);
 }
 
 async function clientsHandler(req, res) {
