@@ -1,5 +1,6 @@
 import {
   ADD_CLIENT,
+  REMOVE_CLIENT,
   SET_CLIENTS,
   SET_CURRENT_CLIENT,
   UPDATE_CLIENT
@@ -50,6 +51,13 @@ const clientsState = (state = initialState, action) => {
         `Client with the id ${payload.id} already exists. Can't add duplicate.`
       );
       newState.clients = { ...newState.clients, [id]: info };
+      return newState;
+    }
+
+    case REMOVE_CLIENT: {
+      const { id } = payload;
+      delete newState.clients[id];
+      newState.clients = { ...newState.clients };
       return newState;
     }
 
