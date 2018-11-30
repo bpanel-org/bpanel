@@ -44,11 +44,12 @@ const clientsState = (state = initialState, action) => {
     }
 
     case ADD_CLIENT: {
+      const { id, info } = payload;
       assert(
         !newState.clients[payload.id],
         `Client with the id ${payload.id} already exists. Can't add duplicate.`
       );
-      newState.clients[payload.id] = payload.info;
+      newState.clients = { ...newState.clients, [id]: info };
       return newState;
     }
 

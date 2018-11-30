@@ -11,7 +11,21 @@ const {
   ClientErrors
 } = configHelpers;
 
-function getClientInfo(req, res) {
+// utility to return basic info about a client based on its config
+function getClientInfo(config) {
+  assert(config instanceof Config, 'Must pass a bcfg Config object');
+  return {
+    id: config.str('id'),
+    chain: config.str('chain', 'bitcoin'),
+    services: {
+      node: config.bool('node', true),
+      wallet: config.bool('wallet', true),
+      multisig: config.bool('multisig', true)
+    }
+  };
+}
+
+function getClientsInfo(req, res) {
   const { logger, clients } = req;
   const clientInfo = {};
 
@@ -22,14 +36,7 @@ function getClientInfo(req, res) {
           'id'
         )} had no chain set, defaulting to 'bitcoin'`
       );
-    clientInfo[client.str('id')] = {
-      chain: client.str('chain', 'bitcoin'),
-      services: {
-        node: client.bool('node', true),
-        wallet: client.bool('wallet', true),
-        multisig: client.bool('multisig', true)
-      }
-    };
+    clientInfo[client.str('id')] = getClientInfo(client);
   });
 
   return res.status(200).json(clientInfo);
@@ -41,20 +48,13 @@ function getDefaultClientInfo(req, res, next) {
 
   // if there is no default config, return a 500
   if (!defaultClientConfig) {
-    logger.error(`Request for default client failed: ${defaultId}`);
+    logger.error(
+      `Request for default client failed: ${defaultClientConfig.str(defaultId)}`
+    );
     return next(new Error('Request failed'));
   }
 
-  const defaultId = defaultClientConfig.str('id');
-  const defaultClient = {
-    id: defaultId,
-    chain: defaultClientConfig.str('chain', 'bitcoin'),
-    services: {
-      node: defaultClientConfig.bool('node', true),
-      wallet: defaultClientConfig.bool('wallet', true),
-      multisig: defaultClientConfig.bool('multisig', true)
-    }
-  };
+  const defaultClient = getClientInfo(defaultClientConfig);
   res.status(200).json(defaultClient);
 }
 
@@ -135,9 +135,9 @@ async function clientsHandler(req, res) {
 
 async function getConfigHandler(req, res) {
   const { logger } = req;
-  let configurations;
+  let config;
   try {
-    configurations = await getConfig(req.params.id);
+    config = await getConfig(req.params.id);
   } catch (e) {
     logger.error(e);
     if (e.code === 'ENOENT')
@@ -157,13 +157,14 @@ async function getConfigHandler(req, res) {
   }
 
   const info = {
-    configs: configurations.data
+    ...getClientInfo(config),
+    configs: config.data
   };
 
   if (req.query.health) {
     try {
       logger.info(`Checking status of client "${req.params.id}"...`);
-      const [err, clientErrors] = await testConfigOptions(configurations);
+      const [err, clientErrors] = await testConfigOptions(config);
       if (!err) info.healthy = true;
       else {
         info.failed = clientErrors.failed;
@@ -175,9 +176,9 @@ async function getConfigHandler(req, res) {
   }
 
   // scrub apiKeys and tokens
-  for (let key in configurations.data) {
+  for (let key in config.data) {
     if (key.includes('api') || key.includes('token'))
-      configurations.data[key] = undefined;
+      config.data[key] = undefined;
   }
 
   res.status(200).json(info);
@@ -255,7 +256,7 @@ async function updateOrAdd(req, res) {
 }
 
 module.exports = {
-  getClientInfo,
+  getClientsInfo,
   getDefaultClientInfo,
   clientsHandler,
   getConfigHandler,

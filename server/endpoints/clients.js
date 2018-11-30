@@ -1,5 +1,5 @@
 const {
-  getClientInfo,
+  getClientsInfo,
   getDefaultClientInfo,
   clientsHandler,
   getConfigHandler,
@@ -16,7 +16,7 @@ module.exports = [
   {
     method: GET,
     path: base.concat('/'),
-    handler: getClientInfo
+    handler: getClientsInfo
   },
   {
     method: GET,
