@@ -521,6 +521,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     paper: {
       default: {
         lineHeight: makeRem(fontSizeNormal),
+        color: themeColors.black,
         padding: makeRem(fontSizeBase),
         boxShadow: '1px 0px 4px 3px black inset',
         ...makeGutter('margin', { bottom: 1 }),
