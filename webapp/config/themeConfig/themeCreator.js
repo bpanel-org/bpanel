@@ -516,6 +516,21 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       },
       text: {},
       content: {}
+    },
+
+    paper: {
+      default: {
+        lineHeight: makeRem(fontSizeNormal),
+        padding: makeRem(fontSizeBase),
+        boxShadow: '1px 0px 4px 3px black inset',
+        ...makeGutter('margin', { bottom: 1 }),
+        paddingBottom: '1px',
+        backgroundColor: themeColors.white
+      },
+      error: {
+        backgroundColor: themeColors.error,
+        color: themeColors.white
+      }
     }
   };
 
@@ -544,7 +559,8 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     expandedRow,
     tableRowStyle,
     tabMenu,
-    text
+    text,
+    paper
   } = mergedThemeConfig;
 
   const styleSheet = {
@@ -563,6 +579,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     expandedRow: StyleSheet.create(expandedRow),
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
+    paper: StyleSheet.create(paper),
     themeVariables: mergedThemeVariables,
     logoUrl,
     tableRowStyle
