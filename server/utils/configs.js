@@ -260,7 +260,7 @@ async function testConfigOptions(options) {
             assert(agents.has(implementation), `Agent ${agent} not supported.`);
             if (agents.get(implementation) !== chain)
               throw new Error(
-                `Chain config of "${chain}"" did not match the node's chain "${agents.get(
+                `Chain config of "${chain}" did not match the node's chain "${agents.get(
                   implementation
                 )}"`
               );

@@ -151,7 +151,7 @@ async function getConfigHandler(req, res) {
       });
   }
 
-  const info = {
+  let info = {
     ...getClientInfo(config),
     configs: config.data
   };
@@ -164,6 +164,7 @@ async function getConfigHandler(req, res) {
       else {
         info.failed = clientErrors.failed;
         info.healthy = false;
+        info = { ...info, errors: clientErrors };
       }
     } catch (e) {
       return res.status(500).send(e);
