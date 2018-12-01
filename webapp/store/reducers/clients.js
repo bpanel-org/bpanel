@@ -40,7 +40,7 @@ const clientsState = (state = initialState, action) => {
       // make a copy of the clients object to keep redux immutability
       newState.clients = { ...newState.clients };
       assert(newState.clients[id], `Client "${id}" does not exist`);
-      newState.clients[id] = { ...newState.clients[id], ...info };
+      newState.clients[id] = info;
       return newState;
     }
 
