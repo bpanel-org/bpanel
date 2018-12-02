@@ -158,7 +158,7 @@ async function getConfigHandler(req, res) {
 
   if (req.query.health) {
     try {
-      logger.info(`Checking status of client "${req.params.id}"...`);
+      logger.info('Checking status of client "%s"...', req.params.id);
       const [err, clientErrors] = await testConfigOptions(config);
       if (!err) info.healthy = true;
       else {
@@ -192,12 +192,17 @@ function addConfigHandler(req, res) {
       }
     });
 
-  req.type = 'add';
   return updateOrAdd(req, res);
 }
 
 function updateConfigHandler(req, res) {
-  req.type = 'update';
+  const id = req.params.id;
+  const { options } = req.body;
+  // get original configs to merge any missing items if updating
+  // useful for fields like api key that are sent to client
+  const { data } = getConfig(id);
+  const configOptions = { ...data, ...options };
+  req.configOptions = configOptions;
   return updateOrAdd(req, res);
 }
 
@@ -212,36 +217,28 @@ function deleteConfigHandler(req, res) {
 }
 
 async function updateOrAdd(req, res) {
-  const { logger } = req;
+  const { logger, configOptions } = req;
   const id = req.params.id;
   try {
     const { options, force = false } = req.body;
 
     // coercing force to a boolean
-    let forceBool = force;
-    if (forceBool === 'true' || forceBool === true) forceBool = true;
-    else if (forceBool === 'false' || forceBool === false) forceBool = false;
-    else logger.warn('Expected either "true" or "false" for the force option');
+    let shouldForce = force;
+    if (shouldForce === 'true' || shouldForce === true) shouldForce = true;
 
-    let configOptions = options;
-    // first get original configs to merge any missing items if updating
-    // useful for fields like api key that are sent to client
-    if (req.type === 'update') {
-      const { data } = getConfig(id);
-      configOptions = { ...data, ...configOptions };
+    const opts = configOptions || options;
+
+    for (let key in opts) {
+      if (typeof opts[key] === 'string' && !opts[key].length)
+        opts[key] = undefined;
     }
 
-    for (let key in configOptions) {
-      if (typeof configOptions[key] === 'string' && !configOptions[key].length)
-        configOptions[key] = undefined;
-    }
-
-    const config = await createClientConfig(id, configOptions, forceBool);
+    const config = await createClientConfig(id, opts, shouldForce);
     return res.status(200).send({
       configs: config.options
     });
   } catch (error) {
-    logger.error('Problem creating config: ', error.message);
+    logger.error('Problem creating config: ', error);
     // special error response with extra information
     // so want to still send 200 so client can receive full message
     // since bcurl sanitizes non-standard errors
