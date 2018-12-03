@@ -85,7 +85,7 @@ function loadClientConfigs(_config) {
     process.exit(1);
   }
 
-  logger.info(`Loading configs for ${files.length} clients...`);
+  logger.info('Loading configs for %s clients...', files.length);
   return files.map(fileName => {
     // After filter, we load bcfg object for each client
 
@@ -151,7 +151,8 @@ async function createClientConfig(id, options = {}, force = false) {
   }
   if (!fs.existsSync(clientsPath)) {
     logger.warn(
-      `Could not find requested client directory at ${clientsPath}. Creating new one...`
+      'Could not find requested client directory at %s. Creating new one...',
+      clientsPath
     );
     fs.mkdirpSync(clientsPath);
   }
@@ -252,9 +253,7 @@ async function testConfigOptions(options) {
         if (clientConfig.bool(type, true)) {
           const info = await clients[key].getInfo();
           if (info) {
-            const {
-              pool: { agent }
-            } = info;
+            const { pool: { agent } } = info;
             // find implementation from user agent
             const implementation = agent.match(/(?<=\/)(\w*)(?=:)/)[0];
             assert(agents.has(implementation), `Agent ${agent} not supported.`);
