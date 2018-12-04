@@ -1,21 +1,17 @@
-const webpackConfig = require('./webpack.common.config.js');
+const webpackConfig = require('./webpack.config.js');
 
 module.exports = config => {
   config.set({
     basePath: '',
     frameworks: ['mocha', 'chai', 'sinon'],
-    exclude: ['node_modules/**/test/*.js'],
     files: [
-      'node_modules/babel-polyfill/dist/polyfill.js',
-      '../webapp/test/*-test.js'
+      '../node_modules/babel-polyfill/dist/polyfill.js',
+      '../webapp/test/index.js'
     ],
     preprocessors: {
-      '../webapp/test/*-test.js': ['webpack', 'sourcemap'],
-      'node_modules/*.js': ['webpack']
+      '../webapp/test/index.js': ['webpack']
     },
-    // karma doesn't like webpack 4's splitChunks optimization
-    // so we replace it here
-    webpack: { ...webpackConfig, mode: 'development' },
+    webpack: { ...webpackConfig(), mode: 'development' },
     webpackServer: {
       noInfo: true,
       quiet: true
