@@ -160,11 +160,15 @@ async function getConfigHandler(req, res) {
     try {
       logger.info('Checking status of client "%s"...', req.params.id);
       const [err, clientErrors] = await testConfigOptions(config);
-      if (!err) info.healthy = true;
-      else {
+      if (!err) {
+        info.healthy = true;
+        logger.info('Client "%s" is healthy', req.params.id);
+      } else {
         info.failed = clientErrors.failed;
         info.healthy = false;
         info = { ...info, errors: clientErrors };
+        logger.warn('Client "%s" is not healthy: ', req.params.id);
+        logger.warn(clientErrors.message);
       }
     } catch (e) {
       return res.status(500).send(e);

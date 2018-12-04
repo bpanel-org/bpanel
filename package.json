@@ -58,7 +58,7 @@
     "blgr": "0.0.2",
     "bmultisig": "1.0.1",
     "body-parser": "1.18.2",
-    "bootstrap": "4.1.1",
+    "bootstrap": "4.1.2",
     "bsert": "0.0.4",
     "bsock": "github:bucko13/bsock#paths",
     "bsock-middleware": "1.1.5",
