@@ -14,6 +14,7 @@ const assert = require('assert');
 const Config = require('bcfg');
 
 const logger = require('../logger');
+const { loadClientConfigs, createConfigsMap } = require('./configs');
 
 const logClientInfo = (id, type, { ssl, host, port, network }) =>
   logger.info(
@@ -66,7 +67,8 @@ function clientFactory(config) {
 
   // set fallback network configs from `uri` config if set
   let port = config.int('port', network.rpcPort);
-  let hostname = config.str('node-host', '127.0.0.1');
+  let hostname =
+    config.str('node-host', '127.0.0.1') || config.str('host', '127.0.0.1');
   let protocol = config.str('protocol', 'http:');
 
   let url = config.str('url') || config.str('node-uri');
@@ -101,6 +103,14 @@ function clientFactory(config) {
     url: config.str('wallet-uri') || config.str('wallet-url')
   };
 
+  // set any options that are empty strings to undefined
+  for (let options of [nodeOptions, walletOptions]) {
+    for (let key in options) {
+      if (typeof options[key] === 'string' && !options[key].length)
+        options[key] = undefined;
+    }
+  }
+
   let walletClient, nodeClient, multisigWalletClient;
   // check if config explicitly sets node config to `false`
   // if false, do not instantiate new node client
@@ -127,4 +137,33 @@ function clientFactory(config) {
   return { nodeClient, walletClient, multisigWalletClient };
 }
 
-module.exports = clientFactory;
+/*
+ * Build a map of all clients.
+ * @param {bcfg.Config} config - the main app config object
+ * @returns {Object} - a map of the configs and the clients
+ */
+function buildClients(config) {
+  const { loadClientConfigs, createConfigsMap } = require('./configs');
+  // loadConfigs uses the bpanelConfig to find the clients and build
+  // each of their configs.
+  const clientConfigs = loadClientConfigs(config);
+  const configsMap = createConfigsMap(clientConfigs);
+  if (!clientConfigs.length)
+    logger.warn(
+      'Could not find any client config files. You can use the Connection Manager \
+      settings plugin or read more about configuring connections in the documentation: \
+      https://bpanel.org/docs/configuration.html'
+    );
+  const clients = clientConfigs.reduce((clientsMap, cfg) => {
+    const id = cfg.str('id');
+    assert(id, 'client config must have id');
+    clientsMap.set(id, { ...clientFactory(cfg), config: cfg });
+    return clientsMap;
+  }, new Map());
+  return { configsMap, clients };
+}
+
+module.exports = {
+  clientFactory,
+  buildClients
+};

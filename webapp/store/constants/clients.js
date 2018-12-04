@@ -1,3 +1,6 @@
 export const SET_CLIENTS = 'SET_CLIENTS';
 export const SET_CURRENT_CLIENT = 'SET_CURRENT_CLIENT';
 export const RESET_STATE = 'RESET_STATE';
+export const UPDATE_CLIENT = 'UPDATE_CLIENT';
+export const ADD_CLIENT = 'ADD_CLIENT';
+export const REMOVE_CLIENT = 'REMOVE_CLIENT';

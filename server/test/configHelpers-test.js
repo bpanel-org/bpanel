@@ -5,11 +5,11 @@ const os = require('os');
 const { resolve } = require('path');
 
 const logger = require('../logger');
-const { loadConfig } = require('../loadConfigs');
 const { initFullNode } = require('./utils/regtest');
 
 const { configHelpers } = require('../utils');
 const {
+  loadConfig,
   createClientConfig,
   testConfigOptions,
   getConfig,

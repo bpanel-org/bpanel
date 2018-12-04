@@ -549,6 +549,10 @@ class SocketManager extends Server {
 
     this.clients.delete(id);
   }
+
+  hasClient(id) {
+    return this.clients.has(id);
+  }
 }
 
 class SocketManagerOptions {

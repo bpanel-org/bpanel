@@ -74,7 +74,8 @@ const themeColors = {
   // Constants
   white: '#fff',
   black: '#000',
-  transparent: 'transparent'
+  transparent: 'transparent',
+  error: '#990000'
 };
 
 /// *******

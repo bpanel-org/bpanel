@@ -442,7 +442,11 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'start',
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: 0
+      },
+      verticalHeaderLink: {
+        width: '100%'
       },
       headerText: {
         marginBottom: '-1px',
@@ -500,6 +504,34 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         fontSize: fontSizeNormal,
         fontWeight: fontWeights.semiBold
       }
+    },
+
+    label: {
+      container: {
+        width: '100%'
+      },
+      description: {
+        fontSize: makeRem(fontSizeSmall),
+        ...makeGutter('margin', { bottom: 0 })
+      },
+      text: {},
+      content: {}
+    },
+
+    paper: {
+      default: {
+        lineHeight: makeRem(fontSizeNormal),
+        color: themeColors.black,
+        padding: makeRem(fontSizeBase),
+        boxShadow: '1px 0px 4px 3px black inset',
+        ...makeGutter('margin', { bottom: 1 }),
+        paddingBottom: '1px',
+        backgroundColor: themeColors.white
+      },
+      error: {
+        backgroundColor: themeColors.error,
+        color: themeColors.white
+      }
     }
   };
 
@@ -522,12 +554,14 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     footer,
     button,
     header,
+    label,
     link,
     table,
     expandedRow,
     tableRowStyle,
     tabMenu,
-    text
+    text,
+    paper
   } = mergedThemeConfig;
 
   const styleSheet = {
@@ -540,11 +574,13 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     footer: StyleSheet.create(footer),
     button: StyleSheet.create(button),
     header: StyleSheet.create(header),
+    label: StyleSheet.create(label),
     link: StyleSheet.create(link),
     table: StyleSheet.create(table),
     expandedRow: StyleSheet.create(expandedRow),
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
+    paper: StyleSheet.create(paper),
     themeVariables: mergedThemeVariables,
     logoUrl,
     tableRowStyle
