@@ -44,7 +44,6 @@ module.exports = () => {
         react: `${MODULES_DIR}/react`,
         '&bpanel/pkg': `${ROOT_DIR}/pkg`,
         'react-dom': `${MODULES_DIR}/react-dom`,
-        'react-loadable': `${MODULES_DIR}/react-loadable`,
         'react-router': `${MODULES_DIR}/react-router`,
         'react-router-dom': `${MODULES_DIR}/react-router-dom`,
         'react-redux': `${MODULES_DIR}/react-redux`,
