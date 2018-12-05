@@ -84,9 +84,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   const appHeight = `calc(100vh - ${footerHeight})`;
   const lowlightGradient =
     themeColors.lowlightGradient ||
-    `linear-gradient(to left, ${themeColors.lowlight1}, ${
-      themeColors.lowlight2
-    })`;
+    `linear-gradient(to left, ${themeColors.lowlight1}, ${themeColors.lowlight2})`;
 
   /// ******
   /// THEME CONFIG
@@ -532,6 +530,39 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         backgroundColor: themeColors.error,
         color: themeColors.white
       }
+    },
+
+    modal: {
+      container: {
+        background: themeColors.darkerBg,
+        color: themeColors.black
+      },
+      dialoge: {
+        border: border2,
+        borderRadius: borderRadius,
+        borderColor: themeColors.highlight1,
+        backgroundColor: themeColors.lightBg
+      },
+      content: {
+        backgroundColor: 'none',
+        border: 'none'
+      },
+      header: {
+        borderBottom: border2,
+        borderColor: themeColors.highlight1
+      },
+      footer: {
+        borderTop: border2,
+        borderColor: themeColors.highlight1
+      },
+      hidden: {
+        display: 'none'
+      },
+      closeButton: {
+        ':hover': {
+          cursor: 'pointer'
+        }
+      }
     }
   };
 
@@ -561,7 +592,8 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     tableRowStyle,
     tabMenu,
     text,
-    paper
+    paper,
+    modal
   } = mergedThemeConfig;
 
   const styleSheet = {
@@ -581,6 +613,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
     paper: StyleSheet.create(paper),
+    modal: StyleSheet.create(modal),
     themeVariables: mergedThemeVariables,
     logoUrl,
     tableRowStyle
