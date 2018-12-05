@@ -4,6 +4,8 @@
 // --watch-poll Watch webapp in docker on a Mac
 // --dev Watch server and webapp
 
+process.title = 'bpanel';
+
 const path = require('path');
 const fs = require('bfile');
 const { execSync } = require('child_process');
