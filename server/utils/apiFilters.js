@@ -23,8 +23,8 @@ function isBlacklisted(config, endpoint) {
       isMatch(path, blacklisted)
     )
       return true;
-    // for objects, will check path and method match
     else if (blacklisted.method === method && isMatch(path, blacklisted.path))
+      // for objects, will check path and method match
       return true;
   }
   // if no match, confirm not blacklisted
