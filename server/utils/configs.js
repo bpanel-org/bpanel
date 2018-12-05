@@ -2,7 +2,7 @@
 
 const assert = require('bsert');
 const fs = require('bfile');
-const { resolve, parse } = require('path');
+const { resolve, parse, join } = require('path');
 const Config = require('bcfg');
 
 const pkg = require('../../pkg');
@@ -23,10 +23,14 @@ function loadConfig(name, options = {}) {
   config.inject(options);
 
   config.load({
-    env: true,
-    argv: true,
-    arg: true
+    env: true
   });
+
+  if (name === 'bpanel') {
+    config.load({
+      argv: true
+    });
+  }
 
   return config;
 }
@@ -95,7 +99,7 @@ function loadClientConfigs(_config) {
 
     const options = {
       id: clientId,
-      prefix: `${config.prefix}/${clientsDir}`
+      prefix: join(config.prefix, clientsDir)
     };
 
     const clientConf = loadConfig(clientId, options);
