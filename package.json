@@ -14,7 +14,7 @@
     "clear:plugins": "node server/clear-plugins.js",
     "build:plugins": "npm run clear:plugins && node server/build-plugins.js",
     "build:dll": "webpack --config ./configs/webpack.dll.config.js",
-    "lint": "eslint .",
+    "lint": "eslint webapp/ server/ configs/ scripts/",
     "test": "karma start configs/karma.conf.js",
     "test:watch": "karma start configs/karma.conf.js --autoWatch",
     "test:server": "mocha --reporter spec --watch server/test"

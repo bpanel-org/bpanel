@@ -21,10 +21,7 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators({ ...socketActions }, dispatch);
 
 const PanelContainer = withRouter(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(LoadablePanel, 'Panel')
+  connect(mapStateToProps, mapDispatchToProps)(LoadablePanel, 'Panel')
 );
 
 export default PanelContainer;

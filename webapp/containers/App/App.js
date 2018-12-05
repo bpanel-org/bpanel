@@ -101,9 +101,7 @@ class App extends PureComponent {
       plugin => plugin.sidebar || plugin.nav || React.isValidElement(plugin)
     );
     const homePath = panels[0]
-      ? panels[0].pathName
-        ? panels[0].pathName
-        : panels[0].name
+      ? panels[0].pathName ? panels[0].pathName : panels[0].name
       : '';
     return homePath;
   }
@@ -189,7 +187,4 @@ const mapDispatchToProps = dispatch => {
   );
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App, 'App');
+export default connect(mapStateToProps, mapDispatchToProps)(App, 'App');
