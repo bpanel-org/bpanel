@@ -38,7 +38,7 @@ module.exports = () => {
         '@bpanel/bpanel-ui': `${MODULES_DIR}/@bpanel/bpanel-ui`,
         bcash$: `${MODULES_DIR}/bcash/lib/bcoin-browser`,
         bcoin$: `${MODULES_DIR}/bcoin/lib/bcoin-browser`,
-        bcrytpo: `${MODULES_DIR}/bcrypto`,
+        bcrypto: `${MODULES_DIR}/bcrypto`,
         bledger: `${MODULES_DIR}/bledger/lib/bledger-browser`,
         bmultisig: `${MODULES_DIR}/bmultisig/lib/bmultisig-browser`,
         bsert: `${MODULES_DIR}/bsert`,
