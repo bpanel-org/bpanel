@@ -1,14 +1,12 @@
 const {
+  clientsHandler,
   getClientsInfo,
   getDefaultClientInfo,
-  clientsHandler,
   getConfigHandler,
-  addConfigHandler,
-  updateConfigHandler,
-  deleteConfigHandler
+  testClientsHandler
 } = require('../handlers/clients');
 
-const { GET, POST, PUT, DELETE, USE } = require('./methods');
+const { GET, USE } = require('./methods');
 
 const base = '/clients';
 
@@ -29,23 +27,13 @@ module.exports = [
     handler: clientsHandler
   },
   {
+    method: USE,
+    path: base.concat('/:id'),
+    handler: testClientsHandler
+  },
+  {
     method: GET,
     path: base.concat('/:id'),
     handler: getConfigHandler
-  },
-  {
-    method: POST,
-    path: base.concat('/:id'),
-    handler: addConfigHandler
-  },
-  {
-    method: PUT,
-    path: base.concat('/:id'),
-    handler: updateConfigHandler
-  },
-  {
-    method: DELETE,
-    path: base.concat('/:id'),
-    handler: deleteConfigHandler
   }
 ];

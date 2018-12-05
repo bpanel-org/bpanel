@@ -168,7 +168,7 @@ will increase speed of future builds, so please be patient.'
   // create new SocketManager
   // TODO: consolidate to single logger using blgr and remove other dependency
   const blgr = new Blgr({
-    level: 'info'
+    level: bpanelConfig.str('log-level', 'info')
   });
   await blgr.open();
 
@@ -210,10 +210,11 @@ will increase speed of future builds, so please be patient.'
     const clientsDir = path.resolve(bpanelConfig.prefix, 'clients');
     chokidar
       .watch([clientsDir], { usePolling: poll, useFsEvents: poll })
-      .on('all', () => {
+      .on('all', (event, path) => {
         blgr.info(
           'Change detected in clients directory. Updating clients on server.'
         );
+        blgr.debug('"%s" event on %s', event, path);
         const builtClients = buildClients(bpanelConfig);
         clients = builtClients.clients;
         configsMap = builtClients.configsMap;
@@ -279,7 +280,7 @@ will increase speed of future builds, so please be patient.'
     // for use in the api endpoints
     // TODO: Load up client configs and attach to req object here
     app.use((req, res, next) => {
-      req.logger = logger;
+      req.logger = blgr;
       req.config = bpanelConfig;
       req.clients = configsMap;
       next();
@@ -289,17 +290,17 @@ will increase speed of future builds, so please be patient.'
      * Setup backend plugins
      */
 
-    const { beforeCoreMiddleware, afterCoreMiddleware } = getPluginEndpoints(
-      bpanelConfig
+    const { beforeMiddleware, afterMiddleware } = getPluginEndpoints(
+      bpanelConfig,
+      blgr
     );
 
     // compose endpoints
-    const apiEndpoints = [...beforeCoreMiddleware];
-
+    const apiEndpoints = [...beforeMiddleware];
     for (let key in endpoints) {
       apiEndpoints.push(...endpoints[key]);
     }
-    apiEndpoints.push(...afterCoreMiddleware);
+    apiEndpoints.push(...afterMiddleware);
 
     for (let endpoint of apiEndpoints) {
       try {
@@ -319,6 +320,8 @@ will increase speed of future builds, so please be patient.'
     // This must be the last middleware so that
     // it catches and returns errors
     app.use((err, req, res, next) => {
+      blgr.error('There was an error in the middleware: %s', err.message);
+      blgr.error(err.stack);
       if (res.headersSent) {
         return next(err);
       }

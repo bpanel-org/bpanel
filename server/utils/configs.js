@@ -109,58 +109,6 @@ function loadClientConfigs(_config) {
 }
 
 /*
- * create client config
- * Note: This will actually create the file in your bpanel prefix location
- * @param {string} id - id for the client
- * @param {Object} options object for a bcoin/hsd client
- * @param {bool} force - whether or not to force config creation if client
- * can't connect
- * @returns {bcfg.Config}
- */
-async function createClientConfig(id, options = {}, force = false) {
-  assert(typeof id === 'string', 'Must pass an id as first paramater');
-
-  let clientConfig = options;
-  if (!(options instanceof Config))
-    clientConfig = getConfigFromOptions({ id, ...options });
-
-  const appConfig = loadConfig('bpanel', options);
-  const clientsDir = appConfig.str('clients-dir', 'clients');
-
-  // get full path to client configs relative to the project
-  // prefix which defaults to `~/.bpanel`
-  const clientsPath = resolve(appConfig.prefix, clientsDir);
-
-  const [err, clientErrors] = await testConfigOptions(clientConfig);
-  assert(typeof force === 'boolean', 'The force argument must be a bool.');
-  if (err && force) {
-    logger.warn(clientErrors.message);
-    logger.warn('Creating config file anyway...');
-  } else if (err) {
-    throw clientErrors;
-  }
-
-  let configTxt = '';
-  for (let key in clientConfig.options) {
-    const configKey = key
-      .replace('-', '')
-      .replace('_', '')
-      .toLowerCase();
-    const text = `${configKey}: ${clientConfig.options[key]}\n`;
-    configTxt = configTxt.concat(text);
-  }
-  if (!fs.existsSync(clientsPath)) {
-    logger.warn(
-      'Could not find requested client directory at %s. Creating new one...',
-      clientsPath
-    );
-    fs.mkdirpSync(clientsPath);
-  }
-  fs.writeFileSync(`${clientsPath}/${clientConfig.str('id')}.conf`, configTxt);
-  return clientConfig;
-}
-
-/*
  * Retrieve a config from clients directory
  * @param {string} id - id of client to retrieve
  * @returns {bcfg.Config} - bcfg object of config
@@ -184,27 +132,6 @@ function getConfig(id) {
 
   config.open(`${id}.conf`);
   return config;
-}
-
-/*
- * Simple utility that deletes a config
- * Does not throw errors if client is not found
- * NOTE: This does not confirm. Deletion is final!
- * @param {string} id
- * @returns {bool} - returns true when operation completed successfully
- */
-
-function deleteConfig(id) {
-  assert(typeof id === 'string', 'Expected to get id of config to delete');
-  try {
-    const config = getConfig(id);
-    const path = resolve(config.prefix, `${config.str('id')}.conf`);
-    fs.unlinkSync(path);
-    return null;
-  } catch (e) {
-    logger.error('Problem removing config:', e);
-    return e;
-  }
 }
 
 /*
@@ -337,6 +264,58 @@ function createConfigsMap(configs) {
   }, new Map());
 }
 
+/*
+ * create client config
+ * Note: This will actually create the file in your bpanel prefix location
+ * @param {string} id - id for the client
+ * @param {Object} options object for a bcoin/hsd client
+ * @param {bool} force - whether or not to force config creation if client
+ * can't connect
+ * @returns {bcfg.Config}
+ */
+async function createClientConfig(id, options = {}, force = false) {
+  assert(typeof id === 'string', 'Must pass an id as first paramater');
+
+  let clientConfig = options;
+  if (!(options instanceof Config))
+    clientConfig = getConfigFromOptions({ id, ...options });
+
+  const appConfig = loadConfig('bpanel', options);
+  const clientsDir = appConfig.str('clients-dir', 'clients');
+
+  // get full path to client configs relative to the project
+  // prefix which defaults to `~/.bpanel`
+  const clientsPath = resolve(appConfig.prefix, clientsDir);
+
+  const [err, clientErrors] = await testConfigOptions(clientConfig);
+  assert(typeof force === 'boolean', 'The force argument must be a bool.');
+  if (err && force) {
+    logger.warn(clientErrors.message);
+    logger.warn('Creating config file anyway...');
+  } else if (err) {
+    throw clientErrors;
+  }
+
+  let configTxt = '';
+  for (let key in clientConfig.options) {
+    const configKey = key
+      .replace('-', '')
+      .replace('_', '')
+      .toLowerCase();
+    const text = `${configKey}: ${clientConfig.options[key]}\n`;
+    configTxt = configTxt.concat(text);
+  }
+  if (!fs.existsSync(clientsPath)) {
+    logger.warn(
+      'Could not find requested client directory at %s. Creating new one...',
+      clientsPath
+    );
+    fs.mkdirpSync(clientsPath);
+  }
+  fs.writeFileSync(`${clientsPath}/${clientConfig.str('id')}.conf`, configTxt);
+  return clientConfig;
+}
+
 class ClientErrors extends Error {
   constructor(...options) {
     super(...options);
@@ -360,14 +339,13 @@ class ClientErrors extends Error {
 }
 
 module.exports = {
+  createClientConfig,
   loadConfig,
   getConfigFromOptions,
   loadClientConfigs,
-  createClientConfig,
   createConfigsMap,
   getDefaultConfig,
   getConfig,
-  deleteConfig,
   ClientErrors,
   testConfigOptions
 };

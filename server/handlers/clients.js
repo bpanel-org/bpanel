@@ -2,14 +2,7 @@ const Config = require('bcfg');
 const assert = require('bsert');
 
 const { configHelpers, clientFactory } = require('../utils');
-const {
-  getDefaultConfig,
-  createClientConfig,
-  testConfigOptions,
-  deleteConfig,
-  getConfig,
-  ClientErrors
-} = configHelpers;
+const { getDefaultConfig, testConfigOptions, getConfig } = configHelpers;
 
 // utility to return basic info about a client based on its config
 function getClientInfo(config) {
@@ -31,7 +24,7 @@ function getClientsInfo(req, res) {
 
   clients.forEach(client => {
     if (!client.str('chain'))
-      logger.warn(
+      logger.warning(
         `Client config ${client.str(
           'id'
         )} had no chain set, defaulting to 'bitcoin'`
@@ -128,8 +121,55 @@ async function clientsHandler(req, res) {
   }
 }
 
+// a middleware to check the health of requested client
+// only operates if has query param `health` set to true
+// attaches `clientHealth` to req object
+async function testClientsHandler(req, res, next) {
+  const { logger, query, params, body } = req;
+  if ((query && query.health) || (body && body.health)) {
+    const { id } = params;
+    const { options } = req.body;
+    let configOptions = { id };
+
+    if (options) configOptions = { ...configOptions, ...options };
+
+    // get original configs to merge any missing items if updating
+    try {
+      const { data } = getConfig(id);
+      configOptions = { ...data, ...configOptions };
+    } catch (e) {
+      // if missing config, can disregard
+      if (e.code === 'ENOENT')
+        logger.debug('No existing config with id: %s', id);
+      else next(e);
+    }
+
+    const clientHealth = {};
+
+    try {
+      logger.info('Checking health of client "%s"...', id);
+      const [err, clientErrors] = await testConfigOptions(configOptions);
+      if (!err) {
+        clientHealth.healthy = true;
+        logger.info('Client "%s" is healthy', id);
+      } else {
+        clientHealth.failed = clientErrors.failed;
+        clientHealth.errors = clientErrors;
+        clientHealth.healthy = false;
+        logger.warning('Proble checking configs for client "%s": ', id);
+        logger.warning(clientErrors.message);
+      }
+      // attach clientHealth to request object
+      req.clientHealth = clientHealth;
+    } catch (e) {
+      return next(e);
+    }
+  }
+  next();
+}
+
 async function getConfigHandler(req, res) {
-  const { logger } = req;
+  const { logger, clientHealth } = req;
   let config;
   try {
     config = await getConfig(req.params.id);
@@ -156,23 +196,8 @@ async function getConfigHandler(req, res) {
     configs: config.data
   };
 
-  if (req.query.health) {
-    try {
-      logger.info('Checking status of client "%s"...', req.params.id);
-      const [err, clientErrors] = await testConfigOptions(config);
-      if (!err) {
-        info.healthy = true;
-        logger.info('Client "%s" is healthy', req.params.id);
-      } else {
-        info.failed = clientErrors.failed;
-        info.healthy = false;
-        info = { ...info, errors: clientErrors };
-        logger.warn('Client "%s" is not healthy: ', req.params.id);
-        logger.warn(clientErrors.message);
-      }
-    } catch (e) {
-      return res.status(500).send(e);
-    }
+  if (req.clientHealth) {
+    info = { ...info, ...clientHealth };
   }
 
   // scrub apiKeys and tokens
@@ -184,80 +209,10 @@ async function getConfigHandler(req, res) {
   res.status(200).json(info);
 }
 
-function addConfigHandler(req, res) {
-  const { clients } = req;
-  const id = req.params.id;
-
-  if (clients.get(id))
-    return res.status(409).send({
-      error: {
-        message: `A client with the id '${id}' already exists`,
-        code: 409
-      }
-    });
-
-  return updateOrAdd(req, res);
-}
-
-function updateConfigHandler(req, res) {
-  const id = req.params.id;
-  const { options } = req.body;
-  // get original configs to merge any missing items if updating
-  // useful for fields like api key that are sent to client
-  const { data } = getConfig(id);
-  const configOptions = { ...data, ...options };
-  req.configOptions = configOptions;
-  return updateOrAdd(req, res);
-}
-
-function deleteConfigHandler(req, res) {
-  const error = deleteConfig(req.params.id);
-  if (!error) return res.status(200).json({ success: true });
-  else if (error.code === 'ENOENT')
-    return res.status(404).json({
-      error: { message: `Config for '${req.params.id}' not found` }
-    });
-  else throw error;
-}
-
-async function updateOrAdd(req, res) {
-  const { logger, configOptions } = req;
-  const id = req.params.id;
-  try {
-    const { options, force = false } = req.body;
-
-    // coercing force to a boolean
-    let shouldForce = force;
-    if (shouldForce === 'true' || shouldForce === true) shouldForce = true;
-
-    const opts = configOptions || options;
-
-    for (let key in opts) {
-      if (typeof opts[key] === 'string' && !opts[key].length)
-        opts[key] = undefined;
-    }
-
-    const config = await createClientConfig(id, opts, shouldForce);
-    return res.status(200).send({
-      configs: config.options
-    });
-  } catch (error) {
-    logger.error('Problem creating config: ', error);
-    // special error response with extra information
-    // so want to still send 200 so client can receive full message
-    // since bcurl sanitizes non-standard errors
-    if (error instanceof ClientErrors)
-      return res.status(200).send({ message: error.message, ...error });
-    return res.status(400).send({ error: { message: error.message } });
-  }
-}
-
 module.exports = {
-  getClientsInfo,
-  getDefaultClientInfo,
   clientsHandler,
+  getClientsInfo,
   getConfigHandler,
-  addConfigHandler,
-  updateConfigHandler,
-  deleteConfigHandler
+  getDefaultClientInfo,
+  testClientsHandler
 };

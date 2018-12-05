@@ -48,6 +48,7 @@
     "autoprefixer": "7.1.5",
     "base64-inline-loader": "1.1.1",
     "bcash": "bcoin-org/bcash",
+    "bcfg": "0.1.4",
     "bclient": "0.1.4",
     "bcoin": "bcoin-org/bcoin",
     "bcrypto": "3.0.1",

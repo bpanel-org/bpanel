@@ -34,13 +34,15 @@ module.exports = () => {
       // this helps simplify plugin packages and ensures that parent classes
       // all point to the same instance, e.g bcoin.TX will be same for all plugins
       alias: {
-        bcoin$: `${MODULES_DIR}/bcoin/lib/bcoin-browser`,
+        '@bpanel/bpanel-utils': `${MODULES_DIR}/@bpanel/bpanel-utils`,
+        '@bpanel/bpanel-ui': `${MODULES_DIR}/@bpanel/bpanel-ui`,
         bcash$: `${MODULES_DIR}/bcash/lib/bcoin-browser`,
-        bsert: `${MODULES_DIR}/bsert`,
-        hsd$: `${MODULES_DIR}/hsd/lib/hsd-browser`,
+        bcoin$: `${MODULES_DIR}/bcoin/lib/bcoin-browser`,
+        bcrytpo: `${MODULES_DIR}/bcrypto`,
         bledger: `${MODULES_DIR}/bledger/lib/bledger-browser`,
         bmultisig: `${MODULES_DIR}/bmultisig/lib/bmultisig-browser`,
-        bcrytpo: `${MODULES_DIR}/bcrypto`,
+        bsert: `${MODULES_DIR}/bsert`,
+        hsd$: `${MODULES_DIR}/hsd/lib/hsd-browser`,
         react: `${MODULES_DIR}/react`,
         '&bpanel/pkg': `${ROOT_DIR}/pkg`,
         'react-dom': `${MODULES_DIR}/react-dom`,
@@ -50,8 +52,6 @@ module.exports = () => {
         redux: `${MODULES_DIR}/redux`,
         reselect: `${MODULES_DIR}/reselect`,
         '&local': path.resolve(bpanelPrefix, 'local_plugins'),
-        '@bpanel/bpanel-utils': `${MODULES_DIR}/@bpanel/bpanel-utils`,
-        '@bpanel/bpanel-ui': `${MODULES_DIR}/@bpanel/bpanel-ui`,
         tinycolor: 'tinycolor2'
       }
     },
