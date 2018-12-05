@@ -23,10 +23,14 @@ function loadConfig(name, options = {}) {
   config.inject(options);
 
   config.load({
-    env: true,
-    argv: true,
-    arg: true
+    env: true
   });
+
+  if (name === 'bpanel') {
+    config.load({
+      argv: true
+    });
+  }
 
   return config;
 }
