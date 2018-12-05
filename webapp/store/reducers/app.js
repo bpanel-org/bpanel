@@ -1,10 +1,15 @@
-import { SET_WINDOW } from '../constants/app';
+import { SET_WINDOW, SET_MODAL } from '../constants/app';
 
 const initialState = {
   port: null,
   protocol: null,
   ssl: null,
-  socketPort: parseInt(BPANEL_SOCKET_PORT, 10)
+  socketPort: parseInt(BPANEL_SOCKET_PORT, 10),
+  modal: {
+    show: false,
+    plugin: null,
+    data: null
+  }
 };
 
 const appState = (state = initialState, action) => {
@@ -17,6 +22,14 @@ const appState = (state = initialState, action) => {
       newState.protocol = protocol;
       newState.ssl = ssl;
       newState.hostname = hostname;
+      return newState;
+    }
+
+    case SET_MODAL: {
+      const { show, data, plugin } = payload;
+      newState.modal.show = show;
+      newState.modal.data = data;
+      newState.modal.plugin = plugin;
       return newState;
     }
 

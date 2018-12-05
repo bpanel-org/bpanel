@@ -18,6 +18,7 @@ import Header from '../Header';
 import Footer from '../Footer';
 import Sidebar from '../Sidebar';
 import Panel from '../Panel';
+import Modal from '../Modal';
 import { nav } from '../../store/selectors';
 import { pluginMetadata } from '../../store/propTypes';
 import { connect } from '../../plugins/plugins';
@@ -114,43 +115,50 @@ class App extends PureComponent {
       location,
       theme,
       match,
-      currentClient
+      currentClient,
+      showModal,
+      whichModal,
+      modalData
     } = this.props;
     return (
       <ThemeProvider theme={theme}>
-        {currentClient.id ? (
-          <div>
-            <div
-              className={`${theme.app.container} container-fluid`}
-              role="main"
-            >
-              <div className="row">
-                <div
-                  className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}
-                >
-                  <Sidebar
-                    sidebarNavItems={sidebarNavItems}
-                    location={location}
-                    theme={theme}
-                    match={match}
-                  />
-                </div>
-                <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
-                  <Header />
-                  <Route
-                    exact
-                    path="/"
-                    render={() => <Redirect to={`/${this.getHomePath()}`} />}
-                  />
-                  <Panel />
+        <Modal show={showModal} data={modalData} plugin={whichModal}>
+          {currentClient.id ? (
+            <div>
+              <div
+                className={`${theme.app.container} container-fluid`}
+                role="main"
+              >
+                <div className="row">
+                  <div
+                    className={`${
+                      theme.app.sidebarContainer
+                    } col-sm-4 col-lg-3`}
+                  >
+                    <Sidebar
+                      sidebarNavItems={sidebarNavItems}
+                      location={location}
+                      theme={theme}
+                      match={match}
+                    />
+                  </div>
+                  <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
+                    <Header />
+                    <Route
+                      exact
+                      path="/"
+                      render={() => <Redirect to={`/${this.getHomePath()}`} />}
+                    />
+                    <Panel />
+                  </div>
                 </div>
               </div>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        ) : (
-          <div />
-        )}
+          ) : (
+            <div />
+          )}
+        </Modal>
       </ThemeProvider>
     );
   }
@@ -162,7 +170,10 @@ const mapStateToProps = state => ({
   // it will only recalculate if there's been a change in the state)
   sidebarNavItems: nav.sortedSidebarItems(state),
   currentClient: state.clients.currentClient,
-  theme: state.theme
+  theme: state.theme,
+  showModal: state.app.modal.show,
+  whichModal: state.app.modal.plugin,
+  modalData: state.app.modal.data
 });
 
 const mapDispatchToProps = dispatch => {

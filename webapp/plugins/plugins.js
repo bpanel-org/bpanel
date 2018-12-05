@@ -14,10 +14,22 @@ import {
 } from './utils';
 import constants from '../store/constants';
 
+class Dummy extends React.PureComponent {
+  render() {
+    return <React.Fragment />;
+  }
+}
+
 // Instantiate caches
 let plugins = [];
 let connectors;
 let metadata = {};
+
+// don't break the app
+// when there is an undefined key
+let modals = {
+  [undefined]: Dummy
+};
 
 // middleware (action creators)
 let middlewares;
@@ -99,11 +111,15 @@ export const loadPlugins = async config => {
         console.error(`There was a problem loading the metadata for ${name}`);
       }
 
+      if (plugin.modal) modals[name] = plugin.modal;
+      else modals[name] = Dummy;
+
       for (const method in plugin) {
         if (
           plugin.hasOwnProperty(method) &&
           method[0] !== '_' &&
-          method !== 'metadata'
+          method !== 'metadata' &&
+          method !== 'modal'
         ) {
           plugin[method]._pluginName = name;
           plugin[method]._pluginVersion = version;
@@ -480,3 +496,4 @@ export function decorate(Component_, name) {
 }
 
 export const initialMetadata = () => metadata;
+export const initialModals = () => modals;

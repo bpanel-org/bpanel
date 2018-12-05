@@ -353,6 +353,24 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       }
     },
 
+    modal: {
+      container: {
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 9999,
+        maxWidth: '100%',
+        maxHeight: '100%',
+        overflow: 'auto',
+        backgroundColor: themeColors.mediumBg,
+        border: border1
+      },
+      hidden: {
+        display: 'none'
+      }
+    },
+
     // Table
     table: {
       container: {
@@ -513,6 +531,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     button,
     header,
     link,
+    modal,
     table,
     expandedRow,
     tableRowStyle,
@@ -531,6 +550,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     button: StyleSheet.create(button),
     header: StyleSheet.create(header),
     link: StyleSheet.create(link),
+    modal: StyleSheet.create(modal),
     table: StyleSheet.create(table),
     expandedRow: StyleSheet.create(expandedRow),
     tabMenu: StyleSheet.create(tabMenu),
