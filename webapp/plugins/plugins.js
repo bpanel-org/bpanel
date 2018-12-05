@@ -28,7 +28,8 @@ let metadata = {};
 // don't break the app
 // when there is an undefined key
 let modals = {
-  [undefined]: Dummy
+  [undefined]: Dummy,
+  [null]: Dummy
 };
 
 // middleware (action creators)

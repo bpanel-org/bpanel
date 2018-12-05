@@ -5,6 +5,8 @@ import { utils } from '@bpanel/bpanel-ui';
 import { initialModals } from '../plugins/plugins';
 const { connectTheme } = utils;
 
+// cached modals from initial build
+// of all plugins
 const MODALS = initialModals();
 
 class Modal extends PureComponent {
@@ -25,16 +27,17 @@ class Modal extends PureComponent {
     const { children, show, plugin, data, theme } = this.props;
     const Element = MODALS[plugin];
 
-    if (show)
-      return (
-        <div>
-          <div className={`${theme.modal.container}`}>
-            <Element {...this.props} {...data} />
-          </div>
-          {children}
+    let className = `${theme.modal.container}`;
+    if (!show) className += ` ${theme.modal.hidden}`;
+
+    return (
+      <div>
+        <div className={className}>
+          <Element {...this.props} {...data} />
         </div>
-      );
-    return <div>{children}</div>;
+        {children}
+      </div>
+    );
   }
 }
 
