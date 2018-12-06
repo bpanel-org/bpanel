@@ -522,14 +522,15 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         lineHeight: makeRem(fontSizeNormal),
         color: themeColors.black,
         padding: makeRem(fontSizeBase),
-        boxShadow: '1px 0px 4px 3px black inset',
+        boxShadow: '1px 1px 3px 2px grey inset',
         ...makeGutter('margin', { bottom: 1 }),
         paddingBottom: '1px',
         backgroundColor: themeColors.white
       },
       error: {
         backgroundColor: themeColors.error,
-        color: themeColors.white
+        color: themeColors.white,
+        boxShadow: 'none'
       }
     },
 
