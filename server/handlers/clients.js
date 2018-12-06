@@ -156,7 +156,7 @@ async function testClientsHandler(req, res, next) {
         clientHealth.failed = clientErrors.failed;
         clientHealth.errors = clientErrors;
         clientHealth.healthy = false;
-        logger.warning('Proble checking configs for client "%s": ', id);
+        logger.warning('Problem checking configs for client "%s": ', id);
         logger.warning(clientErrors.message);
       }
       // attach clientHealth to request object
