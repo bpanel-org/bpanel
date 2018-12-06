@@ -87,6 +87,7 @@ const borderWidth = '1px';
 const borderStyle = 'solid';
 const border1 = `${borderWidth} ${borderStyle} ${themeColors.white}`;
 const border2 = `${borderWidth} ${borderStyle} ${themeColors.light2Bg}`;
+const borderDark = `${borderWidth} ${borderStyle} ${themeColors.lowlight1}`;
 const borderTransparent = `${borderWidth} ${borderStyle} ${themeColors.transparent}`;
 const borderRadius = '5px';
 
@@ -159,6 +160,7 @@ const themeVariables = {
   borderStyle,
   border1,
   border2,
+  borderDark,
   borderTransparent,
   borderRadius,
   /// ***********

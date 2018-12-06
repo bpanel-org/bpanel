@@ -47,6 +47,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     borderTransparent,
     border1,
     border2,
+    borderDark,
     borderRadius,
     /// ***********
     /// TRANSITIONS
@@ -538,22 +539,32 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         color: themeColors.black
       },
       dialoge: {
-        border: border2,
-        borderRadius: borderRadius,
-        borderColor: themeColors.highlight1,
-        backgroundColor: themeColors.lightBg
+        borderRadius: '0px',
+        border: borderDark,
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 9999,
+        maxWidth: '100%',
+        maxHeight: '100%',
+        overflow: 'auto'
       },
       content: {
-        backgroundColor: 'none',
-        border: 'none'
+        backgroundColor: themeColors.primary,
+        border: 'none',
+        borderRadius: '0px'
       },
       header: {
-        borderBottom: border2,
-        borderColor: themeColors.highlight1
+        backgroundColor: themeColors.lightBg,
+        border: 'none',
+        borderRadius: '0px'
       },
       footer: {
-        borderTop: border2,
-        borderColor: themeColors.highlight1
+        border: 'none',
+        height: makeRem(2, fontSizeBase),
+        fontSize: fontSizeSmall,
+        backgroundColor: themeColors.lightBg
       },
       hidden: {
         display: 'none'
