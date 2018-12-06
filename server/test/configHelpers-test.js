@@ -13,7 +13,6 @@ const {
   createClientConfig,
   testConfigOptions,
   getConfig,
-  deleteConfig,
   ClientErrors
 } = configHelpers;
 
@@ -24,7 +23,7 @@ process.env.BPANEL_CLIENTS_DIR = 'test_clients';
 const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
 const clientsDirPath = resolve(BPANEL_PREFIX, BPANEL_CLIENTS_DIR);
 
-describe('configHelpers', () => {
+describe.only('configHelpers', () => {
   let node, apiKey, ports, options, id, config;
 
   before('create and start regtest node', async () => {
@@ -195,18 +194,6 @@ describe('configHelpers', () => {
         failed = true;
       }
       assert(failed, `Expected getConfig to fail for id "${failId}"`);
-    });
-  });
-
-  describe('deleteConfig', () => {
-    it('should remove a config file', async () => {
-      await createClientConfig(id, options);
-      let config = getConfig(id);
-      assert(config, 'Config did not exist before testing deletion');
-      deleteConfig(id);
-      const path = resolve(config.prefix, `${config.str('id')}.conf`);
-      const exists = fs.existsSync(path);
-      assert(!exists, 'Config should not exist after deletion');
     });
   });
 });
