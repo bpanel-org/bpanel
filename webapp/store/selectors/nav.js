@@ -117,10 +117,7 @@ function composeNavItems(_navItems = []) {
 }
 
 // selectors for converting pluginMetadata to nav list
-export const sortedNavItems = createSelector(
-  getMetadataList,
-  composeNavItems
-);
+export const sortedNavItems = createSelector(getMetadataList, composeNavItems);
 
 // selector for ordering and composing sidebar navigation items
 export const sortedSidebarItems = createSelector(
@@ -129,15 +126,10 @@ export const sortedSidebarItems = createSelector(
 );
 
 // Useful selector for the Panel which just needs to match names to paths
-export const uniquePathsByName = createSelector(
-  getMetadataList,
-  metadata =>
-    metadata
-      .filter(plugin => plugin.pathName)
-      .reduce(
-        (paths, { name, pathName }) => ({ ...paths, [name]: pathName }),
-        {}
-      )
+export const uniquePathsByName = createSelector(getMetadataList, metadata =>
+  metadata
+    .filter(plugin => plugin.pathName)
+    .reduce((paths, { name, pathName }) => ({ ...paths, [name]: pathName }), {})
 );
 
 export default {

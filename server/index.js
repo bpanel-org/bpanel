@@ -204,7 +204,7 @@ will increase speed of future builds, so please be patient.'
       socketManager.addClients(id, {
         node: clients.get(id).nodeClient,
         wallet: clients.get(id).walletClient,
-        multisig: clients.get(id).multisigWalletClient
+        multisig: clients.get(id).multisigClient
       });
     }
 
@@ -234,7 +234,7 @@ will increase speed of future builds, so please be patient.'
             socketManager.addClients(id, {
               node: clients.get(id).nodeClient,
               wallet: clients.get(id).walletClient,
-              multisig: clients.get(id).multisigWalletClient
+              multisig: clients.get(id).multisigClient
             });
 
         // remove any clients from the socketManager not in our list

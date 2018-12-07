@@ -5,9 +5,10 @@ const { configHelpers, clientFactory } = require('../utils');
 const { getDefaultConfig, testConfigOptions, getConfig } = configHelpers;
 
 // utility to return basic info about a client based on its config
-function getClientInfo(config) {
+function getClientInfo(config, req) {
   assert(config instanceof Config, 'Must pass a bcfg Config object');
-  return {
+  const { clientHealth } = req;
+  const info = {
     id: config.str('id'),
     chain: config.str('chain', 'bitcoin'),
     services: {
@@ -16,30 +17,42 @@ function getClientInfo(config) {
       multisig: config.bool('multisig', true)
     }
   };
+  if (clientHealth) {
+    const node = clientHealth.errors ? !clientHealth.errors.node : true;
+    const wallet = clientHealth.errors ? !clientHealth.errors.wallet : true;
+    const multisig = clientHealth.errors ? !clientHealth.errors.multisig : true;
+    info.services = {
+      node: config.bool('node', node),
+      wallet: config.bool('wallet', wallet),
+      multisig: config.bool('multisig', multisig)
+    };
+  }
+
+  return info;
 }
 
 function getClientsInfo(req, res) {
   const { logger, clients } = req;
   const clientInfo = {};
 
-  clients.forEach(client => {
+  for (let [, client] of clients) {
     if (!client.str('chain'))
       logger.warning(
         `Client config ${client.str(
           'id'
         )} had no chain set, defaulting to 'bitcoin'`
       );
-    clientInfo[client.str('id')] = getClientInfo(client);
-  });
+    clientInfo[client.str('id')] = getClientInfo(client, req);
+  }
 
   return res.status(200).json(clientInfo);
 }
 
-function getDefaultClientInfo(req, res, next) {
+async function getDefaultClientInfo(req, res, next) {
   const { config } = req;
   try {
     const defaultClientConfig = getDefaultConfig(config);
-    const defaultClient = getClientInfo(defaultClientConfig);
+    const defaultClient = await getClientInfo(defaultClientConfig, req);
     return res.status(200).json(defaultClient);
   } catch (e) {
     next(e);
@@ -63,14 +76,12 @@ async function clientsHandler(req, res) {
 
   assert(config instanceof Config, 'client needs bcfg config');
 
-  const { nodeClient, walletClient, multisigWalletClient } = clientFactory(
-    config
-  );
+  const { nodeClient, walletClient, multisigClient } = clientFactory(config);
 
   const reqClients = {
     node: nodeClient,
     wallet: walletClient,
-    multisig: multisigWalletClient
+    multisig: multisigClient
   };
 
   const client = reqClients[params.client];
@@ -191,8 +202,9 @@ async function getConfigHandler(req, res) {
       });
   }
 
+  const clientInfo = getClientInfo(config, req);
   let info = {
-    ...getClientInfo(config),
+    ...clientInfo,
     configs: config.data
   };
 
@@ -206,7 +218,7 @@ async function getConfigHandler(req, res) {
       config.data[key] = undefined;
   }
 
-  res.status(200).json(info);
+  return res.status(200).json(info);
 }
 
 module.exports = {
