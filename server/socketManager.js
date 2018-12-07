@@ -376,10 +376,7 @@ class SocketManager extends Server {
 
     let socket;
     try {
-      socket = state.connect(
-        port,
-        addr
-      );
+      socket = state.connect(port, addr);
       this.proxyLog(
         'info',
         'Connecting to %s (%s).',
@@ -523,7 +520,7 @@ class SocketManager extends Server {
       throw new Error(`Clients with id ${id} already exists`);
 
     for (let client in clients) {
-      await clients[client].open();
+      if (clients[client]) await clients[client].open();
     }
 
     this.clients.set(id, clients);
@@ -645,10 +642,7 @@ class SocketState {
   }
 
   connect(port, host) {
-    this.socket = net.connect(
-      port,
-      host
-    );
+    this.socket = net.connect(port, host);
     this.remoteHost = IP.toHostname(host, port);
     return this.socket;
   }

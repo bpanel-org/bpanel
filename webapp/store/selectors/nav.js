@@ -69,7 +69,9 @@ export function getNestedPaths(metadata) {
   assert(Array.isArray(metadata), 'Must pass array of metadata');
   return metadata.reduce((updated, _plugin) => {
     const plugin = { ..._plugin };
-    if (plugin.parent && !/^(http)/.test(plugin.pathName)) {
+    // setting a custom pathName if a sub-item and has no
+    // existing pathName set in metadata
+    if (plugin.parent && !plugin.pathName) {
       // if this plugin is a child then update its pathName property
       // to nest behind the parent
       const parentIndex = metadata.findIndex(
@@ -117,10 +119,7 @@ function composeNavItems(_navItems = []) {
 }
 
 // selectors for converting pluginMetadata to nav list
-export const sortedNavItems = createSelector(
-  getMetadataList,
-  composeNavItems
-);
+export const sortedNavItems = createSelector(getMetadataList, composeNavItems);
 
 // selector for ordering and composing sidebar navigation items
 export const sortedSidebarItems = createSelector(
@@ -129,15 +128,10 @@ export const sortedSidebarItems = createSelector(
 );
 
 // Useful selector for the Panel which just needs to match names to paths
-export const uniquePathsByName = createSelector(
-  getMetadataList,
-  metadata =>
-    metadata
-      .filter(plugin => plugin.pathName)
-      .reduce(
-        (paths, { name, pathName }) => ({ ...paths, [name]: pathName }),
-        {}
-      )
+export const uniquePathsByName = createSelector(getMetadataList, metadata =>
+  metadata
+    .filter(plugin => plugin.pathName)
+    .reduce((paths, { name, pathName }) => ({ ...paths, [name]: pathName }), {})
 );
 
 export default {

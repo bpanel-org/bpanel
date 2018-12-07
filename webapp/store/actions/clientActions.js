@@ -13,17 +13,22 @@ function setClients(clients) {
 }
 
 function setCurrentClient(clientInfo) {
-  if (!clientInfo.chain && clientInfo.id)
-    // eslint-disable-next-line no-console
-    console.warn(
-      `No chain was set for client ${clientInfo.id}, defaulting to "bitcoin"`
-    );
-  const { id, chain = 'bitcoin' } = clientInfo;
-  // set the client info for the global client
-  if (id) client.setClientInfo(id, chain);
-  return {
-    type: SET_CURRENT_CLIENT,
-    payload: clientInfo
+  return async dispatch => {
+    if (!clientInfo.chain && clientInfo.id)
+      // eslint-disable-next-line no-console
+      console.warn(
+        `No chain was set for client ${clientInfo.id}, defaulting to "bitcoin"`
+      );
+    const { id, chain = 'bitcoin' } = clientInfo;
+    // get current information for client from server
+    const client = getClient();
+    const info = await client.getClientInfo(id, true);
+    // set the client info for the global client
+    if (id) client.setClientInfo(id, chain);
+    dispatch({
+      type: SET_CURRENT_CLIENT,
+      payload: { ...clientInfo, ...info }
+    });
   };
 }
 

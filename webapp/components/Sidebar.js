@@ -90,9 +90,7 @@ class Sidebar extends PureComponent {
           // sanitize out any forward slashes or non-uri safe symbols from pathName
           // unless it is an absolute URL leading with http
           if (!/^(http)/.test(sidebarItemProps.pathName))
-            sidebarItemProps.pathName = `${match.url}${
-              sidebarItemProps.pathName
-            }`;
+            sidebarItemProps.pathName = `${match.url}${sidebarItemProps.pathName}`;
 
           if (plugin.parent) {
             // if this sidebar item is a child then add appropriate props
@@ -138,9 +136,8 @@ class Sidebar extends PureComponent {
     } = this.props;
     return (
       <nav
-        className={`${
-          theme.sidebar.container
-        } d-flex flex-column navbar navbar-default navbar-fixed-side`}
+        className={`${theme.sidebar
+          .container} d-flex flex-column navbar navbar-default navbar-fixed-side`}
       >
         {customSidebarHeader ? customSidebarHeader : this.renderLogo()}
         {beforeNav}

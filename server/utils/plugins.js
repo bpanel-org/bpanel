@@ -25,7 +25,7 @@ function getPluginEndpoints(config, logger) {
     } catch (e) {
       logger.debug(
         'Problem loading backend plugins for %s: %s',
-        pkg.name,
+        plugin,
         e.message
       );
     }

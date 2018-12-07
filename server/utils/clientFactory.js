@@ -14,19 +14,19 @@ const assert = require('assert');
 const Config = require('bcfg');
 
 const logger = require('../logger');
-const { loadClientConfigs, createConfigsMap } = require('./configs');
 
 const logClientInfo = (id, type, { ssl, host, port, network }) =>
   logger.info(
-    `${id}: Configuring ${type} client with uri: ${
-      ssl ? 'https' : 'http'
-    }://${host}:${port}, network: ${network}`
+    `${id}: Configuring ${type} client with uri: ${ssl
+      ? 'https'
+      : 'http'}://${host}:${port}, network: ${network}`
   );
+
 /*
  * Create clients based on given configs
  * @param {Config} config - a bcfg config object
  * @returns {Object} clients - an object that includes
- * a Node, Wallet, and Multisig Wallet clients as available
+ * a Node, Wallet, and Multisig clients as available
  */
 function clientFactory(config) {
   let Network, NodeClient, WalletClient;
@@ -111,7 +111,7 @@ function clientFactory(config) {
     }
   }
 
-  let walletClient, nodeClient, multisigWalletClient;
+  let walletClient, nodeClient, multisigClient;
   // check if config explicitly sets node config to `false`
   // if false, do not instantiate new node client
   if (config.bool('node', true)) {
@@ -127,14 +127,14 @@ function clientFactory(config) {
   }
 
   if (config.bool('multisig', true)) {
-    multisigWalletClient = new MultisigClient({
+    multisigClient = new MultisigClient({
       ...walletOptions,
       multisigPath: '/'
     });
     logClientInfo(id, 'multisig wallet', walletOptions);
   }
 
-  return { nodeClient, walletClient, multisigWalletClient };
+  return { nodeClient, walletClient, multisigClient };
 }
 
 /*
