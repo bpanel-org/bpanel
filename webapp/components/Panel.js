@@ -54,10 +54,6 @@ export default class extends PureComponent {
   }
 
   render() {
-    return (
-      <div>
-        <Switch>{this.routes}</Switch>
-      </div>
-    );
+    return <Switch>{this.routes}</Switch>;
   }
 }
