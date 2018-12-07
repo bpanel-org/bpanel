@@ -71,6 +71,7 @@ const themeColors = {
   light2Bg: 'rgba(255, 255, 255, 0.2)', // transparent white 2
   mediumBg: 'rgba(0, 255, 224, .2)', // transparent teal
   darkBg: 'rgba(0, 0, 0, .4)', // transparent black
+  darkerBg: 'rgba(0, 0, 0, .7)', // transparent black
   // Constants
   white: '#fff',
   black: '#000',
@@ -86,9 +87,8 @@ const borderWidth = '1px';
 const borderStyle = 'solid';
 const border1 = `${borderWidth} ${borderStyle} ${themeColors.white}`;
 const border2 = `${borderWidth} ${borderStyle} ${themeColors.light2Bg}`;
-const borderTransparent = `${borderWidth} ${borderStyle} ${
-  themeColors.transparent
-}`;
+const borderDark = `${borderWidth} ${borderStyle} ${themeColors.lowlight1}`;
+const borderTransparent = `${borderWidth} ${borderStyle} ${themeColors.transparent}`;
 const borderRadius = '5px';
 
 /// ***********
@@ -160,6 +160,7 @@ const themeVariables = {
   borderStyle,
   border1,
   border2,
+  borderDark,
   borderTransparent,
   borderRadius,
   /// ***********
