@@ -42,7 +42,7 @@
     "npm": ">=5.7.1"
   },
   "dependencies": {
-    "@bpanel/bpanel-ui": "0.0.16",
+    "@bpanel/bpanel-ui": "0.0.17",
     "@bpanel/bpanel-utils": "0.1.4",
     "aphrodite": "1.2.5",
     "autoprefixer": "7.1.5",
