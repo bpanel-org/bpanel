@@ -47,6 +47,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     borderTransparent,
     border1,
     border2,
+    borderDark,
     borderRadius,
     /// ***********
     /// TRANSITIONS
@@ -84,9 +85,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   const appHeight = `calc(100vh - ${footerHeight})`;
   const lowlightGradient =
     themeColors.lowlightGradient ||
-    `linear-gradient(to left, ${themeColors.lowlight1}, ${
-      themeColors.lowlight2
-    })`;
+    `linear-gradient(to left, ${themeColors.lowlight1}, ${themeColors.lowlight2})`;
 
   /// ******
   /// THEME CONFIG
@@ -523,14 +522,58 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         lineHeight: makeRem(fontSizeNormal),
         color: themeColors.black,
         padding: makeRem(fontSizeBase),
-        boxShadow: '1px 0px 4px 3px black inset',
+        boxShadow: '1px 1px 3px 2px grey inset',
         ...makeGutter('margin', { bottom: 1 }),
         paddingBottom: '1px',
         backgroundColor: themeColors.white
       },
       error: {
         backgroundColor: themeColors.error,
-        color: themeColors.white
+        color: themeColors.white,
+        boxShadow: 'none'
+      }
+    },
+
+    modal: {
+      container: {
+        background: themeColors.darkerBg,
+        color: themeColors.black
+      },
+      dialoge: {
+        borderRadius: '0px',
+        border: borderDark,
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 9999,
+        maxWidth: '100%',
+        maxHeight: '100%',
+        overflow: 'auto'
+      },
+      content: {
+        backgroundColor: themeColors.primary,
+        border: 'none',
+        borderRadius: '0px'
+      },
+      header: {
+        backgroundColor: themeColors.lightBg,
+        border: 'none',
+        borderRadius: '0px'
+      },
+      footer: {
+        border: 'none',
+        height: makeRem(2, fontSizeBase),
+        fontSize: fontSizeSmall,
+        backgroundColor: themeColors.lightBg
+      },
+      hidden: {
+        display: 'none'
+      },
+      closeButton: {
+        ':hover': {
+          cursor: 'pointer'
+        }
       }
     }
   };
@@ -561,7 +604,8 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     tableRowStyle,
     tabMenu,
     text,
-    paper
+    paper,
+    modal
   } = mergedThemeConfig;
 
   const styleSheet = {
@@ -581,6 +625,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
     paper: StyleSheet.create(paper),
+    modal: StyleSheet.create(modal),
     themeVariables: mergedThemeVariables,
     logoUrl,
     tableRowStyle
