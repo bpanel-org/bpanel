@@ -5,9 +5,8 @@ const { configHelpers, clientFactory } = require('../utils');
 const { getDefaultConfig, testConfigOptions, getConfig } = configHelpers;
 
 // utility to return basic info about a client based on its config
-function getClientInfo(config, req) {
+function getClientInfo(config, clientHealth) {
   assert(config instanceof Config, 'Must pass a bcfg Config object');
-  const { clientHealth } = req;
   const info = {
     id: config.str('id'),
     chain: config.str('chain', 'bitcoin'),
@@ -42,17 +41,17 @@ function getClientsInfo(req, res) {
           'id'
         )} had no chain set, defaulting to 'bitcoin'`
       );
-    clientInfo[client.str('id')] = getClientInfo(client, req);
+    clientInfo[client.str('id')] = getClientInfo(client, req.clientHealth);
   }
 
   return res.status(200).json(clientInfo);
 }
 
-async function getDefaultClientInfo(req, res, next) {
+function getDefaultClientInfo(req, res, next) {
   const { config } = req;
   try {
     const defaultClientConfig = getDefaultConfig(config);
-    const defaultClient = await getClientInfo(defaultClientConfig, req);
+    const defaultClient = getClientInfo(defaultClientConfig, req.clientHealth);
     return res.status(200).json(defaultClient);
   } catch (e) {
     next(e);
