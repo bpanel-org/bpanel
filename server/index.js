@@ -201,11 +201,13 @@ will increase speed of future builds, so please be patient.'
 
     // Setup bsock server
     for (let id of clientIds) {
-      socketManager.addClients(id, {
-        node: clients.get(id).nodeClient,
-        wallet: clients.get(id).walletClient,
-        multisig: clients.get(id).multisigClient
-      });
+      const { nodeClient, walletClient, multisigClient } = clients.get(id);
+      const newClients = {};
+      if (nodeClient) newClients.node = nodeClient;
+      if (walletClient) newClients.wallet = walletClient;
+      if (multisigClient) newClients.multisig = multisigClient;
+
+      socketManager.addClients(id, newClients);
     }
 
     // refresh the clients map if the clients directory gets updated
@@ -229,13 +231,19 @@ will increase speed of future builds, so please be patient.'
         // has the full server for all requests and can manage this internally
         const ids = clients.keys();
         // add any new clients not in socketManager
-        for (let id of ids)
+        for (let id of ids) {
+          const { nodeClient, walletClient, multisigClient } = clients.get(id);
+          const newClients = {};
+          if (nodeClient) newClients.node = nodeClient;
+          if (walletClient) newClients.wallet = walletClient;
+          if (multisigClient) newClients.multisig = multisigClient;
           if (!socketManager.hasClient(id))
             socketManager.addClients(id, {
               node: clients.get(id).nodeClient,
               wallet: clients.get(id).walletClient,
               multisig: clients.get(id).multisigClient
             });
+        }
 
         // remove any clients from the socketManager not in our list
         const sockets = socketManager.clients.keys();
