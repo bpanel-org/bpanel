@@ -39,6 +39,7 @@ export default function getPersistedReducer() {
         storage.removeItem(`persist:${key}`);
       });
       state.chain = undefined;
+      state.clients = undefined;
       state.wallets = undefined;
       state.node = undefined;
       state.plugins = undefined;

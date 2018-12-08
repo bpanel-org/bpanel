@@ -63,20 +63,19 @@ class App extends PureComponent {
   }
 
   async componentDidMount() {
-    const {
-      getNodeInfo,
-      connectSocket,
-      hydrateClients,
-      resetClient
-    } = this.props;
+    const { getNodeInfo, connectSocket, hydrateClients } = this.props;
 
     await hydrateClients();
     this.client = getClient();
-    this.client.on('set clients', clientInfo => {
-      resetClient(clientInfo);
-      getNodeInfo();
-    });
+    this.client.on('set clients', () => this.updateApp());
     connectSocket();
+    getNodeInfo();
+  }
+
+  async updateApp() {
+    const { getNodeInfo, resetClient, hydrateClients } = this.props;
+    await resetClient();
+    await hydrateClients();
     getNodeInfo();
   }
 
@@ -93,6 +92,7 @@ class App extends PureComponent {
     document.body.className = null;
     document.document.documentElement.className = null;
     this.props.disconnectSocket();
+    this.client.removeListener('set clients', () => this.updateApp());
   }
 
   getHomePath() {
@@ -168,13 +168,14 @@ const mapDispatchToProps = dispatch => {
   const { loadSideNav } = navActions;
   const { connectSocket, disconnectSocket } = socketActions;
   const { updateTheme } = themeActions;
-  const { hydrateClients, resetClient } = clientActions;
+  const { hydrateClients, resetClient, setCurrentClient } = clientActions;
   const { getWindowInfo } = appActions;
   const appLoaded = () => ({ type: APP_LOADED });
   return bindActionCreators(
     {
       appLoaded,
       hydrateClients,
+      setCurrentClient,
       resetClient,
       getNodeInfo,
       loadSideNav,

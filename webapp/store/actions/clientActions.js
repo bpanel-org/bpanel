@@ -13,18 +13,22 @@ function setClients(clients) {
 }
 
 function setCurrentClient(clientInfo) {
-  return async dispatch => {
+  return async (dispatch, getState) => {
     if (!clientInfo.chain && clientInfo.id)
       // eslint-disable-next-line no-console
       console.warn(
         `No chain was set for client ${clientInfo.id}, defaulting to "bitcoin"`
       );
     const { id, chain = 'bitcoin' } = clientInfo;
+
+    // if the client does not exist then reset client
+    const clients = getState().clients.clients;
+    if (!clients[id]) return dispatch(getDefaultClient());
+
     // get current information for client from server
     const client = getClient();
     const info = await client.getClientInfo(id, true);
-    // set the client info for the global client
-    if (id) client.setClientInfo(id, chain);
+
     dispatch({
       type: SET_CURRENT_CLIENT,
       payload: { ...clientInfo, ...info }
@@ -65,11 +69,11 @@ function hydrateClients() {
       await dispatch(getClients());
       let currentClient = getState().clients.currentClient;
       if (!currentClient.id) {
-        await dispatch(getDefaultClient());
-        currentClient = getState().clients.currentClient;
-      } else {
-        dispatch(setCurrentClient(currentClient));
+        const defaultClient = await dispatch(getDefaultClient());
+        currentClient = defaultClient;
       }
+      dispatch(getClients());
+      dispatch(setCurrentClient(currentClient));
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('There was an error hydrating clients:', e);

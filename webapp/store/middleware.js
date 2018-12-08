@@ -9,9 +9,7 @@ export function errorCatcherMiddleware(errorHandler) {
         try {
           return next(action);
         } catch (err) {
-          const message = `There was an error in the middleware for the action ${
-            action.type
-          }: `;
+          const message = `There was an error in the middleware for the action ${action.type}: `;
           errorHandler(message, err, store.getState, action, store.dispatch);
           return err;
         }
@@ -30,13 +28,11 @@ export function clientMiddleware() {
         if (!clientInfo.chain && clientInfo.id)
           // eslint-disable-next-line no-console
           console.warn(
-            `No chain was set for client ${
-              clientInfo.id
-            }, defaulting to "bitcoin"`
+            `No chain was set for client ${clientInfo.id}, defaulting to "bitcoin"`
           );
         const { id, chain = 'bitcoin' } = clientInfo;
         // set the client info for the global client
-        if (id) client.setClientInfo(id, chain);
+        if (id && id !== client.id) client.setClientInfo(id, chain);
       }
       return next(action);
     };

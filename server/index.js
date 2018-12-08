@@ -199,57 +199,63 @@ will increase speed of future builds, so please be patient.'
 
     const clientIds = clients.keys();
 
-    // Setup bsock server
-    for (let id of clientIds) {
-      const { nodeClient, walletClient, multisigClient } = clients.get(id);
-      const newClients = {};
-      if (nodeClient) newClients.node = nodeClient;
-      if (walletClient) newClients.wallet = walletClient;
-      if (multisigClient) newClients.multisig = multisigClient;
+    try {
+      // Setup bsock server
+      for (let id of clientIds) {
+        const { nodeClient, walletClient, multisigClient } = clients.get(id);
+        const newClients = {};
+        if (nodeClient) newClients.node = nodeClient;
+        if (walletClient) newClients.wallet = walletClient;
+        if (multisigClient) newClients.multisig = multisigClient;
 
-      socketManager.addClients(id, newClients);
+        socketManager.addClients(id, newClients);
+      }
+
+      // refresh the clients map if the clients directory gets updated
+      const clientsDir = path.resolve(bpanelConfig.prefix, 'clients');
+      chokidar
+        .watch([clientsDir], { usePolling: poll, useFsEvents: poll })
+        .on('all', (event, path) => {
+          blgr.info(
+            'Change detected in clients directory. Updating clients on server.'
+          );
+          blgr.debug('"%s" event on %s', event, path);
+          const builtClients = buildClients(bpanelConfig);
+          clients = builtClients.clients;
+          configsMap = builtClients.configsMap;
+
+          // need to update the socket manager too
+          // TODO: this isn't ideal (doing two loops)
+          // but it's better than restarting the whole server
+          // which also restarts the webpack build
+          // hopefully this is easier to manage when the socket manager also
+          // has the full server for all requests and can manage this internally
+          const ids = clients.keys();
+          // add any new clients not in socketManager
+          for (let id of ids) {
+            const { nodeClient, walletClient, multisigClient } = clients.get(
+              id
+            );
+            const newClients = {};
+            if (nodeClient) newClients.node = nodeClient;
+            if (walletClient) newClients.wallet = walletClient;
+            if (multisigClient) newClients.multisig = multisigClient;
+            if (!socketManager.hasClient(id))
+              socketManager.addClients(id, {
+                node: clients.get(id).nodeClient,
+                wallet: clients.get(id).walletClient,
+                multisig: clients.get(id).multisigClient
+              });
+          }
+
+          // remove any clients from the socketManager not in our list
+          const sockets = socketManager.clients.keys();
+          for (let id of sockets)
+            if (!clients.has(id)) socketManager.removeClients(id);
+        });
+    } catch (e) {
+      blgr.error('There was a problem loading clients:', e);
     }
-
-    // refresh the clients map if the clients directory gets updated
-    const clientsDir = path.resolve(bpanelConfig.prefix, 'clients');
-    chokidar
-      .watch([clientsDir], { usePolling: poll, useFsEvents: poll })
-      .on('all', (event, path) => {
-        blgr.info(
-          'Change detected in clients directory. Updating clients on server.'
-        );
-        blgr.debug('"%s" event on %s', event, path);
-        const builtClients = buildClients(bpanelConfig);
-        clients = builtClients.clients;
-        configsMap = builtClients.configsMap;
-
-        // need to update the socket manager too
-        // TODO: this isn't ideal (doing two loops)
-        // but it's better than restarting the whole server
-        // which also restarts the webpack build
-        // hopefully this is easier to manage when the socket manager also
-        // has the full server for all requests and can manage this internally
-        const ids = clients.keys();
-        // add any new clients not in socketManager
-        for (let id of ids) {
-          const { nodeClient, walletClient, multisigClient } = clients.get(id);
-          const newClients = {};
-          if (nodeClient) newClients.node = nodeClient;
-          if (walletClient) newClients.wallet = walletClient;
-          if (multisigClient) newClients.multisig = multisigClient;
-          if (!socketManager.hasClient(id))
-            socketManager.addClients(id, {
-              node: clients.get(id).nodeClient,
-              wallet: clients.get(id).walletClient,
-              multisig: clients.get(id).multisigClient
-            });
-        }
-
-        // remove any clients from the socketManager not in our list
-        const sockets = socketManager.clients.keys();
-        for (let id of sockets)
-          if (!clients.has(id)) socketManager.removeClients(id);
-      });
 
     const resolveIndex = (req, res) => {
       logger.debug(`Caught request in resolveIndex: ${req.path}`);
