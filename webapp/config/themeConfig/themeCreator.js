@@ -458,7 +458,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         backgroundColor: themeColors.transparent,
         border: border2,
         borderBottomColor: themeColors.highlight1,
-        zIndex: '1'
+        zIndex: '0'
       },
       headerTextInactive: {
         backgroundColor: themeColors.darkBg,
