@@ -1,6 +1,10 @@
 import { getClient } from '@bpanel/bpanel-utils';
 
-import { SET_CURRENT_CLIENT } from './constants/clients';
+import {
+  SET_CURRENT_CLIENT,
+  CLEAR_CURRENT_CLIENT,
+  RESET_STATE
+} from './constants/clients';
 
 export function errorCatcherMiddleware(errorHandler) {
   return function(store) {
@@ -9,9 +13,7 @@ export function errorCatcherMiddleware(errorHandler) {
         try {
           return next(action);
         } catch (err) {
-          const message = `There was an error in the middleware for the action ${
-            action.type
-          }: `;
+          const message = `There was an error in the middleware for the action ${action.type}: `;
           errorHandler(message, err, store.getState, action, store.dispatch);
           return err;
         }
@@ -20,7 +22,7 @@ export function errorCatcherMiddleware(errorHandler) {
   };
 }
 
-export function clientMiddleware() {
+export function clientMiddleware({ dispatch }) {
   return function(next) {
     return function(action) {
       const client = getClient();
@@ -30,13 +32,14 @@ export function clientMiddleware() {
         if (!clientInfo.chain && clientInfo.id)
           // eslint-disable-next-line no-console
           console.warn(
-            `No chain was set for client ${
-              clientInfo.id
-            }, defaulting to "bitcoin"`
+            `No chain was set for client ${clientInfo.id}, defaulting to "bitcoin"`
           );
         const { id, chain = 'bitcoin' } = clientInfo;
         // set the client info for the global client
         if (id) client.setClientInfo(id, chain);
+      } else if (action.type === CLEAR_CURRENT_CLIENT) {
+        client.reset();
+        dispatch({ type: RESET_STATE });
       }
       return next(action);
     };
