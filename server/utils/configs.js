@@ -79,14 +79,14 @@ function loadClientConfigs(_config) {
 
   // cancel startup process if there are no clientConfigs
   if (!files.length) {
-    logger.error('No client configs found.');
-    logger.error(
-      'Please add at least one config called "default" to your clients directory and try again.'
+    logger.warn(
+      'No client configs found. Add one manually to your clients directory \
+or use the connection-manager plugin to add via the UI'
     );
-    logger.error(
+    logger.warn(
       'Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
     );
-    process.exit(1);
+    return files;
   }
 
   logger.info('Loading configs for %s clients...', files.length);

@@ -148,12 +148,6 @@ function buildClients(config) {
   // each of their configs.
   const clientConfigs = loadClientConfigs(config);
   const configsMap = createConfigsMap(clientConfigs);
-  if (!clientConfigs.length)
-    logger.warn(
-      'Could not find any client config files. You can use the Connection Manager \
-      settings plugin or read more about configuring connections in the documentation: \
-      https://bpanel.org/docs/configuration.html'
-    );
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
     const id = cfg.str('id');
     assert(id, 'client config must have id');
