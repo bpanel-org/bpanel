@@ -78,7 +78,7 @@ module.exports = function(env = {}) {
           exclude: [MODULES_DIR, path.resolve(bpanelPrefix, 'local_plugins')],
           loader: 'babel-loader',
           query: {
-            presets: ['env', 'react', 'stage-3'],
+            presets: ['env', 'react', 'stage-0'],
             plugins: [
               [
                 'syntax-dynamic-import',
