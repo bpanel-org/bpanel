@@ -113,7 +113,7 @@ class App extends PureComponent {
     const { sidebarNavItems, location, theme, match } = this.props;
     return (
       <ThemeProvider theme={theme}>
-        <div>
+        <React.Fragment>
           <div className={`${theme.app.container} container-fluid`} role="main">
             <div className="row">
               <div
@@ -138,7 +138,7 @@ class App extends PureComponent {
             </div>
           </div>
           <Footer />
-        </div>
+        </React.Fragment>
       </ThemeProvider>
     );
   }

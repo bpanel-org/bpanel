@@ -244,9 +244,8 @@ function getDefaultConfig(bpanelConfig) {
 
   if (!defaultClientConfig) {
     logger.warn(
-      `Could not find config for ${bpanelConfig.str(
-        'client-id'
-      )}. Will set to 'default' instead.`
+      'Could not find config for %s. Will set to "default" instead.',
+      bpanelConfig.str('client-id')
     );
     defaultClientConfig = clientConfigs.find(
       cfg => cfg.str('id') === 'default'
