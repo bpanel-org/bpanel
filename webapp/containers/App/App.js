@@ -63,20 +63,20 @@ class App extends PureComponent {
   }
 
   async componentDidMount() {
-    const {
-      getNodeInfo,
-      connectSocket,
-      hydrateClients,
-      resetClient
-    } = this.props;
-
+    const { getNodeInfo, connectSocket, hydrateClients } = this.props;
     await hydrateClients();
     this.client = getClient();
-    this.client.on('set clients', clientInfo => {
-      resetClient(clientInfo);
+    this.client.on('set clients', clientInfo => this.updateClient(clientInfo));
+
+    if (this.client.id) {
+      connectSocket();
       getNodeInfo();
-    });
-    connectSocket();
+    }
+  }
+
+  updateClient(clientInfo) {
+    const { resetClient, getNodeInfo } = this.props;
+    resetClient(clientInfo);
     getNodeInfo();
   }
 
@@ -93,6 +93,9 @@ class App extends PureComponent {
     document.body.className = null;
     document.document.documentElement.className = null;
     this.props.disconnectSocket();
+    this.client.removeListener('set clients', clientInfo =>
+      this.updateClient(clientInfo)
+    );
   }
 
   getHomePath() {
@@ -107,48 +110,35 @@ class App extends PureComponent {
   }
 
   render() {
-    const {
-      sidebarNavItems,
-      location,
-      theme,
-      match,
-      currentClient
-    } = this.props;
+    const { sidebarNavItems, location, theme, match } = this.props;
     return (
       <ThemeProvider theme={theme}>
-        {currentClient.id ? (
-          <div>
-            <div
-              className={`${theme.app.container} container-fluid`}
-              role="main"
-            >
-              <div className="row">
-                <div
-                  className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}
-                >
-                  <Sidebar
-                    sidebarNavItems={sidebarNavItems}
-                    location={location}
-                    theme={theme}
-                    match={match}
-                  />
-                </div>
-                <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
-                  <Header />
-                  <Route
-                    exact
-                    path="/"
-                    render={() => <Redirect to={`/${this.getHomePath()}`} />}
-                  />
-                  <Panel />
-                </div>
+        <div>
+          <div className={`${theme.app.container} container-fluid`} role="main">
+            <div className="row">
+              <div
+                className={`${theme.app.sidebarContainer} col-sm-4 col-lg-3`}
+              >
+                <Sidebar
+                  sidebarNavItems={sidebarNavItems}
+                  location={location}
+                  theme={theme}
+                  match={match}
+                />
+              </div>
+              <div className={`${theme.app.content} col-sm-8 col-lg-9`}>
+                <Header />
+                <Route
+                  exact
+                  path="/"
+                  render={() => <Redirect to={`/${this.getHomePath()}`} />}
+                />
+                <Panel />
               </div>
             </div>
-            <Footer />
           </div>
-        ) : (
-          <div />
-        )}
+          <Footer />
+        </div>
       </ThemeProvider>
     );
   }
