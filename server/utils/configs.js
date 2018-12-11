@@ -235,12 +235,15 @@ function getDefaultConfig(bpanelConfig) {
     'Need the main bcfg for the app to get default configs'
   );
   const clientConfigs = loadClientConfigs(bpanelConfig);
+
+  if (!clientConfigs || !clientConfigs.length) return undefined;
+
   let defaultClientConfig = clientConfigs.find(
     cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
   );
 
   if (!defaultClientConfig) {
-    logger.error(
+    logger.warn(
       `Could not find config for ${bpanelConfig.str(
         'client-id'
       )}. Will set to 'default' instead.`

@@ -52,6 +52,13 @@ function getDefaultClientInfo(req, res, next) {
   try {
     const defaultClientConfig = getDefaultConfig(config);
     const defaultClient = getClientInfo(defaultClientConfig, req.clientHealth);
+    if (!defaultClientConfig)
+      return res.status(404).json({
+        error: {
+          message: `Sorry, there was no default client available`,
+          code: 404
+        }
+      });
     return res.status(200).json(defaultClient);
   } catch (e) {
     next(e);
