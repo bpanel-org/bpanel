@@ -7,7 +7,7 @@ const Config = require('bcfg');
 
 const pkg = require('../../pkg');
 const logger = require('../logger');
-const { clientFactory } = require('../utils/clientFactory');
+const { clientFactory } = require('../utils/clients');
 
 /*
  * Load up a bcfg object for a given module and set of options
@@ -79,14 +79,14 @@ function loadClientConfigs(_config) {
 
   // cancel startup process if there are no clientConfigs
   if (!files.length) {
-    logger.error('No client configs found.');
-    logger.error(
-      'Please add at least one config called "default" to your clients directory and try again.'
+    logger.warn(
+      'No client configs found. Add one manually to your clients directory \
+or use the connection-manager plugin to add via the UI'
     );
-    logger.error(
+    logger.warn(
       'Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
     );
-    process.exit(1);
+    return files;
   }
 
   logger.info('Loading configs for %s clients...', files.length);
@@ -235,15 +235,17 @@ function getDefaultConfig(bpanelConfig) {
     'Need the main bcfg for the app to get default configs'
   );
   const clientConfigs = loadClientConfigs(bpanelConfig);
+
+  if (!clientConfigs || !clientConfigs.length) return undefined;
+
   let defaultClientConfig = clientConfigs.find(
     cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
   );
 
   if (!defaultClientConfig) {
-    logger.error(
-      `Could not find config for ${bpanelConfig.str(
-        'client-id'
-      )}. Will set to 'default' instead.`
+    logger.warn(
+      'Could not find config for %s. Will set to "default" instead.',
+      bpanelConfig.str('client-id')
     );
     defaultClientConfig = clientConfigs.find(
       cfg => cfg.str('id') === 'default'

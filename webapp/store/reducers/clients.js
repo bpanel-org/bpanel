@@ -3,7 +3,8 @@ import {
   REMOVE_CLIENT,
   SET_CLIENTS,
   SET_CURRENT_CLIENT,
-  UPDATE_CLIENT
+  UPDATE_CLIENT,
+  CLEAR_CURRENT_CLIENT
 } from '../constants/clients';
 import assert from 'bsert';
 
@@ -58,6 +59,11 @@ const clientsState = (state = initialState, action) => {
       const { id } = payload;
       delete newState.clients[id];
       newState.clients = { ...newState.clients };
+      return newState;
+    }
+
+    case CLEAR_CURRENT_CLIENT: {
+      newState.currentClient = {};
       return newState;
     }
 

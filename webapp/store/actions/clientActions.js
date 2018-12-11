@@ -1,5 +1,9 @@
 import { getClient } from '@bpanel/bpanel-utils';
-import { SET_CURRENT_CLIENT, SET_CLIENTS } from '../constants/clients';
+import {
+  SET_CURRENT_CLIENT,
+  SET_CLIENTS,
+  CLEAR_CURRENT_CLIENT
+} from '../constants/clients';
 import { STATE_REFRESHED, RESET_STATE } from '../constants/app';
 import { disconnectSocket, connectSocket } from './socketActions';
 
@@ -9,6 +13,12 @@ function setClients(clients) {
   return {
     type: SET_CLIENTS,
     payload: clients
+  };
+}
+
+function clearCurrentClient() {
+  return {
+    type: CLEAR_CURRENT_CLIENT
   };
 }
 
@@ -54,8 +64,9 @@ function getClients() {
 
 function getDefaultClient() {
   return async dispatch => {
-    const currentClient = await client.getDefault();
-    dispatch(setCurrentClient(currentClient));
+    const defaultClient = await client.getDefault();
+    if (defaultClient) return dispatch(setCurrentClient(defaultClient));
+    return dispatch(clearCurrentClient());
   };
 }
 
@@ -63,12 +74,15 @@ function hydrateClients() {
   return async (dispatch, getState) => {
     try {
       await dispatch(getClients());
-      let currentClient = getState().clients.currentClient;
-      if (!currentClient.id) {
-        await dispatch(getDefaultClient());
-        currentClient = getState().clients.currentClient;
+      const currentClient = getState().clients.currentClient;
+      const clients = getState().clients.clients;
+      // if there is no currentClient set or
+      // the currentClient does not exist in clients store
+      // reset the currentClient to a default from the server
+      if (!currentClient.id || !clients[currentClient.id]) {
+        return await dispatch(getDefaultClient());
       } else {
-        dispatch(setCurrentClient(currentClient));
+        return await dispatch(setCurrentClient(currentClient));
       }
     } catch (e) {
       // eslint-disable-next-line no-console

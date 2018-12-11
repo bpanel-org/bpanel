@@ -148,12 +148,6 @@ function buildClients(config) {
   // each of their configs.
   const clientConfigs = loadClientConfigs(config);
   const configsMap = createConfigsMap(clientConfigs);
-  if (!clientConfigs.length)
-    logger.warn(
-      'Could not find any client config files. You can use the Connection Manager \
-      settings plugin or read more about configuring connections in the documentation: \
-      https://bpanel.org/docs/configuration.html'
-    );
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
     const id = cfg.str('id');
     assert(id, 'client config must have id');
@@ -163,7 +157,25 @@ function buildClients(config) {
   return { configsMap, clients };
 }
 
+/*
+ * utility function for getting object of clients
+ * @param {String} id - id of clients to retrieve
+ * @param {Map} clientsMap - map of all clients to get relevent
+ * @returns {Object} clients - object of only clients for that id
+ */
+function getClientsById(id, clientsMap) {
+  assert(typeof id === 'string', 'Expected an id of type string');
+  assert(clientsMap instanceof Map, 'Expected a map of clients');
+  const { nodeClient, walletClient, multisigClient } = clientsMap.get(id);
+  const clients = {};
+  if (nodeClient) clients.node = nodeClient;
+  if (walletClient) clients.wallet = walletClient;
+  if (multisigClient) clients.multisig = multisigClient;
+  return clients;
+}
+
 module.exports = {
   clientFactory,
-  buildClients
+  buildClients,
+  getClientsById
 };

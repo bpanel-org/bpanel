@@ -77,8 +77,9 @@ async function symlinkLocal(packageName) {
     // if it exists but is a symlink
     // remove symlink so we can replace with our new one
     if (stat.isSymbolicLink()) await fs.unlink(pkgDir);
-    // otherwise remove the old directory
-    else await fs.rimraf(pkgDir);
+    else
+      // otherwise remove the old directory
+      await fs.rimraf(pkgDir);
   }
 
   // for scoped packages, the scope becomes a parent directory
@@ -186,8 +187,9 @@ async function prepareModules(plugins = [], local = true, network = false) {
       if (existsLocal && local)
         // maintain support for plugins in plugins/local dir
         modulePath = `./${packageName}`;
-      // set import to webpack's alias for bpanel's local_plugins dir
-      else modulePath = local ? `&local/${packageName}` : packageName;
+      else
+        // set import to webpack's alias for bpanel's local_plugins dir
+        modulePath = local ? `&local/${packageName}` : packageName;
 
       // add plugin to list of packages that need to be installed w/ npm
       if (!local && existsRemote) installPackages.push(name);
@@ -225,7 +227,7 @@ async function prepareModules(plugins = [], local = true, network = false) {
         let newModules = false;
         for (let i = 0; i < installPackages.length; i++) {
           const pkg = installPackages[i];
-          newModules = !(await checkForModuleExistence(pkg));
+          newModules = !await checkForModuleExistence(pkg);
           if (newModules) break;
         }
 
@@ -234,8 +236,9 @@ async function prepareModules(plugins = [], local = true, network = false) {
           logger.info(
             'Skipping npm install of remote plugins due to lack of network connection'
           );
-        // if there are new modules, install them with npm
-        else if (newModules) await installRemotePackages(installPackages);
+        else if (newModules)
+          // if there are new modules, install them with npm
+          await installRemotePackages(installPackages);
         else
           logger.info('No new remote plugins to install. Skipping npm install');
       }
