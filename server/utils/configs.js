@@ -7,7 +7,7 @@ const Config = require('bcfg');
 
 const pkg = require('../../pkg');
 const logger = require('../logger');
-const { clientFactory } = require('../utils/clientFactory');
+const { clientFactory } = require('../utils/clients');
 
 /*
  * Load up a bcfg object for a given module and set of options
