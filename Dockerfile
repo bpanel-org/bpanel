@@ -37,6 +37,8 @@ RUN npm install budp
 # Bundle app
 FROM base
 COPY --from=build /usr/src/app/node_modules /usr/src/app/node_modules
+COPY pkg.js /usr/src/app/pkg.js
+COPY vendor /usr/src/app/vendor
 COPY scripts /usr/src/app/scripts
 COPY configs /usr/src/app/configs
 COPY server /usr/src/app/server

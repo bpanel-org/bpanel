@@ -11,6 +11,8 @@ services:
       # how to communicate with the bcoin node
       # in docker
       _DOCKER_NODE_HOST: bcoin
+      # Edit this to add/remove plugins!
+      BPANEL_PLUGINS: '@bpanel/genesis-theme,@bpanel/bui'
     ports:
       - "5000:5000"
       - "8000:8000"
