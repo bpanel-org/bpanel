@@ -539,9 +539,8 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         background: themeColors.darkerBg,
         color: themeColors.black
       },
-      dialoge: {
+      dialog: {
         borderRadius: '0px',
-        border: borderDark,
         position: 'fixed',
         top: '50%',
         left: '50%',
@@ -549,10 +548,13 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         zIndex: 9999,
         maxWidth: '100%',
         maxHeight: '100%',
-        overflow: 'auto'
+        overflow: 'auto',
+        width: '50%',
+        minWidth: '450px',
+        padding: makeRem(fontSizeNormal)
       },
       content: {
-        backgroundColor: themeColors.primary,
+        backgroundColor: themeColors.lowlight1,
         border: 'none',
         borderRadius: '0px'
       },
