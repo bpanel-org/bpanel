@@ -26,7 +26,6 @@ RUN npm init -y &>/dev/null \
   bcoin-org/blgr \
   bcoin-org/bclient
 
-
 # TODO: Inherit from official image
 FROM base
 
