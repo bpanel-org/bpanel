@@ -15,6 +15,7 @@ services:
       BPANEL_PLUGINS: '@bpanel/genesis-theme,@bpanel/bui'
     ports:
       - "5000:5000"
+      - "5001:5001"
       - "8000:8000"
     volumes:
       ## Mapping to local files- Handy for dev
