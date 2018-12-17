@@ -1,5 +1,6 @@
 const Config = require('bcfg');
 const assert = require('bsert');
+const bcurl = require('bcurl');
 
 const { configHelpers, clientFactory } = require('../utils');
 const { getDefaultConfig, testConfigOptions, getConfig } = configHelpers;
@@ -228,10 +229,30 @@ async function getConfigHandler(req, res) {
   return res.status(200).json(info);
 }
 
+async function curl(req, res) {
+  const { logger, params } = req;
+  const url = params.host + '/' + params.path;
+  try {
+    logger.info('Fetching json from ' + url);
+    const client = bcurl.client(params.host);
+    const json = await client.get(params.path);
+    return res.status(200).json(json);
+  } catch (e) {
+    logger.warning(e);
+    return res.status(500).json({
+      error: {
+        messgae: `There was a problem fetching ${url}`,
+        code: 500
+      }
+    });
+  }
+}
+
 module.exports = {
   clientsHandler,
   getClientsInfo,
   getConfigHandler,
   getDefaultClientInfo,
-  testClientsHandler
+  testClientsHandler,
+  curl
 };

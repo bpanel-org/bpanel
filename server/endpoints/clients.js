@@ -3,7 +3,8 @@ const {
   getClientsInfo,
   getDefaultClientInfo,
   getConfigHandler,
-  testClientsHandler
+  testClientsHandler,
+  curl
 } = require('../handlers/clients');
 
 const { GET, USE } = require('./methods');
@@ -35,5 +36,10 @@ module.exports = [
     method: GET,
     path: base.concat('/:id'),
     handler: getConfigHandler
+  },
+  {
+    method: GET,
+    path: '/curl/:host/:path',
+    handler: curl
   }
 ];
