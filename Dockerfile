@@ -21,15 +21,27 @@ RUN apk upgrade --no-cache && \
     apk add --no-cache git python make g++ bash && \
     npm install -g npm@$NPM_VERSION
 
+# install dependencies for node-hid
+RUN apk add --no-cache linux-headers eudev-dev libusb-dev
+# install handshake deps
+RUN apk add --no-cache unbound-dev
+
 COPY package.json \
      package-lock.json \
      /usr/src/app/
 
 # Install dependencies
 FROM base AS build
-# install dependencies for node-hid
-RUN apk add --no-cache linux-headers eudev-dev libusb-dev
+
+# allow for install to
+# parse commit
+RUN mkdir .git
+COPY .git/logs .git/logs
+
+# dont run preinstall scripts here
+# by omitting --unsafe-perm
 RUN npm install
+
 # this is a grandchild dependency of hsd that gets skipped for some reason
 # and needs to be installed manually
 RUN npm install budp
