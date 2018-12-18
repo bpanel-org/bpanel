@@ -33,11 +33,6 @@ COPY package.json \
 # Install dependencies
 FROM base AS build
 
-# allow for install to
-# parse commit
-RUN mkdir .git
-COPY .git/logs .git/logs
-
 # dont run preinstall scripts here
 # by omitting --unsafe-perm
 RUN npm install
