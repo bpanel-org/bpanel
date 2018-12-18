@@ -40,7 +40,7 @@ function clientFactory(config) {
 
   // bitcoin, bitcoincash, handshake
   if (!config.str('chain'))
-    logger.warn(
+    logger.warning(
       `No chain set in configs for ${config.str('id')}, defaulting to 'bitcoin'`
     );
 
