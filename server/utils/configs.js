@@ -79,11 +79,11 @@ function loadClientConfigs(_config) {
 
   // cancel startup process if there are no clientConfigs
   if (!files.length) {
-    logger.warn(
+    logger.warning(
       'No client configs found. Add one manually to your clients directory \
 or use the connection-manager plugin to add via the UI'
     );
-    logger.warn(
+    logger.warning(
       'Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
     );
     return files;
@@ -243,7 +243,7 @@ function getDefaultConfig(bpanelConfig) {
   );
 
   if (!defaultClientConfig) {
-    logger.warn(
+    logger.warning(
       'Could not find config for %s. Will set to "default" instead.',
       bpanelConfig.str('client-id')
     );
@@ -251,9 +251,9 @@ function getDefaultConfig(bpanelConfig) {
       cfg => cfg.str('id') === 'default'
     );
     if (!defaultClientConfig) {
-      logger.warn('Could not find default client config.');
+      logger.warning('Could not find default client config.');
       defaultClientConfig = clientConfigs[0];
-      logger.warn(`Setting fallback to ${defaultClientConfig.str('id')}.`);
+      logger.warning(`Setting fallback to ${defaultClientConfig.str('id')}.`);
     }
   }
   return defaultClientConfig;
@@ -296,8 +296,8 @@ async function createClientConfig(id, options = {}, force = false) {
   const [err, clientErrors] = await testConfigOptions(clientConfig);
   assert(typeof force === 'boolean', 'The force argument must be a bool.');
   if (err && force) {
-    logger.warn(clientErrors.message);
-    logger.warn('Creating config file anyway...');
+    logger.warning(clientErrors.message);
+    logger.warning('Creating config file anyway...');
   } else if (err) {
     throw clientErrors;
   }
@@ -312,7 +312,7 @@ async function createClientConfig(id, options = {}, force = false) {
     configTxt = configTxt.concat(text);
   }
   if (!fs.existsSync(clientsPath)) {
-    logger.warn(
+    logger.warning(
       'Could not find requested client directory at %s. Creating new one...',
       clientsPath
     );
