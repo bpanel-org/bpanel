@@ -241,7 +241,7 @@ async function curl(req, res) {
     logger.warning(e);
     return res.status(500).json({
       error: {
-        messgae: `There was a problem fetching ${url}`,
+        message: `There was a problem fetching ${url}`,
         code: 500
       }
     });
