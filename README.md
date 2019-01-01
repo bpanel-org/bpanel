@@ -65,6 +65,13 @@ progress in your container.
 Read more about how to connect a local instance of bPanel to a bcoin node running in docker
 [here](#local-bpanel-dev-using-bcoin-docker-container).
 
+#### Plugins with Docker Compose
+It's possible to set which plugins you want loaded via an environment variable `BPANEL_PLUGINS`.
+The docker compose has this set for you and can be customized according to your needs.
+Note however that once set, they cannot be edited using the methods listed
+[below](#managing-plugins). To make changes, you will need to edit `docker-compose.yml` and
+restart the container. Comment out this environment variable to use the config.js instead.
+
 ## Managing Plugins
 
 Plugin management is handled in a `config.js` file located by default in the `.bpanel` directory in your
