@@ -186,7 +186,7 @@ async function testConfigOptions(options) {
           if (info) {
             const { pool: { agent } } = info;
             // find implementation from user agent
-            const implementation = agent.match(/(?<=\/)(\w*)(?=:)/)[0];
+            const implementation = agent.match(/(\w*)(?=:)/)[0];
             assert(agents.has(implementation), `Agent ${agent} not supported.`);
             if (agents.get(implementation) !== chain)
               throw new Error(
