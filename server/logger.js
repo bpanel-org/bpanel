@@ -1,24 +1,17 @@
-const blgr = require('blgr');
-const fs = require('bfile');
+const Logger = require('blgr');
 
-/** Configure the logger */
-const logDir = __dirname.concat('/../logs');
-const env = process.env.NODE_ENV || 'development';
+const loadConfig = require('./utils/loadConfig');
 
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
-}
+const config = loadConfig('bpanel');
 
-const logger = new blgr();
+const logger = new Logger();
 logger.set({
-  level: env === 'development' ? 'debug' : 'info',
-  colors: true,
-  filename: logDir.concat('/logs.log')
+  filename: config.bool('log-file') ? config.location('debug.log') : null,
+  level: config.str('log-level', 'debug'),
+  console: config.bool('log-console', true),
+  shrink: config.bool('log-shrink', true)
 });
 
 logger.open();
 
 module.exports = logger;
-module.exports.stream = {
-  write: message => logger.info(message)
-};

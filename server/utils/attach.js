@@ -21,9 +21,7 @@ function attach(app, endpoint) {
       break;
     default:
       throw new Error(
-        `Unrecognized endpoint method ${endpoint.method} for path ${
-          endpoint.path
-        }`
+        `Unrecognized endpoint method ${endpoint.method} for path ${endpoint.path}`
       );
   }
 }

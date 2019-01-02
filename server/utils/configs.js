@@ -7,33 +7,8 @@ const Config = require('bcfg');
 
 const pkg = require('../../pkg');
 const logger = require('../logger');
-const { clientFactory } = require('../utils/clients');
-
-/*
- * Load up a bcfg object for a given module and set of options
- * @params {string} - name - module name
- * @params {object} - [options] - optional options object to inject into config
- * @returns {Config} - returns a bcfg object
- */
-function loadConfig(name, options = {}) {
-  assert(typeof name === 'string', 'Must pass a name to load config');
-  const config = new Config(name);
-
-  // load any custom configs being passed in
-  config.inject(options);
-
-  config.load({
-    env: true
-  });
-
-  if (name === 'bpanel') {
-    config.load({
-      argv: true
-    });
-  }
-
-  return config;
-}
+const { clientFactory } = require('./clients');
+const loadConfig = require('./loadConfig');
 
 function getConfigFromOptions(options) {
   if (!(options instanceof Config)) options = loadConfig(options.id, options);

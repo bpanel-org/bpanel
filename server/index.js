@@ -10,7 +10,6 @@ const path = require('path');
 const fs = require('bfile');
 const { execSync } = require('child_process');
 const os = require('os');
-const Config = require('bcfg');
 const logger = require('./logger');
 const Blgr = require('blgr');
 const chokidar = require('chokidar');
@@ -111,25 +110,37 @@ module.exports = async (_config = {}) => {
   const compression = require('compression');
 
   // Import app server utilities and modules
-  const logger = require('./logger');
   const SocketManager = require('./socketManager');
-  const { attach, apiFilters, pluginUtils, clientHelpers } = require('./utils');
+  const {
+    attach,
+    apiFilters,
+    pluginUtils,
+    clientHelpers,
+    configHelpers
+  } = require('./utils');
   const endpoints = require('./endpoints');
 
   const { isBlacklisted } = apiFilters;
   const { getPluginEndpoints } = pluginUtils;
   const { buildClients, getClientsById } = clientHelpers;
+  const { loadConfig } = configHelpers;
 
   // get bpanel config
-  const bpanelConfig = new Config('bpanel');
+  const bpanelConfig = loadConfig('bpanel', _config);
 
-  // inject any custom configs passed
-  bpanelConfig.inject(_config);
+  // build logger from config
+  const logger = new Blgr();
 
-  // load configs from environment, args, and config file
-  bpanelConfig.load({ env: true, argv: true, arg: true });
-  const configFile = require(path.resolve(bpanelConfig.prefix, 'config.js'));
-  bpanelConfig.inject(configFile);
+  logger.set({
+    filename: bpanelConfig.bool('log-file')
+      ? bpanelConfig.location('debug.log')
+      : null,
+    level: bpanelConfig.str('log-level', 'debug'),
+    console: bpanelConfig.bool('log-console', true),
+    shrink: bpanelConfig.bool('log-shrink', true)
+  });
+  bpanelConfig.set('logger', logger);
+  await logger.open();
 
   // check if vendor-manifest has been built otherwise run
   // build:dll first to build the manifest
@@ -208,7 +219,7 @@ will increase speed of future builds, so please be patient.'
       }
 
       // refresh the clients map if the clients directory gets updated
-      const clientsDir = path.resolve(bpanelConfig.prefix, 'clients');
+      const clientsDir = bpanelConfig.location('clients');
       chokidar
         .watch([clientsDir], { usePolling: poll, useFsEvents: poll })
         .on('all', (event, path) => {
