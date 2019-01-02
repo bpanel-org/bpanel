@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@bpanel/bpanel-ui": "0.0.18",
-    "@bpanel/bpanel-utils": "0.1.6",
+    "@bpanel/bpanel-utils": "0.1.7",
     "aphrodite": "1.2.5",
     "autoprefixer": "7.1.5",
     "base64-inline-loader": "1.1.1",
