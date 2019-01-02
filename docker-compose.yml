@@ -4,15 +4,19 @@ services:
     ## Build to use local Dockerfile
     # build: .
     ## Build from image from docker hub
-    image: bpanel/bpanel
+    image: bpanel/bpanel:dev
     restart: unless-stopped
     environment:
       # Need this to tell the bpanel client
       # how to communicate with the bcoin node
       # in docker
       _DOCKER_NODE_HOST: bcoin
+      # Edit this to add/remove plugins! This cannot be edited after startup
+      # even with bpanel's config.js. Must edit below, and rebuild container.
+      BPANEL_PLUGINS: '@bpanel/genesis-theme,@bpanel/bui,@bpanel/connection-manager'
     ports:
       - "5000:5000"
+      - "5001:5001"
       - "8000:8000"
     volumes:
       ## Mapping to local files- Handy for dev
@@ -44,15 +48,15 @@ services:
 
   bcoin:
     ## Use image to to pull from docker hub
-    image: bpanel/bcoin
+    image: bpanel/bcoin:dev
     ## Build to use local Dockerfile-bcoin
     # build:
     #   context: .
     #   dockerfile: Dockerfile-bcoin
-      # args:
-      #   repo: https://github.com/bcoin-org/bcoin.git
-      #   branch: master
-      #   rebuild: 0
+    #   args:
+    #     repo: https://github.com/bcoin-org/bcoin.git
+    #     branch: master
+    #     rebuild: 0
     restart: unless-stopped
     env_file:
       # Set arguments to use in bcoin-init.js
