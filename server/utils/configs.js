@@ -35,6 +35,7 @@ function loadClientConfigs(_config) {
 
   // if not passed bcfg object, create one
   if (!(_config instanceof Config)) config = loadConfig('bpanel', _config);
+  const logger = config.obj('logger');
 
   // clientsDir is the folder where all client configs
   // should be saved and can be changed w/ custom configs
