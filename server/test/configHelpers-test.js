@@ -4,7 +4,6 @@ const fs = require('bfile');
 const os = require('os');
 const { resolve } = require('path');
 
-const logger = require('../logger');
 const { initFullNode } = require('./utils/regtest');
 
 const { configHelpers } = require('../utils');
@@ -23,12 +22,12 @@ process.env.BPANEL_CLIENTS_DIR = 'test_clients';
 const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
 const clientsDirPath = resolve(BPANEL_PREFIX, BPANEL_CLIENTS_DIR);
 
-describe.only('configHelpers', () => {
+describe('configHelpers', () => {
   let node, apiKey, ports, options, id, config;
 
   before('create and start regtest node', async () => {
-    logger.transports.console.level = 'error';
-    logger.transports.file.level = 'error';
+    process.env.BPANEL_LOG_LEVEL = 'error';
+
     id = 'test';
     apiKey = 'foo';
     ports = {
