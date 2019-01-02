@@ -35,7 +35,7 @@ function loadClientConfigs(_config) {
 
   // if not passed bcfg object, create one
   if (!(_config instanceof Config)) config = loadConfig('bpanel', _config);
-  const logger = config.obj('logger');
+  const _logger = config.obj('logger');
 
   // clientsDir is the folder where all client configs
   // should be saved and can be changed w/ custom configs
@@ -55,17 +55,17 @@ function loadClientConfigs(_config) {
 
   // cancel startup process if there are no clientConfigs
   if (!files.length) {
-    logger.warning(
+    _logger.warning(
       'No client configs found. Add one manually to your clients directory \
 or use the connection-manager plugin to add via the UI'
     );
-    logger.warning(
+    _logger.warning(
       'Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
     );
     return files;
   }
 
-  logger.info('Loading configs for %s clients...', files.length);
+  _logger.info('Loading configs for %s clients...', files.length);
   return files.map(fileName => {
     // After filter, we load bcfg object for each client
 
@@ -116,7 +116,7 @@ function getConfig(id) {
 
 /*
  * create and test clients based on a passed config
- * @param {Config} clientConfig
+ * @param {Bcfg | Object} options
  * @throws {ClientErrors} - throws if at least one client fails
  * @returns {[bool, ClientErrors]} [err, ClientErrors] - bool is true
  * if there was an error, false if no error.
@@ -142,6 +142,7 @@ async function testConfigOptions(options) {
   if (!pkg.chains.includes(chain))
     throw new Error(`${chain} is not a recognized chain`);
 
+  if (!clientConfig.has('logger')) clientConfig.set('logger', logger);
   const clients = clientFactory(clientConfig);
 
   // save the async checks in an array so we can parallelize the
@@ -255,7 +256,7 @@ function createConfigsMap(configs) {
  * can't connect
  * @returns {bcfg.Config}
  */
-async function createClientConfig(id, options = {}, force = false) {
+async function createClientConfig(id, options = {}, force = false, _logger) {
   assert(typeof id === 'string', 'Must pass an id as first paramater');
 
   let clientConfig = options;
@@ -272,8 +273,8 @@ async function createClientConfig(id, options = {}, force = false) {
   const [err, clientErrors] = await testConfigOptions(clientConfig);
   assert(typeof force === 'boolean', 'The force argument must be a bool.');
   if (err && force) {
-    logger.warning(clientErrors.message);
-    logger.warning('Creating config file anyway...');
+    _logger.warning(clientErrors.message);
+    _logger.warning('Creating config file anyway...');
   } else if (err) {
     throw clientErrors;
   }
@@ -288,7 +289,7 @@ async function createClientConfig(id, options = {}, force = false) {
     configTxt = configTxt.concat(text);
   }
   if (!fs.existsSync(clientsPath)) {
-    logger.warning(
+    _logger.warning(
       'Could not find requested client directory at %s. Creating new one...',
       clientsPath
     );

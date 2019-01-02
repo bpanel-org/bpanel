@@ -1,8 +1,9 @@
-const { assert } = require('chai');
-const Config = require('bcfg');
-const fs = require('bfile');
 const os = require('os');
 const { resolve } = require('path');
+const { assert } = require('chai');
+const Config = require('bcfg');
+const Logger = require('blgr');
+const fs = require('bfile');
 
 const { initFullNode } = require('./utils/regtest');
 
@@ -19,15 +20,14 @@ const {
 const testDir = resolve(os.homedir(), '.bpanel_tmp');
 process.env.BPANEL_PREFIX = testDir;
 process.env.BPANEL_CLIENTS_DIR = 'test_clients';
+process.env.BPANEL_LOG_LEVEL = 'error';
 const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
 const clientsDirPath = resolve(BPANEL_PREFIX, BPANEL_CLIENTS_DIR);
 
 describe('configHelpers', () => {
-  let node, apiKey, ports, options, id, config;
+  let node, apiKey, ports, options, id, config, logger;
 
   before('create and start regtest node', async () => {
-    process.env.BPANEL_LOG_LEVEL = 'error';
-
     id = 'test';
     apiKey = 'foo';
     ports = {
@@ -50,8 +50,11 @@ describe('configHelpers', () => {
     }
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     config = new Config(id);
+    logger = new Logger({ level: 'error' });
+    await logger.open();
+    config.set('logger', logger);
     options = {
       id,
       chain: 'bitcoin',
@@ -61,6 +64,10 @@ describe('configHelpers', () => {
       'wallet-port': ports.wallet,
       multisigWallet: false
     };
+  });
+
+  afterEach(async () => {
+    await logger.close();
   });
 
   describe('testConfigOptions', () => {
@@ -104,9 +111,9 @@ describe('configHelpers', () => {
 
   describe('createClientConfig', () => {
     it('should accept options object or a bcfg object', async () => {
-      await createClientConfig(id, options, true);
+      await createClientConfig(id, options, true, logger);
       config.inject(options);
-      await createClientConfig(id, config, true);
+      await createClientConfig(id, config, true, logger);
     });
 
     it('should test clients', async () => {
@@ -114,7 +121,7 @@ describe('configHelpers', () => {
       let passed = false;
 
       try {
-        await createClientConfig(id, failOpts);
+        await createClientConfig(id, failOpts, false, logger);
         passed = true;
       } catch (e) {
         assert.instanceOf(
@@ -128,7 +135,7 @@ describe('configHelpers', () => {
 
     it('should create new config file in clients directory with correct configs', async () => {
       config.inject(options);
-      await createClientConfig(id, options);
+      await createClientConfig(id, options, false, logger);
       const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
       const clientPath = resolve(
         BPANEL_PREFIX,
@@ -149,7 +156,7 @@ describe('configHelpers', () => {
 
   describe('getConfig', () => {
     it('should get the config object from a config file', async () => {
-      await createClientConfig(id, options);
+      await createClientConfig(id, options, false, logger);
       const config = await getConfig(id);
       assert.instanceOf(config, Config, 'Expected to get a bcfg object');
       const expectedConfigs = loadConfig(id, options);
