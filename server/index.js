@@ -180,11 +180,6 @@ will increase speed of future builds, so please be patient.'
   app.use(cors());
 
   // create new SocketManager
-  // TODO: consolidate to single logger using blgr and remove other dependency
-  const blgr = new Blgr({
-    level: bpanelConfig.str('log-level', 'info')
-  });
-  await blgr.open();
 
   // setting up whitelisted ports for wsproxy
   // can add other custom ones via `proxy-ports` config option
@@ -200,7 +195,7 @@ will increase speed of future builds, so please be patient.'
   const socketManager = new SocketManager({
     noAuth: true,
     port: bsockPort,
-    logger: blgr,
+    logger,
     ports
   });
 
@@ -223,10 +218,10 @@ will increase speed of future builds, so please be patient.'
       chokidar
         .watch([clientsDir], { usePolling: poll, useFsEvents: poll })
         .on('all', (event, path) => {
-          blgr.info(
+          logger.info(
             'Change detected in clients directory. Updating clients on server.'
           );
-          blgr.debug('"%s" event on %s', event, path);
+          logger.debug('"%s" event on %s', event, path);
           const builtClients = buildClients(bpanelConfig);
           clients = builtClients.clients;
           configsMap = builtClients.configsMap;
@@ -252,7 +247,7 @@ will increase speed of future builds, so please be patient.'
             if (!clients.has(id)) socketManager.removeClients(id);
         });
     } catch (e) {
-      blgr.error('There was a problem loading clients:', e);
+      logger.error('There was a problem loading clients:', e);
     }
 
     const resolveIndex = (req, res) => {
@@ -294,7 +289,7 @@ will increase speed of future builds, so please be patient.'
     // for use in the api endpoints
     // TODO: Load up client configs and attach to req object here
     app.use((req, res, next) => {
-      req.logger = blgr;
+      req.logger = logger;
       req.config = bpanelConfig;
       req.clients = configsMap;
       next();
@@ -306,7 +301,7 @@ will increase speed of future builds, so please be patient.'
 
     const { beforeMiddleware, afterMiddleware } = getPluginEndpoints(
       bpanelConfig,
-      blgr
+      logger
     );
 
     // compose endpoints
@@ -334,8 +329,8 @@ will increase speed of future builds, so please be patient.'
     // This must be the last middleware so that
     // it catches and returns errors
     app.use((err, req, res, next) => {
-      blgr.error('There was an error in the middleware: %s', err.message);
-      blgr.error(err.stack);
+      logger.error('There was an error in the middleware: %s', err.message);
+      logger.error(err.stack);
       if (res.headersSent) {
         return next(err);
       }
