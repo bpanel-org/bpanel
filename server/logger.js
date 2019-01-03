@@ -1,10 +1,13 @@
 const Logger = require('blgr');
+const Config = require('bcfg');
+const assert = require('bsert');
 
 const loadConfig = require('./utils/loadConfig');
 
 function createLogger(_config) {
   let config = _config;
   if (!config) config = loadConfig('bpanel');
+  assert(config instanceof Config, 'Must pass Bcfg object to create logger');
 
   const logger = new Logger();
   logger.set({

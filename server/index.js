@@ -11,7 +11,6 @@ const fs = require('bfile');
 const { execSync } = require('child_process');
 const os = require('os');
 const { createLogger } = require('./logger');
-const Logger = require('blgr');
 const chokidar = require('chokidar');
 
 const webpackArgs = [];
@@ -136,16 +135,7 @@ module.exports = async (_config = {}) => {
   const bpanelConfig = loadConfig('bpanel', _config);
 
   // build logger from config
-  const logger = new Logger();
-
-  logger.set({
-    filename: bpanelConfig.bool('log-file')
-      ? bpanelConfig.location('debug.log')
-      : null,
-    level: bpanelConfig.str('log-level', 'info'),
-    console: bpanelConfig.bool('log-console', true),
-    shrink: bpanelConfig.bool('log-shrink', true)
-  });
+  const logger = createLogger(bpanelConfig);
   bpanelConfig.set('logger', logger);
   await logger.open();
 
