@@ -31,7 +31,8 @@ module.exports = {
   ],
   rules: {
     'prettier/prettier': 'error',
-    'no-empty': ['error', { allowEmptyCatch: true }]
+    'no-empty': ['error', { allowEmptyCatch: true }],
+    'no-param-reassign': 'warn'
   },
   settings: {
     react: {

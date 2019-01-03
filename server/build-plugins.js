@@ -57,8 +57,9 @@ in node_modules. Try deleting the node_modules directory and running `npm instal
     logger.error(e.stack);
     await logger.close();
     process.exit(1);
+  } finally {
+    await logger.close();
   }
-  await logger.close();
 }
 
 /*
@@ -256,10 +257,9 @@ async function prepareModules(plugins = [], local = true, network = false) {
       }
     } catch (e) {
       logger.error('Error installing plugins packages: ', e);
+    } finally {
       await logger.close();
     }
-
-    await logger.close();
   }
 
   exportsText += ']); \n }';
@@ -307,6 +307,7 @@ your config file.'
     });
   } catch (err) {
     logger.error('There was an error preparing modules: ', err.stack);
+  } finally {
+    await logger.close();
   }
-  await logger.close();
 })();

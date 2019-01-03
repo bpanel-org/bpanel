@@ -9,7 +9,7 @@ function createLogger(_config) {
   const logger = new Logger();
   logger.set({
     filename: config.bool('log-file') ? config.location('debug.log') : null,
-    level: config.str('log-level', 'debug'),
+    level: config.str('log-level', 'info'),
     console: config.bool('log-console', true),
     shrink: config.bool('log-shrink', true)
   });
