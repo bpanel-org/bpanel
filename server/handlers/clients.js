@@ -2,7 +2,12 @@ const Config = require('bcfg');
 const assert = require('bsert');
 
 const { configHelpers, clientFactory } = require('../utils');
-const { getDefaultConfig, testConfigOptions, getConfig } = configHelpers;
+const {
+  getDefaultConfig,
+  testConfigOptions,
+  getConfig,
+  loadConfig
+} = configHelpers;
 
 // utility to return basic info about a client based on its config
 function getClientInfo(config, clientHealth) {
@@ -144,10 +149,11 @@ async function clientsHandler(req, res) {
 // attaches `clientHealth` to req object
 async function testClientsHandler(req, res, next) {
   const { logger, query, params, body } = req;
+  let config, configOptions;
   if ((query && query.health) || (body && body.health)) {
     const { id } = params;
     const { options } = req.body;
-    let configOptions = { id };
+    configOptions = { id };
 
     if (options) configOptions = { ...configOptions, ...options };
 
@@ -155,6 +161,8 @@ async function testClientsHandler(req, res, next) {
     try {
       const { data } = getConfig(id);
       configOptions = { ...data, ...configOptions };
+      config = loadConfig(configOptions.id, configOptions);
+      config.set('logger', logger);
     } catch (e) {
       // if missing config, can disregard
       if (e.code === 'ENOENT')
@@ -166,7 +174,7 @@ async function testClientsHandler(req, res, next) {
 
     try {
       logger.info('Checking health of client "%s"...', id);
-      const [err, clientErrors] = await testConfigOptions(configOptions);
+      const [err, clientErrors] = await testConfigOptions(config);
       if (!err) {
         clientHealth.healthy = true;
         logger.info('Client "%s" is healthy', id);

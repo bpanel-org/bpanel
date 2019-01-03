@@ -10,7 +10,7 @@ const path = require('path');
 const fs = require('bfile');
 const { execSync } = require('child_process');
 const os = require('os');
-const logger = require('./logger');
+const { createLogger } = require('./logger');
 const Blgr = require('blgr');
 const chokidar = require('chokidar');
 
@@ -19,75 +19,82 @@ const webpackArgs = [];
 let poll = false;
 // If run from command line, parse args
 if (require.main === module) {
-  // setting up webpack configs
-  // use default/base config for dev
-  if (
-    process.argv.indexOf('--dev') >= 0 ||
-    process.env.NODE_ENV === 'development'
-  ) {
-    webpackArgs.push(
-      '--config',
-      path.resolve(__dirname, '../configs/webpack.config.js')
-    );
-  } else {
-    // otherwise use prod config
-    webpackArgs.push(
-      '--config',
-      path.resolve(__dirname, '../configs/webpack.prod.js')
-    );
-  }
+  (async function() {
+    const logger = createLogger();
+    await logger.open();
 
-  // environment specific `watch` args
-  if (process.argv.indexOf('--watch-poll') >= 0) {
-    poll = true;
-    webpackArgs.push('--watch', '--env.dev', '--env.poll');
-  } else if (process.argv.indexOf('--watch') >= 0) {
-    webpackArgs.push('--watch', '--env.dev');
-  }
+    // setting up webpack configs
+    // use default/base config for dev
+    if (
+      process.argv.indexOf('--dev') >= 0 ||
+      process.env.NODE_ENV === 'development'
+    ) {
+      webpackArgs.push(
+        '--config',
+        path.resolve(__dirname, '../configs/webpack.config.js')
+      );
+    } else {
+      // otherwise use prod config
+      webpackArgs.push(
+        '--config',
+        path.resolve(__dirname, '../configs/webpack.prod.js')
+      );
+    }
 
-  // an option to run an `npm install` which will clear any symlinks
-  if (process.argv.indexOf('--clear') > -1) {
-    logger.info('Clearing symlinks in node_modules with `npm install`...');
-    execSync('npm install', {
-      killSignal: 'SIGINT',
-      stdio: [0, 1, 2],
-      cwd: path.resolve(__dirname, '..')
-    });
-  }
+    // environment specific `watch` args
+    if (process.argv.indexOf('--watch-poll') >= 0) {
+      poll = true;
+      webpackArgs.push('--watch', '--env.dev', '--env.poll');
+    } else if (process.argv.indexOf('--watch') >= 0) {
+      webpackArgs.push('--watch', '--env.dev');
+    }
 
-  if (process.argv.indexOf('--dev') >= 0) {
-    if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
-
-    // pass args to nodemon process except `--dev`
-    const args = process.argv
-      .slice(2)
-      .filter(arg => arg !== '--dev' && arg !== '--clear');
-
-    // Watch this server
-    const nodemon = require('nodemon')({
-      script: 'server/index.js',
-      watch: ['server'],
-      ignore: ['server/test/**/*.js'],
-      args,
-      legacyWatch: poll,
-      ext: 'js'
-    })
-      .on('crash', () => {
-        process.exit(1);
-      })
-      .on('quit', process.exit);
-
-    // need to use chokidar to watch for changes outside the working
-    // directory. Will restart if configs get updated
-    // should be updated to check bpanelConfig for where the prefix is
-    const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
-    chokidar
-      .watch([configFile], { usePolling: poll, useFsEvents: poll })
-      .on('all', () => {
-        nodemon.emit('restart');
+    // an option to run an `npm install` which will clear any symlinks
+    if (process.argv.indexOf('--clear') > -1) {
+      logger.info('Clearing symlinks in node_modules with `npm install`...');
+      execSync('npm install', {
+        killSignal: 'SIGINT',
+        stdio: [0, 1, 2],
+        cwd: path.resolve(__dirname, '..')
       });
-    return;
-  }
+    }
+
+    if (process.argv.indexOf('--dev') >= 0) {
+      if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
+
+      // pass args to nodemon process except `--dev`
+      const args = process.argv
+        .slice(2)
+        .filter(arg => arg !== '--dev' && arg !== '--clear');
+
+      // Watch this server
+      const nodemon = require('nodemon')({
+        script: 'server/index.js',
+        watch: ['server'],
+        ignore: ['server/test/**/*.js'],
+        args,
+        legacyWatch: poll,
+        ext: 'js'
+      })
+        .on('crash', () => {
+          process.exit(1);
+        })
+        .on('quit', process.exit);
+
+      // need to use chokidar to watch for changes outside the working
+      // directory. Will restart if configs get updated
+      // should be updated to check bpanelConfig for where the prefix is
+      const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
+      chokidar
+        .watch([configFile], { usePolling: poll, useFsEvents: poll })
+        .on('all', () => {
+          nodemon.emit('restart');
+        });
+      await logger.close();
+      return;
+    }
+    await logger.close();
+  })();
 }
 
 // Init bPanel
@@ -413,10 +420,15 @@ will increase speed of future builds, so please be patient.'
 
 // Start server when run from command line
 if (require.main === module) {
-  try {
-    module.exports();
-  } catch (e) {
-    logger.error('There was an error running the server: ', e.stack);
-    process.exit(1);
-  }
+  (async function() {
+    try {
+      module.exports();
+    } catch (e) {
+      const logger = createLogger();
+      await logger.open();
+      logger.error('There was an error running the server: ', e.stack);
+      await logger.close();
+      process.exit(1);
+    }
+  })();
 }
