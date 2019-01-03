@@ -160,7 +160,11 @@ will increase speed of future builds, so please be patient.'
     watch: [`${bpanelConfig.prefix}/config.js`],
     env: {
       BPANEL_PREFIX: bpanelConfig.prefix,
-      BPANEL_SOCKET_PORT: bsockPort
+      BPANEL_SOCKET_PORT: bsockPort,
+      BPANEL_LOG_LEVEL: bpanelConfig.str('log-level', 'info'),
+      BPANEL_LOG_FILE: bpanelConfig.bool('log-file', true),
+      BPANEL_LOG_CONSOLE: bpanelConfig.bool('log-console', true),
+      BPANEL_LOG_SHRINK: bpanelConfig.bool('log-shrink', true)
     },
     args: webpackArgs,
     legacyWatch: poll
