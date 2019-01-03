@@ -14,8 +14,9 @@ For complete developer and API documentation, visit our website: https://bpanel.
 - [Managing Plugins](#managing-plugins)
 - [Configuration](#configuration)
 - [About the Docker Environment](#about-the-docker-environment)
+- [Logging](#logging)
 - [Extending bPanel](#extending-bpanel)
-
+- [Troubleshooting & FAQ](#troubleshooting--faq)
 ## Dependencies
 
 - npm >= 5.7.1
@@ -245,6 +246,17 @@ can also persist your bcoin data within the named `bcoin` volume or on the host 
 
 Uncomment the relevant `build:` sections in `docker-compose.yml`
 for the services you want to build, then run `docker-compose build`
+
+## Logging
+By default, the bPanel server will log to your console and create a debug.log file in your
+prefix directory (defaults to `~/.bpanel`). The logger can be configured via command line
+arguments, your `config.js`, environment variables (prefaced with `BPANEL_`). See
+[Configuration](#configuration) for more on setting bPanel configurations.
+
+bPanel uses the [blgr](https://github.com/bcoin-org/blgr/) module for logging.
+You can set custom values for level, file, console, and shrink. All but level are
+boolean (true/false). Available options for level are: none, error, warning, info, debug, and spam.
+See [blgr](https://github.com/bcoin-org/blgr/) for more info.
 
 ## Extending bPanel
 
