@@ -198,7 +198,7 @@ async function getDefaultConfig(bpanelConfig) {
     cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
   );
 
-  const logger = defaultClientConfig.obj('logger');
+  const logger = bpanelConfig.obj('logger');
 
   if (!defaultClientConfig) {
     logger.warning(

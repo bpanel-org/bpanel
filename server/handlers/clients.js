@@ -52,14 +52,11 @@ function getClientsInfo(req, res) {
   return res.status(200).json(clientInfo);
 }
 
-function getDefaultClientInfo(req, res, next) {
+async function getDefaultClientInfo(req, res, next) {
   const { config } = req;
   let defaultClientConfig;
   try {
-    defaultClientConfig = getDefaultConfig(config);
-    const defaultClient = getClientInfo(defaultClientConfig, req.clientHealth);
-    return res.status(200).json(defaultClient);
-  } catch (e) {
+    defaultClientConfig = await getDefaultConfig(config);
     if (!defaultClientConfig || !config)
       return res.status(404).json({
         error: {
@@ -67,6 +64,9 @@ function getDefaultClientInfo(req, res, next) {
           code: 404
         }
       });
+    const defaultClient = getClientInfo(defaultClientConfig, req.clientHealth);
+    return res.status(200).json(defaultClient);
+  } catch (e) {
     next(e);
   }
 }
