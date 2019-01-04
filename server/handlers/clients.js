@@ -161,8 +161,6 @@ async function testClientsHandler(req, res, next) {
     try {
       const { data } = getConfig(id);
       configOptions = { ...data, ...configOptions };
-      config = loadConfig(configOptions.id, configOptions);
-      config.set('logger', logger);
     } catch (e) {
       // if missing config, can disregard
       if (e.code === 'ENOENT')
@@ -173,6 +171,8 @@ async function testClientsHandler(req, res, next) {
     const clientHealth = {};
 
     try {
+      config = loadConfig(configOptions.id, configOptions);
+      config.set('logger', logger);
       logger.info('Checking health of client "%s"...', id);
       const [err, clientErrors] = await testConfigOptions(config);
       if (!err) {
