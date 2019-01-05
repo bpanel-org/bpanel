@@ -2,7 +2,12 @@ const Config = require('bcfg');
 const assert = require('bsert');
 
 const { configHelpers, clientFactory } = require('../utils');
-const { getDefaultConfig, testConfigOptions, getConfig } = configHelpers;
+const {
+  getDefaultConfig,
+  testConfigOptions,
+  getConfig,
+  loadConfig
+} = configHelpers;
 
 // utility to return basic info about a client based on its config
 function getClientInfo(config, clientHealth) {
@@ -47,14 +52,11 @@ function getClientsInfo(req, res) {
   return res.status(200).json(clientInfo);
 }
 
-function getDefaultClientInfo(req, res, next) {
+async function getDefaultClientInfo(req, res, next) {
   const { config } = req;
   let defaultClientConfig;
   try {
-    defaultClientConfig = getDefaultConfig(config);
-    const defaultClient = getClientInfo(defaultClientConfig, req.clientHealth);
-    return res.status(200).json(defaultClient);
-  } catch (e) {
+    defaultClientConfig = await getDefaultConfig(config);
     if (!defaultClientConfig || !config)
       return res.status(404).json({
         error: {
@@ -62,6 +64,9 @@ function getDefaultClientInfo(req, res, next) {
           code: 404
         }
       });
+    const defaultClient = getClientInfo(defaultClientConfig, req.clientHealth);
+    return res.status(200).json(defaultClient);
+  } catch (e) {
     next(e);
   }
 }
@@ -144,10 +149,11 @@ async function clientsHandler(req, res) {
 // attaches `clientHealth` to req object
 async function testClientsHandler(req, res, next) {
   const { logger, query, params, body } = req;
+  let config, configOptions;
   if ((query && query.health) || (body && body.health)) {
     const { id } = params;
     const { options } = req.body;
-    let configOptions = { id };
+    configOptions = { id };
 
     if (options) configOptions = { ...configOptions, ...options };
 
@@ -165,8 +171,10 @@ async function testClientsHandler(req, res, next) {
     const clientHealth = {};
 
     try {
+      config = loadConfig(configOptions.id, configOptions);
+      config.set('logger', logger);
       logger.info('Checking health of client "%s"...', id);
-      const [err, clientErrors] = await testConfigOptions(configOptions);
+      const [err, clientErrors] = await testConfigOptions(config);
       if (!err) {
         clientHealth.healthy = true;
         logger.info('Client "%s" is healthy', id);

@@ -1,4 +1,6 @@
 const { parse: urlParse } = require('url');
+const assert = require('bsert');
+const Config = require('bcfg');
 const { Network: BNetwork } = require('bcoin');
 const { Network: HSNetwork } = require('hsd');
 const {
@@ -10,17 +12,11 @@ const {
   WalletClient: HSWalletClient
 } = require('hs-client');
 const MultisigClient = require('bmultisig/lib/client');
-const assert = require('assert');
-const Config = require('bcfg');
-
-const logger = require('../logger');
 
 const logClientInfo = (id, type, { ssl, host, port, network }) =>
-  logger.info(
-    `${id}: Configuring ${type} client with uri: ${ssl
-      ? 'https'
-      : 'http'}://${host}:${port}, network: ${network}`
-  );
+  `${id}: Configuring ${type} client with uri: ${ssl
+    ? 'https'
+    : 'http'}://${host}:${port}, network: ${network}`;
 
 /*
  * Create clients based on given configs
@@ -35,12 +31,15 @@ function clientFactory(config) {
     'Must pass instance of Config class to client composer'
   );
 
+  const logger = config.obj('logger');
+  assert(logger, 'No logger attached to config');
+
   const id = config.str('id');
   assert(id, 'Client config must have an id');
 
   // bitcoin, bitcoincash, handshake
   if (!config.str('chain'))
-    logger.warn(
+    logger.warning(
       `No chain set in configs for ${config.str('id')}, defaulting to 'bitcoin'`
     );
 
@@ -116,14 +115,17 @@ function clientFactory(config) {
   // if false, do not instantiate new node client
   if (config.bool('node', true)) {
     nodeClient = new NodeClient(nodeOptions);
-    logClientInfo(id, 'node', nodeOptions);
+    const statement = logClientInfo(id, 'node', nodeOptions);
+    logger.info(statement);
   }
 
   // check if config explicitly sets wallet config to `false`
   // if false, do not instantiate new wallet client
   if (config.bool('wallet', true)) {
     walletClient = new WalletClient(walletOptions);
-    logClientInfo(id, 'wallet', walletOptions);
+
+    const statement = logClientInfo(id, 'wallet', walletOptions);
+    logger.info(statement);
   }
 
   if (config.bool('multisig', true)) {
@@ -131,7 +133,8 @@ function clientFactory(config) {
       ...walletOptions,
       multisigPath: '/'
     });
-    logClientInfo(id, 'multisig wallet', walletOptions);
+    const statement = logClientInfo(id, 'multisig wallet', walletOptions);
+    logger.info(statement);
   }
 
   return { nodeClient, walletClient, multisigClient };
@@ -144,6 +147,9 @@ function clientFactory(config) {
  */
 function buildClients(config) {
   const { loadClientConfigs, createConfigsMap } = require('./configs');
+  assert(config.has('logger'), 'Config missing logger');
+  const logger = config.obj('logger');
+
   // loadConfigs uses the bpanelConfig to find the clients and build
   // each of their configs.
   const clientConfigs = loadClientConfigs(config);
@@ -151,6 +157,10 @@ function buildClients(config) {
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
     const id = cfg.str('id');
     assert(id, 'client config must have id');
+
+    // give client config the app logger
+    cfg.set('logger', logger);
+
     clientsMap.set(id, { ...clientFactory(cfg), config: cfg });
     return clientsMap;
   }, new Map());

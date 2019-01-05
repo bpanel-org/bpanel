@@ -1,10 +1,10 @@
-const { assert } = require('chai');
-const Config = require('bcfg');
-const fs = require('bfile');
 const os = require('os');
 const { resolve } = require('path');
+const { assert } = require('chai');
+const Config = require('bcfg');
+const Logger = require('blgr');
+const fs = require('bfile');
 
-const logger = require('../logger');
 const { initFullNode } = require('./utils/regtest');
 
 const { configHelpers } = require('../utils');
@@ -20,15 +20,14 @@ const {
 const testDir = resolve(os.homedir(), '.bpanel_tmp');
 process.env.BPANEL_PREFIX = testDir;
 process.env.BPANEL_CLIENTS_DIR = 'test_clients';
+process.env.BPANEL_LOG_LEVEL = 'error';
 const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
 const clientsDirPath = resolve(BPANEL_PREFIX, BPANEL_CLIENTS_DIR);
 
-describe.only('configHelpers', () => {
-  let node, apiKey, ports, options, id, config;
+describe('configHelpers', () => {
+  let node, apiKey, ports, options, id, config, logger;
 
   before('create and start regtest node', async () => {
-    logger.transports.console.level = 'error';
-    logger.transports.file.level = 'error';
     id = 'test';
     apiKey = 'foo';
     ports = {
@@ -51,8 +50,12 @@ describe.only('configHelpers', () => {
     }
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     config = new Config(id);
+    logger = new Logger({ level: 'error' });
+    await logger.open();
+    config.set('logger', logger);
+    config.set('id', id);
     options = {
       id,
       chain: 'bitcoin',
@@ -62,6 +65,10 @@ describe.only('configHelpers', () => {
       'wallet-port': ports.wallet,
       multisigWallet: false
     };
+  });
+
+  afterEach(async () => {
+    await logger.close();
   });
 
   describe('testConfigOptions', () => {
@@ -104,18 +111,13 @@ describe.only('configHelpers', () => {
   });
 
   describe('createClientConfig', () => {
-    it('should accept options object or a bcfg object', async () => {
-      await createClientConfig(id, options, true);
-      config.inject(options);
-      await createClientConfig(id, config, true);
-    });
-
     it('should test clients', async () => {
       const failOpts = { ...options, apiKey: 'bar' };
       let passed = false;
-
+      const testConfig = loadConfig('test', failOpts);
+      testConfig.set('logger', logger);
       try {
-        await createClientConfig(id, failOpts);
+        await createClientConfig(testConfig, false);
         passed = true;
       } catch (e) {
         assert.instanceOf(
@@ -129,7 +131,7 @@ describe.only('configHelpers', () => {
 
     it('should create new config file in clients directory with correct configs', async () => {
       config.inject(options);
-      await createClientConfig(id, options);
+      await createClientConfig(config, false);
       const { BPANEL_PREFIX, BPANEL_CLIENTS_DIR } = process.env;
       const clientPath = resolve(
         BPANEL_PREFIX,
@@ -144,30 +146,40 @@ describe.only('configHelpers', () => {
 
       const loadedConfigs = loadConfig(id, { id, prefix: clientsDirPath });
       loadedConfigs.open(`${id}.conf`);
-      await testConfigOptions(loadedConfigs.data);
+
+      // create a config just from the loaded data to test against
+      const testConfig = new Config('test-config');
+      testConfig.inject(loadedConfigs.data);
+      testConfig.set('logger', logger);
+      await testConfigOptions(testConfig);
     });
   });
 
   describe('getConfig', () => {
     it('should get the config object from a config file', async () => {
-      await createClientConfig(id, options);
-      const config = await getConfig(id);
-      assert.instanceOf(config, Config, 'Expected to get a bcfg object');
-      const expectedConfigs = loadConfig(id, options);
+      const expectedConfigs = new Config('base');
+      expectedConfigs.inject(options);
+      expectedConfigs.set('logger', logger);
+      await createClientConfig(expectedConfigs, false);
+      const clientConfig = await getConfig(id);
+      assert.instanceOf(clientConfig, Config, 'Expected to get a bcfg object');
 
       // need to do a custom deep comparison with non-strict comparisons
-      // because of the way bcfg converts
+      // because of the way bcfg converts,
       // `data` contains the configs loaded from a file
       // `options` contains configs injected from options
-      const actualKeys = Object.keys(config.data);
+      const actualKeys = Object.keys(clientConfig.data);
       const expectedKeys = Object.keys(expectedConfigs.options);
       assert.equal(
         actualKeys.length,
         expectedKeys.length,
         'Wrong number of properties'
       );
+
       for (let key of actualKeys) {
-        let actual = config.data[key];
+        // not concerned with logger as this gets set elsewhere
+        if (key === 'logger') continue;
+        let actual = clientConfig.data[key];
         let expected = expectedConfigs.options[key];
 
         // bools don't get inserted consistently to config object
@@ -179,7 +191,7 @@ describe.only('configHelpers', () => {
         assert.equal(
           actual,
           expected,
-          `Actual ${key} in config.data did not match expected ${key}`
+          `Actual ${key} in clientConfig.data did not match expected ${key}`
         );
       }
     });

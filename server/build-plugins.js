@@ -9,7 +9,7 @@ const { format } = require('prettier');
 const { execSync } = require('child_process');
 const validate = require('validate-npm-package-name');
 
-const logger = require('./logger');
+const { createLogger } = require('./logger');
 const { npmExists } = require('./utils');
 
 const config = new Config('bpanel');
@@ -35,6 +35,8 @@ const getPackageName = name => {
 };
 
 async function installRemotePackages(installPackages) {
+  const logger = createLogger();
+  await logger.open();
   const pkgStr = installPackages.reduce((str, name) => {
     if (validate(name).validForNewPackages) str = `${str} ${name}`;
     return str;
@@ -53,7 +55,10 @@ async function installRemotePackages(installPackages) {
 in node_modules. Try deleting the node_modules directory and running `npm install` again.'
     );
     logger.error(e.stack);
+    await logger.close();
     process.exit(1);
+  } finally {
+    await logger.close();
   }
 }
 
@@ -63,6 +68,9 @@ in node_modules. Try deleting the node_modules directory and running `npm instal
  * This allows webpack to watch for changes.
  */
 async function symlinkLocal(packageName) {
+  const logger = createLogger();
+  await logger.open();
+
   logger.info(`Creating symlink for local plugin ${packageName}...`);
   const pkgDir = resolve(MODULES_DIRECTORY, packageName);
 
@@ -108,6 +116,8 @@ async function symlinkLocal(packageName) {
       resolve(HOME_PREFIX, 'local_plugins', packageName),
       resolve(MODULES_DIRECTORY, pkgDir)
     );
+
+  await logger.close();
 }
 
 // a utility method to check if a module exists in node_modules
@@ -134,6 +144,9 @@ async function getLocalPlugins() {
 }
 
 async function prepareModules(plugins = [], local = true, network = false) {
+  const logger = createLogger();
+  await logger.open();
+
   let pluginsIndex = local
     ? '// exports for all local plugin modules\n\n'
     : '// exports for all published plugin modules\n\n';
@@ -244,6 +257,8 @@ async function prepareModules(plugins = [], local = true, network = false) {
       }
     } catch (e) {
       logger.error('Error installing plugins packages: ', e);
+    } finally {
+      await logger.close();
     }
   }
 
@@ -257,6 +272,8 @@ async function prepareModules(plugins = [], local = true, network = false) {
 }
 
 (async () => {
+  const logger = createLogger();
+  await logger.open();
   try {
     assert(
       fs.existsSync(PLUGINS_CONFIG),
@@ -290,5 +307,7 @@ your config file.'
     });
   } catch (err) {
     logger.error('There was an error preparing modules: ', err.stack);
+  } finally {
+    await logger.close();
   }
 })();

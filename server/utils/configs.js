@@ -6,45 +6,8 @@ const { resolve, parse, join } = require('path');
 const Config = require('bcfg');
 
 const pkg = require('../../pkg');
-const logger = require('../logger');
-const { clientFactory } = require('../utils/clients');
-
-/*
- * Load up a bcfg object for a given module and set of options
- * @params {string} - name - module name
- * @params {object} - [options] - optional options object to inject into config
- * @returns {Config} - returns a bcfg object
- */
-function loadConfig(name, options = {}) {
-  assert(typeof name === 'string', 'Must pass a name to load config');
-  const config = new Config(name);
-
-  // load any custom configs being passed in
-  config.inject(options);
-
-  config.load({
-    env: true
-  });
-
-  if (name === 'bpanel') {
-    config.load({
-      argv: true
-    });
-  }
-
-  return config;
-}
-
-function getConfigFromOptions(options) {
-  if (!(options instanceof Config)) options = loadConfig(options.id, options);
-  assert(options.str('id'), 'must pass an id to test config options');
-  // making a copy from options and data properties
-  // to avoid any mutations
-  return loadConfig(options.str('id'), {
-    ...options.options,
-    ...options.data
-  });
-}
+const { clientFactory } = require('./clients');
+const loadConfig = require('./loadConfig');
 
 /*
  * Get an array of configs for each client
@@ -60,6 +23,7 @@ function loadClientConfigs(_config) {
 
   // if not passed bcfg object, create one
   if (!(_config instanceof Config)) config = loadConfig('bpanel', _config);
+  const logger = config.obj('logger');
 
   // clientsDir is the folder where all client configs
   // should be saved and can be changed w/ custom configs
@@ -79,11 +43,11 @@ function loadClientConfigs(_config) {
 
   // cancel startup process if there are no clientConfigs
   if (!files.length) {
-    logger.warn(
+    logger.warning(
       'No client configs found. Add one manually to your clients directory \
 or use the connection-manager plugin to add via the UI'
     );
-    logger.warn(
+    logger.warning(
       'Visit the documentation for more information: https://bpanel.org/docs/configuration.html'
     );
     return files;
@@ -140,19 +104,14 @@ function getConfig(id) {
 
 /*
  * create and test clients based on a passed config
- * @param {Config} clientConfig
+ * @param {Bcfg} config
  * @throws {ClientErrors} - throws if at least one client fails
  * @returns {[bool, ClientErrors]} [err, ClientErrors] - bool is true
  * if there was an error, false if no error.
  */
 
-async function testConfigOptions(options) {
-  let clientConfig;
-  try {
-    clientConfig = getConfigFromOptions(options);
-  } catch (e) {
-    throw e;
-  }
+async function testConfigOptions(config) {
+  assert(config instanceof Config, 'Must pass a bcfg object to test configs');
 
   const agents = new Map([
     ['bcoin', 'bitcoin'],
@@ -161,12 +120,13 @@ async function testConfigOptions(options) {
   ]);
 
   const clientErrors = new ClientErrors();
-  const chain = clientConfig.str('chain', 'bitcoin');
+  const chain = config.str('chain', 'bitcoin');
 
   if (!pkg.chains.includes(chain))
     throw new Error(`${chain} is not a recognized chain`);
 
-  const clients = clientFactory(clientConfig);
+  const logger = config.obj('logger');
+  const clients = clientFactory(config);
 
   // save the async checks in an array so we can parallelize the
   // network call with a `Promise.all`
@@ -180,8 +140,8 @@ async function testConfigOptions(options) {
     const type = key.substr(0, key.indexOf('Client'));
     const check = new Promise(async resolve => {
       try {
-        logger.info(`Checking ${key} for config "${clientConfig.str('id')}"`);
-        if (clientConfig.bool(type, true)) {
+        logger.info(`Checking ${key} for config "${config.str('id')}"`);
+        if (config.bool(type, true)) {
           const info = await clients[key].getInfo();
           if (info) {
             const { pool: { agent } } = info;
@@ -197,11 +157,7 @@ async function testConfigOptions(options) {
           }
         }
       } catch (e) {
-        logger.info(
-          '%s connection for "%s" failed.',
-          key,
-          clientConfig.str('id')
-        );
+        logger.info('%s connection for "%s" failed.', key, config.str('id'));
         clientErrors.addFailed(type, e);
       } finally {
         // resolving all calls so that we can store the failures in the
@@ -229,7 +185,7 @@ async function testConfigOptions(options) {
  * @returns {Config}
  */
 
-function getDefaultConfig(bpanelConfig) {
+async function getDefaultConfig(bpanelConfig) {
   assert(
     bpanelConfig instanceof Config,
     'Need the main bcfg for the app to get default configs'
@@ -242,8 +198,10 @@ function getDefaultConfig(bpanelConfig) {
     cfg => cfg.str('id') === bpanelConfig.str('client-id', 'default')
   );
 
+  const logger = bpanelConfig.obj('logger');
+
   if (!defaultClientConfig) {
-    logger.warn(
+    logger.warning(
       'Could not find config for %s. Will set to "default" instead.',
       bpanelConfig.str('client-id')
     );
@@ -251,9 +209,9 @@ function getDefaultConfig(bpanelConfig) {
       cfg => cfg.str('id') === 'default'
     );
     if (!defaultClientConfig) {
-      logger.warn('Could not find default client config.');
+      logger.warning('Could not find default client config.');
       defaultClientConfig = clientConfigs[0];
-      logger.warn(`Setting fallback to ${defaultClientConfig.str('id')}.`);
+      logger.warning(`Setting fallback to ${defaultClientConfig.str('id')}.`);
     }
   }
   return defaultClientConfig;
@@ -279,47 +237,46 @@ function createConfigsMap(configs) {
  * can't connect
  * @returns {bcfg.Config}
  */
-async function createClientConfig(id, options = {}, force = false) {
-  assert(typeof id === 'string', 'Must pass an id as first paramater');
+async function createClientConfig(config, force = false) {
+  assert(config instanceof Config, 'Must pass bcfg config to create client');
+  assert(config.has('id'), 'Config must have an id set');
 
-  let clientConfig = options;
-  if (!(options instanceof Config))
-    clientConfig = getConfigFromOptions({ id, ...options });
+  const logger = config.obj('logger');
 
-  const appConfig = loadConfig('bpanel', options);
+  const appConfig = loadConfig('bpanel');
   const clientsDir = appConfig.str('clients-dir', 'clients');
 
   // get full path to client configs relative to the project
   // prefix which defaults to `~/.bpanel`
   const clientsPath = resolve(appConfig.prefix, clientsDir);
 
-  const [err, clientErrors] = await testConfigOptions(clientConfig);
+  const [err, clientErrors] = await testConfigOptions(config);
   assert(typeof force === 'boolean', 'The force argument must be a bool.');
   if (err && force) {
-    logger.warn(clientErrors.message);
-    logger.warn('Creating config file anyway...');
+    logger.warning(clientErrors.message);
+    logger.warning('Creating config file anyway...');
   } else if (err) {
     throw clientErrors;
   }
 
   let configTxt = '';
-  for (let key in clientConfig.options) {
+  for (let key in config.options) {
     const configKey = key
       .replace('-', '')
       .replace('_', '')
       .toLowerCase();
-    const text = `${configKey}: ${clientConfig.options[key]}\n`;
+    const text = `${configKey}: ${config.options[key]}\n`;
     configTxt = configTxt.concat(text);
   }
   if (!fs.existsSync(clientsPath)) {
-    logger.warn(
+    logger.warning(
       'Could not find requested client directory at %s. Creating new one...',
       clientsPath
     );
     fs.mkdirpSync(clientsPath);
   }
-  fs.writeFileSync(`${clientsPath}/${clientConfig.str('id')}.conf`, configTxt);
-  return clientConfig;
+  fs.writeFileSync(`${clientsPath}/${config.str('id')}.conf`, configTxt);
+  return config;
 }
 
 class ClientErrors extends Error {
@@ -346,12 +303,11 @@ class ClientErrors extends Error {
 
 module.exports = {
   createClientConfig,
-  loadConfig,
-  getConfigFromOptions,
-  loadClientConfigs,
   createConfigsMap,
-  getDefaultConfig,
   getConfig,
+  getDefaultConfig,
+  loadConfig,
+  loadClientConfigs,
   ClientErrors,
   testConfigOptions
 };
