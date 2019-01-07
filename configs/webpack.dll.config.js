@@ -2,20 +2,12 @@ const webpack = require('webpack');
 const path = require('path');
 
 const { DIST_DIR, MODULES_DIR } = require('./constants');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const vendorManifest = path.join(DIST_DIR, '[name]-manifest.json');
 
 module.exports = {
   target: 'web',
-  mode: 'production',
-  optimization: {
-    minimizer: [
-      new UglifyJsPlugin({
-        parallel: true
-      })
-    ]
-  },
+  mode: 'development',
   entry: {
     vendor: [
       'bcoin/lib/bcoin-browser',
