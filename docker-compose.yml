@@ -50,13 +50,12 @@ services:
     ## Use image to to pull from docker hub
     image: bpanel/bcoin:dev
     ## Build to use local Dockerfile-bcoin
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile-bcoin
-    #   args:
-    #     repo: https://github.com/bcoin-org/bcoin.git
-    #     branch: master
-    #     rebuild: 0
+    build:
+      context: .
+      dockerfile: Dockerfile-bcoin
+      args:
+        repo: braydonf/bcoin#wallet-pagination
+        rebuild: 0
     restart: unless-stopped
     env_file:
       # Set arguments to use in bcoin-init.js

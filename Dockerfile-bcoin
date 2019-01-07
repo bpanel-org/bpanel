@@ -14,14 +14,14 @@ FROM base AS build
 RUN pacman -Syu --noconfirm base-devel unrar git python2 \
     && ln -s /usr/bin/python2 /usr/bin/python
 
-ARG branch=master
+ARG repo=bcoin-org/bcoin
 
 # use this to bust the build cache
 ARG rebuild=0
 
 # Install bcoin, bmultisig, blgr, bclient
 RUN npm init -y &>/dev/null \
-  && npm install bcoin-org/bcoin \
+  && npm install $repo \
   bcoin-org/bmultisig \
   bcoin-org/blgr \
   bcoin-org/bclient
