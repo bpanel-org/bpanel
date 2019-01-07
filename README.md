@@ -1,3 +1,10 @@
+### This is a dev branch only. Rebuilding the `bcoin` docker image will be required:
+```
+$ docker-compose build bcoin
+$ docker-compose up -d
+```
+
+
 # Welcome to bPanel!
 
 This is the official repo for the [bPanel project](https://bpanel.org),
