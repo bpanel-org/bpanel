@@ -13,7 +13,7 @@ services:
       _DOCKER_NODE_HOST: bcoin
       # Edit this to add/remove plugins! This cannot be edited after startup
       # even with bpanel's config.js. Must edit below, and rebuild container.
-      BPANEL_PLUGINS: '@bpanel/genesis-theme,@bpanel/bui,@bpanel/connection-manager'
+      BPANEL_PLUGINS: '@bpanel/genesis-theme,@bpanel/connection-manager'
     ports:
       - "5000:5000"
       - "5001:5001"

@@ -16,7 +16,7 @@ const CLIENTS_DIR = path.resolve(BPANEL_DIR, 'clients');
 const LOCAL_PLUGINS_DIR = path.resolve(BPANEL_DIR, 'local_plugins');
 
 const configText = `module.exports = {
-  plugins: ['@bpanel/genesis-theme', '@bpanel/bui', '@bpanel/settings', '@bpanel/connection-manager'],
+  plugins: ['@bpanel/genesis-theme', '@bpanel/settings', '@bpanel/connection-manager'],
   localPlugins: [],
 }`;
 
