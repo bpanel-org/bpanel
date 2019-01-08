@@ -54,7 +54,7 @@ services:
       context: .
       dockerfile: Dockerfile-bcoin
       args:
-        repo: braydonf/bcoin#wallet-pagination
+        repo: pinheadmz/bcoin#wallet-pagination-zip
         rebuild: 0
     restart: unless-stopped
     env_file:
