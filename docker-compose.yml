@@ -91,7 +91,7 @@ volumes:
   certs:
   bcoin:
   configs:
-    #driver_opts:
-    #  type: none
-    #  device: $HOME/.bpanel
-    #  o: bind
+    driver_opts:
+      type: none
+      device: $HOME/.bpanel
+      o: bind
