@@ -8,8 +8,19 @@ module.exports = async (node, config, logger, wallet) => {
   const network = node.network;
   const feeRate = network.minRelay;
   const wdb = wallet.wdb;
+  // force segwit
+  node.mempool.options.prematureWitness = true;
 
-  const numBlocks = 1;
+  const numInitBlocks = 100;
+  const numTxBlocks = 100;
+  const numTxPerBlock = 10;
+  const maxOutputsPerTx = 4;
+  const minSend = 50000;
+  const maxSend = 100000000;
+
+  // We are going to bend time, and start our blockchain in the past!
+  let virtualNow = network.now() - 60 * 10 * (numInitBlocks + numTxBlocks + 1);
+  const blockInterval = 60 * 10; // ten mimnutes
 
   const walletNames = [
     'Mark',
@@ -24,19 +35,25 @@ module.exports = async (node, config, logger, wallet) => {
     'JJ'
   ];
 
-  const accountNames = [
-    'candy',
-    'games',
-    'rent',
-    'clothes',
-    'food',
-    'taxes',
-    'furniture',
-    'travel',
-    'gifts'
-  ];
+  const accountNames = ['hot', 'cold'];
 
   const wallets = [];
+
+  const mineRegtestBlock = async function(coinbaseAddr) {
+    const entry = await chain.getEntry(node.chain.tip.hash);
+    const block = await miner.mineBlock(entry, coinbaseAddr);
+    await node.chain.add(block);
+  };
+
+  const mineRegtestBlockToPast = async function(coinbaseAddr) {
+    const entry = await chain.getEntry(node.chain.tip.hash);
+    const job = await miner.createJob(entry, coinbaseAddr);
+    job.attempt.time = virtualNow;
+    virtualNow += blockInterval;
+    job.refresh();
+    const block = await job.mineAsync();
+    await node.chain.add(block);
+  };
 
   logger.info('Creating wallets and accounts...');
   for (const wName of walletNames) {
@@ -59,10 +76,8 @@ module.exports = async (node, config, logger, wallet) => {
   const primary = wdb.primary;
   const minerReceive = await primary.receiveAddress();
   await miner.addAddress(minerReceive);
-  for (let i = 0; i < numBlocks; i++) {
-    const entry = await chain.getEntry(node.chain.tip.hash);
-    const block = await miner.mineBlock(entry, minerReceive);
-    await node.chain.add(block);
+  for (let i = 0; i < numInitBlocks; i++) {
+    await mineRegtestBlockToPast(minerReceive);
   }
 
   logger.info('Ensure wallet is caught up before proceeding...');
@@ -72,9 +87,9 @@ module.exports = async (node, config, logger, wallet) => {
   const balance = await primary.getBalance(0);
 
   const totalAmt = balance.confirmed;
-  const amtPerAcct = totalAmt / (walletNames.length * accountNames.length);
-  console.log('1', balance, totalAmt, amtPerAcct);
-
+  const amtPerAcct = Math.floor(
+    totalAmt / (walletNames.length * accountNames.length)
+  );
   const outputs = [];
   for (const wallet of wallets) {
     for (const aName of accountNames) {
@@ -86,8 +101,6 @@ module.exports = async (node, config, logger, wallet) => {
     }
   }
 
-  console.log('2', balance, totalAmt, amtPerAcct);
-
   await primary.send({
     outputs: outputs,
     rate: feeRate,
@@ -95,9 +108,45 @@ module.exports = async (node, config, logger, wallet) => {
   });
 
   logger.info('Confirming airdrop...');
-  {
-    const entry = await chain.getEntry(node.chain.tip.hash);
-    const block = await miner.mineBlock(entry, minerReceive);
-    await node.chain.add(block);
+  await mineRegtestBlockToPast(minerReceive);
+
+  logger.info('Creating a big mess!...');
+  for (let b = 0; b < numTxBlocks; b++) {
+    for (let t = 0; t < numTxPerBlock; t++) {
+      // TO
+      const outputs = [];
+      const numOutputs = Math.floor(Math.random() * maxOutputsPerTx) + 1;
+      for (let o = 0; o < numOutputs; o++) {
+        const recWallet = wallets[Math.floor(Math.random() * wallets.length)];
+        const recAcct =
+          accountNames[Math.floor(Math.random() * wallets.length)];
+
+        const recAddr = await recWallet.receiveAddress(recAcct);
+        const value = Math.floor(Math.random() * (maxSend - minSend));
+        outputs.push({
+          value: value,
+          address: recAddr
+        });
+      }
+
+      // FROM
+      const sendWallet = wallets[Math.floor(Math.random() * wallets.length)];
+      const sendAcct = accountNames[Math.floor(Math.random() * wallets.length)];
+      try {
+        await sendWallet.send({
+          account: sendAcct,
+          outputs: outputs,
+          rate: feeRate,
+          subtractFee: true
+        });
+      } catch (e) {
+        logger.error(`Problem sending tx: ${e}`);
+      }
+    }
+
+    // CONFIRM
+    await mineRegtestBlockToPast(minerReceive);
   }
+
+  logger.info('All done! Go play.');
 };
