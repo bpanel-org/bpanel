@@ -6,17 +6,15 @@ module.exports = async (node, config, logger, wallet) => {
   const miner = node.miner;
   const chain = node.chain;
   const network = node.network;
-  const feeRate = network.minRelay;
+  const feeRate = network.minRelay * 10; // for some reason bc segwit??!!
   const wdb = wallet.wdb;
-  // force segwit
-  node.mempool.options.prematureWitness = true;
 
-  const numInitBlocks = 100;
-  const numTxBlocks = 100;
+  const numInitBlocks = 144 * 3; //. to activate segwit
+  const numTxBlocks = 10;
   const numTxPerBlock = 10;
   const maxOutputsPerTx = 4;
   const minSend = 50000;
-  const maxSend = 100000000;
+  const maxSend = 100000;
 
   // We are going to bend time, and start our blockchain in the past!
   let virtualNow = network.now() - 60 * 10 * (numInitBlocks + numTxBlocks + 1);
@@ -72,7 +70,7 @@ module.exports = async (node, config, logger, wallet) => {
   }
   accountNames.push('default');
 
-  logger.info('Mining blocks...');
+  logger.info('Mining initial blocks...');
   const primary = wdb.primary;
   const minerReceive = await primary.receiveAddress();
   await miner.addAddress(minerReceive);
@@ -122,7 +120,9 @@ module.exports = async (node, config, logger, wallet) => {
           accountNames[Math.floor(Math.random() * wallets.length)];
 
         const recAddr = await recWallet.receiveAddress(recAcct);
-        const value = Math.floor(Math.random() * (maxSend - minSend));
+        const value = Math.floor(
+          Math.random() * (maxSend - minSend) + minSend / numOutputs
+        );
         outputs.push({
           value: value,
           address: recAddr
@@ -133,7 +133,7 @@ module.exports = async (node, config, logger, wallet) => {
       const sendWallet = wallets[Math.floor(Math.random() * wallets.length)];
       const sendAcct = accountNames[Math.floor(Math.random() * wallets.length)];
       try {
-        await sendWallet.send({
+        const tx = await sendWallet.send({
           account: sendAcct,
           outputs: outputs,
           rate: feeRate,
