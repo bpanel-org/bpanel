@@ -150,6 +150,17 @@ BPANEL_TLS_KEY=<path to key>
 BPANEL_TLS_CERT=<path to cert>
 ```
 
+Some plugins require being served over `https`, such as plugins that use hardware wallets.
+This is because WebUSB will not work by default on non `https` sites.
+
+To generate a simple self signed certificate for development or local hosting, use the command:
+
+```bash
+$ openssl req -newkey rsa:2048 -nodes -sha512 -x509 -days 3650 -nodes -subj '/CN=localhost' -out selfsigned.crt -keyout selfsigned.key
+```
+
+Do not use this for production!
+
 ## About the Docker Environment
 
 The default configs in the standard `docker-compose.yml` file
