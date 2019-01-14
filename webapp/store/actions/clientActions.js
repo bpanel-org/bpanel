@@ -80,7 +80,7 @@ function hydrateClients() {
       // the currentClient does not exist in clients store
       // reset the currentClient to a default from the server
       if (!currentClient.id || !clients[currentClient.id]) {
-        return await dispatch(getDefaultClient());
+        return dispatch(getDefaultClient());
       } else {
         return await dispatch(setCurrentClient(currentClient));
       }

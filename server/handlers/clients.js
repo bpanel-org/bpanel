@@ -18,7 +18,7 @@ function getClientInfo(config, clientHealth) {
     services: {
       node: config.bool('node', true),
       wallet: config.bool('wallet', true),
-      multisig: config.bool('multisig', true)
+      multisig: config.bool('multisig', false)
     }
   };
   if (clientHealth) {

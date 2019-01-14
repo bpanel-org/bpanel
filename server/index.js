@@ -207,50 +207,6 @@ will increase speed of future builds, so please be patient.'
 
     const clientIds = clients.keys();
 
-    try {
-      // Setup bsock server
-      for (let id of clientIds) {
-        const newClients = getClientsById(id, clients);
-        socketManager.addClients(id, newClients);
-      }
-
-      // refresh the clients map if the clients directory gets updated
-      const clientsDir = bpanelConfig.location('clients');
-      chokidar
-        .watch([clientsDir], { usePolling: poll, useFsEvents: poll })
-        .on('all', (event, path) => {
-          logger.info(
-            'Change detected in clients directory. Updating clients on server.'
-          );
-          logger.debug('"%s" event on %s', event, path);
-          const builtClients = buildClients(bpanelConfig);
-          clients = builtClients.clients;
-          configsMap = builtClients.configsMap;
-
-          // need to update the socket manager too
-          // TODO: this isn't ideal (doing two loops)
-          // but it's better than restarting the whole server
-          // which also restarts the webpack build
-          // hopefully this is easier to manage when the socket manager also
-          // has the full server for all requests and can manage this internally
-          const ids = clients.keys();
-          // add any new clients not in socketManager
-          for (let id of ids) {
-            const newClients = getClientsById(id, clients);
-
-            if (!socketManager.hasClient(id))
-              socketManager.addClients(id, newClients);
-          }
-
-          // remove any clients from the socketManager not in our list
-          const sockets = socketManager.clients.keys();
-          for (let id of sockets)
-            if (!clients.has(id)) socketManager.removeClients(id);
-        });
-    } catch (e) {
-      logger.error('There was a problem loading clients:', e);
-    }
-
     const resolveIndex = (req, res) => {
       logger.debug(`Caught request in resolveIndex: ${req.path}`);
       res.sendFile(path.resolve(__dirname, '../dist/index.html'));
@@ -362,6 +318,51 @@ will increase speed of future builds, so please be patient.'
     socketManager.on('error', e =>
       logger.error(`socketManager error: ${e.message}`)
     );
+
+    try {
+      // Setup bsock server
+      for (let id of clientIds) {
+        const newClients = getClientsById(id, clients);
+        socketManager.addClients(id, newClients);
+      }
+
+      // refresh the clients map if the clients directory gets updated
+      const clientsDir = bpanelConfig.location('clients');
+      chokidar
+        .watch([clientsDir], { usePolling: poll, useFsEvents: poll })
+        .on('all', (event, path) => {
+          logger.info(
+            'Change detected in clients directory. Updating clients on server.'
+          );
+          logger.debug('"%s" event on %s', event, path);
+          const builtClients = buildClients(bpanelConfig);
+          clients = builtClients.clients;
+          configsMap = builtClients.configsMap;
+
+          // need to update the socket manager too
+          // TODO: this isn't ideal (doing two loops)
+          // but it's better than restarting the whole server
+          // which also restarts the webpack build
+          // hopefully this is easier to manage when the socket manager also
+          // has the full server for all requests and can manage this internally
+          const ids = clients.keys();
+          // add any new clients not in socketManager
+          for (let id of ids) {
+            const newClients = getClientsById(id, clients);
+
+            if (!socketManager.hasClient(id))
+              socketManager.addClients(id, newClients);
+          }
+
+          // remove any clients from the socketManager not in our list
+          const sockets = socketManager.clients.keys();
+          for (let id of sockets)
+            if (!clients.has(id)) socketManager.removeClients(id);
+        });
+    } catch (e) {
+      logger.error('There was a problem loading clients:', e);
+    }
+
     await socketManager.open();
 
     // If NOT required from another script...
