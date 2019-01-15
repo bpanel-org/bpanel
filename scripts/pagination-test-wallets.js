@@ -64,7 +64,8 @@ module.exports = async (node, config, logger, wallet) => {
 
     for (const aName of accountNames) {
       await newWallet.createAccount({
-        name: aName
+        name: aName,
+        witness: Math.random() < 0.5
       });
     }
   }
