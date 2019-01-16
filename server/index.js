@@ -12,6 +12,7 @@ const { execSync } = require('child_process');
 const os = require('os');
 const { createLogger } = require('./logger');
 const chokidar = require('chokidar');
+const { resolveRoot } = require('../configs/constants');
 
 const webpackArgs = [];
 
@@ -156,7 +157,7 @@ will increase speed of future builds, so please be patient.'
 
   // Always start webpack
   require('nodemon')({
-    script: './node_modules/.bin/webpack',
+    script: `${resolveRoot('webpack')}/bin/webpack.js`,
     watch: [`${bpanelConfig.prefix}/config.js`],
     env: {
       BPANEL_PREFIX: bpanelConfig.prefix,

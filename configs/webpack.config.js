@@ -6,13 +6,7 @@ const merge = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const config = require('./webpack.common.config.js');
-const { ROOT_DIR, DIST_DIR, SRC_DIR, MODULES_DIR } = require('./constants');
-
-// can be passed by server process via bcfg interface
-// or passed manually when running webpack from command line
-// defaults to `~/.bpanel`
-const bpanelPrefix =
-  process.env.BPANEL_PREFIX || path.resolve(os.homedir(), '.bpanel');
+const { ROOT_DIR, DIST_DIR, SRC_DIR } = require('./constants');
 
 module.exports = function(env = {}) {
   const plugins = [];
