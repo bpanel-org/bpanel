@@ -75,7 +75,7 @@ module.exports = function(env = {}) {
         },
         {
           test: /\.jsx?$/,
-          exclude: [MODULES_DIR, path.resolve(bpanelPrefix, 'local_plugins')],
+          include: [path.join(ROOT_DIR, 'webapp')],
           loader: 'babel-loader',
           query: {
             presets: ['env', 'react', 'stage-0'],

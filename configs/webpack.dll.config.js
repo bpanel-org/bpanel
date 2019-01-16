@@ -1,7 +1,7 @@
 const webpack = require('webpack');
 const path = require('path');
 
-const { DIST_DIR, MODULES_DIR } = require('./constants');
+const { DIST_DIR, resolveRoot } = require('./constants');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const vendorManifest = path.join(DIST_DIR, '[name]-manifest.json');
 
@@ -54,10 +54,10 @@ module.exports = {
     // this helps simplify plugin packages and ensures that parent classes
     // all point to the same instance, e.g bcoin.TX will be same for all plugins
     alias: {
-      bcoin$: `${MODULES_DIR}/bcoin/lib/bcoin-browser`,
-      bcash$: `${MODULES_DIR}/bcash/lib/bcoin-browser`,
-      hsd$: `${MODULES_DIR}/hsd/lib/hsd-browser`,
-      'hs-client': `${MODULES_DIR}/hs-client`
+      bcoin$: `${resolveRoot('bcoin')}/lib/bcoin-browser`,
+      bcash$: `${resolveRoot('bcash')}/lib/bcoin-browser`,
+      hsd$: `${resolveRoot('hsd')}/lib/hsd-browser`,
+      'hs-client': `${resolveRoot('hs-client')}`
     }
   },
   plugins: [
