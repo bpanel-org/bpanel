@@ -6,6 +6,7 @@ import {
 } from '../constants/clients';
 import { STATE_REFRESHED, RESET_STATE } from '../constants/app';
 import { disconnectSocket, connectSocket } from './socketActions';
+import { setClientsHydrated } from './appActions';
 
 const client = getClient();
 
@@ -35,7 +36,7 @@ function setCurrentClient(clientInfo) {
     const info = await client.getClientInfo(id, true);
     // set the client info for the global client
     if (id) client.setClientInfo(id, chain);
-    dispatch({
+    return dispatch({
       type: SET_CURRENT_CLIENT,
       payload: { ...clientInfo, ...info }
     });
@@ -76,14 +77,18 @@ function hydrateClients() {
       await dispatch(getClients());
       const currentClient = getState().clients.currentClient;
       const clients = getState().clients.clients;
+
       // if there is no currentClient set or
       // the currentClient does not exist in clients store
       // reset the currentClient to a default from the server
-      if (!currentClient.id || !clients[currentClient.id]) {
-        return dispatch(getDefaultClient());
-      } else {
-        return await dispatch(setCurrentClient(currentClient));
-      }
+      if (!currentClient.id || !clients[currentClient.id])
+        await dispatch(getDefaultClient());
+      else await dispatch(setCurrentClient(currentClient));
+
+      // set clientsHydrated to true in state
+      // so other parts of the app can start listening
+      // for client changs
+      return dispatch(setClientsHydrated(true));
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('There was an error hydrating clients:', e);

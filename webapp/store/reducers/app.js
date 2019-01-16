@@ -4,7 +4,8 @@ const initialState = {
   port: null,
   protocol: null,
   ssl: null,
-  socketPort: parseInt(BPANEL_SOCKET_PORT, 10)
+  socketPort: parseInt(BPANEL_SOCKET_PORT, 10),
+  clientsHydrated: false
 };
 
 const appState = (state = initialState, action) => {
@@ -17,6 +18,11 @@ const appState = (state = initialState, action) => {
       newState.protocol = protocol;
       newState.ssl = ssl;
       newState.hostname = hostname;
+      return newState;
+    }
+
+    case 'CLIENTS_HYDRATED': {
+      newState.clientsHydrated = action.payload;
       return newState;
     }
 

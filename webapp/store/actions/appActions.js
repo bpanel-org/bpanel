@@ -21,6 +21,13 @@ export function getWindowInfo() {
   };
 }
 
+export function setClientsHydrated(hydrated = false) {
+  return {
+    type: 'CLIENTS_HYDRATED',
+    payload: hydrated
+  };
+}
+
 export default {
   getWindowInfo
 };

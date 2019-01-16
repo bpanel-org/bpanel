@@ -25,9 +25,9 @@ export function getNodeInfo() {
     dispatch(getGenesisBlock());
     try {
       const nodeInfo = await client.node.getInfo();
-      dispatch(requestingNode(false));
       dispatch(setNodeInfo(nodeInfo));
       dispatch(setChainInfo(nodeInfo.chain));
+      dispatch(requestingNode(false));
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
