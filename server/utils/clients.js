@@ -1,17 +1,26 @@
 const { parse: urlParse } = require('url');
 const assert = require('bsert');
 const Config = require('bcfg');
-const { Network: BNetwork } = require('bcoin');
-const { Network: HSNetwork } = require('hsd');
-const {
-  NodeClient: BNodeClient,
-  WalletClient: BWalletClient
-} = require('bclient');
-const {
-  NodeClient: HSNodeClient,
-  WalletClient: HSWalletClient
-} = require('hs-client');
+
 const MultisigClient = require('bmultisig/lib/client');
+
+const nodeClients = {
+  bitcoin: require('bclient').NodeClient,
+  bitcoincash: require('bclient').NodeClient,
+  handshake: require('hs-client').nodeClient
+};
+
+const walletClients = {
+  bitcoin: require('bclient').WalletClient,
+  bitcoincash: require('bclient').WalletClient,
+  handshake: require('hs-client').WalletClient
+};
+
+const networks = {
+  bitcoin: require('bcoin/lib/protocol/network'),
+  bitcoincash: require('bcash/lib/protocol/network'),
+  handshake: require('bcoin/lib/protocol/network')
+};
 
 const logClientInfo = (id, type, { ssl, host, port, network }) =>
   `${id}: Configuring ${type} client with uri: ${ssl
@@ -25,7 +34,6 @@ const logClientInfo = (id, type, { ssl, host, port, network }) =>
  * a Node, Wallet, and Multisig clients as available
  */
 function clientFactory(config) {
-  let Network, NodeClient, WalletClient;
   assert(
     config instanceof Config,
     'Must pass instance of Config class to client composer'
@@ -40,27 +48,19 @@ function clientFactory(config) {
   // bitcoin, bitcoincash, handshake
   if (!config.str('chain'))
     logger.warning(
-      `No chain set in configs for ${config.str('id')}, defaulting to 'bitcoin'`
+      'No chain set in configs for %s, defaulting to bitcoin',
+      config.str('id')
     );
 
   const chain = config.str('chain', 'bitcoin');
 
-  // set tools based on chain
-  switch (chain) {
-    case 'handshake':
-      Network = HSNetwork;
-      NodeClient = HSNodeClient;
-      WalletClient = HSWalletClient;
-      break;
-    case 'bitcoin':
-    case 'bitcoincash':
-      Network = BNetwork;
-      NodeClient = BNodeClient;
-      WalletClient = BWalletClient;
-      break;
-    default:
-      throw new Error(`Unrecognized chain ${chain}`);
-  }
+  const Network = networks[chain];
+  const NodeClient = nodeClients[chain];
+  const WalletClient = walletClients[chain];
+
+  if (!Network) throw new Error('bad chain');
+  if (!NodeClient) throw new Error('bad chain');
+  if (!WalletClient) throw new Error('bad chain');
 
   const network = Network.get(config.str('network', 'main'));
 
@@ -118,17 +118,12 @@ function clientFactory(config) {
   // if false, do not instantiate new node client
   if (config.bool('node', true)) {
     nodeClient = new NodeClient(nodeOptions);
-    const statement = logClientInfo(id, 'node', nodeOptions);
-    logger.info(statement);
   }
 
   // check if config explicitly sets wallet config to `false`
   // if false, do not instantiate new wallet client
   if (config.bool('wallet', true)) {
     walletClient = new WalletClient(walletOptions);
-
-    const statement = logClientInfo(id, 'wallet', walletOptions);
-    logger.info(statement);
   }
 
   if (config.bool('multisig', true)) {
@@ -136,8 +131,6 @@ function clientFactory(config) {
       ...walletOptions,
       multisigPath: '/'
     });
-    const statement = logClientInfo(id, 'multisig wallet', walletOptions);
-    logger.info(statement);
   }
 
   return { nodeClient, walletClient, multisigClient };
@@ -157,6 +150,7 @@ function buildClients(config) {
   // each of their configs.
   const clientConfigs = loadClientConfigs(config);
   const configsMap = createConfigsMap(clientConfigs);
+
   const clients = clientConfigs.reduce((clientsMap, cfg) => {
     const id = cfg.str('id');
     assert(id, 'client config must have id');
@@ -165,8 +159,10 @@ function buildClients(config) {
     cfg.set('logger', logger);
 
     clientsMap.set(id, { ...clientFactory(cfg), config: cfg });
+
     return clientsMap;
   }, new Map());
+
   return { configsMap, clients };
 }
 

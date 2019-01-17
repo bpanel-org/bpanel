@@ -88,6 +88,7 @@ async function clientsHandler(req, res) {
 
   assert(config instanceof Config, 'client needs bcfg config');
 
+  // this is causing tons of logging on every request
   const { nodeClient, walletClient, multisigClient } = clientFactory(config);
 
   const reqClients = {

@@ -53,6 +53,11 @@ class SocketManager extends Server {
         address.port
       );
     });
+
+    this.on('add client', async (id, clients) => {
+      this.logger.info('adding client %s', id);
+      await this.addClients(id, clients);
+    });
   }
 
   /*
@@ -516,11 +521,22 @@ class SocketManager extends Server {
   async addClients(id, clients) {
     assert(typeof id === 'string', 'Must pass an id and must be a string');
 
-    if (this.clients.has(id))
-      throw new Error(`Clients with id ${id} already exists`);
+    if (this.clients.has(id)) return;
 
-    for (let client in clients) {
-      if (clients[client]) await clients[client].open();
+    // TODO: determine if we want to close the
+    // clients or constantly have them try to connect
+    for (const client of Object.values(clients)) {
+      client.open();
+      let errorCount = 0;
+      client.on('error', async error => {
+        this.logger.error(
+          'client %s error %s: %s',
+          id,
+          ++errorCount,
+          error.message
+        );
+        if (errorCount === 3) await client.close();
+      });
     }
 
     this.clients.set(id, clients);
