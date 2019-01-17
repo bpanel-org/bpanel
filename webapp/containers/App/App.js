@@ -149,7 +149,7 @@ const mapStateToProps = state => ({
   // it will only recalculate if there's been a change in the state)
   sidebarNavItems: nav.sortedSidebarItems(state),
   theme: state.theme,
-  clientsHydrated: state.app.clientsHydrated,
+  clientsHydrated: state.clients.clientsHydrated,
   loading: state.node.loading
 });
 

@@ -21,11 +21,6 @@ const appState = (state = initialState, action) => {
       return newState;
     }
 
-    case CLIENTS_HYDRATED: {
-      newState.clientsHydrated = action.payload;
-      return newState;
-    }
-
     default:
       return state;
   }

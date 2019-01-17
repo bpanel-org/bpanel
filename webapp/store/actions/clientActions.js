@@ -2,11 +2,11 @@ import { getClient } from '@bpanel/bpanel-utils';
 import {
   SET_CURRENT_CLIENT,
   SET_CLIENTS,
-  CLEAR_CURRENT_CLIENT
+  CLEAR_CURRENT_CLIENT,
+  CLIENTS_HYDRATED
 } from '../constants/clients';
 import { STATE_REFRESHED, RESET_STATE } from '../constants/app';
 import { disconnectSocket, connectSocket } from './socketActions';
-import { setClientsHydrated } from './appActions';
 
 const client = getClient();
 
@@ -20,6 +20,13 @@ function setClients(clients) {
 function clearCurrentClient() {
   return {
     type: CLEAR_CURRENT_CLIENT
+  };
+}
+
+export function setClientsHydrated(hydrated = false) {
+  return {
+    type: CLIENTS_HYDRATED,
+    payload: hydrated
   };
 }
 
