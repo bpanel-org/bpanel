@@ -242,7 +242,7 @@ async function prepareModules(plugins = [], local = true, network = false) {
         logger.info('Installing base packages...');
         execSync('npm install --production', {
           stdio: [0, 1, 2],
-          cwd: resolve(__dirname, '..')
+          cwd: resolve(MODULES_DIRECTORY, '..')
         });
       }
       if (!local) {
