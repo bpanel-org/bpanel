@@ -12,177 +12,86 @@ const { execSync } = require('child_process');
 const os = require('os');
 const { createLogger } = require('./logger');
 const chokidar = require('chokidar');
+const http = require('http');
+const https = require('https');
+const express = require('express');
 
-const webpackArgs = [];
+const { parseArgs } = require('./utils/parseArgs');
 
-let poll = false;
-// If run from command line, parse args
-if (require.main === module) {
-  (async function() {
-    const logger = createLogger();
-    await logger.open();
+// network information
+const networks = {
+  bitcoin: require('bcoin/lib/protocol/networks'),
+  bitcoincash: require('bcash/lib/protocol/networks'),
+  handshake: require('hsd/lib/protocol/networks')
+};
 
-    // setting up webpack configs
-    // use default/base config for dev
-    if (
-      process.argv.indexOf('--dev') >= 0 ||
-      process.env.NODE_ENV === 'development'
-    ) {
-      webpackArgs.push(
-        '--config',
-        path.resolve(__dirname, '../configs/webpack.config.js')
-      );
-    } else {
-      // otherwise use prod config
-      webpackArgs.push(
-        '--config',
-        path.resolve(__dirname, '../configs/webpack.prod.js')
-      );
-    }
+// Import express middlewares
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const compression = require('compression');
 
-    // environment specific `watch` args
-    if (process.argv.indexOf('--watch-poll') >= 0) {
-      poll = true;
-      webpackArgs.push('--watch', '--env.dev', '--env.poll');
-    } else if (process.argv.indexOf('--watch') >= 0) {
-      webpackArgs.push('--watch', '--env.dev');
-    }
+// Import app server utilities and modules
+const SocketManager = require('./socketManager');
+const {
+  attach,
+  apiFilters,
+  pluginUtils,
+  clientHelpers,
+  configHelpers
+} = require('./utils');
+const endpoints = require('./endpoints');
 
-    // an option to run an `npm install` which will clear any symlinks
-    if (process.argv.indexOf('--clear') > -1) {
-      logger.info('Clearing symlinks in node_modules with `npm install`...');
-      execSync('npm install', {
-        killSignal: 'SIGINT',
-        stdio: [0, 1, 2],
-        cwd: path.resolve(__dirname, '..')
-      });
-    }
+const { isBlacklisted } = apiFilters;
+const { getPluginEndpoints } = pluginUtils;
+const { buildClients, getClientsById } = clientHelpers;
+const { loadConfig } = configHelpers;
 
-    if (process.argv.indexOf('--dev') >= 0) {
-      if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development';
-
-      // pass args to nodemon process except `--dev`
-      const args = process.argv
-        .slice(2)
-        .filter(arg => arg !== '--dev' && arg !== '--clear');
-
-      // Watch this server
-      const nodemon = require('nodemon')({
-        script: 'server/index.js',
-        watch: ['server'],
-        ignore: ['server/test/**/*.js'],
-        args,
-        legacyWatch: poll,
-        ext: 'js'
-      })
-        .on('crash', () => {
-          process.exit(1);
-        })
-        .on('quit', process.exit);
-
-      // need to use chokidar to watch for changes outside the working
-      // directory. Will restart if configs get updated
-      // should be updated to check bpanelConfig for where the prefix is
-      const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
-      chokidar
-        .watch([configFile], { usePolling: poll, useFsEvents: poll })
-        .on('all', () => {
-          nodemon.emit('restart');
-        });
-      await logger.close();
-      return;
-    }
-    await logger.close();
-  })();
+// Crash the process when a service does
+function onError(service, logger) {
+  return e => {
+    logger.error('%s error: %s', service, e.message);
+    process.exit(1);
+  };
 }
 
+// Setup app server
+function resolveIndex(req, res) {
+  req.logger.debug('Caught request in resolveIndex: %s', req.path);
+  res.sendFile(path.resolve(__dirname, '../dist/index.html'));
+}
+
+// black list filter
+function forbiddenHandler(req, res) {
+  return res.json(403, {
+    error: { message: 'Forbidden', code: 403 }
+  });
+}
+
+// global clients and configsMap
+let clients = {};
+let configsMap = new Map();
+
 // Init bPanel
-module.exports = async (_config = {}) => {
-  // Import server dependencies
-  const path = require('path');
-  const http = require('http');
-  const express = require('express');
+module.exports = async (config = {}) => {
+  // build application config
+  const bpanelConfig = loadConfig('bpanel', config);
 
-  // network information
-  const networks = {
-    bitcoin: require('bcoin/lib/protocol/networks'),
-    bitcoincash: require('bcash/lib/protocol/networks'),
-    handshake: require('hsd/lib/protocol/networks')
-  };
-
-  // Import express middlewares
-  const bodyParser = require('body-parser');
-  const cors = require('cors');
-  const compression = require('compression');
-
-  // Import app server utilities and modules
-  const SocketManager = require('./socketManager');
-  const {
-    attach,
-    apiFilters,
-    pluginUtils,
-    clientHelpers,
-    configHelpers
-  } = require('./utils');
-  const endpoints = require('./endpoints');
-
-  const { isBlacklisted } = apiFilters;
-  const { getPluginEndpoints } = pluginUtils;
-  const { buildClients, getClientsById } = clientHelpers;
-  const { loadConfig } = configHelpers;
-
-  // get bpanel config
-  const bpanelConfig = loadConfig('bpanel', _config);
-
-  // build logger from config
-  const logger = createLogger(bpanelConfig);
-  bpanelConfig.set('logger', logger);
-  await logger.open();
-
-  // check if vendor-manifest has been built otherwise run
-  // build:dll first to build the manifest
-  if (!fs.existsSync(path.resolve(__dirname, '../dist/vendor-manifest.json'))) {
-    logger.info(
-      'No vendor manifest. Running webpack dll first. This can take a couple minutes the first time but \
-will increase speed of future builds, so please be patient.'
-    );
-    execSync('npm run build:dll', {
-      stdio: [0, 1, 2],
-      cwd: path.resolve(__dirname, '..')
-    });
+  // ensure logger
+  if (!bpanelConfig.has('logger')) {
+    const logger = createLogger();
+    await logger.open();
+    bpanelConfig.set('logger', logger);
   }
 
-  const bsockPort = bpanelConfig.int('bsock-port') || 8000;
-
-  // Always start webpack
-  require('nodemon')({
-    script: './node_modules/.bin/webpack',
-    watch: [`${bpanelConfig.prefix}/config.js`],
-    env: {
-      BPANEL_PREFIX: bpanelConfig.prefix,
-      BPANEL_SOCKET_PORT: bsockPort,
-      BPANEL_LOG_LEVEL: bpanelConfig.str('log-level', 'info'),
-      BPANEL_LOG_FILE: bpanelConfig.bool('log-file', true),
-      BPANEL_LOG_CONSOLE: bpanelConfig.bool('log-console', true),
-      BPANEL_LOG_SHRINK: bpanelConfig.bool('log-shrink', true)
-    },
-    args: webpackArgs,
-    legacyWatch: poll
-  })
-    .on('crash', () => {
-      process.exit(1);
-    })
-    .on('quit', process.exit);
+  const logger = bpanelConfig.obj('logger');
 
   // Init app express server
   const app = express.Router();
-  const port = process.env.PORT || 5000;
   app.use(bodyParser.json());
   app.use(cors());
+  app.use(compression());
 
-  // create new SocketManager
-
-  // setting up whitelisted ports for wsproxy
+  // build whitelisted ports list for wsproxy
   // can add other custom ones via `proxy-ports` config option
   const ports = [18444, 28333, 28901].concat(
     bpanelConfig.array('proxy-ports', [])
@@ -193,234 +102,300 @@ will increase speed of future builds, so please be patient.'
     ports.push(networks[chain].testnet.port);
   }
 
+  // create new SocketManager
   const socketManager = new SocketManager({
     noAuth: true,
-    port: bsockPort,
+    port: bpanelConfig.int('bsock-port', 8000),
     logger,
     ports
   });
 
-  // Wait for async part of server setup
-  const ready = (async function() {
-    // Set up client config
-    let { clients, configsMap } = buildClients(bpanelConfig);
-
-    const clientIds = clients.keys();
-
-    const resolveIndex = (req, res) => {
-      logger.debug(`Caught request in resolveIndex: ${req.path}`);
-      res.sendFile(path.resolve(__dirname, '../dist/index.html'));
-    };
-
-    // Setup app server
-    app.use(compression());
-
-    // black list filter
-    const forbiddenHandler = (req, res) =>
-      res.status(403).json({ error: { message: 'Forbidden', code: 403 } });
-
-    app.use((req, res, next) => {
-      try {
-        if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
-        next();
-      } catch (e) {
-        next(e);
-      }
-    });
-
-    app.use(
-      express.static(path.resolve(__dirname, '../dist'), {
-        index: 'index.html',
-        setHeaders: function(res, path) {
-          if (path.endsWith('.gz')) {
-            res.setHeader('Content-Encoding', 'gzip');
-            res.setHeader('Content-Type', 'application/javascript');
-          }
-        }
-      })
-    );
-
-    app.get('/', resolveIndex);
-
-    // add utilities to the req object
-    // for use in the api endpoints
-    // TODO: Load up client configs and attach to req object here
-    app.use((req, res, next) => {
-      req.logger = logger;
-      req.config = bpanelConfig;
-      req.clients = configsMap;
-      next();
-    });
-
-    /*
-     * Setup backend plugins
-     */
-
-    const { beforeMiddleware, afterMiddleware } = getPluginEndpoints(
-      bpanelConfig,
-      logger
-    );
-
-    // compose endpoints
-    const apiEndpoints = [...beforeMiddleware];
-    for (let key in endpoints) {
-      apiEndpoints.push(...endpoints[key]);
-    }
-    apiEndpoints.push(...afterMiddleware);
-
-    for (let endpoint of apiEndpoints) {
-      try {
-        attach(app, endpoint);
-      } catch (e) {
-        logger.error(e.stack);
-      }
-    }
-
-    // TODO: add favicon.ico file
-    app.get('/favicon.ico', (req, res) => {
-      res.send();
-    });
-
-    app.get('/*', resolveIndex);
-
-    // This must be the last middleware so that
-    // it catches and returns errors
-    app.use((err, req, res, next) => {
-      logger.error('There was an error in the middleware: %s', err.message);
-      logger.error(err.stack);
-      if (res.headersSent) {
-        return next(err);
-      }
-      res.status(500).json({ error: { status: 500, message: 'Server error' } });
-    });
-
-    // handle the unhandled rejections and exceptions
-    if (process.listenerCount('unhandledRejection') === 0) {
-      process.on('unhandledRejection', err => {
-        logger.error('Unhandled Rejection\n', err);
-      });
-    }
-    if (process.listenerCount('uncaughtException') === 0) {
-      process.on('uncaughtException', err => {
-        logger.error('Uncaught Exception\n', err);
-      });
-    }
-
-    // Crash the process when a service does
-    const onError = service => {
-      return e => {
-        logger.error(`${service} error: ${e.message}`);
-        process.exit(1);
-      };
-    };
-
-    // Start bsock server
-    socketManager.on('error', e =>
-      logger.error(`socketManager error: ${e.message}`)
-    );
-
+  app.use((req, res, next) => {
     try {
-      // Setup bsock server
-      for (let id of clientIds) {
-        const newClients = getClientsById(id, clients);
-        socketManager.addClients(id, newClients);
-      }
-
-      // refresh the clients map if the clients directory gets updated
-      const clientsDir = bpanelConfig.location('clients');
-      chokidar
-        .watch([clientsDir], { usePolling: poll, useFsEvents: poll })
-        .on('all', (event, path) => {
-          logger.info(
-            'Change detected in clients directory. Updating clients on server.'
-          );
-          logger.debug('"%s" event on %s', event, path);
-          const builtClients = buildClients(bpanelConfig);
-          clients = builtClients.clients;
-          configsMap = builtClients.configsMap;
-
-          // need to update the socket manager too
-          // TODO: this isn't ideal (doing two loops)
-          // but it's better than restarting the whole server
-          // which also restarts the webpack build
-          // hopefully this is easier to manage when the socket manager also
-          // has the full server for all requests and can manage this internally
-          const ids = clients.keys();
-          // add any new clients not in socketManager
-          for (let id of ids) {
-            const newClients = getClientsById(id, clients);
-
-            if (!socketManager.hasClient(id))
-              socketManager.addClients(id, newClients);
-          }
-
-          // remove any clients from the socketManager not in our list
-          const sockets = socketManager.clients.keys();
-          for (let id of sockets)
-            if (!clients.has(id)) socketManager.removeClients(id);
-        });
+      if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
+      next();
     } catch (e) {
-      logger.error('There was a problem loading clients:', e);
+      next(e);
     }
+  });
 
-    await socketManager.open();
-
-    // If NOT required from another script...
-    if (require.main === module) {
-      http // Start app server
-        .createServer(express().use(app))
-        .on('error', onError('bpanel'))
-        .listen(port, () => {
-          logger.info('bpanel app running on port', port);
-        });
-
-      // can serve over https
-      if (bpanelConfig.bool('ssl', false)) {
-        const fs = require('bfile');
-        const https = require('https');
-        const httpsPort = bpanelConfig.int('https-port', 5001);
-        const keyPath = bpanelConfig.str('ssl-key', '/etc/ssl/key.pem');
-        const certPath = bpanelConfig.str('ssl-cert', '/etc/ssl/cert.pem');
-
-        let opts = {};
-        try {
-          opts.key = fs.readFileSync(keyPath);
-          opts.cert = fs.readFileSync(certPath);
-        } catch (e) {
-          logger.error(e);
-          logger.error('Error reading cert/key pair');
-          process.exit(1);
+  app.use(
+    express.static(path.resolve(__dirname, '../dist'), {
+      index: 'index.html',
+      setHeaders: function(res, path) {
+        if (path.endsWith('.gz')) {
+          res.setHeader('Content-Encoding', 'gzip');
+          res.setHeader('Content-Type', 'application/javascript');
         }
-
-        https
-          .createServer(opts, express().use(app))
-          .on('error', onError('bpanel'))
-          .listen(httpsPort, () => {
-            logger.info('bpanel https app running on port', httpsPort);
-          });
       }
-    }
+    })
+  );
 
-    return app;
-  })();
+  app.get('/', resolveIndex);
+
+  // add utilities to the req object
+  // for use in the api endpoints
+  // TODO: Load up client configs and attach to req object here
+  app.use((req, res, next) => {
+    req.logger = logger;
+    req.config = bpanelConfig;
+    req.clients = configsMap;
+    next();
+  });
+
+  /*
+   * Setup backend plugins
+   */
+
+  const { beforeMiddleware, afterMiddleware } = getPluginEndpoints(
+    bpanelConfig,
+    logger
+  );
+
+  // compose endpoints
+  const apiEndpoints = [...beforeMiddleware];
+  for (let key in endpoints) {
+    apiEndpoints.push(...endpoints[key]);
+  }
+  apiEndpoints.push(...afterMiddleware);
+
+  for (let endpoint of apiEndpoints) {
+    try {
+      attach(app, endpoint);
+    } catch (e) {
+      logger.error(e.stack);
+    }
+  }
+
+  // TODO: add favicon.ico file
+  app.get('/favicon.ico', (req, res) => {
+    res.send();
+  });
+
+  app.get('/*', resolveIndex);
+
+  // This must be the last middleware so that
+  // it catches and returns errors
+  app.use((err, req, res, next) => {
+    logger.error('There was an error in the middleware: %s', err.message);
+    logger.error(err.stack);
+    if (res.headersSent) {
+      return next(err);
+    }
+    res.status(500).json({ error: { status: 500, message: 'Server error' } });
+  });
+
+  socketManager.on('error', e =>
+    logger.context('socket-manager').error(e.message)
+  );
+
+  // watch the config file
+  // subroutine to watch config file directory and maintain
+  // map of config files
+  // every time a config file is updated, rebuild map of config files
+  // map of config files is global variable that is attached to every
+  // request via express middleware
+  // TODO: wrap in if statement to allow turning off
+  const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
+  chokidar
+    .watch([configFile], {
+      usePolling: bpanelConfig.bool('dynamicclients'),
+      useFsEvents: bpanelConfig.bool('dynamicclients')
+    })
+    .on('all', () => {
+      logger.context('chokidar').debug('config file change');
+    });
 
   // Export app, clients, & utils
   return {
-    app,
-    ready,
-    logger,
-    config: bpanelConfig
+    app, // express.Router
+    logger, // blgr
+    socketManager, // bpanel.SocketManager
+    config: bpanelConfig // bcfg
   };
 };
 
 // Start server when run from command line
 if (require.main === module) {
   (async function() {
+    const logger = createLogger();
+    await logger.open();
+
+    let socketManager;
+
     try {
-      module.exports();
+      const args = parseArgs({ module: false });
+
+      const config = args.config;
+      config.set('logger', logger);
+
+      // do side effects
+
+      // clear plugins
+      if (args.clear) {
+        clear();
+        process.exit();
+      }
+
+      // handle the unhandled rejections and exceptions
+      if (process.listenerCount('unhandledRejection') === 0) {
+        process.on('unhandledRejection', err => {
+          logger.error('Unhandled Rejection\n', err);
+        });
+      }
+      if (process.listenerCount('uncaughtException') === 0) {
+        process.on('uncaughtException', err => {
+          logger.error('Uncaught Exception\n', err);
+        });
+      }
+
+      if (args.startWebpack) {
+        require('nodemon')({
+          script: './node_modules/.bin/webpack',
+          watch: [`${config.prefix}/config.js`],
+          env: {
+            BPANEL_PREFIX: args.config.prefix,
+            BPANEL_SOCKET_PORT: args.config.int('bsockport', 8000),
+            BPANEL_LOG_LEVEL: args.config.str('loglevel', 'info'),
+            BPANEL_LOG_FILE: args.config.bool('logfile', true),
+            BPANEL_LOG_CONSOLE: args.config.bool('logconsole', true),
+            BPANEL_LOG_SHRINK: args.config.bool('logshrink', true)
+          },
+          args: args.webpack,
+          legacyWatch: args.watch
+        })
+          .on('restart', file => {
+            logger
+              .context('nodemon - webpack')
+              .debug('restarting server: %s', file);
+          })
+          .on('crash', () => {
+            logger.context('nodemon - webpack').debug('crash');
+            process.exit(1);
+          })
+          .on('quit', () => {
+            logger.context('nodemon - webpack').debug('quitting');
+            process.exit();
+          });
+      }
+
+      if (args.dev) {
+        // watch the server files
+        const nodemon = require('nodemon')({
+          script: 'server/index.js',
+          watch: ['server/**/*.js'],
+          ignore: ['server/test/**/*.js'],
+          args: args.server,
+          legacyWatch: args.watch,
+          ext: 'js'
+        })
+          .on('restart', file => {
+            // do something to make sure server is stopped
+            logger
+              .context('nodemon - server')
+              .debug('restarting server: %s', file);
+            logger.info('%s', file);
+          })
+          .on('crash', () => {
+            logger.context('nodemon - server').debug('crash');
+            process.exit(1);
+          })
+          .on('quit', () => {
+            logger.context('nodemon - server').debug('quitting');
+            process.exit();
+          });
+
+        // check if vendor-manifest has been built otherwise run
+        // build:dll first to build the manifest
+        if (
+          !fs.existsSync(
+            path.resolve(__dirname, '../dist/vendor-manifest.json')
+          )
+        ) {
+          logger.info(
+            'No vendor manifest. Running webpack dll first. This can take a couple minutes the first time but \
+      will increase speed of future builds, so please be patient.'
+          );
+          execSync('npm run build:dll', {
+            stdio: [0, 1, 2],
+            cwd: path.resolve(__dirname, '..')
+          });
+        }
+      } else {
+        // not development mode
+
+        // non development mode
+        const bpanel = await module.exports(config);
+
+        socketManager = bpanel.socketManager;
+
+        let protocol;
+        let opts = {};
+
+        if (config.bool('ssl', false)) {
+          protocol = https;
+          logger.info('starting server using https');
+
+          const keyPath = config.str('ssl-key', '/etc/ssl/key.pem');
+          const certPath = config.str('ssl-cert', '/etc/ssl/cert.pem');
+
+          try {
+            opts.key = fs.readFileSync(keyPath);
+            opts.cert = fs.readFileSync(certPath);
+          } catch (e) {
+            logger.error(e);
+            logger.error('Error reading cert/key pair');
+            process.exit(1);
+          }
+        } else {
+          protocol = http;
+          logger.info('starting server using http');
+        }
+
+        const port = config.int('port', 5000);
+
+        const app = bpanel.app;
+        //await socketManager.open();
+
+        // start the server
+        // requires nodejs 10+
+        // protocol is either nodejs.http or nodejs.https
+        const server = protocol
+          .createServer(opts, express().use(app))
+          .on('error', onError('bpanel', logger))
+          .listen(port, () => {
+            logger.info('bpanel app running on port %s', port);
+          });
+      }
+
+      // create watch for clients
+      if (args.dynamicClients) {
+        const clientsDir = args.config.location('clients');
+        chokidar
+          .watch([clientsDir], {
+            usePolling: args.watch,
+            useFsEvents: args.watch
+          })
+          .on('add', path => {
+            logger.info(
+              'Change detected in clients directory. Updating clients on server.'
+            );
+            logger.debug('added %s', path);
+            const builtClients = buildClients(config);
+
+            // global variables
+            clients = builtClients.clients;
+            configsMap = builtClients.configsMap;
+
+            // emit to socket manager update
+            for (const [id, client] of clients) {
+              const clientsById = getClientsById(id, clients);
+              if (socketManager)
+                socketManager.emit('add client', id, clientsById);
+            }
+          });
+      }
     } catch (e) {
-      const logger = createLogger();
-      await logger.open();
       logger.error('There was an error running the server: ', e.stack);
       await logger.close();
       process.exit(1);
