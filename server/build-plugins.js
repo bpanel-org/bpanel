@@ -15,8 +15,19 @@ const { npmExists } = require('./utils');
 const config = new Config('bpanel');
 config.load({ env: true, argv: true, arg: true });
 const PLUGINS_CONFIG = resolve(config.prefix, 'config.js');
-const MODULES_DIRECTORY = resolve(__dirname, '../node_modules');
 const PLUGINS_PATH = resolve(__dirname, '../webapp/plugins');
+
+// Try to figure out where everything is being installed
+// The path is different for git clone vs npm install
+// We must assume npm has installed at least something somewhere prior to this
+function findNodeModules() {
+  const paths = require.main.paths;
+  for (const path of paths) {
+    if (fs.existsSync(path)) return path;
+  }
+  throw new Error('Cannot resolve install directory for plugins');
+}
+const MODULES_DIRECTORY = findNodeModules();
 
 // location of app configs and local plugins
 // defaults to ~/.bpanel/
@@ -46,7 +57,7 @@ async function installRemotePackages(installPackages) {
   try {
     execSync(`npm install --no-save ${pkgStr} --production`, {
       stdio: [0, 1, 2],
-      cwd: resolve(__dirname, '..')
+      cwd: resolve(MODULES_DIRECTORY, '..')
     });
     logger.info('Done installing remote plugins');
   } catch (e) {
