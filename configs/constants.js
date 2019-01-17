@@ -7,22 +7,10 @@ const SERVER_DIR = path.resolve(ROOT_DIR, 'server');
 const MODULES_DIR = path.resolve(ROOT_DIR, 'node_modules');
 
 const resolveRoot = function(module) {
-  const moduleMain = require.resolve(module);
-  const pathArray = moduleMain.split('/');
-
-  // Handle @-scoped module names
-  const moduleName = module.split('/').pop();
-
-  // Find the module root directory
-  // Only works when root directory has same name as module
-  while (pathArray.pop() !== moduleName) {
-    if (pathArray.length === 0)
-      throw new Error(`Could not resolve path for module ${module}`);
-  }
-
-  pathArray.push(moduleName);
-  const resolved = pathArray.join('/');
-  return resolved;
+  const pkgPath = require.resolve(path.join(module, 'package.json'));
+  const pathArray = pkgPath.split('/');
+  pathArray.pop();
+  return pathArray.join('/');
 };
 
 exports.ROOT_DIR = ROOT_DIR;
