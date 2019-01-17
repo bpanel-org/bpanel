@@ -1,0 +1,206 @@
+#!/usr/bin/env node --max_old_space_size=4096
+
+const chokidar = require('chokidar');
+const express = require('express');
+const path = require('path');
+const http = require('http');
+const https = require('https');
+const fs = require('bfile');
+const { createLogger } = require('../server/logger');
+const { execSync } = require('child_process');
+const { parseArgs } = require('../server/utils/parseArgs');
+const { clientHelpers } = require('../server/utils');
+const { buildClients, getClientsById } = clientHelpers;
+
+const bpanelModule = require('../server/index.js');
+
+// Crash the process when a service does
+function onError(service, logger) {
+  return e => {
+    logger.error('%s error: %s', service, e.message);
+    process.exit(1);
+  };
+}
+
+// global clients and configsMap
+let clients = {};
+let configsMap = new Map();
+
+(async function() {
+  const bpanel = await bpanelModule();
+  const logger = createLogger();
+  await logger.open();
+
+  let socketManager;
+
+  try {
+    const args = parseArgs({ module: false });
+
+    const config = args.config;
+    config.set('logger', logger);
+
+    // do side effects
+
+    // clear plugins
+    if (args.clear) {
+      // clear();
+      process.exit();
+    }
+
+    // handle the unhandled rejections and exceptions
+    if (process.listenerCount('unhandledRejection') === 0) {
+      process.on('unhandledRejection', err => {
+        logger.error('Unhandled Rejection\n', err);
+      });
+    }
+    if (process.listenerCount('uncaughtException') === 0) {
+      process.on('uncaughtException', err => {
+        logger.error('Uncaught Exception\n', err);
+      });
+    }
+
+    if (args.startWebpack) {
+      require('nodemon')({
+        script: './node_modules/.bin/webpack',
+        watch: [`${config.prefix}/config.js`],
+        env: {
+          BPANEL_PREFIX: args.config.prefix,
+          BPANEL_SOCKET_PORT: args.config.int('bsockport', 8000),
+          BPANEL_LOG_LEVEL: args.config.str('loglevel', 'info'),
+          BPANEL_LOG_FILE: args.config.bool('logfile', true),
+          BPANEL_LOG_CONSOLE: args.config.bool('logconsole', true),
+          BPANEL_LOG_SHRINK: args.config.bool('logshrink', true)
+        },
+        args: args.webpack,
+        legacyWatch: args.watch
+      })
+        .on('restart', file => {
+          logger
+            .context('nodemon - webpack')
+            .debug('restarting server: %s', file);
+        })
+        .on('crash', () => {
+          logger.context('nodemon - webpack').debug('crash');
+          process.exit(1);
+        })
+        .on('quit', () => {
+          logger.context('nodemon - webpack').debug('quitting');
+          process.exit();
+        });
+    }
+
+    if (args.dev) {
+      // watch the server files
+      const nodemon = require('nodemon')({
+        script: 'server/index.js',
+        watch: ['server/**/*.js'],
+        ignore: ['server/test/**/*.js'],
+        args: args.server,
+        legacyWatch: args.watch,
+        ext: 'js'
+      })
+        .on('restart', file => {
+          // do something to make sure server is stopped
+          logger
+            .context('nodemon - server')
+            .debug('restarting server: %s', file);
+          logger.info('%s', file);
+        })
+        .on('crash', () => {
+          logger.context('nodemon - server').debug('crash');
+          process.exit(1);
+        })
+        .on('quit', () => {
+          logger.context('nodemon - server').debug('quitting');
+          process.exit();
+        });
+
+      // check if vendor-manifest has been built otherwise run
+      // build:dll first to build the manifest
+      if (
+        !fs.existsSync(path.resolve(__dirname, '../dist/vendor-manifest.json'))
+      ) {
+        logger.info(
+          'No vendor manifest. Running webpack dll first. This can take a couple minutes the first time but \
+    will increase speed of future builds, so please be patient.'
+        );
+        execSync('npm run build:dll', {
+          stdio: [0, 1, 2],
+          cwd: path.resolve(__dirname, '..')
+        });
+      }
+    } else {
+      socketManager = bpanel.socketManager;
+
+      let protocol;
+      let opts = {};
+
+      if (config.bool('ssl', false)) {
+        protocol = https;
+        logger.info('starting server using https');
+
+        const keyPath = config.str('ssl-key', '/etc/ssl/key.pem');
+        const certPath = config.str('ssl-cert', '/etc/ssl/cert.pem');
+
+        try {
+          opts.key = fs.readFileSync(keyPath);
+          opts.cert = fs.readFileSync(certPath);
+        } catch (e) {
+          logger.error(e);
+          logger.error('Error reading cert/key pair');
+          process.exit(1);
+        }
+      } else {
+        protocol = http;
+        logger.info('starting server using http');
+      }
+
+      const port = config.int('port', 5000);
+
+      const app = bpanel.app;
+      //await socketManager.open();
+
+      // start the server
+      // requires nodejs 10+
+      // protocol is either nodejs.http or nodejs.https
+      const server = protocol
+        .createServer(opts, express().use(app))
+        .on('error', onError('bpanel', logger))
+        .listen(port, () => {
+          logger.info('bpanel app running on port %s', port);
+        });
+    }
+
+    // create watch for clients
+    if (args.dynamicClients) {
+      const clientsDir = args.config.location('clients');
+      chokidar
+        .watch([clientsDir], {
+          usePolling: args.watch,
+          useFsEvents: args.watch
+        })
+        .on('add', path => {
+          logger.info(
+            'Change detected in clients directory. Updating clients on server.'
+          );
+          logger.debug('added %s', path);
+          const builtClients = buildClients(config);
+
+          // global variables
+          clients = builtClients.clients;
+          configsMap = builtClients.configsMap;
+
+          // emit to socket manager update
+          for (const [id, client] of clients) {
+            const clientsById = getClientsById(id, clients);
+            if (socketManager)
+              socketManager.emit('add client', id, clientsById);
+          }
+        });
+    }
+  } catch (e) {
+    logger.error('There was an error running the server: ', e.stack);
+    await logger.close();
+    process.exit(1);
+  }
+})();
