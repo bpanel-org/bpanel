@@ -31,7 +31,7 @@ class App extends PureComponent {
     props.loadSideNav();
     this.client = null;
     props.hydrateClients();
-    this.boundUpdate = this.updateClient.bind(this);
+    this.updateClient = this.updateClient.bind(this);
   }
 
   static get propTypes() {
@@ -65,7 +65,7 @@ class App extends PureComponent {
   async componentDidMount() {
     const { getNodeInfo, connectSocket } = this.props;
     this.client = getClient();
-    this.client.on('set clients', this.boundUpdate);
+    this.client.on('set clients', this.updateClient);
 
     if (this.client.id) {
       connectSocket();
@@ -75,6 +75,8 @@ class App extends PureComponent {
 
   updateClient(clientInfo) {
     const { resetClient, getNodeInfo, clientsHydrated, loading } = this.props;
+    // only reset if clients have been hydrated
+    // and the node is no longer loading
     if (clientsHydrated && !loading) resetClient(clientInfo);
     getNodeInfo();
   }
@@ -92,7 +94,7 @@ class App extends PureComponent {
     document.body.className = null;
     document.document.documentElement.className = null;
     this.props.disconnectSocket();
-    this.client.removeListener('set clients', this.boundUpdate);
+    this.client.removeListener('set clients', this.updateClient);
   }
 
   getHomePath() {

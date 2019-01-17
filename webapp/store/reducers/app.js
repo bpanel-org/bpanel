@@ -1,4 +1,4 @@
-import { SET_WINDOW } from '../constants/app';
+import { SET_WINDOW, CLIENTS_HYDRATED } from '../constants/app';
 
 const initialState = {
   port: null,
@@ -21,7 +21,7 @@ const appState = (state = initialState, action) => {
       return newState;
     }
 
-    case 'CLIENTS_HYDRATED': {
+    case CLIENTS_HYDRATED: {
       newState.clientsHydrated = action.payload;
       return newState;
     }

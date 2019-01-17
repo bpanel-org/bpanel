@@ -23,7 +23,7 @@ export function getWindowInfo() {
 
 export function setClientsHydrated(hydrated = false) {
   return {
-    type: 'CLIENTS_HYDRATED',
+    type: types.CLIENTS_HYDRATED,
     payload: hydrated
   };
 }
