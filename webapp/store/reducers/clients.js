@@ -4,7 +4,8 @@ import {
   SET_CLIENTS,
   SET_CURRENT_CLIENT,
   UPDATE_CLIENT,
-  CLEAR_CURRENT_CLIENT
+  CLEAR_CURRENT_CLIENT,
+  CLIENTS_HYDRATED
 } from '../constants/clients';
 import assert from 'bsert';
 
@@ -64,6 +65,11 @@ const clientsState = (state = initialState, action) => {
 
     case CLEAR_CURRENT_CLIENT: {
       newState.currentClient = {};
+      return newState;
+    }
+
+    case CLIENTS_HYDRATED: {
+      newState.clientsHydrated = action.payload;
       return newState;
     }
 

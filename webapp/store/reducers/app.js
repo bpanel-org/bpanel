@@ -1,10 +1,11 @@
-import { SET_WINDOW } from '../constants/app';
+import { SET_WINDOW, CLIENTS_HYDRATED } from '../constants/app';
 
 const initialState = {
   port: null,
   protocol: null,
   ssl: null,
-  socketPort: parseInt(BPANEL_SOCKET_PORT, 10)
+  socketPort: parseInt(BPANEL_SOCKET_PORT, 10),
+  clientsHydrated: false
 };
 
 const appState = (state = initialState, action) => {
