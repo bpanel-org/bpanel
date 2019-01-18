@@ -21,16 +21,16 @@ module.exports = async (node, config, logger, wallet) => {
   const blockInterval = 60 * 10; // ten mimnutes
 
   const walletNames = [
-    'Mark',
-    'Buck',
-    'Zip',
-    'Darren',
-    'Nodar',
-    'Javed',
-    'Boyma',
-    'Stephen',
-    'Andrew',
-    'JJ'
+    'Powell',
+    'Yellen',
+    'Bernanke',
+    'Greenspan',
+    'Volcker',
+    'Miller',
+    'Burns',
+    'Martin',
+    'McCabe',
+    'Eccles'
   ];
 
   const accountNames = ['hot', 'cold'];
