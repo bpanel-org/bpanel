@@ -1,4 +1,4 @@
-const { protocol: consensus } = require('bcoin');
+const { protocol: { consensus } } = require('bcoin');
 
 const makeWallets = async (node, config, logger, wallet) => {
   const network = node.network.type;
