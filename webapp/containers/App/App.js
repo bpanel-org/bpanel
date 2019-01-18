@@ -30,6 +30,8 @@ class App extends PureComponent {
     super(props);
     props.loadSideNav();
     this.client = null;
+    props.hydrateClients();
+    this.updateClient = this.updateClient.bind(this);
   }
 
   static get propTypes() {
@@ -41,10 +43,6 @@ class App extends PureComponent {
         pathname: PropTypes.string
       }),
       theme: PropTypes.object,
-      currentClient: PropTypes.shape({
-        id: PropTypes.string,
-        chain: PropTypes.string
-      }),
       connectSocket: PropTypes.func.isRequired,
       disconnectSocket: PropTypes.func.isRequired,
       getNodeInfo: PropTypes.func.isRequired,
@@ -58,15 +56,16 @@ class App extends PureComponent {
         path: PropTypes.string,
         url: PropTypes.string,
         params: PropTypes.object
-      }).isRequired
+      }).isRequired,
+      clientsHydrated: PropTypes.bool,
+      loading: PropTypes.bool
     };
   }
 
   async componentDidMount() {
-    const { getNodeInfo, connectSocket, hydrateClients } = this.props;
-    await hydrateClients();
+    const { getNodeInfo, connectSocket } = this.props;
     this.client = getClient();
-    this.client.on('set clients', clientInfo => this.updateClient(clientInfo));
+    this.client.on('set clients', this.updateClient);
 
     if (this.client.id) {
       connectSocket();
@@ -75,8 +74,10 @@ class App extends PureComponent {
   }
 
   updateClient(clientInfo) {
-    const { resetClient, getNodeInfo } = this.props;
-    resetClient(clientInfo);
+    const { resetClient, getNodeInfo, clientsHydrated, loading } = this.props;
+    // only reset if clients have been hydrated
+    // and the node is no longer loading
+    if (clientsHydrated && !loading) resetClient(clientInfo);
     getNodeInfo();
   }
 
@@ -93,9 +94,7 @@ class App extends PureComponent {
     document.body.className = null;
     document.document.documentElement.className = null;
     this.props.disconnectSocket();
-    this.client.removeListener('set clients', clientInfo =>
-      this.updateClient(clientInfo)
-    );
+    this.client.removeListener('set clients', this.updateClient);
   }
 
   getHomePath() {
@@ -149,8 +148,9 @@ const mapStateToProps = state => ({
   // redux store. Using the selector you can get them sorted (and
   // it will only recalculate if there's been a change in the state)
   sidebarNavItems: nav.sortedSidebarItems(state),
-  currentClient: state.clients.currentClient,
-  theme: state.theme
+  theme: state.theme,
+  clientsHydrated: state.clients.clientsHydrated,
+  loading: state.node.loading
 });
 
 const mapDispatchToProps = dispatch => {
