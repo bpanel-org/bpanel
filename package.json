@@ -5,9 +5,7 @@
   "description": "GUI application to interact with a Bcoin Bitcoin node",
   "main": "server/index.js",
   "scripts": {
-    "start": "node --max_old_space_size=4096 server",
-    "start:dev": "node --max_old_space_size=4096 server --dev",
-    "start:poll": "node --max_old_space_size=4096 server --dev --watch-poll",
+    "start": "bin/bpanel",
     "version": "node scripts/version.js",
     "preinstall": "node scripts/preinstall.js",
     "clean": "npm run clear:plugins && rm -rf ./dist/*",
@@ -18,6 +16,9 @@
     "test": "karma start configs/karma.conf.js",
     "test:watch": "karma start configs/karma.conf.js --autoWatch",
     "test:server": "mocha --reporter spec --watch server/test"
+  },
+  "bin": {
+    "bpanel": "./bin/bpanel"
   },
   "lint-staged": {
     "*.{js,json,css,jsx,scss}": [
