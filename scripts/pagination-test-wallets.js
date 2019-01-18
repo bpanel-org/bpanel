@@ -9,11 +9,16 @@ module.exports = async (node, config, logger, wallet) => {
   const feeRate = network.minRelay * 10; // for some reason bc segwit??!!
   const wdb = wallet.wdb;
 
-  const numInitBlocks = 144 * 3; // to activate segwit
-  const numTxBlocks = 10;
-  const numTxPerBlock = 10;
-  const maxOutputsPerTx = 4;
-  const minSend = 50000;
+  const numInitBlocks = 144 * 3;  // Initial blocks mined to activate SegWit.
+                                  // Miner primary/default then evenly disperses
+                                  // all funds to other wallet accounts
+
+  const numTxBlocks = 10;         // How many blocks to randomly fill with txs
+  const numTxPerBlock = 10;       // How many txs to try to put in each block
+  // (due to the random tx-generation, some txs will fail due to lack of funds)
+
+  const maxOutputsPerTx = 4;      // Each tx will have a random # of outputs
+  const minSend = 50000;          // Each tx output will have a random value
   const maxSend = 100000;
 
   // We are going to bend time, and start our blockchain in the past!
