@@ -18,7 +18,7 @@ module.exports = async (node, config, logger, wallet) => {
 
   // We are going to bend time, and start our blockchain in the past!
   let virtualNow = network.now() - 60 * 10 * (numInitBlocks + numTxBlocks + 1);
-  const blockInterval = 60 * 10; // ten mimnutes
+  const blockInterval = 60 * 10; // ten minutes
 
   const walletNames = [
     'Powell',
@@ -112,7 +112,7 @@ module.exports = async (node, config, logger, wallet) => {
   logger.info('Creating a big mess!...');
   for (let b = 0; b < numTxBlocks; b++) {
     for (let t = 0; t < numTxPerBlock; t++) {
-      // Randomly select reicipents for this tx
+      // Randomly select recipients for this tx
       const outputs = [];
       const numOutputs = Math.floor(Math.random() * maxOutputsPerTx) + 1;
       for (let o = 0; o < numOutputs; o++) {
