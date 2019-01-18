@@ -42,8 +42,8 @@
     "npm": ">=5.7.1"
   },
   "dependencies": {
-    "@bpanel/bpanel-ui": "0.0.18",
-    "@bpanel/bpanel-utils": "0.1.7",
+    "@bpanel/bpanel-ui": "0.0.19",
+    "@bpanel/bpanel-utils": "0.1.9",
     "aphrodite": "1.2.5",
     "autoprefixer": "9.4.5",
     "base64-inline-loader": "1.1.1",
@@ -55,9 +55,9 @@
     "bcurl": "0.1.4",
     "bfile": "~0.1.3",
     "binet": "~0.3.3",
-    "bledger": "bcoin-org/bledger",
+    "bledger": "~0.1.4",
     "blgr": "0.1.4",
-    "bmultisig": "bcoin-org/bmultisig",
+    "bmultisig": "~1.0.2",
     "body-parser": "1.18.2",
     "bootstrap": "4.1.2",
     "bsert": "~0.0.5",
