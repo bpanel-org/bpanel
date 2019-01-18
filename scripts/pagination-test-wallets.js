@@ -9,7 +9,7 @@ module.exports = async (node, config, logger, wallet) => {
   const feeRate = network.minRelay * 10; // for some reason bc segwit??!!
   const wdb = wallet.wdb;
 
-  const numInitBlocks = 144 * 3; //. to activate segwit
+  const numInitBlocks = 144 * 3; // to activate segwit
   const numTxBlocks = 10;
   const numTxPerBlock = 10;
   const maxOutputsPerTx = 4;
@@ -112,7 +112,7 @@ module.exports = async (node, config, logger, wallet) => {
   logger.info('Creating a big mess!...');
   for (let b = 0; b < numTxBlocks; b++) {
     for (let t = 0; t < numTxPerBlock; t++) {
-      // TO
+      // Randomly select reicipents for this tx
       const outputs = [];
       const numOutputs = Math.floor(Math.random() * maxOutputsPerTx) + 1;
       for (let o = 0; o < numOutputs; o++) {
@@ -130,7 +130,7 @@ module.exports = async (node, config, logger, wallet) => {
         });
       }
 
-      // FROM
+      // Randomly choose a sender for this tx
       const sendWallet = wallets[Math.floor(Math.random() * wallets.length)];
       const sendAcct = accountNames[Math.floor(Math.random() * wallets.length)];
       try {
