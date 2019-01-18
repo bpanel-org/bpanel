@@ -1,7 +1,8 @@
 const webpack = require('webpack');
 const path = require('path');
 
-const { DIST_DIR, resolveRoot } = require('./constants');
+const { DIST_DIR } = require('./constants');
+const { resolveRoot } = require('./utils');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const vendorManifest = path.join(DIST_DIR, '[name]-manifest.json');
 

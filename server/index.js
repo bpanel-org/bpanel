@@ -12,7 +12,7 @@ const { execSync } = require('child_process');
 const os = require('os');
 const { createLogger } = require('./logger');
 const chokidar = require('chokidar');
-const { resolveRoot } = require('../configs/constants');
+const { resolveRoot } = require('../configs/utils');
 
 const webpackArgs = [];
 

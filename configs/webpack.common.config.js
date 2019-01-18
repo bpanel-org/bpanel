@@ -4,7 +4,8 @@ const webpack = require('webpack');
 const WebpackShellPlugin = require('webpack-synchronizable-shell-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const { resolveRoot, SRC_DIR, SERVER_DIR, ROOT_DIR } = require('./constants');
+const { SRC_DIR, SERVER_DIR, ROOT_DIR } = require('./constants');
+const { resolveRoot } = require('./utils');
 
 // can be passed by server process via bcfg interface
 // or passed manually when running webpack from command line
