@@ -37,8 +37,9 @@ function getClientInfo(config, clientHealth) {
 
 function getClientsInfo(req, res) {
   const { logger, clients } = req;
-  const clientInfo = {};
+  logger.debug('handling GET /clients/');
 
+  const clientInfo = {};
   for (let [, client] of clients) {
     if (!client.str('chain'))
       logger.warning(
@@ -53,7 +54,9 @@ function getClientsInfo(req, res) {
 }
 
 async function getDefaultClientInfo(req, res, next) {
-  const { config } = req;
+  const { logger, config } = req;
+  logger.debug('handling GET /clients/default');
+
   let defaultClientConfig;
   try {
     defaultClientConfig = await getDefaultConfig(config);
@@ -75,6 +78,7 @@ async function clientsHandler(req, res) {
   let token;
   const { method, path, body, query, params, logger, clients } = req;
   const { id } = params;
+  logger.debug('handling USE /clients/:id/:client');
 
   if (!clients.has(id))
     return res.status(404).json({
@@ -150,6 +154,8 @@ async function clientsHandler(req, res) {
 // attaches `clientHealth` to req object
 async function testClientsHandler(req, res, next) {
   const { logger, query, params, body } = req;
+  logger.debug('handling USE /clients/:id/');
+
   let config, configOptions;
   if ((query && query.health) || (body && body.health)) {
     const { id } = params;
@@ -197,6 +203,8 @@ async function testClientsHandler(req, res, next) {
 
 async function getConfigHandler(req, res) {
   const { logger, clientHealth } = req;
+  logger.debug('handling GET /clients/:id/');
+
   let config;
   try {
     config = await getConfig(req.params.id);

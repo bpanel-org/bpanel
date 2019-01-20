@@ -73,7 +73,7 @@
     "express": "4.16.2",
     "file-loader": "2.0.0",
     "font-awesome": "4.7.0",
-    "hs-client": "~0.0.4",
+    "hs-client": "0.0.4",
     "hsd": "handshake-org/hsd#b75e48e5158b2157fb9f7d040dd4951f7d0f47fe",
     "husky": "0.15.0-rc.7",
     "level-js": "2.2.4",

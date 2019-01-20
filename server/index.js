@@ -9,8 +9,13 @@ process.title = 'bpanel';
 const path = require('path');
 const os = require('os');
 const { createLogger } = require('./logger');
-const chokidar = require('chokidar');
 const express = require('express');
+
+// Import app server utilities and modules
+const SocketManager = require('./socketManager');
+const { attach, configHelpers } = require('./utils');
+const endpoints = require('./endpoints');
+const { loadConfig } = configHelpers;
 
 // network information
 const networks = {
@@ -19,34 +24,11 @@ const networks = {
   handshake: require('hsd/lib/protocol/networks')
 };
 
-// Import express middlewares
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const compression = require('compression');
-
-// Import app server utilities and modules
-const SocketManager = require('./socketManager');
-const { attach, apiFilters, pluginUtils, configHelpers } = require('./utils');
-const endpoints = require('./endpoints');
-
-const { isBlacklisted } = apiFilters;
-const { getPluginEndpoints } = pluginUtils;
-const { loadConfig } = configHelpers;
-
 // Setup app server
 function resolveIndex(req, res) {
   req.logger.debug('Caught request in resolveIndex: %s', req.path);
   res.sendFile(path.resolve(__dirname, '../dist/index.html'));
 }
-
-// black list filter
-function forbiddenHandler(req, res) {
-  return res.json(403, {
-    error: { message: 'Forbidden', code: 403 }
-  });
-}
-
-let configsMap = new Map();
 
 // Init bPanel
 module.exports = async (config = {}) => {
@@ -64,9 +46,6 @@ module.exports = async (config = {}) => {
 
   // Init app express server
   const app = express.Router();
-  app.use(bodyParser.json());
-  app.use(cors());
-  app.use(compression());
 
   // build whitelisted ports list for wsproxy
   // can add other custom ones via `proxy-ports` config option
@@ -87,24 +66,9 @@ module.exports = async (config = {}) => {
     ports
   });
 
-  app.use((req, res, next) => {
-    try {
-      if (isBlacklisted(bpanelConfig, req)) return forbiddenHandler(req, res);
-      next();
-    } catch (e) {
-      next(e);
-    }
-  });
-
   app.use(
     express.static(path.resolve(__dirname, '../dist'), {
-      index: 'index.html',
-      setHeaders: function(res, path) {
-        if (path.endsWith('.gz')) {
-          res.setHeader('Content-Encoding', 'gzip');
-          res.setHeader('Content-Type', 'application/javascript');
-        }
-      }
+      index: 'index.html'
     })
   );
 
@@ -112,29 +76,18 @@ module.exports = async (config = {}) => {
 
   // add utilities to the req object
   // for use in the api endpoints
-  // TODO: Load up client configs and attach to req object here
   app.use((req, res, next) => {
     req.logger = logger;
     req.config = bpanelConfig;
-    req.clients = configsMap;
+    req.clients = config.configsMap;
     next();
   });
 
-  /*
-   * Setup backend plugins
-   */
-
-  const { beforeMiddleware, afterMiddleware } = getPluginEndpoints(
-    bpanelConfig,
-    logger
-  );
-
   // compose endpoints
-  const apiEndpoints = [...beforeMiddleware];
+  const apiEndpoints = [];
   for (let key in endpoints) {
     apiEndpoints.push(...endpoints[key]);
   }
-  apiEndpoints.push(...afterMiddleware);
 
   for (let endpoint of apiEndpoints) {
     try {
@@ -165,23 +118,6 @@ module.exports = async (config = {}) => {
   socketManager.on('error', e =>
     logger.context('socket-manager').error(e.message)
   );
-
-  // watch the config file
-  // subroutine to watch config file directory and maintain
-  // map of config files
-  // every time a config file is updated, rebuild map of config files
-  // map of config files is global variable that is attached to every
-  // request via express middleware
-  // TODO: wrap in if statement to allow turning off
-  const configFile = path.resolve(os.homedir(), '.bpanel/config.js');
-  chokidar
-    .watch([configFile], {
-      usePolling: bpanelConfig.bool('dynamicclients'),
-      useFsEvents: bpanelConfig.bool('dynamicclients')
-    })
-    .on('all', () => {
-      logger.context('chokidar').debug('config file change');
-    });
 
   // Export app, clients, & utils
   return {
