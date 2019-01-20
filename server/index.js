@@ -67,7 +67,7 @@ module.exports = async (config = {}) => {
   });
 
   app.use(
-    express.static(path.resolve(__dirname, '../dist'), {
+    express.static(path.resolve(__dirname, '../static'), {
       index: 'index.html'
     })
   );
@@ -101,8 +101,6 @@ module.exports = async (config = {}) => {
   app.get('/favicon.ico', (req, res) => {
     res.send();
   });
-
-  app.get('/*', resolveIndex);
 
   // This must be the last middleware so that
   // it catches and returns errors
