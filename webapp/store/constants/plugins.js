@@ -1,1 +1,0 @@
-export const ADD_PLUGIN_META = 'ADD_PLUGIN_META';
