@@ -7,7 +7,7 @@ const MultisigClient = require('bmultisig/lib/client');
 const nodeClients = {
   bitcoin: require('bclient').NodeClient,
   bitcoincash: require('bclient').NodeClient,
-  handshake: require('hs-client').nodeClient
+  handshake: require('hs-client').NodeClient
 };
 
 const walletClients = {
