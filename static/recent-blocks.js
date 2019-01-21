@@ -1,16 +1,7 @@
 import { getClient, chain as chainUtils } from '@bpanel/bpanel-utils';
 
 const client = getClient('_docker');
-const height = (144 * 3) + 20;
 console.log('client:', client);
-
-(async () => {
-  const testBlock = await client.node.getBlock(350);
-  console.log('getBlock:', testBlock);
-
-  const testBlockRPC = await client.node.execute('getblock', [testBlock.hash, true, true]);
-  console.log('RPC:', testBlockRPC);
-})();
 
 const app = document.getElementById('app');
 const listDiv = document.createElement('div');
@@ -27,7 +18,7 @@ app.appendChild(listDiv);
 app.appendChild(blockDiv);
 app.appendChild(txDiv);
 
-async function getRecentBlocks(n = 10) {
+async function getRecentBlocks(n = 10, height) {
   const { getBlocksInRange } = chainUtils;
   let count = n;
   // if we have fewer blocks then the range we want to retrieve
@@ -58,7 +49,17 @@ const showBlock = async function (hash) {
 window.showBlock = showBlock;
 
 (async () => {
-  const blocks = await getRecentBlocks(10);
+  const testBlock = await client.node.getBlock(350);
+  console.log('getBlock:', testBlock);
+
+  const testBlockRPC = await client.node.execute('getblock', [testBlock.hash, true, true]);
+  console.log('RPC:', testBlockRPC);
+
+  const nodeInfo = await client.node.getInfo();
+  console.log('getInfo:', nodeInfo);
+  const currentHeight = nodeInfo.chain.height;
+
+  const blocks = await getRecentBlocks(10, currentHeight);
   let blocksList = '<h3>Recent Blocks:</h3><br>';
   for (const block of blocks) {
     const blockHash = block.hash;
