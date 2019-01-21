@@ -46,6 +46,7 @@ module.exports = async (config = {}) => {
 
   // Init app express server
   const app = express.Router();
+  app.use(express.json());
 
   // build whitelisted ports list for wsproxy
   // can add other custom ones via `proxy-ports` config option
