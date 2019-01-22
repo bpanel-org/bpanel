@@ -57,7 +57,7 @@
     "binet": "~0.3.3",
     "bledger": "~0.1.5",
     "blgr": "0.1.4",
-    "bmultisig": "~1.0.2",
+    "bmultisig": "bcoin-org/bmultisig",
     "body-parser": "1.18.2",
     "bootstrap": "4.1.2",
     "bsert": "~0.0.5",
