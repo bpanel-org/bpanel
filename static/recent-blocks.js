@@ -49,7 +49,7 @@ const showBlock = async function (hash) {
 window.showBlock = showBlock;
 
 (async () => {
-  const testBlock = await client.node.getBlock(350);
+  const testBlock = await client.node.getBlock(1);
   console.log('getBlock:', testBlock);
 
   const testBlockRPC = await client.node.execute('getblock', [testBlock.hash, true, true]);
