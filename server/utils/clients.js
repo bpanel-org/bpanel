@@ -66,7 +66,11 @@ function clientFactory(config) {
 
   // set fallback network configs from `uri` config if set
   let port = config.int('port', network.rpcPort);
-  let hostname = config.str('node-host') || config.str('host', '127.0.0.1');
+  let hostname = 'localhost';
+  if (config.str('node-host')) hostname = config.str('node-host');
+  else if (config.str('host')) hostname = config.str('host');
+  else if (config.str('hostname')) hostname = config.str('hostname');
+
   let protocol = config.str('protocol', 'http:');
 
   let url = config.str('url') || config.str('node-uri');
