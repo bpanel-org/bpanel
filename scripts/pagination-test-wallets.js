@@ -9,16 +9,16 @@ module.exports = async (node, config, logger, wallet) => {
   const feeRate = network.minRelay * 10; // for some reason bc segwit??!!
   const wdb = wallet.wdb;
 
-  const numInitBlocks = 144 * 3;  // Initial blocks mined to activate SegWit.
-                                  // Miner primary/default then evenly disperses
-                                  // all funds to other wallet accounts
+  const numInitBlocks = 144 * 3; // Initial blocks mined to activate SegWit.
+  // Miner primary/default then evenly disperses
+  // all funds to other wallet accounts
 
-  const numTxBlocks = 10;         // How many blocks to randomly fill with txs
-  const numTxPerBlock = 10;       // How many txs to try to put in each block
+  const numTxBlocks = 10; // How many blocks to randomly fill with txs
+  const numTxPerBlock = 10; // How many txs to try to put in each block
   // (due to the random tx-generation, some txs will fail due to lack of funds)
 
-  const maxOutputsPerTx = 4;      // Each tx will have a random # of outputs
-  const minSend = 50000;          // Each tx output will have a random value
+  const maxOutputsPerTx = 4; // Each tx will have a random # of outputs
+  const minSend = 50000; // Each tx output will have a random value
   const maxSend = 100000;
 
   // We are going to bend time, and start our blockchain in the past!
@@ -60,19 +60,28 @@ module.exports = async (node, config, logger, wallet) => {
 
   logger.info('Creating wallets and accounts...');
   for (const wName of walletNames) {
-    const newWallet = await wdb.create({
-      id: wName,
-      witness: Math.random() < 0.5
-    });
-
-    wallets.push(newWallet);
-
-    for (const aName of accountNames) {
-      await newWallet.createAccount({
-        name: aName,
+    try {
+      const newWallet = await wdb.create({
+        id: wName,
         witness: Math.random() < 0.5
       });
+
+      wallets.push(newWallet);
+
+      for (const aName of accountNames) {
+        await newWallet.createAccount({
+          name: aName,
+          witness: Math.random() < 0.5
+        });
+      }
+    } catch (e) {
+      logger.error(`Error creating wallet ${wName}:`, e.message);
     }
+  }
+
+  if (!wallets.length) {
+    logger.info('No wallets created, likely this script has already been run');
+    return;
   }
   accountNames.push('default');
 
