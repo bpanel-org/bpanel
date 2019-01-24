@@ -132,7 +132,7 @@ module.exports = async (node, config, logger, wallet) => {
       for (let o = 0; o < numOutputs; o++) {
         const recWallet = wallets[Math.floor(Math.random() * wallets.length)];
         const recAcct =
-          accountNames[Math.floor(Math.random() * wallets.length)];
+          accountNames[Math.floor(Math.random() * accountNames.length)];
 
         const recAddr = await recWallet.receiveAddress(recAcct);
         const value = Math.floor(
