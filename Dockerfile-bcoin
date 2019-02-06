@@ -14,7 +14,7 @@ FROM base AS build
 RUN pacman -Syu --noconfirm base-devel unrar git python2 \
     && ln -s /usr/bin/python2 /usr/bin/python
 
-ARG repo=bcoin-org/bcoin
+ARG repo=bpanel-org/bcoin#experimental
 
 # use this to bust the build cache
 ARG rebuild=0

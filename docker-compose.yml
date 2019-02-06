@@ -48,7 +48,7 @@ services:
 
   bcoin:
     ## Use image to to pull from docker hub
-    image: bpanel/bcoin:experimental
+    image: bpanel/bcoin
     ## Build to use local Dockerfile-bcoin
     # build:
     #   context: .
