@@ -28,26 +28,16 @@ GitHub and doesn't reinstall them which breaks the build.
 
 ## Quick Start
 
-### With an existing Node
-If you already have a bcoin node running that you would like to use bPanel to
-interact with, add the relevant configurations (`uri`, `api-key`, `network` etc.)
-to a configuration file `~/.bpanel/clients/default.conf` and run:
-
 ```bash
 npm install
 npm start
 ```
 
-You can save as many confs for as many compatible nodes as you want and use
-the argument `client-id` to connect to them. For example, save another set
-of configurations to a file `~/.bpanel/clients/main.conf` and run:
+You can add configurations for your node with the
+[Connection Manager plugin](https://github.com/bpanel-org/connection-manager).
 
-```bash
-npm start -- --client-id=main
-```
-
-Configurations can also be passed via the command line or environment variables prefaced
-with `BPANEL_`. Read more about configuring bPanel [here](#configuration).
+Read more about configuring bPanel and nodes you would like
+to interface with [here](#configuration).
 
 ### With Docker
 
