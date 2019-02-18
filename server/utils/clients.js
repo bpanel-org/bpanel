@@ -2,7 +2,7 @@ const { parse: urlParse } = require('url');
 const assert = require('bsert');
 const Config = require('bcfg');
 
-const MultisigClient = require('bmultisig/lib/client');
+const { MultisigClient } = require('bmultisig-client');
 
 const nodeClients = {
   bitcoin: require('bclient').NodeClient,
