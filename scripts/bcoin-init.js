@@ -1,5 +1,4 @@
 /* eslint-disable no-console */
-
 const bcoin = require('bcoin');
 const fs = require('bfile');
 const crypto = require('crypto');

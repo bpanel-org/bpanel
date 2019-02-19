@@ -1,74 +1,26 @@
-import { combineReducers, createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunkMiddleware from 'redux-thunk';
 import bsockMiddleware from 'bsock-middleware';
 import effects from 'effects-middleware';
-import { persistStore, persistReducer } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
+import { persistStore } from 'redux-persist';
 
+import { errorCatcherMiddleware, clientMiddleware } from './middleware';
+import getPersistedReducer from './rootReducer';
 import { getConstants } from '../plugins/plugins';
-import {
-  loadPlugins,
-  pluginMiddleware,
-  getPluginReducers,
-  getPersistWhiteList
-} from '../plugins/plugins';
-import * as reducers from './reducers';
-
-function errorCatcherMiddleware(errorHandler) {
-  return function(store) {
-    return function(next) {
-      return function(action) {
-        try {
-          return next(action);
-        } catch (err) {
-          const message = `There was an error in the middleware for the action ${
-            action.type
-          }: `;
-          errorHandler(message, err, store.getState, action, store.dispatch);
-          return err;
-        }
-      };
-    };
-  };
-}
+import { loadPlugins, pluginMiddleware } from '../plugins/plugins';
 
 export default async () => {
   // load plugin information before setting up app and store
   const appConfig = await import('../config/appConfig');
   const config = await appConfig.default();
   await loadPlugins(config);
-
-  const rootPersistConfig = {
-    key: 'root',
-    storage,
-    whitelist: []
-  };
-
-  const pluginsPersistConfig = {
-    key: 'plugins',
-    storage,
-    whitelist: getPersistWhiteList()
-  };
-
-  // persistReducer will break the store if there are no
-  // plugin reducers to pass it so set to null if getPluginReducers()
-  // doesn't pass anything
-  let pluginReducers = getPluginReducers();
-  pluginReducers = pluginReducers
-    ? persistReducer(pluginsPersistConfig, pluginReducers)
-    : null;
-
-  const rootReducer = combineReducers({
-    ...reducers,
-    plugins: pluginReducers
-  });
-
-  const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
+  const persistedReducer = getPersistedReducer();
 
   const middleware = [
     // eslint-disable-next-line no-console
     errorCatcherMiddleware(console.error),
+    clientMiddleware,
     thunkMiddleware,
     pluginMiddleware,
     effects
@@ -82,7 +34,7 @@ export default async () => {
   if (NODE_ENV === 'development') {
     const composeEnhancers = composeWithDevTools({
       autoPause: true,
-      maxAge: 10
+      maxAge: 15
     });
     debug = true;
     middleware.push(bsockMiddleware({ debug, listeners }));

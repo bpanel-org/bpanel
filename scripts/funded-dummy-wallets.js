@@ -1,4 +1,4 @@
-const { protocol: consensus } = require('bcoin');
+const { protocol: { consensus } } = require('bcoin');
 
 const makeWallets = async (node, config, logger, wallet) => {
   const network = node.network.type;
@@ -8,7 +8,7 @@ const makeWallets = async (node, config, logger, wallet) => {
   const miner = node.miner;
   const chain = node.chain;
 
-  if (network === 'main' || network === 'regtest')
+  if (network === 'main' || network === 'testnet')
     logger.warning(
       `You probably don't want to be running the miner on the ${network} network. Mining
 on a production network can seriously impact performance of your host machine and is generally

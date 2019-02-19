@@ -14,8 +14,9 @@ For complete developer and API documentation, visit our website: https://bpanel.
 - [Managing Plugins](#managing-plugins)
 - [Configuration](#configuration)
 - [About the Docker Environment](#about-the-docker-environment)
+- [Logging](#logging)
 - [Extending bPanel](#extending-bpanel)
-
+- [Troubleshooting & FAQ](#troubleshooting--faq)
 ## Dependencies
 
 - npm >= 5.7.1
@@ -27,26 +28,16 @@ GitHub and doesn't reinstall them which breaks the build.
 
 ## Quick Start
 
-### With an existing Node
-If you already have a bcoin node running that you would like to use bPanel to
-interact with, add the relevant configurations (`uri`, `api-key`, `network` etc.)
-to a configuration file `~/.bpanel/clients/default.conf` and run:
-
 ```bash
 npm install
 npm start
 ```
 
-You can save as many confs for as many compatible nodes as you want and use
-the argument `client-id` to connect to them. For example, save another set
-of configurations to a file `~/.bpanel/clients/main.conf` and run:
+You can add configurations for your node with the
+[Connection Manager plugin](https://github.com/bpanel-org/connection-manager).
 
-```bash
-npm start -- --client-id=main
-```
-
-Configurations can also be passed via the command line or environment variables prefaced
-with `BPANEL_`. Read more about configuring bPanel [here](#configuration).
+Read more about configuring bPanel and nodes you would like
+to interface with [here](#configuration).
 
 ### With Docker
 
@@ -64,6 +55,13 @@ progress in your container.
 
 Read more about how to connect a local instance of bPanel to a bcoin node running in docker
 [here](#local-bpanel-dev-using-bcoin-docker-container).
+
+#### Plugins with Docker Compose
+It's possible to set which plugins you want loaded via an environment variable `BPANEL_PLUGINS`.
+The docker compose has this set for you and can be customized according to your needs.
+Note however that once set, they cannot be edited using the methods listed
+[below](#managing-plugins). To make changes, you will need to edit `docker-compose.yml` and
+restart the container. Comment out this environment variable to use the config.js instead.
 
 ## Managing Plugins
 
@@ -141,6 +139,17 @@ BPANEL_HTTPS=true
 BPANEL_TLS_KEY=<path to key>
 BPANEL_TLS_CERT=<path to cert>
 ```
+
+Some plugins require being served over `https`, such as plugins that use hardware wallets.
+This is because WebUSB will not work by default on non `https` sites.
+
+To generate a simple self signed certificate for development or local hosting, use the command:
+
+```bash
+$ openssl req -newkey rsa:2048 -nodes -sha512 -x509 -days 3650 -nodes -subj '/CN=localhost' -out selfsigned.crt -keyout selfsigned.key
+```
+
+Do not use this for production!
 
 ## About the Docker Environment
 
@@ -239,6 +248,17 @@ can also persist your bcoin data within the named `bcoin` volume or on the host 
 Uncomment the relevant `build:` sections in `docker-compose.yml`
 for the services you want to build, then run `docker-compose build`
 
+## Logging
+By default, the bPanel server will log to your console and create a debug.log file in your
+prefix directory (defaults to `~/.bpanel`). The logger can be configured via command line
+arguments, your `config.js`, environment variables (prefaced with `BPANEL_`). See
+[Configuration](#configuration) for more on setting bPanel configurations.
+
+bPanel uses the [blgr](https://github.com/bcoin-org/blgr/) module for logging.
+You can set custom values for level, file, console, and shrink. All but level are
+boolean (true/false). Available options for level are: none, error, warning, info, debug, and spam.
+See [blgr](https://github.com/bcoin-org/blgr/) for more info.
+
 ## Extending bPanel
 
 The bPanel UI is built entirely around plugins.
@@ -267,6 +287,33 @@ With the availability of the bcoin, bcash, and hsd libraries, the webpack build 
 requires an above average amount of memory available. To avoid JS Heap overflows, the
 npm scripts that run webpack (`start`, `start:dev`, and `start:poll`) pass an argument
 `--max_old_space_size` to increase the memory allocation. This can be adjusted as necessary.
+
+#### NPM and NodeJS versions
+There are some weird bugs in npm from early 2018 that would erase any modules installed
+from a GitHub repository when `npm install` is run a second time. If you are getting
+errors about missing packages, make sure you have the right versions:
+
+- npm >= 5.7.1
+- node >= 8.9.4
+
+##### A note about the `$PATH` variable
+Note that bPanel will actually do a check of your system's `npm` version and the process's
+version of node and will fail if these don't reach the minimum requirements. If you believe
+you have the right version of `npm` installed, make sure it is in the `PATH` environment variable.
+
+You can check this by running:
+
+```bash
+$ which npm
+# /usr/local/bin/npm
+```
+
+Make sure the returned path is included in the following return:
+```bash
+$ echo $PATH
+# /usr/local/bin:/usr/local/sbin:/usr/local/lib
+```
+
 
 ## Release Checklist
 The following conditions must be tested before deploying a release. If any of the following

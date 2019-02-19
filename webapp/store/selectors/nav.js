@@ -14,7 +14,6 @@ const getSidebarItems = state => state.nav.sidebar;
  */
 export const sortPluginMetadata = (pluginMeta = []) => {
   assert(Array.isArray(pluginMeta), 'Must pass array of metadata');
-  // const subItems = new Map();
 
   const { parents, subItems } = pluginMeta.reduce(
     ({ parents, subItems }, plugin) => {
@@ -70,7 +69,9 @@ export function getNestedPaths(metadata) {
   assert(Array.isArray(metadata), 'Must pass array of metadata');
   return metadata.reduce((updated, _plugin) => {
     const plugin = { ..._plugin };
-    if (plugin.parent && !/^(http)/.test(plugin.pathName)) {
+    // setting a custom pathName if a sub-item and has no
+    // existing pathName set in metadata
+    if (plugin.parent && !plugin.pathName) {
       // if this plugin is a child then update its pathName property
       // to nest behind the parent
       const parentIndex = metadata.findIndex(

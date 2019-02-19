@@ -1,40 +1,24 @@
-const winston = require('winston');
-const fs = require('bfile');
+const Logger = require('blgr');
+const Config = require('bcfg');
+const assert = require('bsert');
 
-/** Configure the logger */
-const logDir = __dirname.concat('/../logs');
-const env = process.env.NODE_ENV || 'development';
+const loadConfig = require('./utils/loadConfig');
 
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
+function createLogger(_config) {
+  let config = _config;
+  if (!config) config = loadConfig('bpanel');
+  assert(config instanceof Config, 'Must pass Bcfg object to create logger');
+
+  const logger = new Logger();
+  logger.set({
+    filename: config.bool('log-file', true)
+      ? config.location('debug.log')
+      : null,
+    level: config.str('log-level', 'info'),
+    console: config.bool('log-console', true),
+    shrink: config.bool('log-shrink', true)
+  });
+  return logger;
 }
 
-const logger = new winston.Logger({
-  transports: [
-    new winston.transports.File({
-      level: env === 'development' ? 'debug' : 'info',
-      filename: logDir.concat('/logs.log'),
-      handleExceptions: true,
-      json: true,
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-      colorize: false
-    }),
-    new winston.transports.Console({
-      level: 'debug',
-      handleExceptions: true,
-      json: false,
-      colorize: true
-    })
-  ],
-  exitOnError: false
-});
-
-/*
-  Stream is used to allow morgan to style console output
-  in server.js
-*/
-module.exports = logger;
-module.exports.stream = {
-  write: message => logger.info(message)
-};
+module.exports.createLogger = createLogger;

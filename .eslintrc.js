@@ -17,11 +17,13 @@ module.exports = {
         commonjs: true
       },
       globals: {
-        NODE_ENV: true
+        NODE_ENV: true,
+        BPANEL_SOCKET_PORT: true,
+        SECRETS: true
       }
     },
     {
-      files: ['webapp/tests/**/*.js'],
+      files: ['webapp/test/**/*.js', 'server/test/**/*.js'],
       env: {
         mocha: true
       }
@@ -29,7 +31,8 @@ module.exports = {
   ],
   rules: {
     'prettier/prettier': 'error',
-    'no-empty': ['error', { allowEmptyCatch: true }]
+    'no-empty': ['error', { allowEmptyCatch: true }],
+    'no-param-reassign': 'warn'
   },
   settings: {
     react: {

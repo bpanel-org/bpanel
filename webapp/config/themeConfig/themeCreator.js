@@ -10,9 +10,9 @@ const { makeRem, makeGutter } = utils;
 
 const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   /* This if statement gives you access to default themeVariables in your custom theme.
-  ** Declaring your themeVariables as a function gives you access to the default themeVariables as
-  ** an argument to that function.
-  */
+   * Declaring your themeVariables as a function gives you access to the default themeVariables as
+   * an argument to that function.
+   */
   if (typeof _themeVariables === 'function')
     _themeVariables = _themeVariables(themeVariables);
 
@@ -47,6 +47,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     borderTransparent,
     border1,
     border2,
+    borderDark,
     borderRadius,
     /// ***********
     /// TRANSITIONS
@@ -84,9 +85,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
   const appHeight = `calc(100vh - ${footerHeight})`;
   const lowlightGradient =
     themeColors.lowlightGradient ||
-    `linear-gradient(to left, ${themeColors.lowlight1}, ${
-      themeColors.lowlight2
-    })`;
+    `linear-gradient(to left, ${themeColors.lowlight1}, ${themeColors.lowlight2})`;
 
   /// ******
   /// THEME CONFIG
@@ -360,10 +359,23 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
       },
       header: {
         fontWeight: fontWeights.semiBold,
-        textTransform: 'capitalize'
+        textTransform: 'capitalize',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       },
       body: {
         fontWeight: fontWeights.light
+      },
+      hoverRow: {
+        cursor: 'pointer',
+        backgroundColor: themeColors.highlight1 + ' !important'
+      },
+      selectedRow: {
+        backgroundColor: themeColors.lowlight1 + ' !important'
+      },
+      hoverExpandableRow: {
+        cursor: 'pointer'
       }
     },
 
@@ -429,7 +441,11 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'start',
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: 0
+      },
+      verticalHeaderLink: {
+        width: '100%'
       },
       headerText: {
         marginBottom: '-1px',
@@ -442,7 +458,7 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         backgroundColor: themeColors.transparent,
         border: border2,
         borderBottomColor: themeColors.highlight1,
-        zIndex: '1'
+        zIndex: '0'
       },
       headerTextInactive: {
         backgroundColor: themeColors.darkBg,
@@ -487,13 +503,87 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
         fontSize: fontSizeNormal,
         fontWeight: fontWeights.semiBold
       }
+    },
+
+    label: {
+      container: {
+        width: '100%'
+      },
+      description: {
+        fontSize: makeRem(fontSizeSmall),
+        ...makeGutter('margin', { bottom: 0 })
+      },
+      text: {},
+      content: {}
+    },
+
+    paper: {
+      default: {
+        lineHeight: makeRem(fontSizeNormal),
+        color: themeColors.black,
+        padding: makeRem(fontSizeBase),
+        boxShadow: '1px 1px 3px 2px grey inset',
+        ...makeGutter('margin', { bottom: 1 }),
+        paddingBottom: '1px',
+        backgroundColor: themeColors.white
+      },
+      error: {
+        backgroundColor: themeColors.error,
+        color: themeColors.white,
+        boxShadow: 'none'
+      }
+    },
+
+    modal: {
+      container: {
+        background: themeColors.darkerBg,
+        color: themeColors.black
+      },
+      dialog: {
+        borderRadius: '0px',
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 9999,
+        maxWidth: '100%',
+        maxHeight: '100%',
+        overflow: 'auto',
+        width: '50%',
+        minWidth: '450px',
+        padding: makeRem(fontSizeNormal)
+      },
+      content: {
+        backgroundColor: themeColors.lowlight1,
+        border: 'none',
+        borderRadius: '0px'
+      },
+      header: {
+        backgroundColor: themeColors.lightBg,
+        border: 'none',
+        borderRadius: '0px'
+      },
+      footer: {
+        border: 'none',
+        height: makeRem(2, fontSizeBase),
+        fontSize: fontSizeSmall,
+        backgroundColor: themeColors.lightBg
+      },
+      hidden: {
+        display: 'none'
+      },
+      closeButton: {
+        ':hover': {
+          cursor: 'pointer'
+        }
+      }
     }
   };
 
   /* This if statement gives you access to default themeConfig in your custom theme.
-  ** Declaring your themeConfig as a function gives you access to the default theme config as
-  ** an argument to that function.
-  */
+   * Declaring your themeConfig as a function gives you access to the default theme config as
+   * an argument to that function.
+   */
   if (typeof _themeConfig === 'function')
     _themeConfig = _themeConfig(themeVariables, themeConfig);
 
@@ -509,12 +599,15 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     footer,
     button,
     header,
+    label,
     link,
     table,
     expandedRow,
     tableRowStyle,
     tabMenu,
-    text
+    text,
+    paper,
+    modal
   } = mergedThemeConfig;
 
   const styleSheet = {
@@ -527,11 +620,14 @@ const themeCreator = (_themeVariables = {}, _themeConfig = {}) => {
     footer: StyleSheet.create(footer),
     button: StyleSheet.create(button),
     header: StyleSheet.create(header),
+    label: StyleSheet.create(label),
     link: StyleSheet.create(link),
     table: StyleSheet.create(table),
     expandedRow: StyleSheet.create(expandedRow),
     tabMenu: StyleSheet.create(tabMenu),
     text: StyleSheet.create(text),
+    paper: StyleSheet.create(paper),
+    modal: StyleSheet.create(modal),
     themeVariables: mergedThemeVariables,
     logoUrl,
     tableRowStyle

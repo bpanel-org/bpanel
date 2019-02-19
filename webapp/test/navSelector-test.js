@@ -1,12 +1,12 @@
 import { expect, assert } from 'chai';
 import sinon from 'sinon';
+import { plugins } from '@bpanel/bpanel-utils';
 
 import {
   sortPluginMetadata,
   getNavItems,
   getNestedPaths
 } from '../store/selectors/nav';
-import { plugins } from '@bpanel/bpanel-utils';
 
 describe('plugin selectors', () => {
   let sortedPlugins, subItems, parentItems, metadataList;

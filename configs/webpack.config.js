@@ -2,17 +2,11 @@ const path = require('path');
 const os = require('os');
 const webpack = require('webpack');
 
+const merge = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const WebpackShellPlugin = require('webpack-synchronizable-shell-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const {
-  ROOT_DIR,
-  DIST_DIR,
-  SRC_DIR,
-  SERVER_DIR,
-  MODULES_DIR
-} = require('./constants');
+const config = require('./webpack.common.config.js');
+const { ROOT_DIR, DIST_DIR, SRC_DIR, MODULES_DIR } = require('./constants');
 
 // can be passed by server process via bcfg interface
 // or passed manually when running webpack from command line
@@ -38,7 +32,7 @@ module.exports = function(env = {}) {
     console.error('There was an error building DllReferencePlugin:', e);
   }
 
-  return {
+  return merge.smart(config(), {
     context: ROOT_DIR,
     mode: 'development',
     optimization: {
@@ -68,27 +62,6 @@ module.exports = function(env = {}) {
       // generally use poll for mac environments
       poll: env.poll && (parseInt(env.poll) || 1000)
     },
-    resolve: {
-      symlinks: false,
-      extensions: ['-browser.js', '.js', '.json', '.jsx'],
-      // list of aliases are what packages plugins can list as peerDeps
-      // this helps simplify plugin packages and ensures that parent classes
-      // all point to the same instance, e.g bcoin.TX will be same for all plugins
-      alias: {
-        bcoin$: `${MODULES_DIR}/bcoin/lib/bcoin-browser`,
-        bcash$: `${MODULES_DIR}/bcash/lib/bcoin-browser`,
-        hsd$: `${MODULES_DIR}/hsd/lib/hsd-browser`,
-        bledger: `${MODULES_DIR}/bledger/lib/bledger-browser`,
-        bmultisig: `${MODULES_DIR}/bmultisig/lib/bmultisig-browser`,
-        react: `${MODULES_DIR}/react`,
-        'react-redux': `${MODULES_DIR}/react-redux`,
-        'react-loadable': `${MODULES_DIR}/react-loadable`,
-        '&local': path.resolve(bpanelPrefix, 'local_plugins'),
-        '@bpanel/bpanel-utils': `${MODULES_DIR}/@bpanel/bpanel-utils`,
-        '@bpanel/bpanel-ui': `${MODULES_DIR}/@bpanel/bpanel-ui`,
-        tinycolor: 'tinycolor2'
-      }
-    },
     module: {
       rules: [
         {
@@ -105,7 +78,7 @@ module.exports = function(env = {}) {
           exclude: [MODULES_DIR, path.resolve(bpanelPrefix, 'local_plugins')],
           loader: 'babel-loader',
           query: {
-            presets: ['env', 'react', 'stage-3'],
+            presets: ['env', 'react', 'stage-0'],
             plugins: [
               [
                 'syntax-dynamic-import',
@@ -143,31 +116,10 @@ module.exports = function(env = {}) {
       ]
     },
     plugins: plugins.concat(
-      new HtmlWebpackPlugin({
-        title: 'bPanel - A Blockchain Management System',
-        template: `${path.join(SRC_DIR, 'index.template.ejs')}`,
-        inject: 'body'
-      }),
       new MiniCssExtractPlugin({
         filename: '[name].css',
         chunkFilename: '[id].css'
-      }),
-      new WebpackShellPlugin({
-        onBuildStart: {
-          scripts: [
-            `node ${path.resolve(SERVER_DIR, 'clear-plugins.js')}`,
-            `node ${path.resolve(
-              SERVER_DIR,
-              'build-plugins.js'
-            )} --prefix=${bpanelPrefix}`
-          ]
-        }
-      }),
-      new webpack.DefinePlugin({
-        NODE_ENV: `"${process.env.NODE_ENV}"`,
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-        'process.env.BROWSER': JSON.stringify(true)
       })
     )
-  };
+  });
 };
