@@ -1,6 +1,6 @@
 {
   "name": "@bpanel/bpanel",
-  "version": "0.3.0-alpha",
+  "version": "1.0.0-alpha",
   "homepage": "https://bpanel.org",
   "description": "GUI application to interact with a Bcoin Bitcoin node",
   "main": "server/index.js",
