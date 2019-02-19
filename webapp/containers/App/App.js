@@ -74,10 +74,17 @@ class App extends PureComponent {
   }
 
   updateClient(clientInfo) {
-    const { resetClient, getNodeInfo, clientsHydrated, loading } = this.props;
+    const {
+      resetClient,
+      getNodeInfo,
+      clientsHydrated,
+      loading,
+      connectSocket
+    } = this.props;
     // only reset if clients have been hydrated
     // and the node is no longer loading
     if (clientsHydrated && !loading) resetClient(clientInfo);
+    connectSocket();
     getNodeInfo();
   }
 
