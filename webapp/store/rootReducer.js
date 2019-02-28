@@ -43,9 +43,10 @@ export default function getPersistedReducer() {
       state.wallets = undefined;
       state.node = undefined;
       // after this clearing below, it's no longer in the local storage in browser
-      Object.keys(state.plugins).forEach(key => {
-        if (key !== '_persist') state.plugins[key] = undefined;
-      });
+      if (state.plugins)
+        Object.keys(state.plugins).forEach(key => {
+          if (key !== '_persist') state.plugins[key] = undefined;
+        });
     }
 
     return appReducers(state, action);
