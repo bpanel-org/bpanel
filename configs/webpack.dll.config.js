@@ -30,6 +30,9 @@ module.exports = {
     library: '[name]_lib',
     filename: 'vendor.js'
   },
+  node: {
+      fs: 'empty'
+  },
   module: {
     rules: [
       {
