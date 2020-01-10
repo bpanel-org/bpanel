@@ -26,6 +26,9 @@ try {
 }
 
 module.exports = () => ({
+  node: {
+    fs: 'empty',
+  },
   resolve: {
     symlinks: false,
     extensions: ['-browser.js', '.js', '.json', '.jsx'],
